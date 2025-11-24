@@ -1,1 +1,66 @@
-<p>circuit-detail works!</p>
+<!-- HERO VISUEL -->
+<section class="detail-hero">
+  <img [src]="circuit.img" class="hero-img" />
+
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <h1>{{ circuit.titre }}</h1>
+    <p class="location">{{ circuit.localisation }}</p>
+  </div>
+</section>
+
+<!-- CONTENU -->
+<section class="content">
+
+  <!-- Résumé -->
+  <div class="section">
+    <h2>Présentation</h2>
+    <p class="intro">
+      {{ circuit.resume }}
+    </p>
+  </div>
+
+  <!-- Sections en cartes -->
+  <div class="section">
+    <h2>Ce que vous allez découvrir</h2>
+
+    <div class="card-list">
+      <div class="info-card" *ngFor="let t of circuit.tourisme">
+        <span>{{ t }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Moments forts</h2>
+
+    <div class="card-list">
+      <div class="info-card" *ngFor="let a of circuit.aventures">
+        <span>{{ a }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Programme -->
+  <div class="section">
+    <h2>Programme du jour</h2>
+
+    <ol class="programme">
+      <li *ngFor="let p of circuit.programme">
+        {{ p }}
+      </li>
+    </ol>
+  </div>
+
+  <!-- Informations pratiques -->
+  <div class="section">
+    <h2>Informations pratiques</h2>
+
+    <div class="info-box">
+      <p><strong>Durée :</strong> {{ circuit.duree }}</p>
+      <p><strong>Distance :</strong> {{ circuit.localisation }}</p>
+    </div>
+  </div>
+
+</section>

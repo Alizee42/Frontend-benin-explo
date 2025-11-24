@@ -1,0 +1,104 @@
+/* HERO */
+.detail-hero {
+  position: relative;
+  height: 260px;
+}
+
+.hero-img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: brightness(70%);
+}
+
+.hero-content {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: #fff;
+
+  h1 {
+    font-size: 1.9rem;
+    font-weight: 800;
+    margin-bottom: 0.2rem;
+  }
+
+  .location {
+    opacity: 0.9;
+    font-size: 0.95rem;
+  }
+}
+
+/* CONTENU GLOBAL */
+.content {
+  padding: 2rem 1.5rem;
+}
+
+.section {
+  margin-bottom: 2.2rem;
+
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 1.2rem;
+  }
+}
+
+/* INTRO */
+.intro {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: #444;
+}
+
+/* LISTES EN CARTES */
+.card-list {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .card-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.info-card {
+  background: #fff8e4;
+  padding: 1rem;
+  border-radius: 1rem;
+  font-size: 0.98rem;
+  color: #333;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+/* PROGRAMME */
+.programme {
+  padding-left: 1.5rem;
+
+  li {
+    margin-bottom: 0.7rem;
+    font-size: 1rem;
+    color: #333;
+  }
+}
+
+/* INFO BOÎTE */
+.info-box {
+  background: #fff8e4;
+  padding: 1.2rem;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+
+  p {
+    margin: 0.4rem 0;
+    font-size: 1rem;
+  }
+}
