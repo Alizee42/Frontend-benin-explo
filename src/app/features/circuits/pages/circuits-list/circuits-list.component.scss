@@ -1,0 +1,192 @@
+/* 🌄 HERO — beige doux, harmonisé avec le footer */
+.circuits-hero {
+  width: 100%;
+  height: 230px;
+  background: #fff8e4; /* beige clair */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 2rem 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  padding: 1rem;
+  box-shadow: inset 0 -8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.hero-overlay {
+  display: none;
+}
+
+.hero-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--primary); /* bleu */
+  margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+  color: #444;
+  font-size: 1rem;
+  opacity: 0.85;
+}
+
+/* 📌 LISTE DES CIRCUITS */
+.circuits-list {
+  padding: 2rem 0;
+
+  .section-title {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--be-primary, #0A3A2A);
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* 📌 LISTE CIRCUITS */
+.circuits-list {
+  padding: 2rem 0;
+
+  .section-title {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  gap: 1.8rem;
+  grid-template-columns: 1fr;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* 🟦 CARTE CIRCUIT */
+.circuit-card {
+  background: #fff;
+  border-radius: 1.4rem;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  transition: 0.25s ease;
+}
+
+.circuit-card:hover {
+  transform: translateY(-6px);
+}
+
+/* IMAGE */
+.card-img-wrapper {
+  position: relative;
+}
+
+.card-img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  transition: 0.3s ease;
+}
+
+.circuit-card:hover .card-img {
+  transform: scale(1.05);
+}
+
+/* BADGE */
+.card-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #1e3a5f;
+  color: #fff;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* TEXTES CARTE */
+.card-body {
+  padding: 1rem;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.card-excerpt {
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+/* META */
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+
+    .price {
+      font-weight: 700;
+      color: var(--be-primary, #0A3A2A);
+    }
+}
+
+/* BOUTON */
+.btn-view {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: #1e3a5f;
+  color: #fff;
+  border-radius: 0.7rem;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.btn-view:hover {
+  background: #12263b;
+}
+
+/* CTA */
+.cta-create {
+  padding: 3rem 0;
+  /* Section 'Créer un circuit' : couleur douce secondaire */
+  background: linear-gradient(180deg, var(--be-secondary-100, #fff6e5), var(--be-secondary-300, #fde7b3));
+  color: var(--be-dark, #1A1A1A);
+  border-radius: 2rem 2rem 0 0;
+  margin-top: 2rem;
+
+  .cta-title {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--be-primary-700, #083226);
+  }
+
+  .cta-subtitle {
+    opacity: 0.95;
+    margin-bottom: 1.5rem;
+    color: var(--be-muted, #7a7a7a);
+  }
+
+  .cta-button {
+    padding: 0.9rem 1.6rem;
+    background: var(--be-primary-500, #0A3A2A);
+    border-radius: 1rem;
+    text-decoration: none;
+    color: var(--be-on-primary, #ffffff);
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(10,58,42,0.12);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .cta-button:hover {
+    transform: translateY(-3px);
+    background: var(--be-primary-700, #083226);
+    box-shadow: 0 12px 30px rgba(10,58,42,0.16);
+  }
+}

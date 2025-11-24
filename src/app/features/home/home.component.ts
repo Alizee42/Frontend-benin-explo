@@ -24,9 +24,10 @@ export interface Article {
 })
 export class HomeComponent {
   heroImages: string[] = [
-    'assets/images/hero-benin.svg',
-    'assets/images/placeholder-1.svg',
-    'assets/images/placeholder-2.svg'
+    'assets/images/coucherSoleil.avif',
+    'assets/images/pendjari-national-park.jpg',
+    'assets/images/grandPopo.png',
+    'assets/images/124905.jpg.webp'
   ];
   currentHero = 0;
   private _timer: any;

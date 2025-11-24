@@ -1,0 +1,61 @@
+<!-- HERO avec grande image immersive -->
+<section class="circuits-hero">
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <h1 class="hero-title">Explorez nos circuits</h1>
+    <p class="hero-subtitle">
+      Découvrez le Bénin autrement, entre culture, nature et traditions.
+    </p>
+  </div>
+</section>
+
+<!-- LISTE DES CIRCUITS -->
+<section class="circuits-list">
+  <div class="container">
+    <h2 class="section-title">Nos circuits officiels</h2>
+
+    <div class="grid">
+      <div class="circuit-card" *ngFor="let c of circuitsOfficiels">
+
+        <div class="card-img-wrapper">
+          <img [src]="c.img" [alt]="c.nom" class="card-img" />
+          <span class="card-tag">Circuit</span>
+        </div>
+
+        <div class="card-body">
+          <h3 class="card-title">{{ c.nom }}</h3>
+
+          <p class="card-excerpt" *ngIf="c.excerpt">
+            {{ c.excerpt }}
+          </p>
+
+          <div class="card-meta">
+            <span class="duration">{{ c.duree }}</span>
+            <span class="price">{{ c.prix }} €</span>
+          </div>
+
+          <a [routerLink]="['/circuit', c.id]" class="btn-view">
+            Voir le circuit
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-create">
+  <div class="container text-center">
+    <h2 class="cta-title">Créez un circuit sur mesure</h2>
+
+    <p class="cta-subtitle">
+      Choisissez vos activités et construisez votre propre itinéraire personnalisé.
+    </p>
+
+    <a routerLink="/circuit-personnalise" class="cta-button">
+      Créer mon circuit
+    </a>
+  </div>
+</section>
