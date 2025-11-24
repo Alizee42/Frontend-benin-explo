@@ -1,0 +1,35 @@
+<header class="site-header" [class.open]="menuOpen">
+  <div class="header-inner">
+    <!-- Logo à gauche : texte "Bénin", image, puis texte dégradé "Explo" -->
+    <div class="logo">
+      <a routerLink="/" aria-label="Bénin Explo home" class="brand">
+        <span class="brand-text brand-text-left">Bénin</span>
+        <img src="assets/images/Flag_map_of_Benin.svg.png" alt="Bénin" class="brand-image" />
+        <span class="brand-text brand-text-right">Explo</span>
+      </a>
+    </div>
+
+    <!-- Espace flexible -->
+    <div class="spacer"></div>
+
+    <!-- Bouton hamburger (mobile) -->
+    <button
+      class="hamburger"
+      aria-label="Toggle menu"
+      [attr.aria-expanded]="menuOpen ? 'true' : 'false'"
+      (click)="toggleMenu()"
+    >
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
+    <!-- Navigation: mobile (collapsed) / desktop (inline to the right) -->
+    <nav class="nav" [attr.aria-hidden]="!menuOpen ? 'true' : 'false'">
+      <a class="nav-link" routerLink="/" (click)="closeMenu()">Accueil</a>
+      <a class="nav-link" routerLink="/circuit" (click)="closeMenu()">Circuit</a>
+      <a class="nav-link" routerLink="/actualite" (click)="closeMenu()">Actualité</a>
+      <a class="nav-link" routerLink="/contact" (click)="closeMenu()">Contact</a>
+    </nav>
+  </div>
+</header>

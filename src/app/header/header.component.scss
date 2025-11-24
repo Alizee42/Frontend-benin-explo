@@ -1,0 +1,213 @@
+:root {
+  /* Charte couleurs – BÉNIN EXPLO */
+  --be-primary: #0A3A2A; /* Vert foncé */
+  --be-secondary: #F4A300; /* Jaune/or */
+  --be-danger: #D33B2E; /* Rouge terre cuite */
+  --be-light: #FFFFFF; /* Blanc */
+  --be-dark: #1A1A1A; /* Noir profond */
+}
+
+.site-header {
+  /* full-bleed header with gradient + blur (mobile-first compact) */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 0.6rem 0.75rem; /* compact on mobile */
+  display: block;
+  z-index: 1000;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #2e7d321a, #fbc02d0d, #dc35451a);
+  color: var(--be-dark);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid rgba(46,125,50,0.2);
+}
+
+
+
+.header-inner {
+  /* inner wrapper: full width, content spaced between */
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  justify-content: space-between;
+  flex-wrap: nowrap; /* prevent items wrapping to second line on desktop */
+}
+
+.hamburger {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 38px;
+  height: 32px;
+  background: transparent;
+  border: 0;
+  padding: 6px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 1200; /* ensure clickable above nav/content on mobile */
+}
+.hamburger .bar {
+  display: block;
+  height: 2.5px;
+  background: var(--be-light);
+  border-radius: 2px;
+}
+
+.logo img {
+  height: 28px;
+  display: block;
+}
+
+/* Brand: image (Bénin) + gradient text (Explo) */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+.brand-image {
+  height: 34px;
+  width: auto;
+  display: block;
+}
+.brand-text {
+  font-weight: 800;
+  font-size: 1.15rem;
+  line-height: 1;
+  display: inline-block;
+  /* horizontal gradient green -> yellow -> red */
+  background: linear-gradient(90deg, var(--be-primary), var(--be-secondary), var(--be-danger));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+}
+.brand-text-left { background-position: 0% 50%; }
+.brand-text-right { background-position: 100% 50%; }
+
+.nav {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  /* small dropdown panel anchored to the right */
+  background: rgba(10,58,42,0.98);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  transform-origin: top right;
+  transform: scaleY(0);
+  transition: transform 180ms ease, opacity 180ms ease;
+  opacity: 0;
+  z-index: 1099; 
+  overflow: hidden;
+}
+
+.site-header.open .nav {
+  transform: scaleY(1);
+  opacity: 1;
+}
+
+.nav-link {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  transition: all .3s ease;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-size: .85rem;
+  display: inline-block;
+}
+
+/* Active state: explicit and router active class */
+.nav-link.active,
+.nav-link.router-link-active {
+  background: #2e7d32;
+  color: #fbc02d;
+}
+
+.nav-link:hover {
+  background: #fbc02d;
+  color: #2e7d32;
+  transform: translateY(-2px);
+}
+/* Make spacer flexible on all viewports so elements aren't stuck together */
+.spacer { flex: 1 1 auto; min-width: 0; }
+
+/* Push logo and nav to the extremes (left/right) */
+.logo { margin-left: 0; padding-left: 0; }
+.nav { margin-right: 0; }
+
+/* Slight extra touch on very small screens to avoid touching viewport edge */
+@media (max-width: 420px) {
+  .header-inner { padding-left: 0; padding-right: 0.5rem; }
+}
+
+/* Desktop layout */
+@media (min-width: 720px) {
+  .site-header { padding: 1.2rem 2rem; }
+  .hamburger { display: none; }
+  .nav {
+    position: static;
+    transform: none;
+    opacity: 1;
+    flex-direction: row;
+    background: transparent;
+    padding: 0;
+    gap: 1rem;
+    align-items: center;
+    flex: 0 0 auto; /* don't grow unnecessarily */
+  }
+
+  /* nav inline à droite */
+  .header-inner { align-items: center; }
+
+  .nav-link {
+    color: var(--be-dark);
+    padding: 0.35rem 0.5rem;
+    white-space: nowrap; /* avoid breaking link text */
+  }
+
+  .logo img { height: 42px; }
+
+  /* Desktop: ensure nav sits to the right */
+  /* Define explicit order so spacer sits BETWEEN logo and nav */
+  .logo { order: 1; }
+  .spacer { order: 2; flex: 1 1 auto; }
+  .nav { order: 3; }
+  .hamburger { order: 4; }
+
+  /* Make hamburger clickable above other elements when visible */
+  .hamburger { z-index: 1100; }
+}
+
+/* Mobile: make the dropdown full-width if desired */
+@media (max-width: 719px) {
+  .nav {
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-width: auto;
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
+    transform-origin: top center;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 0.9rem 1rem;
+    border-radius: 0.25rem;
+  }
+}

@@ -1,0 +1,60 @@
+<section class="hero" aria-label="Hero slideshow">
+  <div class="hero-slides">
+    <div *ngFor="let img of heroImages; let i = index" class="slide" [class.active]="i === currentHero" [style.backgroundImage]="'url(' + img + ')'" role="img" [attr.aria-hidden]="i===currentHero? 'false':'true'"></div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="container hero-content">
+    <h1>Explorez le <strong>Bénin</strong> autrement</h1>
+    <p class="lead">Lac Nokoué, Ganvié, nature et traditions — partez vivre l'aventure.</p>
+    <a routerLink="/circuit" class="btn btn-warning btn-lg">Découvrir les circuits</a>
+    <!-- Diaporama automatique : pas de contrôles visibles (flèches) -->
+  </div>
+</section>
+
+<section class="circuits">
+  <div class="container">
+    <h2 class="section-title">Nos circuits phares</h2>
+    <div class="row">
+      <div class="col-12 col-md-4" *ngFor="let c of circuits">
+        <div class="card circuit-card mb-4">
+          <img [src]="c.img" class="card-img-top" [alt]="c.title">
+          <div class="card-body">
+            <h5 class="card-title">{{ c.title }}</h5>
+            <p class="card-meta">{{ c.duration }} <span *ngIf="c.price">• {{ c.price }}</span></p>
+            <a routerLink="/circuit" class="btn btn-outline-primary btn-sm">Voir le circuit</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="benefits py-5">
+  <div class="container">
+    <h2 class="section-title">Pourquoi voyager avec Bénin Explo ?</h2>
+    <div class="row text-center mt-4">
+      <div class="col-12 col-md-4" *ngFor="let b of benefits">
+        <img [src]="b.icon" alt="" class="mb-3 benefit-icon">
+        <h5>{{ b.title }}</h5>
+        <p class="text-muted">{{ b.text }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="news py-5">
+  <div class="container">
+    <h2 class="section-title">Actualités / Inspirez-vous</h2>
+    <div class="row mt-3">
+      <div class="col-12 col-md-4" *ngFor="let a of news">
+        <div class="card mb-3">
+          <img [src]="a.img" class="card-img-top" [alt]="a.title">
+          <div class="card-body">
+            <h5 class="card-title">{{ a.title }}</h5>
+            <a routerLink="/actualite" class="btn btn-link">Voir plus</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

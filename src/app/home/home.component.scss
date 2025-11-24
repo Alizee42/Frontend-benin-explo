@@ -1,0 +1,40 @@
+.hero{
+  position: relative;
+  min-height: 56vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  margin: 0; /* remove any margin around hero */
+  padding: 0; /* ensure no padding on the hero itself */
+}
+.hero-slides{ position:absolute; inset:0; }
+.slide{ position:absolute; inset:0; background-size:cover; background-position:center; opacity:0; transition:opacity 800ms ease; }
+.slide.active{ opacity:1; }
+.hero-overlay{
+  position: absolute; inset: 0; background: rgba(0,0,0,0.32);
+}
+.hero-content{ position: relative; color: #fff; text-align:center; padding: 3rem 1rem; z-index:2 }
+
+/* make the container inside hero touch edges so background is full-bleed */
+.hero > .container { padding-left: 0; padding-right: 0; }
+.hero .lead{ color: rgba(255,255,255,0.9); margin-bottom:1rem }
+
+.section-title{ margin-bottom:1rem; font-weight:700 }
+
+.circuit-card{ border:0; box-shadow: 0 8px 20px rgba(0,0,0,0.08); overflow:hidden }
+.circuit-card .card-img-top{ height:180px; object-fit:cover }
+.card-meta{ color: #6c757d; font-size:0.9rem; margin-bottom:1rem }
+
+.benefit-icon{ width:72px; height:72px; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.08)); }
+
+.news .card-img-top{ height:140px; object-fit:cover }
+
+@media (min-width: 720px){
+  .hero{ min-height: 64vh }
+  .hero-content{ padding:4rem 2rem }
+}
+
+.hero-controls .btn { opacity: 0.92 }
+.hero-indicators { display:flex; gap:0.5rem; justify-content:center }
+.indicator{ width:10px; height:10px; border-radius:999px; background: rgba(255,255,255,0.45); border:0 }
+.indicator.active{ background: #fff }

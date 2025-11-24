@@ -1,1 +1,45 @@
-/* You can add global styles to this file, and also import other style files */
+/* Charte graphique globale – BÉNIN EXPLO */
+:root {
+	--be-primary: #0A3A2A;
+	--be-secondary: #F4A300;
+	--be-danger: #D33B2E;
+	--be-light: #FFFFFF;
+	--be-dark: #1A1A1A;
+}
+
+html, body {
+	height: 100%;
+	margin: 0;
+	background: #fff;
+	color: var(--be-dark);
+	font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+/* App-level layout: ensure app-root fills viewport and uses column flex so footer can stick to bottom */
+app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/* Ensure page content doesn't sit under the sticky header */
+main.main {
+	padding-top: 64px; /* header height */
+}
+
+/* Small helpers */
+.container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 1rem;
+}
+
+/* Utility to visually hide logo placeholder if no asset yet */
+.logo img {
+	display: block;
+}
+
