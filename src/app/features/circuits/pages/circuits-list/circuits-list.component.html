@@ -1,60 +1,57 @@
-<!-- HERO avec grande image immersive -->
-<section class="circuits-hero">
-  <div class="hero-overlay"></div>
-
-  <div class="hero-content">
-    <h1 class="hero-title">Explorez nos circuits</h1>
-    <p class="hero-subtitle">
-      Découvrez le Bénin autrement, entre culture, nature et traditions.
+<section class="page-header">
+  <div class="container">
+    <h1 class="title">Nos circuits</h1>
+    <p class="subtitle">
+      Découvrez le Bénin avec nos circuits authentiques, conçus pour vous offrir une expérience inoubliable.
     </p>
   </div>
 </section>
 
-<!-- LISTE DES CIRCUITS -->
-<section class="circuits-list">
+<section class="circuits-section">
   <div class="container">
-    <h2 class="section-title">Nos circuits officiels</h2>
 
-    <div class="grid">
-      <div class="circuit-card" *ngFor="let c of circuitsOfficiels">
+    <!-- Loader -->
+    <div *ngIf="loading" class="loading">
+      Chargement des circuits...
+    </div>
 
-        <div class="card-img-wrapper">
-          <img [src]="c.img" [alt]="c.nom" class="card-img" />
-          <span class="card-tag">Circuit</span>
+    <!-- Cards -->
+    <div class="circuits-grid" *ngIf="!loading">
+      <article class="circuit-card" *ngFor="let c of circuits">
+        
+        <div class="card-image">
+          <img [src]="getImageForCircuit(c)" alt="{{ c.nom }}">
         </div>
 
         <div class="card-body">
           <h3 class="card-title">{{ c.nom }}</h3>
-
-          <p class="card-excerpt" *ngIf="c.excerpt">
-            {{ c.excerpt }}
+          <p class="card-desc">
+            {{ getShortDescription(c) }}
           </p>
 
-          <div class="card-meta">
-            <span class="duration">{{ c.duree }}</span>
-            <span class="price">{{ c.prix }} €</span>
+          <div class="card-infos">
+            <span><i class="ri-time-line"></i> {{ c.dureeIndicative }}</span>
+            <span><i class="ri-wallet-3-line"></i> {{ c.prixIndicatif }} €</span>
           </div>
 
-          <a [routerLink]="['/circuit', c.id]" class="btn-view">
+          <a [routerLink]="['/circuit', c.id]" class="btn-primary">
             Voir le circuit
           </a>
         </div>
 
-      </div>
+      </article>
     </div>
   </div>
 </section>
 
-<!-- CTA -->
-<section class="cta-create">
-  <div class="container text-center">
-    <h2 class="cta-title">Créez un circuit sur mesure</h2>
-
-    <p class="cta-subtitle">
-      Choisissez vos activités et construisez votre propre itinéraire personnalisé.
+<section class="cta-personnalise">
+  <div class="container">
+    <h2>Créer un circuit personnalisé</h2>
+    <p>
+      Vous souhaitez un circuit sur mesure adapté à vos envies ? Nous le concevons pour vous.
     </p>
 
-    <a routerLink="/circuit-personnalise" class="cta-button">
+    <a routerLink="/circuit-personnalise" class="btn-secondary">
       Créer mon circuit
     </a>
   </div>

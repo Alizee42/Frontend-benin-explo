@@ -158,6 +158,35 @@ body.header-light .hamburger .bar {
   background: var(--be-primary-500, #0A3A2A);
 }
 
+/* When header is in 'light' mode (pages with light hero), make mobile nav light
+   so text is readable and hamburger remains visible. This overrides the
+   default green mobile background used on dark pages. */
+
+.site-header.header-light .nav-link {
+  color: var(--be-primary-500, #0A3A2A) !important;
+}
+
+.site-header.header-light .nav-link:hover {
+  background: rgba(245,245,245,0.9) !important;
+  color: var(--be-on-primary, #000000) !important;
+}
+
+/* Ensure the hamburger button itself provides contrast on light pages. */
+.site-header.header-light .hamburger {
+  border-radius: 6px;
+}
+
+.site-header.header-light .hamburger .bar {
+  background: var(--be-primary-500, #0A3A2A) !important;
+}
+
+/* Small visual tweak: make the bars slightly rounded and animate color changes */
+.hamburger .bar {
+  height: 3px;
+  border-radius: 2px;
+  transition: background .18s ease, transform .18s ease;
+}
+
 /* DESKTOP */
 @media (min-width: 720px) {
   .site-header { padding: 1.2rem 2rem; }
@@ -229,4 +258,48 @@ body.header-light .hamburger .bar {
 /* keep previous body.header-light rules as fallback */
 body.header-light .site-header .nav-link {
   color: var(--be-primary-500, #0A3A2A) !important;
+}
+
+/* Final mobile override — placed at EOF to ensure it wins over other rules
+   (matches selectors similar to compiled `_ngcontent` selectors). */
+@media (max-width: 719px) {
+  body.header-light .hamburger .bar,
+  .site-header.header-light .hamburger .bar,
+  .site-header[data-header-light="true"] .hamburger .bar,
+  body.header-light .site-header .hamburger .bar {
+    background: #ffffff !important;
+  }
+}
+
+/* MOBILE OVERRIDES: keep mobile nav green + white text and default active
+   appearance even when a page sets `header-light`. This ensures the mobile
+   menu remains consistent and readable across all pages. */
+@media (max-width: 719px) {
+  /* Force nav background to the default green on mobile */
+  .site-header.header-light .nav,
+  .site-header[data-header-light="true"] .nav,
+  body.header-light .site-header .nav {
+    background: rgba(10,58,42,0.98) !important;
+  }
+
+  /* Force white text for links on mobile */
+  body.header-light .nav-link,
+  .site-header.header-light .nav-link,
+  .site-header[data-header-light="true"] .nav-link {
+    color: #ffffff !important;
+  }
+
+  /* Hamburger bars stay white on mobile for contrast */
+  body.header-light .hamburger .bar,
+  .site-header.header-light .hamburger .bar {
+    background: #ffffff !important;
+  }
+
+  /* Use the default (dark-green) active background and orange text on mobile */
+  body.header-light .nav-link.active,
+  .site-header.header-light .nav-link.active,
+  .site-header[data-header-light="true"] .nav-link.active {
+    background: var(--be-primary-700, #083226) !important;
+    color: var(--be-secondary-500, #F4A300) !important;
+  }
 }

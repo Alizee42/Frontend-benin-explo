@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { CircuitService } from '../../../../services/circuit.service';
+import { CircuitDTO } from '../../../../models/circuit.dto';
 
 @Component({
   selector: 'app-circuits-list',
@@ -9,33 +11,94 @@ import { RouterModule } from '@angular/router';
   templateUrl: './circuits-list.component.html',
   styleUrls: ['./circuits-list.component.scss']
 })
-export class CircuitsListComponent {
+export class CircuitsListComponent implements OnInit {
 
- circuitsOfficiels = [
-  {
-    id: 1,
-    nom: "Circuit Porto-Novo Tour",
-    duree: "1 journée",
-    prix: 120,
-    excerpt: "Découverte culturelle, lieux Vodoun et aventure autour de Porto-Novo.",
-    img: "/assets/images/palais.jpg"
-  },
-  {
-    id: 2,
-    nom: "Aventure Sentinelle du Climat",
-    duree: "2 heures",
-    prix: 15,
-    excerpt: "Chasse au trésor éducative dans la nature pour comprendre le climat.",
-    img: "/assets/images/marche_assigame.jpeg.webp"
-  },
-  {
-    id: 3,
-    nom: "Rivière Noire & Pirogue",
-    duree: "4 heures",
-    prix: 20,
-    excerpt: "Balade en pirogue au cœur de la rivière noire. Nature et immersion totale.",
-    img: "/assets/images/pendjari-national-park.jpg"
+  circuits: CircuitDTO[] = [];
+  loading = true;
+
+  // 🔹 Circuits de démo (utilisés si la BDD est vide ou en erreur)
+  private demoCircuits: CircuitDTO[] = [
+    {
+      id: 1,
+      nom: 'Ouidah Tour',
+      description: 'Un circuit culturel intense retraçant l’histoire du Bénin, entre spiritualité Vodoun, mémoire de l’esclavage et détente en bord de mer.',
+      dureeIndicative: '1 journée',
+      prixIndicatif: 100,
+      formuleProposee: 'circuit',
+      niveau: 'découverte',
+      zoneId: 1,
+      activiteIds: []
+    },
+    {
+      id: 2,
+      nom: 'Possotome & Popo Tour',
+      description: 'Une immersion dans la nature, l’artisanat et les traditions du Mono, entre lac, mer et villages authentiques.',
+      dureeIndicative: '1 journée',
+      prixIndicatif: 110,
+      formuleProposee: 'circuit',
+      niveau: 'nature',
+      zoneId: 2,
+      activiteIds: []
+    },
+    {
+      id: 3,
+      nom: 'Abomey Tour',
+      description: 'Une plongée dans le royaume du Danxomè : histoire, artisanat, spiritualité et traditions royales.',
+      dureeIndicative: '1 journée',
+      prixIndicatif: 110,
+      formuleProposee: 'circuit',
+      niveau: 'culture',
+      zoneId: 3,
+      activiteIds: []
+    },
+    {
+      id: 4,
+      nom: 'Colline Tour - Dassa',
+      description: 'Un parcours spirituel au cœur des collines sacrées de Dassa, entre collines, grottes et lieux sacrés.',
+      dureeIndicative: '1 journée',
+      prixIndicatif: 110,
+      formuleProposee: 'circuit',
+      niveau: 'spirituel',
+      zoneId: 4,
+      activiteIds: []
+    }
+  ];
+
+  // 🔹 Images associées aux circuits (par id, pour le visuel)
+  private imageMap: Record<number, string> = {
+    1: 'https://images.unsplash.com/photo-1526779259212-939e64788e3c',
+    2: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e',
+    3: 'https://images.unsplash.com/photo-1528150177509-2b1470c5c0f5',
+    4: 'https://images.unsplash.com/photo-1521295121783-8a321d551ad2'
+  };
+
+  constructor(private circuitService: CircuitService) {}
+
+  ngOnInit(): void {
+    this.circuitService.getAllCircuits().subscribe({
+      next: (data: CircuitDTO[]) => {
+        if (data && data.length > 0) {
+          this.circuits = data;
+        } else {
+          // Si aucun circuit en base → on affiche les circuits de démo
+          this.circuits = this.demoCircuits;
+        }
+        this.loading = false;
+      },
+      error: (err: any) => {
+        console.error('Erreur chargement circuits', err);
+        this.circuits = this.demoCircuits;
+        this.loading = false;
+      }
+    });
   }
-];
-}
 
+  getImageForCircuit(circuit: CircuitDTO): string {
+    return this.imageMap[circuit.id] || 'assets/images/circuit-default.jpg';
+  }
+
+  getShortDescription(circuit: CircuitDTO): string {
+    const desc = circuit.description || '';
+    return desc.length > 140 ? desc.substring(0, 140) + '…' : desc;
+  }
+}
