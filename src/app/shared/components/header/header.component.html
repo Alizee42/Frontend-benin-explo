@@ -1,18 +1,18 @@
 <header class="site-header" [class.open]="menuOpen">
   <div class="header-inner">
-    <!-- Logo à gauche : texte "Bénin", image, puis texte dégradé "Explo" -->
+
+    <!-- LOGO -->
     <div class="logo">
       <a routerLink="/" aria-label="Bénin Explo home" class="brand">
-        <span class="brand-text brand-text-left">Bénin</span>
-        <img src="assets/images/Flag_map_of_Benin.svg.png" alt="Bénin" class="brand-image" />
-        <span class="brand-text brand-text-right">Explo</span>
+        <!-- Remplacé par le logo fourni dans assets/logos -->
+        <img src="assets/logos/BeninExplo.png" alt="Logo Bénin Explo" class="brand-image" />
       </a>
     </div>
 
-    <!-- Espace flexible -->
+    <!-- FLEX -->
     <div class="spacer"></div>
 
-    <!-- Bouton hamburger (mobile) -->
+    <!-- HAMBURGER -->
     <button
       class="hamburger"
       aria-label="Toggle menu"
@@ -24,12 +24,20 @@
       <span class="bar"></span>
     </button>
 
-    <!-- Navigation: mobile (collapsed) / desktop (inline to the right) -->
+    <!-- NAV -->
     <nav class="nav" [attr.aria-hidden]="!menuOpen ? 'true' : 'false'">
-      <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">Accueil</a>
-      <a class="nav-link" routerLink="/circuit" routerLinkActive="active" (click)="closeMenu()">Circuit</a>
-      <a class="nav-link" routerLink="/actualite" routerLinkActive="active" (click)="closeMenu()">Actualité</a>
-      <a class="nav-link" routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">Contact</a>
+      <a class="nav-link" routerLink="/" routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">Accueil</a>
+
+      <a class="nav-link" routerLink="/circuit" routerLinkActive="active"
+         (click)="closeMenu()">Circuit</a>
+
+      <a class="nav-link" routerLink="/actualite" routerLinkActive="active"
+         (click)="closeMenu()">Actualité</a>
+
+      <a class="nav-link" routerLink="/contact" routerLinkActive="active"
+         (click)="closeMenu()">Contact</a>
     </nav>
+
   </div>
 </header>

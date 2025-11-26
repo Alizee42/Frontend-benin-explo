@@ -1,42 +1,57 @@
 <footer class="site-footer">
   <div class="footer-inner">
 
-    <!-- Bloc Logo + description -->
+    <!-- Logo + description -->
     <div class="footer-top">
       <a class="footer-brand" routerLink="/">
-        <img src="assets/logos/logo-placeholder.svg" alt="Bénin Explo">
+        <img src="assets/logos/BeninExplo.png" alt="Bénin Explo" class="footer-logo" />
       </a>
       <p class="footer-desc">
-        Découvrez les circuits, actualités et expériences au Bénin. 
-        Réservez facilement et partez à l'aventure.
+        Découvrez les circuits, actualités et expériences du Bénin.<br>
+        Partez à l’aventure avec Bénin Explo.
       </p>
     </div>
 
     <!-- Liens -->
     <div class="footer-links">
+      <p class="links-title">Menu</p>
       <a class="footer-link" routerLink="/">Accueil</a>
       <a class="footer-link" routerLink="/circuit">Circuit</a>
       <a class="footer-link" routerLink="/actualite">Actualité</a>
       <a class="footer-link" routerLink="/contact">Contact</a>
     </div>
 
-    <!-- Réseaux + Contact -->
+    <!-- Réseaux + Contact (sans newsletter) -->
     <div class="footer-meta">
 
-      <div class="socials">
-        <a class="social" href="#" aria-label="Facebook">
-          <i class="bi bi-facebook"></i>
-        </a>
-        <a class="social" href="#" aria-label="Instagram">
-          <i class="bi bi-instagram"></i>
-        </a>
+      <!-- Suivez-nous (réseaux sociaux) -->
+      <div class="follow-us">
+        <p class="follow-title">Suivez‑nous</p>
+        <div class="follow-icons">
+            <a class="social social-btn" href="https://facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+              <i class="ri ri-facebook-fill" aria-hidden="true"></i>
+            </a>
+            <a class="social social-btn" href="https://instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <i class="ri ri-instagram-fill" aria-hidden="true"></i>
+            </a>
+            <a class="social social-btn" href="https://tiktok.com/" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+              <i class="ri ri-tiktok-line" aria-hidden="true"></i>
+            </a>
+            <a class="social social-btn" href="https://youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+              <i class="ri ri-youtube-fill" aria-hidden="true"></i>
+            </a>
+          </div>
       </div>
 
-      <div class="contact">
-        <a class="footer-link email" href="mailto:contact&#64;beninexplo.com">contact&#64;beninexplo.com</a>
-        <small class="copyright">© {{ year }} Bénin Explo. Tous droits réservés.</small>
-      </div>
+      <!-- contact-mini removed as requested -->
 
     </div>
+
   </div>
+
+  <!-- Copyright full width under columns -->
+  <div class="footer-copyright">
+    <small>© {{ year }} Bénin Explo — Tous droits réservés.</small>
+  </div>
+
 </footer>

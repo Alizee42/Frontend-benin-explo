@@ -1,305 +1,172 @@
-/* 🌟 HEADER TRANSPARENT PAR DÉFAUT (PAGE FONCÉE – ACCUEIL) */
+/* ==========================================
+   🌿 HEADER BEIGE (non transparent)
+   ========================================== */
 .site-header {
-  position: absolute;
-  top: 0;
-  left: 0;
+  background: var(--be-sand);
+  color: var(--be-dark);
+  padding: 0.9rem 1.3rem;
   width: 100%;
-  padding: 0.6rem 0.75rem;
+  position: sticky;
+  top: 0;
   z-index: 1000;
-  background: linear-gradient(135deg, #2e7d321a, #fbc02d0d, #dc35451a);
-  color: var(--be-light);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255,255,255,0.12);
-  transition: color .3s ease;
 }
 
-/* NOTE: we no longer change the header background for "light" pages.
-   Keep the header visually overlayed; only nav links will change color via
-   `body.header-light` (see selectors below). */
-
-/* 🌟 Couleurs du texte (nav) selon le mode */
-.site-header .nav-link {
-  color: var(--be-light, #ffffff);
-}
-
-/* mode clair → liens bleus */
-/* .site-header.on-light rules removed — use `body.header-light .nav-link` */
-
-/* mode clair → hover */
-/* hover rules handled by `body.header-light .nav-link:hover` */
-
-/* ACTIVE */
-.site-header .nav-link.active,
-.site-header .nav-link.router-link-active {
-  background: var(--be-primary-700, #083226);
-  color: var(--be-secondary-500, #F4A300);
-  border-radius: 6px;
-}
-
-/* active rules handled by `body.header-light .nav-link.active` */
-
-/* Hamburger couleur logique */
-.hamburger .bar {
-  background: var(--be-light, #ffffff);
-}
-
-/* hamburger color for light pages handled below via body.header-light */
-
-/* ------------------------------------------------------ */
-/* TON CSS EXACT CI-DESSOUS – netteté, structure, responsive */
-/* ------------------------------------------------------ */
-
+/* Structure */
 .header-inner {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  width: 100%;
   justify-content: space-between;
 }
 
-.hamburger {
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 38px;
-  height: 32px;
-  padding: 6px;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  z-index: 1200;
-}
-
-.logo img {
-  height: 28px;
-}
-
+/* ==========================================
+   LOGO
+   ========================================== */
 .brand {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.8rem;
   text-decoration: none;
 }
 
 .brand-image {
-  height: 34px;
+  height: 72px;
+  /* agrandi pour meilleure visibilité */
+  width: auto;
+  max-height: none;
+  display: block;
+  padding: 6px;
+}
+
+/* responsive sizes */
+@media (max-width: 850px) {
+  .brand-image {
+    height: 56px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .brand-image {
+    height: 96px;
+  }
 }
 
 .brand-text {
   font-weight: 800;
-  font-size: 1.15rem;
-  background: linear-gradient(90deg, var(--be-primary), var(--be-secondary), var(--be-danger));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* MOBILE NAV */
-.nav {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: rgba(10,58,42,0.98);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: .5rem;
-  transform: scaleY(0);
-  transform-origin: top right;
-  opacity: 0;
-  transition: transform 180ms ease, opacity 180ms ease;
-  z-index: 1099;
-}
-
-.site-header.open .nav {
-  transform: scaleY(1);
-  opacity: 1;
-}
-
-.nav-link {
-  text-decoration: none;
-  font-weight: 600;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
+  font-size: 1.4rem;
   letter-spacing: .5px;
-  text-transform: uppercase;
-  font-size: .85rem;
-  transition: .3s ease;
+  color: var(--be-dark);
 }
 
-/* 🔵 Couleurs par défaut (pages sombres) */
+/* ==========================================
+   NAVIGATION — DESKTOP
+   ========================================== */
+.nav {
+  display: flex;
+  gap: 1.4rem;
+}
+
+/* NAVIGATION — DESKTOP */
 .nav-link {
-  color: #ffffff;
-}
-
-.hamburger .bar {
-  background: #ffffff;
-}
-
-/* 🟡 Version claire AUTOMATIQUE sur circuits */
-body.header-light .nav-link {
-  color: var(--be-primary-500, #0A3A2A) !important;
-}
-
-body.header-light .nav-link:hover {
-  background: var(--be-primary-700, #083226);
-  color: var(--be-on-primary, #ffffff) !important;
-}
-
-body.header-light .nav-link.active,
-body.header-light .nav-link.router-link-active {
-  color: var(--be-primary-500) !important;
-  background: var(--be-active-on-light-bg, rgb(244, 163, 0)) !important;
-  box-shadow: none !important;
-}
-
-body.header-light .hamburger .bar {
-  background: var(--be-primary-500, #0A3A2A);
-}
-
-/* When header is in 'light' mode (pages with light hero), make mobile nav light
-   so text is readable and hamburger remains visible. This overrides the
-   default green mobile background used on dark pages. */
-
-.site-header.header-light .nav-link {
-  color: var(--be-primary-500, #0A3A2A) !important;
-}
-
-.site-header.header-light .nav-link:hover {
-  background: rgba(245,245,245,0.9) !important;
-  color: var(--be-on-primary, #000000) !important;
-}
-
-/* Ensure the hamburger button itself provides contrast on light pages. */
-.site-header.header-light .hamburger {
+  color: var(--be-dark);
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.45rem 0.8rem;
   border-radius: 6px;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  transition: background .25s ease, color .25s ease;
 }
 
-.site-header.header-light .hamburger .bar {
-  background: var(--be-primary-500, #0A3A2A) !important;
+/* 🌟 HOVER PROPRE */
+.nav-link:hover {
+  background: var(--be-green);
+  /* utiliser le vert pour le hover */
+  color: var(--be-gold);
+  /* texte orange/doré */
 }
 
-/* Small visual tweak: make the bars slightly rounded and animate color changes */
-.hamburger .bar {
+/* 🌟 ACTIVE PRO PREMIUM */
+.nav-link.active,
+.nav-link.router-link-active {
+  background: var(--be-green);
+  /* fond vert quand actif */
+  color: var(--be-gold);
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* ==========================================
+   🍔 HAMBURGER (MOBILE)
+   ========================================== */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.bar {
+  width: 26px;
   height: 3px;
-  border-radius: 2px;
-  transition: background .18s ease, transform .18s ease;
+  background: var(--be-dark);
+  border-radius: 3px;
+  transition: .25s;
 }
 
-/* DESKTOP */
-@media (min-width: 720px) {
-  .site-header { padding: 1.2rem 2rem; }
-  .hamburger { display: none; }
-  .nav {
-    position: static;
-    transform: none;
-    opacity: 1;
-    flex-direction: row;
-    background: transparent;
-    padding: 0;
-    gap: 1rem;
+/* ==========================================
+   📱 MODE MOBILE
+   ========================================== */
+@media (max-width: 850px) {
+
+  .hamburger {
+    display: flex;
   }
 
-  .nav-link {
-    padding: 0.35rem 0.5rem;
-    color: var(--be-light);
-  }
-
-  /* desktop: keep using `body.header-light` rules for link color */
-
-  .logo img { height: 42px; }
-}
-
-/* MOBILE FULL WIDTH NAV */
-@media (max-width: 719px) {
   .nav {
-    left: 0;
+    position: absolute;
+    top: 74px;
     right: 0;
     width: 100%;
-    padding: 0.5rem 0.75rem;
-    border-radius: 0;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    padding: 1rem 0;
+    background: var(--be-sand);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+    transform: scaleY(0);
+    transform-origin: top;
+    opacity: 0;
+    transition: all .25s ease;
+  }
+
+  .site-header.open .nav {
+    transform: scaleY(1);
+    opacity: 1;
   }
 
   .nav-link {
-    display: block;
-    padding: 0.9rem 1rem;
-  }
-}
-
-/* FORCE: highest-specificity rules to ensure links become darker on light heroes */
-/* Also support header element data attribute (very high specificity) */
-.site-header[data-header-light="true"] .nav-link {
-  color: var(--be-primary-500, #0A3A2A) !important;
-}
-.site-header[data-header-light="true"] .nav-link:hover {
-  color: var(--be-primary-700, #083226) !important;
-  background: transparent !important;
-}
-.site-header[data-header-light="true"] .nav-link.active,
-.site-header[data-header-light="true"] .nav-link.router-link-active {
-  /* Active link on light hero: yellow background with blue text */
-  color: var(--be-primary-500) !important;
-  background: var(--be-active-on-light-bg, rgb(244, 163, 0)) !important;
-  box-shadow: none !important;
-}
-
-/* Extra higher-specificity selectors including the .nav wrapper to match compiled selectors
-   (do NOT hardcode Angular's _ngcontent attributes; they change between builds). */
-.site-header[data-header-light="true"] .nav .nav-link.active,
-.site-header[data-header-light="true"] .nav .nav-link.router-link-active,
-.site-header.header-light .nav .nav-link.active,
-.site-header.header-light .nav .nav-link.router-link-active {
-  color: var(--be-primary-500) !important;
-  background: var(--be-active-on-light-bg, rgb(244, 163, 0)) !important;
-  box-shadow: none !important;
-}
-
-/* keep previous body.header-light rules as fallback */
-body.header-light .site-header .nav-link {
-  color: var(--be-primary-500, #0A3A2A) !important;
-}
-
-/* Final mobile override — placed at EOF to ensure it wins over other rules
-   (matches selectors similar to compiled `_ngcontent` selectors). */
-@media (max-width: 719px) {
-  body.header-light .hamburger .bar,
-  .site-header.header-light .hamburger .bar,
-  .site-header[data-header-light="true"] .hamburger .bar,
-  body.header-light .site-header .hamburger .bar {
-    background: #ffffff !important;
-  }
-}
-
-/* MOBILE OVERRIDES: keep mobile nav green + white text and default active
-   appearance even when a page sets `header-light`. This ensures the mobile
-   menu remains consistent and readable across all pages. */
-@media (max-width: 719px) {
-  /* Force nav background to the default green on mobile */
-  .site-header.header-light .nav,
-  .site-header[data-header-light="true"] .nav,
-  body.header-light .site-header .nav {
-    background: rgba(10,58,42,0.98) !important;
+    padding: 1rem;
+    font-size: 1rem;
+    color: var(--be-dark);
+    text-align: center;
+    width: 100%;
   }
 
-  /* Force white text for links on mobile */
-  body.header-light .nav-link,
-  .site-header.header-light .nav-link,
-  .site-header[data-header-light="true"] .nav-link {
-    color: #ffffff !important;
+  /* HOVER mobile */
+  .nav-link:hover {
+    background: var(--be-green);
+    color: var(--be-gold);
   }
 
-  /* Hamburger bars stay white on mobile for contrast */
-  body.header-light .hamburger .bar,
-  .site-header.header-light .hamburger .bar {
-    background: #ffffff !important;
-  }
-
-  /* Use the default (dark-green) active background and orange text on mobile */
-  body.header-light .nav-link.active,
-  .site-header.header-light .nav-link.active,
-  .site-header[data-header-light="true"] .nav-link.active {
-    background: var(--be-primary-700, #083226) !important;
-    color: var(--be-secondary-500, #F4A300) !important;
+  /* ACTIVE mobile */
+  .nav-link.active {
+    background: var(--be-green);
+    color: var(--be-gold);
+    font-weight: 700;
   }
 }
