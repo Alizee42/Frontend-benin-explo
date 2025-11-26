@@ -1,94 +1,146 @@
-/* Section titre */
-.page-header {
-  padding: 4.5rem 1rem 3rem; /* ↑ Ajout d’un bon espace en haut */
-  background: var(--be-primary-100);
-  margin-top: 70px; /* selon la hauteur exacte de ton header */
+/* Hero section */
+.circuits-hero {
+  background: linear-gradient(135deg, var(--be-green) 0%, var(--be-sand) 100%);
+  color: var(--be-light);
+  padding: 5rem 1rem 4rem;
+  text-align: center;
 
-  .title {
-    font-size: 2rem;
-    color: var(--be-primary);
-    margin: 0 0 0.5rem;
-    text-align: center;
+  .hero-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
   }
 
-  .subtitle {
-    text-align: center;
-    color: var(--be-gray-700);
-    max-width: 700px;
-    margin: 0.5rem auto 0;
+  .hero-subtitle {
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto;
+    opacity: 0.9;
   }
 }
 
 /* Section circuits */
 .circuits-section {
-  padding: 2rem 0;
+  padding: 3rem 0;
+
+  .filters {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+
+    .filter-btn {
+      background: var(--be-light);
+      border: 2px solid var(--be-gold);
+      color: var(--be-dark);
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s ease;
+
+      &.active {
+        background: var(--be-gold);
+        color: var(--be-light);
+      }
+
+      &:hover {
+        background: var(--be-gold);
+        color: var(--be-light);
+      }
+    }
+  }
 
   .circuits-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.8rem;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
   }
 
   .circuit-card {
     background: var(--be-light);
-    border-radius: 14px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    transition: transform 0.2s ease;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 
     &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      transform: translateY(-8px);
+      box-shadow: 0 12px 35px rgba(0,0,0,0.15);
     }
 
-    .card-image img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      display: block;
+    .card-image {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      &:hover img {
+        transform: scale(1.05);
+      }
+
+      .card-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--be-gold);
+        color: var(--be-dark);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.85rem;
+      }
     }
 
     .card-body {
-      padding: 1.2rem;
+      padding: 1.5rem;
 
       .card-title {
-        font-size: 1.25rem;
+        font-size: 1.4rem;
         font-weight: 700;
-        color: var(--be-primary);
+        color: var(--be-green);
         margin-bottom: 0.5rem;
       }
 
       .card-desc {
-        color: var(--be-gray-700);
-        margin-bottom: 1rem;
+        color: var(--be-dark);
+        opacity: 0.8;
+        margin-bottom: 1.5rem;
         font-size: 0.95rem;
+        line-height: 1.5;
       }
 
-      .card-infos {
+      .card-footer {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 1rem;
-        color: var(--be-muted);
+        align-items: center;
 
-        i {
-          margin-right: 5px;
-          color: var(--be-secondary);
+        .card-price {
+          font-size: 1.2rem;
+          font-weight: 800;
+          color: var(--be-gold);
         }
-      }
 
-      .btn-primary {
-        display: block;
-        text-align: center;
-        padding: 0.6rem;
-        background: var(--be-primary);
-        color: var(--be-on-primary);
-        text-decoration: none;
-        border-radius: 10px;
-        font-weight: 600;
-        transition: background 0.2s;
+        .btn-primary {
+          background: var(--be-gold);
+          color: var(--be-light);
+          padding: 0.7rem 1.2rem;
+          border-radius: 8px;
+          text-decoration: none;
+          font-weight: 600;
+          transition: 0.3s ease;
 
-        &:hover {
-          background: var(--be-primary-700);
+          &:hover {
+            background: #9C7F4A;
+            transform: translateY(-2px);
+          }
         }
       }
     }
@@ -99,31 +151,34 @@
 .cta-personnalise {
   margin-top: 3rem;
   padding: 2.5rem 1rem;
-  background: var(--be-secondary-100);
+  background: var(--be-light);
+  color: var(--be-dark);
   text-align: center;
 
   h2 {
-    color: var(--be-primary);
+    color: var(--be-green);
     font-size: 1.6rem;
   }
 
   p {
     max-width: 600px;
     margin: 0.6rem auto 1.5rem;
-    color: var(--be-gray-700);
+    color: var(--be-dark);
+    opacity: 0.8;
   }
 
   .btn-secondary {
     display: inline-block;
-    background: var(--be-secondary);
+    background: var(--be-gold);
     padding: 0.7rem 1.4rem;
     border-radius: 10px;
-    color: var(--be-on-secondary);
+    color: var(--be-dark);
     text-decoration: none;
     font-weight: 600;
 
     &:hover {
-      background: var(--be-secondary-700);
+      background: #9C7F4A;
+      color: var(--be-light);
     }
   }
 }

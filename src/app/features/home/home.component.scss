@@ -180,7 +180,7 @@
   font-weight: 800;
   margin-bottom: 1.8rem;
   line-height: 1.3;
-  font-size: 2.2rem;
+  font-size: 2.5rem;
 }
 
 .about-title .text-gold {
@@ -207,11 +207,11 @@
 /* TAGS PREMIUM — Fond doré + texte vert */
 .tag {
   background: var(--be-gold);
-  padding: 0.55rem 1.15rem;
+  padding: 0.5rem 1rem;
   border-radius: 50px;
   font-weight: 700;
   color: var(--be-light);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.10);
   transition: 0.25s ease;
@@ -234,7 +234,8 @@
 .about-quote-badge {
   position: absolute;
   bottom: 20px;
-  left: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   background: var(--be-gold);
   color: var(--be-light);
   padding: 0.9rem 1.2rem;
@@ -242,7 +243,7 @@
   border-radius: 12px;
   font-size: 0.95rem;
   box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-  max-width: 400px;
+  white-space: nowrap;
   line-height: 1.4;
 }
 
@@ -432,6 +433,7 @@
   width: 100%;
   color: white;
   z-index: 2;
+  text-align: center;
 }
 
 /* Titre */
@@ -466,18 +468,22 @@
   transform: translateY(-2px);
 }
 
-/* Lien voir tous les circuits */
-.more-link {
-  display: inline-block;
-  margin-top: 1rem;
-  color: var(--be-green);
+/* Bouton plein */
+.btn-primary {
+  background: var(--be-gold);
+  color: var(--be-light);
   font-weight: 700;
-  font-size: 1.05rem;
-  text-decoration: none;
+  border-radius: 8px;
+  padding: .55rem 1.1rem;
+  border: none;
+  transition: .25s ease;
+  backdrop-filter: blur(2px);
 }
 
-.more-link:hover {
-  color: var(--be-gold);
+.btn-primary:hover {
+  background: #9C7F4A;
+  color: var(--be-light);
+  transform: translateY(-2px);
 }
 
 
@@ -486,20 +492,65 @@
    ========================================== */
 .benefits {
   padding: 4rem 0;
+  background: var(--be-sand);
+  color: var(--be-dark);
 }
 
 .benefit-icon {
-  height: 60px;
+  height: 80px;
   filter: drop-shadow(0 2px 6px rgba(0,0,0,0.1));
+  transition: transform 0.3s ease;
+}
+
+.benefit-icon:hover {
+  transform: scale(1.1);
+}
+
+.benefits .section-header .section-kicker {
+  color: var(--be-green);
+}
+
+.benefits .section-header .section-title {
+  color: var(--be-dark);
+}
+
+.benefits h5 {
+  color: var(--be-dark);
+  font-weight: 700;
+}
+
+.benefits p {
+  color: var(--be-dark);
+  opacity: 0.7;
 }
 /* ==========================================
    NEWS SECTION
    ========================================== */
+
+.news {
+  padding: 5rem 0;
+  background: var(--be-light);
+  color: var(--be-dark);
+}
+
+.news .section-header .section-kicker {
+  color: var(--be-green);
+}
+
+.news .section-header .section-title {
+  color: var(--be-dark);
+}
+
 .news-card {
   border-radius: 12px;
   border: none;
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  transition: transform 0.3s ease;
+}
+
+.news-card:hover {
+  transform: translateY(-5px);
 }
 
 .news-card .card-title {
@@ -508,10 +559,66 @@
 }
 
 .news-card a {
-  color: var(--be-green);
+  background: var(--be-gold);
+  color: var(--be-light);
   font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: 0.25s ease;
 }
 
 .news-card a:hover {
-  color: var(--be-gold);
+  background: #9C7F4A;
+  color: var(--be-light);
+}
+
+/* ==========================================
+   CUSTOM CIRCUIT SECTION
+   ========================================== */
+
+.custom-circuit {
+  padding: 5rem 0;
+  background: #F5F5F5; /* Gris clair */
+  color: var(--be-dark);
+}
+
+.custom-circuit .section-kicker {
+  color: var(--be-green);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: .9rem;
+  letter-spacing: 1.5px;
+}
+
+.custom-circuit .section-title {
+  font-size: 2.3rem;
+  font-weight: 800;
+  margin-top: .5rem;
+  color: var(--be-dark);
+}
+
+.custom-circuit .section-subtitle {
+  max-width: 620px;
+  margin: .6rem auto;
+  color: var(--be-dark);
+  opacity: .75;
+  font-size: 1.05rem;
+}
+
+.btn-custom-circuit {
+  background: var(--be-gold);
+  color: var(--be-light);
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 1rem 2rem;
+  border: none;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+  transition: 0.25s ease;
+}
+
+.btn-custom-circuit:hover {
+  background: #9C7F4A;
+  color: var(--be-light);
+  transform: translateY(-3px);
 }

@@ -1,7 +1,7 @@
-<section class="page-header">
+<section class="circuits-hero">
   <div class="container">
-    <h1 class="title">Nos circuits</h1>
-    <p class="subtitle">
+    <h1 class="hero-title">Nos circuits</h1>
+    <p class="hero-subtitle">
       Découvrez le Bénin avec nos circuits authentiques, conçus pour vous offrir une expérience inoubliable.
     </p>
   </div>
@@ -15,12 +15,21 @@
       Chargement des circuits...
     </div>
 
+    <!-- Filters -->
+    <div class="filters" *ngIf="!loading">
+      <button class="filter-btn active">Tous</button>
+      <button class="filter-btn">Culturel</button>
+      <button class="filter-btn">Nature</button>
+      <button class="filter-btn">Aventure</button>
+    </div>
+
     <!-- Cards -->
     <div class="circuits-grid" *ngIf="!loading">
       <article class="circuit-card" *ngFor="let c of circuits">
-        
+
         <div class="card-image">
           <img [src]="getImageForCircuit(c)" alt="{{ c.nom }}">
+          <div class="card-badge">{{ c.dureeIndicative }}</div>
         </div>
 
         <div class="card-body">
@@ -29,14 +38,12 @@
             {{ getShortDescription(c) }}
           </p>
 
-          <div class="card-infos">
-            <span><i class="ri-time-line"></i> {{ c.dureeIndicative }}</span>
-            <span><i class="ri-wallet-3-line"></i> {{ c.prixIndicatif }} €</span>
+          <div class="card-footer">
+            <span class="card-price">{{ c.prixIndicatif }} €</span>
+            <a [routerLink]="['/circuit', c.id]" class="btn-primary">
+              Voir le circuit
+            </a>
           </div>
-
-          <a [routerLink]="['/circuit', c.id]" class="btn-primary">
-            Voir le circuit
-          </a>
         </div>
 
       </article>
