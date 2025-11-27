@@ -66,10 +66,10 @@ export class CircuitsListComponent implements OnInit {
 
   // 🔹 Images associées aux circuits (par id, pour le visuel)
   private imageMap: Record<number, string> = {
-    1: 'https://images.unsplash.com/photo-1526779259212-939e64788e3c',
-    2: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e',
-    3: 'https://images.unsplash.com/photo-1528150177509-2b1470c5c0f5',
-    4: 'https://images.unsplash.com/photo-1521295121783-8a321d551ad2'
+    1: 'assets/images/esclaves.jpg',
+    2: 'assets/images/village.jpg',
+    3: 'assets/images/royal-palaces-of-abomey.jpg',
+    4: 'assets/images/templepython.jpg'
   };
 
   constructor(private circuitService: CircuitService) {}

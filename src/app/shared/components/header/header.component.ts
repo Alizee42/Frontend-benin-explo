@@ -11,11 +11,20 @@ import { RouterModule, Router, NavigationEnd, ActivatedRoute, RouterState } from
 })
 export class HeaderComponent implements OnInit {
   public menuOpen = false;
+  public isCircuitsDropdownOpen = false;
 
   constructor(private router: Router, private route: ActivatedRoute) {}
 
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
+  }
+
+  toggleCircuitsDropdown() {
+    this.isCircuitsDropdownOpen = !this.isCircuitsDropdownOpen;
+  }
+
+  closeCircuitsDropdown() {
+    this.isCircuitsDropdownOpen = false;
   }
 
   closeMenu() {

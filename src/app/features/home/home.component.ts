@@ -33,9 +33,9 @@ export class HomeComponent {
   private _timer: any;
 
   circuits: Circuit[] = [
-    { title: 'Circuit Découverte', duration: '3 jours', price: '€120', img: 'assets/images/placeholder-1.svg' },
-    { title: 'Safari Culturel', duration: '5 jours', price: '€240', img: 'assets/images/placeholder-2.svg' },
-    { title: 'Côte & Plages', duration: '4 jours', price: '€180', img: 'assets/images/placeholder-3.svg' }
+    { title: 'Circuit Découverte', duration: '3 jours', price: '€120', img: 'assets/images/pendjari-national-park.jpg' },
+    { title: 'Safari Culturel', duration: '5 jours', price: '€240', img: 'assets/images/royal-palaces-of-abomey.jpg' },
+    { title: 'Côte & Plages', duration: '4 jours', price: '€180', img: 'assets/images/grandPopo.png' }
   ];
 
   benefits = [
@@ -45,9 +45,9 @@ export class HomeComponent {
   ];
 
   news: Article[] = [
-    { title: 'Ouverture nouvelle route', img: 'assets/images/placeholder-1.svg' },
-    { title: 'Festival culturel 2026', img: 'assets/images/placeholder-2.svg' },
-    { title: 'Expéditions nature 2026', img: 'assets/images/placeholder-3.svg' }
+    { title: 'Ouverture nouvelle route', img: 'assets/images/village.jpg' },
+    { title: 'Festival culturel 2026', img: 'assets/images/culture.jpg' },
+    { title: 'Expéditions nature 2026', img: 'assets/images/elephant.jpg' }
   ];
   ngOnInit(): void {
     // auto-advance every 5 seconds
