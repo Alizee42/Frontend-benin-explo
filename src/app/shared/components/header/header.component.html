@@ -29,8 +29,15 @@
       <a class="nav-link" routerLink="/" routerLinkActive="active"
          [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">Accueil</a>
 
-      <a class="nav-link" routerLink="/circuit" routerLinkActive="active"
-         (click)="closeMenu()">Circuit</a>
+      <div class="dropdown">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Circuits
+        </a>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" routerLink="/circuit" routerLinkActive="active" (click)="closeMenu()">Nos circuits</a></li>
+          <li><a class="dropdown-item" routerLink="/circuit-personnalise" routerLinkActive="active" (click)="closeMenu()">Circuit personnalisé</a></li>
+        </ul>
+      </div>
 
       <a class="nav-link" routerLink="/actualite" routerLinkActive="active"
          (click)="closeMenu()">Actualité</a>

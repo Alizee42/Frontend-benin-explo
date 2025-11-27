@@ -1,6 +1,6 @@
 /* Hero section */
 .circuits-hero {
-  background: linear-gradient(135deg, var(--be-green) 0%, var(--be-sand) 100%);
+  background: var(--be-green);
   color: var(--be-light);
   padding: 5rem 1rem 4rem;
   text-align: center;
@@ -151,20 +151,20 @@
 .cta-personnalise {
   margin-top: 3rem;
   padding: 2.5rem 1rem;
-  background: var(--be-light);
-  color: var(--be-dark);
+  background: var(--be-green);
+  color: var(--be-light);
   text-align: center;
 
   h2 {
-    color: var(--be-green);
+    color: var(--be-light);
     font-size: 1.6rem;
   }
 
   p {
     max-width: 600px;
     margin: 0.6rem auto 1.5rem;
-    color: var(--be-dark);
-    opacity: 0.8;
+    color: var(--be-light);
+    opacity: 0.9;
   }
 
   .btn-secondary {

@@ -7,13 +7,18 @@
   <div class="hero-content">
     <h1>{{ circuit.titre }}</h1>
     <p class="location">{{ circuit.localisation }}</p>
+    <div class="hero-badges">
+      <span class="badge">{{ circuit.duree }}</span>
+      <span class="badge">Culturel</span>
+      <span class="badge">⭐ 4.8/5 (12 avis)</span>
+    </div>
   </div>
 </section>
 
 <!-- CONTENU -->
 <section class="content">
 
-  <!-- Résumé -->
+  <!-- Présentation -->
   <div class="section">
     <h2>Présentation</h2>
     <p class="intro">
@@ -21,45 +26,72 @@
     </p>
   </div>
 
-  <!-- Sections en cartes -->
+  <!-- Galerie d'images -->
   <div class="section">
-    <h2>Ce que vous allez découvrir</h2>
-
-    <div class="card-list">
-      <div class="info-card" *ngFor="let t of circuit.tourisme">
-        <span>{{ t }}</span>
-      </div>
+    <h2>Galerie</h2>
+    <div class="gallery">
+      <img src="https://images.unsplash.com/photo-1526779248011-7daef7c3e9f4" alt="Image 1">
+      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" alt="Image 2">
+      <img src="https://images.unsplash.com/photo-1528150177509-2b1470c5c0f5" alt="Image 3">
+      <img src="https://images.unsplash.com/photo-1521295121783-8a321d551ad2" alt="Image 4">
     </div>
   </div>
 
-  <div class="section">
-    <h2>Moments forts</h2>
-
-    <div class="card-list">
-      <div class="info-card" *ngFor="let a of circuit.aventures">
-        <span>{{ a }}</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Programme -->
+  <!-- Programme du jour -->
   <div class="section">
     <h2>Programme du jour</h2>
+    <div class="timeline">
+      <div class="timeline-item" *ngFor="let p of circuit.programme; let i = index">
+        <div class="timeline-marker">{{ i + 1 }}</div>
+        <div class="timeline-content">
+          <p>{{ p }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <ol class="programme">
-      <li *ngFor="let p of circuit.programme">
-        {{ p }}
-      </li>
-    </ol>
+  <!-- Points forts -->
+  <div class="section">
+    <h2>Points forts du circuit</h2>
+    <div class="points-forts">
+      <div class="fort-card" *ngFor="let fort of circuit.pointsForts">
+        <div class="fort-icon">{{ fort.icon }}</div>
+        <h3>{{ fort.title }}</h3>
+        <p>{{ fort.desc }}</p>
+      </div>
+    </div>
   </div>
 
   <!-- Informations pratiques -->
   <div class="section">
     <h2>Informations pratiques</h2>
+    <div class="info-grid">
+      <div class="info-card">
+        <h4>Durée</h4>
+        <p>{{ circuit.duree }}</p>
+      </div>
+      <div class="info-card">
+        <h4>Localisation</h4>
+        <p>{{ circuit.localisation }}</p>
+      </div>
+      <div class="info-card">
+        <h4>Prix</h4>
+        <p>À partir de 100 €</p>
+      </div>
+      <div class="info-card">
+        <h4>Inclus</h4>
+        <p>Guide, transport, déjeuner</p>
+      </div>
+    </div>
+  </div>
 
-    <div class="info-box">
-      <p><strong>Durée :</strong> {{ circuit.duree }}</p>
-      <p><strong>Distance :</strong> {{ circuit.localisation }}</p>
+  <!-- CTA Réservation -->
+  <div class="section cta-section">
+    <h2>Prêt à vivre cette aventure ?</h2>
+    <p>Contactez-nous pour organiser votre circuit personnalisé au Bénin.</p>
+    <div class="cta-buttons">
+      <a routerLink="/circuit" class="btn-back">← Retour aux circuits</a>
+      <button class="btn-reserve">Réserver maintenant</button>
     </div>
   </div>
 
