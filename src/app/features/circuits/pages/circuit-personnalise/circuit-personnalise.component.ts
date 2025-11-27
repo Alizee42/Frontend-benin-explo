@@ -263,7 +263,7 @@ export class CircuitPersonnaliseComponent {
     this.isSubmitting = true;
     this.submitError = false;
 
-    this.http.post('/api/circuits/personnalise', this.demande).subscribe({
+    this.http.post('http://localhost:8080/api/circuits/personnalise', this.demande).subscribe({
       next: () => {
         this.submitSuccess = true;
         this.isSubmitting = false;

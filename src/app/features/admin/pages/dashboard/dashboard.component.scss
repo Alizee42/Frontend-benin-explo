@@ -1,0 +1,150 @@
+.admin-dashboard {
+  min-height: 100vh;
+  background: var(--be-sand);
+}
+
+.dashboard-header {
+  background: var(--be-dark);
+  color: var(--be-light);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .btn-logout {
+    background: var(--be-gold);
+    color: var(--be-light);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+
+    &:hover {
+      background: #b8945a;
+    }
+  }
+}
+
+.dashboard-content {
+  padding: 2rem;
+}
+
+.stats-section {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+
+  .stat-card {
+    background: var(--be-light);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    flex: 1;
+
+    h3 {
+      margin: 0 0 0.5rem 0;
+      color: var(--be-dark);
+      font-size: 1rem;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--be-gold);
+      margin: 0;
+    }
+  }
+}
+
+.circuits-section {
+  background: var(--be-light);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h2 {
+      margin: 0;
+      color: var(--be-dark);
+    }
+
+    .btn-add {
+      background: var(--be-gold);
+      color: var(--be-light);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+
+      &:hover {
+        background: #b8945a;
+      }
+    }
+  }
+
+  .circuits-table {
+    overflow-x: auto;
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+
+      th, td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid var(--be-sand);
+      }
+
+      th {
+        background: var(--be-sand);
+        font-weight: 700;
+        color: var(--be-dark);
+      }
+
+      .btn-edit {
+        background: var(--be-gold);
+        color: var(--be-light);
+        border: none;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 0.5rem;
+
+        &:hover {
+          background: #b8945a;
+        }
+      }
+
+      .btn-delete {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+
+        &:hover {
+          background: #c82333;
+        }
+      }
+    }
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--be-dark);
+}

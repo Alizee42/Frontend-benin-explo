@@ -1,0 +1,51 @@
+<div class="admin-dashboard">
+  <header class="dashboard-header">
+    <h1>Tableau de bord Admin</h1>
+    <button class="btn-logout" (click)="logout()">Déconnexion</button>
+  </header>
+
+  <main class="dashboard-content">
+    <section class="stats-section">
+      <div class="stat-card">
+        <h3>Total Circuits</h3>
+        <p class="stat-number">{{ circuits.length }}</p>
+      </div>
+      <!-- Add more stats as needed -->
+    </section>
+
+    <section class="circuits-section">
+      <div class="section-header">
+        <h2>Gestion des Circuits</h2>
+        <button class="btn-add">Ajouter un circuit</button>
+      </div>
+
+      <div *ngIf="loading" class="loading">Chargement...</div>
+
+      <div *ngIf="!loading" class="circuits-table">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom</th>
+              <th>Durée</th>
+              <th>Prix</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let circuit of circuits">
+              <td>{{ circuit.id }}</td>
+              <td>{{ circuit.nom }}</td>
+              <td>{{ circuit.dureeIndicative }}</td>
+              <td>{{ circuit.prixIndicatif }} €</td>
+              <td>
+                <button class="btn-edit" (click)="editCircuit(circuit.id)">Modifier</button>
+                <button class="btn-delete" (click)="deleteCircuit(circuit.id)">Supprimer</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>

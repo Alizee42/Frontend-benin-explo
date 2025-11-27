@@ -33,6 +33,20 @@ export const routes: Routes = [
     data: { headerLight: true }
   },
 
+  /* LOGIN */
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/pages/login/login.component').then(m => m.LoginComponent)
+  },
+
+  /* ADMIN DASHBOARD */
+  {
+    path: 'admin/dashboard',
+    loadComponent: () =>
+      import('./features/admin/pages/dashboard/dashboard.component').then(m => m.DashboardComponent)
+  },
+
   /* WILDCARD → redirige vers l’accueil */
   {
     path: '**',
