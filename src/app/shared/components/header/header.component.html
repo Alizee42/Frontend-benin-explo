@@ -1,51 +1,155 @@
-<header class="site-header" [class.open]="menuOpen">
+<header class="site-header" [class.open]="menuOpen" [class.compact]="mode === 'compact'">
   <div class="header-inner">
 
     <!-- LOGO -->
-    <div class="logo">
+    <div class="logo" *ngIf="mode === 'normal' || mode === 'compact'">
       <a routerLink="/" aria-label="Bénin Explo home" class="brand">
-        <!-- Remplacé par le logo fourni dans assets/logos -->
         <img src="assets/logos/BeninExplo.png" alt="Logo Bénin Explo" class="brand-image" />
       </a>
     </div>
 
-    <!-- FLEX -->
-    <div class="spacer"></div>
+    <!-- NAV + USER CONTAINER -->
+    <div class="nav-container">
 
-    <!-- HAMBURGER -->
-    <button
-      class="hamburger"
-      aria-label="Toggle menu"
-      [attr.aria-expanded]="menuOpen ? 'true' : 'false'"
-      (click)="toggleMenu()"
-    >
-      <span class="bar"></span>
-      <span class="bar"></span>
-      <span class="bar"></span>
-    </button>
+      <!-- NAVIGATION (DESKTOP) -->
+      <nav class="nav" *ngIf="mode === 'normal'">
+        <a class="nav-link"
+           routerLink="/"
+           routerLinkActive="active"
+           [routerLinkActiveOptions]="{ exact: true }"
+           (click)="closeMenu()">Accueil</a>
 
-    <!-- NAV -->
-    <nav class="nav" [attr.aria-hidden]="!menuOpen ? 'true' : 'false'">
-      <a class="nav-link" routerLink="/" routerLinkActive="active"
-         [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">Accueil</a>
+        <!-- CIRCUITS DROPDOWN -->
+        <div class="dropdown" [class.open]="isCircuitsDropdownOpen">
+          <div class="nav-link dropdown-toggle" (click)="toggleCircuitsDropdown()">Circuits</div>
 
-      <div class="dropdown" [class.open]="isCircuitsDropdownOpen">
-        <div class="nav-link dropdown-toggle" (click)="toggleCircuitsDropdown()">Circuits</div>
-        <ul class="dropdown-menu" [ngClass]="{'show': isCircuitsDropdownOpen}">
-          <li><a class="dropdown-item" routerLink="/circuit" routerLinkActive="active" (click)="closeMenu(); closeCircuitsDropdown()">Nos circuits</a></li>
-          <li><a class="dropdown-item" routerLink="/circuit-personnalise" routerLinkActive="active" (click)="closeMenu(); closeCircuitsDropdown()">Circuit personnalisé</a></li>
-        </ul>
+          <ul class="dropdown-menu" [class.show]="isCircuitsDropdownOpen">
+            <li>
+              <a class="dropdown-item"
+                 routerLink="/circuit"
+                 (click)="closeMenu(); closeCircuitsDropdown()">Nos circuits</a>
+            </li>
+            <li>
+              <a class="dropdown-item"
+                 routerLink="/circuit-personnalise"
+                 (click)="closeMenu(); closeCircuitsDropdown()">Circuit personnalisé</a>
+            </li>
+          </ul>
+        </div>
+
+        <a class="nav-link" routerLink="/actualite" (click)="closeMenu()">Actualité</a>
+        <a class="nav-link" routerLink="/contact" (click)="closeMenu()">Contact</a>
+
+        <!-- NON CONNECTÉ -->
+        <a class="nav-link" *ngIf="!isLoggedIn" routerLink="/login" (click)="closeMenu()">Connexion</a>
+      </nav>
+
+      <!-- NAVIGATION COMPACT (ADMIN) -->
+      <nav class="nav compact-nav" *ngIf="mode === 'compact'">
+        <a class="nav-link" routerLink="/" (click)="closeMenu()">Accueil</a>
+        <a class="nav-link" (click)="closeMenu()">Profil</a>
+        <a class="nav-link" (click)="closeMenu()">Notifications</a>
+        <a class="nav-link" (click)="closeMenu()">Paramètres</a>
+      </nav>
+
+      <!-- USER (DESKTOP) -->
+      <div class="user-actions desktop-only" *ngIf="isLoggedIn && (mode === 'normal' || mode === 'compact')">
+        <div class="dropdown user-dropdown" [class.open]="isUserDropdownOpen">
+
+          <!-- USER BUTTON (avatar + nom) -->
+          <button class="user-avatar-btn" (click)="toggleUserDropdown()">
+            <div class="user-avatar" [style.background-color]="getUserAvatarColor()">
+              <span class="user-initials">{{ getUserInitials() }}</span>
+            </div>
+            <div class="user-info">
+              <span class="user-name">{{ user?.prenom }}</span>
+            </div>
+          </button>
+
+          <!-- MENU -->
+          <ul class="dropdown-menu user-menu" [class.show]="isUserDropdownOpen">
+
+            <li><hr class="dropdown-divider"></li>
+
+            <li>
+              <a class="dropdown-item" (click)="closeUserDropdown()">
+                <i class="ri-notification-3-line"></i> Notifications
+              </a>
+            </li>
+
+            <li *ngIf="isAdmin">
+              <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">
+                <i class="ri-admin-line"></i> Tableau de bord
+              </a>
+            </li>
+
+            <li><hr class="dropdown-divider"></li>
+
+            <li><a class="dropdown-item" (click)="closeUserDropdown()">Mon profil</a></li>
+            <li><a class="dropdown-item" (click)="closeUserDropdown()">Paramètres</a></li>
+
+            <li><hr class="dropdown-divider"></li>
+
+            <li>
+              <a class="dropdown-item" (click)="logout(); closeUserDropdown()">Déconnexion</a>
+            </li>
+          </ul>
+
+        </div>
       </div>
 
-      <a class="nav-link" routerLink="/actualite" routerLinkActive="active"
-         (click)="closeMenu()">Actualité</a>
+    </div><!-- END nav-container -->
 
-      <a class="nav-link" routerLink="/contact" routerLinkActive="active"
-         (click)="closeMenu()">Contact</a>
+    <!-- MOBILE -->
+    <div class="mobile-controls" *ngIf="mode === 'normal'">
 
-      <a class="nav-link" routerLink="/login" routerLinkActive="active"
-         (click)="closeMenu()">Connexion</a>
-    </nav>
+      <!-- HAMBURGER -->
+      <button class="hamburger"
+              aria-label="Toggle menu"
+              [attr.aria-expanded]="menuOpen"
+              (click)="toggleMenu()">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+
+      <!-- USER MOBILE -->
+      <div class="user-actions mobile-only" *ngIf="isLoggedIn">
+        <div class="dropdown user-dropdown" [class.open]="isUserDropdownOpen">
+
+          <button class="user-avatar-btn" (click)="toggleUserDropdown()">
+            <div class="user-avatar" [style.background-color]="getUserAvatarColor()">
+              <span class="user-initials">{{ getUserInitials() }}</span>
+            </div>
+            <div class="user-info">
+              <span class="user-name">{{ user?.prenom }}</span>
+            </div>
+          </button>
+
+          <ul class="dropdown-menu user-menu" [class.show]="isUserDropdownOpen">
+
+            <li><hr class="dropdown-divider"></li>
+
+            <li><a class="dropdown-item" (click)="closeUserDropdown()">Notifications</a></li>
+
+            <li *ngIf="isAdmin">
+              <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">Tableau de bord</a>
+            </li>
+
+            <li><hr class="dropdown-divider"></li>
+
+            <li><a class="dropdown-item" (click)="closeUserDropdown()">Mon profil</a></li>
+            <li><a class="dropdown-item" (click)="closeUserDropdown()">Paramètres</a></li>
+
+            <li><hr class="dropdown-divider"></li>
+
+            <li><a class="dropdown-item" (click)="logout()">Déconnexion</a></li>
+
+          </ul>
+        </div>
+      </div>
+
+    </div><!-- END mobile-controls -->
 
   </div>
 </header>

@@ -47,6 +47,13 @@ export const routes: Routes = [
       import('./features/admin/pages/dashboard/dashboard.component').then(m => m.DashboardComponent)
   },
 
+  /* ADMIN CIRCUITS MANAGEMENT */
+  {
+    path: 'admin/circuits',
+    loadComponent: () =>
+      import('./features/admin/pages/circuits-admin/circuits-admin.component').then(m => m.CircuitsAdminComponent)
+  },
+
   /* WILDCARD → redirige vers l’accueil */
   {
     path: '**',

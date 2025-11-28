@@ -33,6 +33,7 @@
             ],
             "styles": [
               "bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/remixicon/fonts/remixicon.css",
               "src/styles.css"
             ],
             "scripts": [

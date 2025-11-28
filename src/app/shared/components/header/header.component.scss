@@ -4,106 +4,155 @@
 .site-header {
   background: var(--be-sand);
   color: var(--be-dark);
-  padding: 0.9rem 1.3rem;
+  padding: 0.9rem 0;
   width: 100%;
   position: sticky;
   top: 0;
   z-index: 1000;
 }
 
-/* Structure */
 .header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 1.3rem;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* NAV + USER CONTAINER */
+.nav-container {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-left: auto;
 }
 
 /* ==========================================
    LOGO
-   ========================================== */
+   ======================================= */
 .brand {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  text-decoration: none;
 }
 
 .brand-image {
   height: 72px;
-  /* agrandi pour meilleure visibilité */
-  width: auto;
-  max-height: none;
-  display: block;
   padding: 6px;
-}
 
-/* responsive sizes */
-@media (max-width: 850px) {
-  .brand-image {
+  @media (max-width: 850px) {
     height: 56px;
   }
-}
 
-@media (min-width: 1200px) {
-  .brand-image {
+  @media (min-width: 1200px) {
     height: 96px;
   }
 }
 
-.brand-text {
-  font-weight: 800;
-  font-size: 1.4rem;
-  letter-spacing: .5px;
-  color: var(--be-dark);
-}
-
 /* ==========================================
-   NAVIGATION — DESKTOP
+   NAV DESKTOP
    ========================================== */
 .nav {
   display: flex;
   gap: 1.4rem;
+  flex-wrap: nowrap;
 }
 
-/* NAVIGATION — DESKTOP */
 .nav-link {
   color: var(--be-dark);
   font-weight: 600;
-  text-decoration: none;
   padding: 0.45rem 0.8rem;
+  text-decoration: none;
   border-radius: 6px;
-  font-size: 1rem;
   text-transform: uppercase;
+  font-size: 1rem;
   letter-spacing: .3px;
-  transition: background .25s ease, color .25s ease;
+  transition: .25s ease;
+  white-space: nowrap;
 }
 
-/* 🌟 HOVER PROPRE */
 .nav-link:hover {
   background: var(--be-green);
-  /* utiliser le vert pour le hover */
   color: var(--be-gold);
-  /* texte orange/doré */
 }
 
-/* 🌟 ACTIVE PRO PREMIUM */
-.nav-link.active,
-.nav-link.router-link-active {
+.nav-link.active {
   background: var(--be-green);
-  /* fond vert quand actif */
   color: var(--be-gold);
   font-weight: 700;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
 /* ==========================================
-   🍔 HAMBURGER (MOBILE)
+   DROPDOWN
+   ========================================== */
+.dropdown {
+  position: relative;
+
+  &.open .dropdown-menu {
+    display: block;
+  }
+}
+
+.dropdown-toggle {
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 200px;
+  background: var(--be-sand);
+  border: 1px solid var(--be-gold);
+  list-style: none;
+  border-radius: 4px;
+  padding: 0;
+  display: none;
+  z-index: 1001;
+}
+
+.dropdown-item {
+  padding: 0.75rem 1rem;
+  font-size: .95rem;
+  color: var(--be-dark);
+  display: block;
+  text-decoration: none;
+  transition: .25s;
+
+  &:hover {
+    background: var(--be-green);
+    color: var(--be-gold);
+  }
+}
+
+/* ==========================================
+   MOBILE CONTROLS
+   ========================================== */
+.mobile-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  width: 100%;
+  gap: 1rem;
+
+  @media (min-width: 851px) {
+    display: none;
+  }
+}
+
+/* ==========================================
+   HAMBURGER (MOBILE)
    ========================================== */
 .hamburger {
   display: none;
   flex-direction: column;
   gap: 5px;
-  background: transparent;
+  background: none;
   border: none;
   cursor: pointer;
   padding: 4px;
@@ -116,13 +165,22 @@
   border-radius: 3px;
   transition: .25s;
 }
-.dropdown-item.active, .dropdown-item:active{
-    background: var(--be-green) !important;
-    color: var(--be-gold) !important;
-    font-weight: 700 !important;
-  }
+
+/* Animation hamburger -> X */
+.site-header.open .bar:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.site-header.open .bar:nth-child(2) {
+  opacity: 0;
+}
+
+.site-header.open .bar:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
 /* ==========================================
-   📱 MODE MOBILE
+   MOBILE NAVIGATION
    ========================================== */
 @media (max-width: 850px) {
 
@@ -136,16 +194,14 @@
     right: 0;
     width: 100%;
     flex-direction: column;
-    gap: 0.75rem;
-
     padding: 1rem 0;
     background: var(--be-sand);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-
+    gap: 1rem;
     transform: scaleY(0);
     transform-origin: top;
     opacity: 0;
-    transition: all .25s ease;
+    transition: .25s ease;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
   }
 
   .site-header.open .nav {
@@ -154,85 +210,186 @@
   }
 
   .nav-link {
-    padding: 1rem;
-    font-size: 1rem;
-    color: var(--be-dark);
-    text-align: center;
     width: 100%;
-  }
-
-  /* HOVER mobile */
-  .nav-link:hover {
-    background: var(--be-green);
-    color: var(--be-gold);
-  }
-
-  /* ACTIVE mobile */
-  .nav-link.active {
-    background: var(--be-green);
-    color: var(--be-gold);
-    font-weight: 700;
-  }
-
-  /* Dropdown styles */
-  .dropdown {
-    position: relative;
-
-    /* Open class for toggle */
-    &.open .dropdown-menu {
-      display: block !important;
-    }
-  }
-
-  .dropdown-toggle {
-    padding: 0.45rem 0.8rem;
-    font-size: 1rem;
-    color: var(--be-dark);
-    text-transform: uppercase;
-    letter-spacing: .3px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: background .25s ease, color .25s ease;
-  }
-
-  .dropdown-toggle:hover {
-    background: var(--be-green);
-    color: var(--be-gold);
+    text-align: center;
+    padding: 1rem;
   }
 
   .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: var(--be-sand);
-    border: 1px solid var(--be-gold);
-    border-radius: 4px;
-    min-width: 200px;
-    z-index: 1001;
+    position: relative;
+    width: 100%;
+    border-radius: 0;
+  }
+}
+
+/* ==========================================
+   USER ACTIONS
+   ========================================== */
+.user-actions {
+  display: flex;
+  align-items: center;
+
+  .user-dropdown {
+    
+    .user-avatar-btn {
+      display: flex;
+      align-items: center;
+      background: rgba(201,168,106,0.1); // Fond doré léger
+      border: 1px solid var(--be-gold);
+      border-radius: 25px;
+      padding: 0.5rem 0.75rem;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: .25s ease;
+
+      &:hover {
+        background: rgba(201,168,106,0.2);
+        box-shadow: 0 2px 8px rgba(201,168,106,0.3);
+      }
+    }
+
+    /* 🔥 AVATAR MODERNE */
+    .user-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px; // Carré arrondi
+      border: 2px solid var(--be-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: .25s ease;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 4px,
+          rgba(201,168,106,0.1) 4px,
+          rgba(201,168,106,0.1) 8px
+        );
+        pointer-events: none;
+      }
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      }
+
+      .user-initials {
+        color: var(--be-dark);
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        position: relative;
+        z-index: 1;
+      }
+    }
+
+    .user-info {
+      .user-name {
+        font-size: .9rem;
+        font-weight: 600;
+        text-transform: capitalize;
+        color: var(--be-dark);
+      }
+    }
+
+    .user-menu {
+      min-width: 240px;
+      right: 0;
+      left: auto;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+
+      i {
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+/* ==========================================
+   MOBILE USER
+   ========================================== */
+.user-actions.mobile-only {
+  display: none;
+}
+
+@media (max-width: 850px) {
+
+  .user-actions.desktop-only {
     display: none;
-    list-style: none;
-    margin: 0;
-    padding: 0;
   }
 
-  .dropdown-item {
-    display: block;
-    padding: 0.75rem 1rem;
+  .user-actions.mobile-only {
+    display: flex;
+
+    .user-avatar-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      border-radius: 0;
+    }
+
+    .user-avatar {
+      width: 38px;
+      height: 38px;
+
+      .user-initials {
+        font-size: .9rem;
+      }
+    }
+
+    .user-info .user-name {
+      font-size: .8rem;
+      max-width: 80px;
+    }
+
+    .user-menu {
+      position: absolute;
+      right: 0;
+      left: auto;
+      min-width: 200px;
+    }
+  }
+}
+
+/* ==========================================
+   COMPACT MODE
+   ========================================== */
+.site-header.compact {
+  padding: 0.6rem 1rem;
+  background: var(--be-sand);
+  color: var(--be-dark);
+  border-bottom: 1px solid var(--be-gold);
+
+  .brand-image {
+    height: 48px;
+  }
+
+  .nav-link {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .user-avatar {
+    border-color: var(--be-gold);
+  }
+
+  .user-name {
     color: var(--be-dark);
-    text-decoration: none;
-    font-size: 0.95rem;
-  }
-
-  .dropdown-item:hover {
-    background: var(--be-green);
-    color: var(--be-gold);
-  }
-
-  .dropdown-item.active {
-    background: var(--be-green) !important;
-    color: var(--be-gold) !important;
-    font-weight: 700 !important;
   }
 }

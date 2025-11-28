@@ -1,50 +1,36 @@
 <div class="admin-dashboard">
-  <header class="dashboard-header">
-    <h1>Tableau de bord Admin</h1>
-    <button class="btn-logout" (click)="logout()">Déconnexion</button>
-  </header>
+  <app-header mode="compact"></app-header>
 
   <main class="dashboard-content">
-    <section class="stats-section">
-      <div class="stat-card">
-        <h3>Total Circuits</h3>
-        <p class="stat-number">{{ circuits.length }}</p>
-      </div>
-      <!-- Add more stats as needed -->
+    <section class="welcome-section">
+      <h2>Bienvenue dans l'administration Benin Explo</h2>
+      <p>Gérez votre plateforme touristique depuis cet espace.</p>
     </section>
 
-    <section class="circuits-section">
-      <div class="section-header">
-        <h2>Gestion des Circuits</h2>
-        <button class="btn-add">Ajouter un circuit</button>
-      </div>
-
-      <div *ngIf="loading" class="loading">Chargement...</div>
-
-      <div *ngIf="!loading" class="circuits-table">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nom</th>
-              <th>Durée</th>
-              <th>Prix</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let circuit of circuits">
-              <td>{{ circuit.id }}</td>
-              <td>{{ circuit.nom }}</td>
-              <td>{{ circuit.dureeIndicative }}</td>
-              <td>{{ circuit.prixIndicatif }} €</td>
-              <td>
-                <button class="btn-edit" (click)="editCircuit(circuit.id)">Modifier</button>
-                <button class="btn-delete" (click)="deleteCircuit(circuit.id)">Supprimer</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <section class="management-section">
+      <h2>Gestion</h2>
+      <div class="management-grid">
+        <div class="management-card">
+          <h3>Circuits</h3>
+          <p>Gérer les circuits touristiques</p>
+          <a routerLink="/admin/circuits" class="btn-manage">Gérer les circuits</a>
+        </div>
+        <!-- Add more management cards as needed -->
+        <div class="management-card">
+          <h3>Utilisateurs</h3>
+          <p>Gérer les comptes utilisateurs</p>
+          <button class="btn-manage" disabled>À venir</button>
+        </div>
+        <div class="management-card">
+          <h3>Réservations</h3>
+          <p>Gérer les réservations</p>
+          <button class="btn-manage" disabled>À venir</button>
+        </div>
+        <div class="management-card">
+          <h3>Statistiques</h3>
+          <p>Voir les statistiques</p>
+          <button class="btn-manage" disabled>À venir</button>
+        </div>
       </div>
     </section>
   </main>

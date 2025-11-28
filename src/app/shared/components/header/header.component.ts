@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router, NavigationEnd, ActivatedRoute, RouterState } from '@angular/router';
+import { RouterModule, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { AuthService, User } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -10,31 +11,34 @@ import { RouterModule, Router, NavigationEnd, ActivatedRoute, RouterState } from
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
+  @Input() mode: 'normal' | 'compact' = 'normal';
+
   public menuOpen = false;
   public isCircuitsDropdownOpen = false;
+  public isUserDropdownOpen = false;
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  public isLoggedIn = false;
+  public isAdmin = false;
+  public user: User | null = null;
 
-  toggleMenu() {
-    this.menuOpen = !this.menuOpen;
-  }
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private authService: AuthService
+  ) {}
 
-  toggleCircuitsDropdown() {
-    this.isCircuitsDropdownOpen = !this.isCircuitsDropdownOpen;
-  }
-
-  closeCircuitsDropdown() {
-    this.isCircuitsDropdownOpen = false;
-  }
-
-  closeMenu() {
-    this.menuOpen = false;
-  }
   ngOnInit() {
+    // Subscribe to auth state
+    this.authService.user$.subscribe(user => {
+      this.user = user;
+      this.isLoggedIn = this.authService.isLoggedIn();
+      this.isAdmin = this.authService.isAdmin();
+    });
+
+    // Existing navigation logic
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        // Try to read a route-level data flag `headerLight` (recommended)
-        // traverse from the router root to catch data set on lazy routes
+        // ... existing header light logic ...
         let node: ActivatedRoute | null = (this.router.routerState && (this.router.routerState.root as ActivatedRoute)) || this.route;
         let headerLightFromData: boolean | null = null;
 
@@ -52,11 +56,9 @@ export class HeaderComponent implements OnInit {
         console.debug('Header navigation:', { url: (event as NavigationEnd).urlAfterRedirects, headerLightFromData });
         if (isLightPage) {
           document.body.classList.add('header-light');
-          // also set a data attribute on the header element so styles can target it
           const headerEl = document.querySelector('.site-header') as HTMLElement | null;
           if (headerEl) {
             headerEl.setAttribute('data-header-light', 'true');
-            // add a class on the header element itself for more robust CSS targeting
             headerEl.classList.add('header-light');
           }
           console.debug('Header: headerLight=true — applied body.header-light');
@@ -73,4 +75,51 @@ export class HeaderComponent implements OnInit {
     });
   }
 
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
+
+  toggleCircuitsDropdown() {
+    this.isCircuitsDropdownOpen = !this.isCircuitsDropdownOpen;
+  }
+
+  closeCircuitsDropdown() {
+    this.isCircuitsDropdownOpen = false;
+  }
+
+  closeMenu() {
+    this.menuOpen = false;
+    this.closeCircuitsDropdown();
+    this.closeUserDropdown();
+  }
+
+  logout() {
+    this.authService.logout();
+    this.closeMenu();
+  }
+
+  goToDashboard() {
+    this.router.navigate(['/admin/dashboard']);
+    this.closeMenu();
+  }
+
+  toggleUserDropdown() {
+    this.isUserDropdownOpen = !this.isUserDropdownOpen;
+  }
+
+  closeUserDropdown() {
+    this.isUserDropdownOpen = false;
+  }
+
+  getUserInitials(): string {
+    if (this.user?.prenom && this.user?.nom) {
+      return (this.user.prenom.charAt(0) + this.user.nom.charAt(0)).toUpperCase();
+    }
+    return 'U';
+  }
+
+  getUserAvatarColor(): string {
+    // Plus de couleur dynamique, on utilise un fond uni avec motif
+    return 'var(--be-sand)';
+  }
 }
