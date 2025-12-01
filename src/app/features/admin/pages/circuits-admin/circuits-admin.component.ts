@@ -1,23 +1,60 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { HeaderComponent } from '../../../../shared/components/header/header.component';
+import { DataTableComponent, TableColumn, TableAction } from '../../../../shared/components/data-table/data-table.component';
+import { AddCircuitModalComponent } from '../../../../shared/components/add-circuit-modal/add-circuit-modal.component';
 import { AuthService } from '../../../../services/auth.service';
+import { CircuitService } from '../../../../services/circuit.service';
+import { CircuitDTO } from '../../../../models/circuit.dto';
 
 @Component({
   selector: 'app-circuits-admin',
   standalone: true,
-  imports: [CommonModule, HeaderComponent],
+  imports: [CommonModule, HeaderComponent, DataTableComponent, AddCircuitModalComponent],
   templateUrl: './circuits-admin.component.html',
   styleUrls: ['./circuits-admin.component.scss']
 })
 export class CircuitsAdminComponent implements OnInit {
-  circuits: any[] = [];
+  circuits: CircuitDTO[] = [];
   loading = true;
 
+  // Référence à la modale
+  @ViewChild('addCircuitModal') addCircuitModal!: AddCircuitModalComponent;
+
+  // Configuration du tableau
+  tableColumns: TableColumn[] = [
+    { key: 'id', label: 'ID', type: 'number', width: '80px' },
+    { key: 'nom', label: 'Nom du circuit', type: 'text' },
+    { key: 'description', label: 'Description', type: 'text' },
+    { key: 'dureeIndicative', label: 'Durée (jours)', type: 'number', width: '120px' },
+    { key: 'prixIndicatif', label: 'Prix (€)', type: 'number', width: '100px' },
+    { key: 'actions', label: 'Actions', type: 'actions', width: '160px' }
+  ];
+
+  tableActions: TableAction[] = [
+    {
+      label: 'Voir détails',
+      icon: 'ri-eye-line',
+      class: 'btn-default',
+      action: 'view'
+    },
+    {
+      label: 'Modifier',
+      icon: 'ri-edit-line',
+      class: 'btn-edit',
+      action: 'edit'
+    },
+    {
+      label: 'Supprimer',
+      icon: 'ri-delete-bin-line',
+      class: 'btn-delete',
+      action: 'delete'
+    }
+  ];
+
   constructor(
-    private http: HttpClient,
+    private circuitService: CircuitService,
     private router: Router,
     private authService: AuthService
   ) {}
@@ -35,8 +72,8 @@ export class CircuitsAdminComponent implements OnInit {
 
   loadCircuits() {
     console.log('Loading circuits from API');
-    this.http.get('/api/circuits').subscribe({
-      next: (data: any) => {
+    this.circuitService.getAllCircuits().subscribe({
+      next: (data) => {
         console.log('Circuits loaded:', data);
         this.circuits = data;
         this.loading = false;
@@ -49,25 +86,49 @@ export class CircuitsAdminComponent implements OnInit {
   }
 
   editCircuit(circuit: any) {
-    // TODO: Implement edit
-    alert('Edition à implémenter: ' + circuit.nom);
+    alert('Modification du circuit: ' + circuit.nom);
   }
 
   deleteCircuit(id: number) {
-    if (confirm('Supprimer ce circuit ?')) {
-      this.http.delete(`/api/circuits/${id}`).subscribe({
-        next: () => {
-          this.circuits = this.circuits.filter(c => c.id !== id);
-        },
-        error: (error) => {
-          console.error('Erreur suppression', error);
-        }
-      });
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce circuit ?')) {
+      alert('Suppression du circuit ID: ' + id);
     }
   }
 
   addCircuit() {
-    // TODO: Implement add
-    alert('Ajout à implémenter');
+    console.log('Ouverture modale ajout circuit');
+    if (this.addCircuitModal) {
+      this.addCircuitModal.open();
+    }
+  }
+
+  onCircuitSaved(circuit: CircuitDTO) {
+    console.log('Nouveau circuit ajouté:', circuit);
+    // Recharger la liste des circuits
+    this.loadCircuits();
+  }
+
+  onModalClosed() {
+    console.log('Modale fermée');
+  }
+
+  onTableAction(event: {action: string, item: any}) {
+    const { action, item } = event;
+
+    switch (action) {
+      case 'view':
+        this.viewCircuit(item);
+        break;
+      case 'edit':
+        this.editCircuit(item);
+        break;
+      case 'delete':
+        this.deleteCircuit(item.id);
+        break;
+    }
+  }
+
+  viewCircuit(circuit: any) {
+    alert('Détails du circuit: ' + circuit.nom);
   }
 }

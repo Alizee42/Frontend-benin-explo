@@ -1,0 +1,56 @@
+<div class="data-table-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Chargement des données...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && data.length === 0" class="empty-state">
+    <i class="ri-inbox-line empty-icon"></i>
+    <p>{{ emptyMessage }}</p>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading && data.length > 0" class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th
+            *ngFor="let column of columns"
+            [style.width]="column.width"
+            [class.sortable]="column.sortable">
+            {{ column.label }}
+            <i *ngIf="column.sortable" class="ri-arrow-up-down-line sort-icon"></i>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let item of data"
+          class="data-row"
+          (click)="onRowClick(item)">
+          <td *ngFor="let column of columns">
+            <!-- Actions Column -->
+            <div *ngIf="column.type === 'actions'" class="actions-cell">
+              <button
+                *ngFor="let action of actions"
+                [class]="'btn-action ' + (action.class || 'btn-default')"
+                [class.visible]="isActionVisible(action, item)"
+                (click)="onActionClick(action.action, item, $event)"
+                [title]="action.label">
+                <i *ngIf="action.icon" [class]="action.icon"></i>
+                <span>{{ action.label }}</span>
+              </button>
+            </div>
+
+            <!-- Regular Data -->
+            <span *ngIf="column.type !== 'actions'">
+              {{ getCellValue(item, column) }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

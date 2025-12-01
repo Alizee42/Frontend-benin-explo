@@ -1,17 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HeaderComponent } from '../../../../shared/components/header/header.component';
 import { AuthService } from '../../../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, HeaderComponent],
+  imports: [CommonModule, RouterLink, HeaderComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+
+  userFirstName: string | undefined;
 
   constructor(
     private router: Router,
@@ -27,6 +29,7 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
-    // Dashboard is now a menu, no need to load data here
+    const user = this.authService.getUser();
+    this.userFirstName = user?.prenom || user?.nom || 'Admin';
   }
 }

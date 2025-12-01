@@ -54,6 +54,41 @@ export const routes: Routes = [
       import('./features/admin/pages/circuits-admin/circuits-admin.component').then(m => m.CircuitsAdminComponent)
   },
 
+  /* ADMIN ZONES MANAGEMENT */
+  {
+    path: 'admin/zones',
+    loadComponent: () =>
+      import('./features/admin/pages/zones-admin/zones-admin.component').then(m => m.ZonesAdminComponent)
+  },
+
+  /* ADMIN ACTIVITES MANAGEMENT */
+  {
+    path: 'admin/activites',
+    loadComponent: () =>
+      import('./features/admin/pages/activites-admin/activites-admin.component').then(m => m.ActivitesAdminComponent)
+  },
+
+  /* ADMIN CIRCUITS PERSONNALISES MANAGEMENT */
+  {
+    path: 'admin/circuits-personnalises',
+    loadComponent: () =>
+      import('./features/admin/pages/circuits-personnalises-admin/circuits-personnalises-admin.component').then(m => m.CircuitsPersonnalisesAdminComponent)
+  },
+
+  /* PROFIL */
+  {
+    path: 'profil',
+    loadComponent: () =>
+      import('./features/utilisateur/pages/profil/profil.component').then(m => m.ProfilComponent)
+  },
+
+  /* PARAMETRES */
+  {
+    path: 'parametres',
+    loadComponent: () =>
+      import('./features/utilisateur/pages/parametres/parametres.component').then(m => m.ParametresComponent)
+  },
+
   /* WILDCARD → redirige vers l’accueil */
   {
     path: '**',

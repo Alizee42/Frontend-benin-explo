@@ -47,13 +47,13 @@
       <!-- NAVIGATION COMPACT (ADMIN) -->
       <nav class="nav compact-nav" *ngIf="mode === 'compact'">
         <a class="nav-link" routerLink="/" (click)="closeMenu()">Accueil</a>
-        <a class="nav-link" (click)="closeMenu()">Profil</a>
+        <a class="nav-link" routerLink="/profil" (click)="closeMenu()">Profil</a>
         <a class="nav-link" (click)="closeMenu()">Notifications</a>
-        <a class="nav-link" (click)="closeMenu()">Paramètres</a>
+        <a class="nav-link" routerLink="/parametres" (click)="closeMenu()">Paramètres</a>
       </nav>
 
       <!-- USER (DESKTOP) -->
-      <div class="user-actions desktop-only" *ngIf="isLoggedIn && (mode === 'normal' || mode === 'compact')">
+      <div class="user-actions desktop-only" *ngIf="isLoggedIn && mode === 'normal'">
         <div class="dropdown user-dropdown" [class.open]="isUserDropdownOpen">
 
           <!-- USER BUTTON (avatar + nom) -->
@@ -85,8 +85,8 @@
 
             <li><hr class="dropdown-divider"></li>
 
-            <li><a class="dropdown-item" (click)="closeUserDropdown()">Mon profil</a></li>
-            <li><a class="dropdown-item" (click)="closeUserDropdown()">Paramètres</a></li>
+            <li><a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a></li>
+            <li><a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Paramètres</a></li>
 
             <li><hr class="dropdown-divider"></li>
 
@@ -138,8 +138,8 @@
 
             <li><hr class="dropdown-divider"></li>
 
-            <li><a class="dropdown-item" (click)="closeUserDropdown()">Mon profil</a></li>
-            <li><a class="dropdown-item" (click)="closeUserDropdown()">Paramètres</a></li>
+            <li><a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a></li>
+            <li><a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Paramètres</a></li>
 
             <li><hr class="dropdown-divider"></li>
 

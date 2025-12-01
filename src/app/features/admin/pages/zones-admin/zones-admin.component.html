@@ -1,0 +1,30 @@
+<div class="zones-admin">
+  <app-header mode="compact"></app-header>
+
+  <main class="page-content">
+    <header class="page-header">
+      <h1>Gestion des zones</h1>
+      <p>Définissez les zones géographiques, leurs régions et leurs connexions pour organiser vos circuits.</p>
+    </header>
+
+    <div class="actions-bar">
+      <button class="btn-add" (click)="addZone()">
+        <i class="ri-add-line"></i>
+        <span>Ajouter une zone</span>
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading">Chargement des zones...</div>
+
+    <div *ngIf="!loading" class="zones-table">
+      <app-data-table
+        [columns]="tableColumns"
+        [data]="zones"
+        [loading]="loading"
+        [actions]="tableActions"
+        emptyMessage="Aucune zone trouvée"
+        (actionClick)="onTableAction($event)">
+      </app-data-table>
+    </div>
+  </main>
+</div>

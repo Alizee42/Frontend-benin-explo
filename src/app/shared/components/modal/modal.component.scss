@@ -1,0 +1,313 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: var(--be-light);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease-out;
+
+  // Tailles de modale
+  &.small {
+    width: 90%;
+    max-width: 400px;
+  }
+
+  &.medium {
+    width: 90%;
+    max-width: 600px;
+  }
+
+  &.large {
+    width: 90%;
+    max-width: 800px;
+  }
+
+  &.xlarge {
+    width: 90%;
+    max-width: 1000px;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 2px solid var(--be-sand);
+  background: linear-gradient(135deg, var(--be-green), #00695c);
+
+  h2 {
+    margin: 0;
+    color: var(--be-light);
+    font-size: 1.4rem;
+    font-weight: 600;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--be-light);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(90deg);
+    }
+  }
+}
+
+.modal-body {
+  padding: 2rem;
+  min-height: 100px;
+}
+
+// Mobile First - Styles de base pour mobile
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-start; // Changé pour mobile
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  padding: 1rem; // Espace autour de la modale
+}
+
+.modal-content {
+  background: var(--be-light);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-height: calc(100vh - 2rem); // Laisser de l'espace
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease-out;
+  margin-top: 2rem; // Espace depuis le haut
+  display: flex;
+  flex-direction: column;
+
+  // Tailles de modale - Mobile first
+  &.small {
+    max-width: 320px;
+  }
+
+  &.medium {
+    max-width: 380px;
+  }
+
+  &.large {
+    max-width: 420px;
+  }
+
+  &.xlarge {
+    max-width: 480px;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid var(--be-sand);
+  background: linear-gradient(135deg, var(--be-green), #00695c);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+
+  h2 {
+    margin: 0;
+    color: var(--be-light);
+    font-size: 1.25rem;
+    font-weight: 600;
+    flex: 1;
+    text-align: center;
+    margin-right: 2.5rem; // Espace pour le bouton close
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--be-light);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.75rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-50%) rotate(90deg);
+    }
+  }
+}
+
+.modal-body {
+  padding: 1.5rem;
+  min-height: 120px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 1.25rem 1.5rem;
+  border-top: 2px solid var(--be-sand);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--be-sand);
+  flex-wrap: nowrap;
+
+  // Boutons tactiles optimisés
+  button {
+    flex: 1;
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+
+    i {
+      font-size: 1rem;
+    }
+  }
+}
+
+.modal-footer > * {
+  margin: auto;
+  display: flex;
+  gap: 20px;
+}
+
+// Tablette et desktop
+@media (min-width: 768px) {
+  .modal-overlay {
+    align-items: center; // Centrage vertical sur desktop
+    padding: 2rem;
+  }
+
+  .modal-content {
+    margin-top: 0;
+    max-height: 90vh;
+
+    &.small {
+      width: 90%;
+      max-width: 400px;
+    }
+
+    &.medium {
+      width: 90%;
+      max-width: 600px;
+    }
+
+    &.large {
+      width: 90%;
+      max-width: 800px;
+    }
+
+    &.xlarge {
+      width: 90%;
+      max-width: 1000px;
+    }
+  }
+
+  .modal-header {
+    position: static;
+
+    h2 {
+      margin-right: 0;
+      text-align: left;
+    }
+
+    .close-btn {
+      position: static;
+      transform: none;
+      min-width: auto;
+      min-height: auto;
+    }
+  }
+
+  .modal-body {
+    padding: 2rem;
+  }
+
+  .modal-footer {
+    position: static;
+    padding: 1.5rem 2rem;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: nowrap;
+
+    button {
+      flex: none;
+      min-width: 120px;
+    }
+  }
+}
+
+// Grand desktop
+@media (min-width: 1200px) {
+  .modal-overlay {
+    padding: 3rem;
+  }
+}

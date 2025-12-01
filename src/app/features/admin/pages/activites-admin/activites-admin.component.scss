@@ -1,0 +1,117 @@
+/* Gestion des activités - Style admin */
+.activites-admin {
+  min-height: 100vh;
+  background: #f4f4f4;
+}
+
+.page-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+
+  h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--be-dark);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #6c757d;
+  }
+}
+
+.actions-bar {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-add {
+  background: var(--be-green);
+  color: var(--be-light);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #2e5c4a;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+}
+
+.activites-table {
+  background: var(--be-light);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: var(--be-dark);
+    }
+
+    td {
+      color: var(--be-dark);
+    }
+
+    .btn-edit {
+      background: var(--be-gold);
+      color: var(--be-dark);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      margin-right: 0.5rem;
+      transition: background 0.3s;
+
+      &:hover {
+        background: #b8945a;
+      }
+    }
+
+    .btn-delete {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.3s;
+
+      &:hover {
+        background: #c82333;
+      }
+    }
+  }
+}

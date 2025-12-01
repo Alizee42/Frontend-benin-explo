@@ -3,37 +3,25 @@
 
   <main class="page-content">
     <div class="actions-bar">
+      <h1 class="page-title">
+        <i class="ri-route-line"></i>
+        Gestion des circuits
+      </h1>
       <button class="btn-add" (click)="addCircuit()">Ajouter un circuit</button>
     </div>
 
-    <div *ngIf="loading" class="loading">Chargement des circuits...</div>
-
-    <div *ngIf="!loading" class="circuits-table">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Description</th>
-            <th>Durée</th>
-            <th>Prix</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let circuit of circuits">
-            <td>{{ circuit.id }}</td>
-            <td>{{ circuit.nom }}</td>
-            <td>{{ circuit.description }}</td>
-            <td>{{ circuit.dureeIndicative }}</td>
-            <td>{{ circuit.prixIndicatif }} €</td>
-            <td>
-              <button class="btn-edit" (click)="editCircuit(circuit)">Modifier</button>
-              <button class="btn-delete" (click)="deleteCircuit(circuit.id)">Supprimer</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <app-data-table
+      [columns]="tableColumns"
+      [data]="circuits"
+      [loading]="loading"
+      [actions]="tableActions"
+      (actionClick)="onTableAction($event)">
+    </app-data-table>
   </main>
+
+  <app-add-circuit-modal
+    #addCircuitModal
+    (save)="onCircuitSaved($event)"
+    (close)="onModalClosed()">
+  </app-add-circuit-modal>
 </div>

@@ -26,6 +26,36 @@ export class AuthService {
   ) {}
 
   login(credentials: { email: string; motDePasse: string }): Observable<any> {
+    // TEMPORARY: Mock login for testing admin pages
+    if (credentials.email === 'admin@beninexplo.com' && credentials.motDePasse === 'admin123') {
+      const mockResponse = {
+        token: 'mock-admin-token',
+        email: 'admin@beninexplo.com',
+        role: 'ADMIN',
+        nom: 'Admin',
+        prenom: 'Bénin'
+      };
+
+      localStorage.setItem(this.TOKEN_KEY, mockResponse.token);
+      const user: User = {
+        email: mockResponse.email,
+        role: mockResponse.role,
+        nom: mockResponse.nom,
+        prenom: mockResponse.prenom
+      };
+      localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+      this.userSubject.next(user);
+
+      // Redirect to admin dashboard
+      this.router.navigate(['/admin/dashboard']);
+
+      return new Observable(observer => {
+        observer.next(mockResponse);
+        observer.complete();
+      });
+    }
+
+    // For other credentials, try real API call
     return this.http.post('/auth/login', credentials).pipe(
       tap((response: any) => {
         if (response.token) {

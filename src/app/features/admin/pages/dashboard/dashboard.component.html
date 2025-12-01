@@ -1,37 +1,145 @@
 <div class="admin-dashboard">
   <app-header mode="compact"></app-header>
 
-  <main class="dashboard-content">
-    <section class="welcome-section">
-      <h2>Bienvenue dans l'administration Benin Explo</h2>
-      <p>Gérez votre plateforme touristique depuis cet espace.</p>
+  <main class="admin-layout">
+    <!-- BANDEAU BIENVENUE -->
+    <section class="admin-header-strip">
+      <div class="admin-header-main">
+        <h1 class="admin-title">Bonjour, {{ userFirstName }} 👋</h1>
+        <p class="admin-subtitle">
+          Retrouvez ici les informations clés et les accès rapides pour piloter Bénin Explo.
+        </p>
+      </div>
+      <div class="admin-header-meta">
+        <span class="admin-role-chip">Administrateur</span>
+        <span class="admin-context">Dernière connexion : 01/12/2025 • 10:24</span>
+      </div>
     </section>
 
-    <section class="management-section">
-      <h2>Gestion</h2>
-      <div class="management-grid">
-        <div class="management-card">
-          <h3>Circuits</h3>
-          <p>Gérer les circuits touristiques</p>
-          <a routerLink="/admin/circuits" class="btn-manage">Gérer les circuits</a>
+    <!-- LIGNE 1 : 3 CARTES STATS -->
+    <section class="admin-row admin-row-stats">
+      <article class="admin-card stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Circuits actifs</span>
+          <i class="ri-map-pin-line"></i>
         </div>
-        <!-- Add more management cards as needed -->
-        <div class="management-card">
-          <h3>Utilisateurs</h3>
-          <p>Gérer les comptes utilisateurs</p>
-          <button class="btn-manage" disabled>À venir</button>
+        <p class="stat-value">56</p>
+        <p class="stat-hint">Circuits publiés et visibles sur le site.</p>
+      </article>
+
+      <article class="admin-card stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Réservations (30j)</span>
+          <i class="ri-calendar-line"></i>
         </div>
-        <div class="management-card">
-          <h3>Réservations</h3>
-          <p>Gérer les réservations</p>
-          <button class="btn-manage" disabled>À venir</button>
+        <p class="stat-value">789</p>
+        <p class="stat-hint">Demandes et réservations confirmées.</p>
+      </article>
+
+      <article class="admin-card stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Taux de satisfaction</span>
+          <i class="ri-star-line"></i>
         </div>
-        <div class="management-card">
-          <h3>Statistiques</h3>
-          <p>Voir les statistiques</p>
-          <button class="btn-manage" disabled>À venir</button>
+        <p class="stat-value">4,8 / 5</p>
+        <p class="stat-hint">Moyenne des avis clients.</p>
+      </article>
+    </section>
+
+    <!-- LIGNE 2 : MODULES DE GESTION (en grille) -->
+    <section class="admin-row admin-row-modules">
+      <article class="admin-card admin-modules-card">
+        <header class="card-header">
+          <h2>Modules de gestion</h2>
+          <p>Accédez aux principales sections d'administration.</p>
+        </header>
+
+        <div class="modules-grid">
+          <a routerLink="/admin/circuits" class="module-item">
+            <div class="module-icon">
+              <i class="ri-map-pin-line"></i>
+            </div>
+            <div class="module-body">
+              <span class="module-title">Circuits</span>
+              <span class="module-subtitle">Catalogue officiel</span>
+            </div>
+          </a>
+
+          <a routerLink="/admin/zones" class="module-item">
+            <div class="module-icon">
+              <i class="ri-earth-line"></i>
+            </div>
+            <div class="module-body">
+              <span class="module-title">Zones</span>
+              <span class="module-subtitle">Géographie & régions</span>
+            </div>
+          </a>
+
+          <a routerLink="/admin/activites" class="module-item">
+            <div class="module-icon">
+              <i class="ri-calendar-event-line"></i>
+            </div>
+            <div class="module-body">
+              <span class="module-title">Activités</span>
+              <span class="module-subtitle">Par zone touristique</span>
+            </div>
+          </a>
+
+          <a routerLink="/admin/circuits-personnalises" class="module-item">
+            <div class="module-icon">
+              <i class="ri-user-star-line"></i>
+            </div>
+            <div class="module-body">
+              <span class="module-title">Circuits perso</span>
+              <span class="module-subtitle">Demandes sur mesure</span>
+            </div>
+          </a>
         </div>
-      </div>
+      </article>
+    </section>
+
+    <!-- LIGNE 3 : ACTIONS RAPIDES -->
+    <section class="admin-row admin-row-actions">
+      <article class="admin-card admin-actions-card">
+        <header class="card-header">
+          <h2>Actions rapides</h2>
+          <p>Opérations fréquentes accessibles en un clic.</p>
+        </header>
+
+        <div class="actions-grid">
+          <button class="action-item">
+            <i class="ri-add-line"></i>
+            <div>
+              <span class="action-title">Créer un circuit</span>
+              <span class="action-subtitle">Nouveau circuit catalogue</span>
+            </div>
+          </button>
+
+          <button class="action-item" disabled>
+            <i class="ri-user-add-line"></i>
+            <div>
+              <span class="action-title">Ajouter utilisateur</span>
+              <span class="action-subtitle">Gestion des comptes</span>
+            </div>
+          </button>
+
+          <button class="action-item" disabled>
+            <i class="ri-calendar-event-line"></i>
+            <div>
+              <span class="action-title">Nouvelle réservation</span>
+              <span class="action-subtitle">Demande manuelle</span>
+            </div>
+          </button>
+
+          <button class="action-item" disabled>
+            <i class="ri-file-chart-line"></i>
+            <div>
+              <span class="action-title">Rapports</span>
+              <span class="action-subtitle">Statistiques détaillées</span>
+            </div>
+          </button>
+        </div>
+      </article>
     </section>
   </main>
 </div>
