@@ -100,6 +100,7 @@ export class CircuitsAdminComponent implements OnInit {
     this.circuitService.getAllCircuits().subscribe({
       next: (data) => {
         console.log('Circuits loaded from API:', data.length, 'circuits');
+        console.log('Sample imgs from API (first 5):', data.slice(0, 5).map((c: any) => c.img));
         // Add zone names and status to circuits
         this.circuits = data.map(circuit => ({
           ...circuit,

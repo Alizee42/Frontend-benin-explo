@@ -53,7 +53,7 @@
             <div *ngIf="column.type === 'image'" class="image-cell">
               <img
                 *ngIf="getCellValue(item, column)"
-                [src]="getCellValue(item, column)"
+                [src]="getImageSrc(getCellValue(item, column))"
                 [alt]="column.label"
                 class="table-image"
                 (error)="onImageError($event)">

@@ -58,6 +58,37 @@ export class DataTableComponent {
     }
   }
 
+  /**
+   * Retourne une source d'image utilisable pour l'attribut `src`.
+   * Si la valeur est déjà une data URL ou une URL http(s), on la retourne telle quelle.
+   * Si c'est une chaîne Base64 sans préfixe, on ajoute un préfixe `data:image/jpeg;base64,`.
+   */
+  getImageSrc(value: any): string | null {
+    if (!value) return null;
+
+    if (typeof value !== 'string') return null;
+
+    const trimmed = value.trim();
+
+    // Déjà une data URL
+    if (trimmed.startsWith('data:')) return trimmed;
+
+    // URL distante
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) return trimmed;
+
+    // Si ressemble à du base64 (commence par /9j/ pour JPEG ou iVBORw0KGgo pour PNG)
+    const jpegStart = trimmed.startsWith('/9j/');
+    const pngStart = trimmed.startsWith('iVBORw0KGgo');
+    const maybeBase64 = /^[A-Za-z0-9+/=\s]+$/.test(trimmed);
+
+    if (jpegStart || pngStart || maybeBase64) {
+      // Par défaut on suppose JPEG si non déterminé
+      return 'data:image/jpeg;base64,' + trimmed;
+    }
+
+    return null;
+  }
+
   onImageError(event: Event) {
     const img = event.target as HTMLImageElement;
     img.style.display = 'none';
