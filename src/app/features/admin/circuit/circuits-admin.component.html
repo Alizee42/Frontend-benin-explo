@@ -7,7 +7,10 @@
         <i class="ri-route-line"></i>
         Gestion des circuits
       </h1>
-      <button class="btn-add" (click)="addCircuit()">Ajouter un circuit</button>
+      <button class="btn-add" (click)="addCircuit()">
+        <i class="ri-add-line"></i>
+        Ajouter un circuit
+      </button>
     </div>
 
     <app-data-table
@@ -15,13 +18,8 @@
       [data]="circuits"
       [loading]="loading"
       [actions]="tableActions"
-      (actionClick)="onTableAction($event)">
+      (actionClick)="onTableAction($event)"
+      (rowClick)="onRowClick($event)">
     </app-data-table>
   </main>
-
-  <app-add-circuit-modal
-    #addCircuitModal
-    (save)="onCircuitSaved($event)"
-    (close)="onModalClosed()">
-  </app-add-circuit-modal>
 </div>

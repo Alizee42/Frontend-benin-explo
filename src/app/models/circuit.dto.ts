@@ -1,11 +1,25 @@
 export interface CircuitDTO {
   id: number;
-  nom: string;
+  titre: string;
+  resume: string;
   description: string;
   dureeIndicative: string;
   prixIndicatif: number;
   formuleProposee: string;
-  niveau: string;
-  zoneId: number;
+  localisation: string;
+  actif: boolean;
+  zoneId: number | null;
   activiteIds: number[];
+  img: string; // Image principale (hero image)
+  galerie: string[]; // Galerie d'images (3-10 images)
+  programme: string[]; // Programme jour par jour
+  pointsForts: PointFort[]; // Points forts avec icône
+  inclus: string[]; // Ce qui est inclus
+  nonInclus: string[]; // Ce qui n'est pas inclus
+}
+
+export interface PointFort {
+  icon: string;
+  title: string;
+  desc: string;
 }

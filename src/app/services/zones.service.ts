@@ -16,7 +16,7 @@ export interface Zone {
 })
 export class ZonesService {
 
-  private apiUrl = 'http://localhost:8080/api/zones';
+  private apiUrl = 'http://localhost:8080/admin/zones';
 
   constructor(private http: HttpClient) {}
 

@@ -45,9 +45,22 @@
             </div>
 
             <!-- Regular Data -->
-            <span *ngIf="column.type !== 'actions'">
+            <span *ngIf="column.type !== 'actions' && column.type !== 'image'">
               {{ getCellValue(item, column) }}
             </span>
+
+            <!-- Image Column -->
+            <div *ngIf="column.type === 'image'" class="image-cell">
+              <img
+                *ngIf="getCellValue(item, column)"
+                [src]="getCellValue(item, column)"
+                [alt]="column.label"
+                class="table-image"
+                (error)="onImageError($event)">
+              <div *ngIf="!getCellValue(item, column)" class="no-image">
+                <i class="ri-image-line"></i>
+              </div>
+            </div>
           </td>
         </tr>
       </tbody>

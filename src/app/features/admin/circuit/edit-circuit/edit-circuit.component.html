@@ -1,0 +1,319 @@
+<app-header mode="compact"></app-header>
+
+<div class="edit-circuit-container">
+  <div class="form-card" *ngIf="!isLoading; else loading">
+    <h2>Modifier le circuit</h2>
+
+    <form (ngSubmit)="onSubmit()" #circuitForm="ngForm">
+      <!-- Informations de base -->
+      <div class="form-section">
+        <h3>Informations de base</h3>
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="titre">Titre du circuit *</label>
+            <input
+              type="text"
+              id="titre"
+              name="titre"
+              [(ngModel)]="circuit.titre"
+              required
+              placeholder="Ex: Ouidah Tour - Porte du retour des esclaves"
+            >
+          </div>
+
+          <div class="form-group full-width">
+            <label for="resume">Résumé *</label>
+            <textarea
+              id="resume"
+              name="resume"
+              [(ngModel)]="circuit.resume"
+              required
+              placeholder="Résumé accrocheur du circuit (2-3 phrases)"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="localisation">Localisation *</label>
+            <input
+              type="text"
+              id="localisation"
+              name="localisation"
+              [(ngModel)]="circuit.localisation"
+              required
+              placeholder="Ex: Ouidah — Porte du retour des esclaves"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="dureeIndicative">Durée indicative *</label>
+            <select
+              id="dureeIndicative"
+              name="dureeIndicative"
+              [(ngModel)]="circuit.dureeIndicative"
+              required
+            >
+              <option value="">Sélectionner une durée</option>
+              <option value="1 jour">1 jour</option>
+              <option value="2 jours">2 jours</option>
+              <option value="3 jours">3 jours</option>
+              <option value="4 jours">4 jours</option>
+              <option value="5 jours">5 jours</option>
+              <option value="6 jours">6 jours</option>
+              <option value="1 semaine">1 semaine</option>
+              <option value="2 semaines">2 semaines</option>
+              <option value="3 semaines">3 semaines</option>
+              <option value="1 mois">1 mois</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="prixIndicatif">Prix indicatif *</label>
+            <input
+              type="number"
+              id="prixIndicatif"
+              name="prixIndicatif"
+              [(ngModel)]="circuit.prixIndicatif"
+              required
+              min="0"
+              step="0.01"
+              placeholder="Prix en FCFA"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="formuleProposee">Formule proposée</label>
+            <select
+              id="formuleProposee"
+              name="formuleProposee"
+              [(ngModel)]="circuit.formuleProposee"
+            >
+              <option value="">Sélectionner une formule</option>
+              <option value="Découverte">Découverte</option>
+              <option value="Aventure">Aventure</option>
+              <option value="Culturel">Culturel</option>
+              <option value="Nature">Nature</option>
+              <option value="Gastronomique">Gastronomique</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="zone">Zone géographique</label>
+            <select
+              id="zone"
+              name="zone"
+              [(ngModel)]="circuit.zoneId"
+            >
+              <option value="">Sélectionner une zone</option>
+              <option *ngFor="let zone of zones" [value]="zone.id">{{ zone.nom }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Médias -->
+      <div class="form-section">
+        <h3>Médias</h3>
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="heroImage">Image principale (Hero) *</label>
+            <input
+              type="file"
+              id="heroImage"
+              name="heroImage"
+              accept="image/*"
+              (change)="onHeroImageSelected($event)"
+            >
+            <small class="form-hint">Format recommandé: JPG/PNG, taille optimale: 1920x1080px</small>
+            <div *ngIf="circuit.img" class="current-image">
+              <small>Image actuelle: {{ circuit.img }}</small>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="galerie">Galerie d'images (3-10 images) *</label>
+            <input
+              type="file"
+              id="galerie"
+              name="galerie"
+              accept="image/*"
+              multiple
+              (change)="onGalerieImagesSelected($event)"
+            >
+            <small class="form-hint">Sélectionnez 3 à 10 images. Formats: JPG/PNG</small>
+            <div *ngIf="circuit.galerie && circuit.galerie.length > 0" class="current-gallery">
+              <small>Images actuelles: {{ circuit.galerie.length }} image(s)</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Description détaillée -->
+      <div class="form-section">
+        <h3>Description détaillée</h3>
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="description">Description complète *</label>
+            <textarea
+              id="description"
+              name="description"
+              [(ngModel)]="circuit.description"
+              required
+              placeholder="Description détaillée du circuit"
+              rows="5"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Programme jour par jour -->
+      <div class="form-section">
+        <h3>Programme jour par jour</h3>
+        <div class="programme-section">
+          <div class="programme-item" *ngFor="let jour of circuit.programme; let i = index; trackBy: trackByIndex">
+            <div class="jour-header">
+              <span class="jour-number">Jour {{ i + 1 }}</span>
+              <button type="button" class="btn-remove" (click)="removeJour(i)" *ngIf="circuit.programme.length > 1">×</button>
+            </div>
+            <textarea
+              [name]="'jour-' + i"
+              [(ngModel)]="circuit.programme[i]"
+              placeholder="Description des activités du jour {{ i + 1 }}"
+              rows="3"
+              required
+            ></textarea>
+          </div>
+          <button type="button" class="btn-add-jour" (click)="addJour()">+ Ajouter un jour</button>
+        </div>
+      </div>
+
+      <!-- Points forts -->
+      <div class="form-section">
+        <h3>Points forts</h3>
+        <div class="points-forts-section">
+          <!-- Points forts prédéfinis -->
+          <div class="predefined-points">
+            <h4>Points forts prédéfinis</h4>
+            <p class="predefined-description">Cliquez sur un point fort pour l'ajouter rapidement :</p>
+            <div class="predefined-grid">
+              <button
+                type="button"
+                class="predefined-btn"
+                *ngFor="let predefined of predefinedPointsForts"
+                (click)="addPredefinedPointFort(predefined)"
+                [title]="predefined.desc"
+              >
+                <span class="predefined-icon">{{ predefined.icon }}</span>
+                <span class="predefined-title">{{ predefined.title }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Points forts personnalisés -->
+          <div class="custom-points">
+            <h4>Points forts personnalisés</h4>
+            <div class="point-fort-item" *ngFor="let point of circuit.pointsForts; let i = index; trackBy: trackByIndex">
+              <div class="point-header">
+                <span class="point-number">Point fort {{ i + 1 }}</span>
+                <button type="button" class="btn-remove" (click)="removePointFort(i)" *ngIf="circuit.pointsForts.length > 1">×</button>
+              </div>
+              <div class="point-grid">
+                <select
+                  [name]="'point-icon-' + i"
+                  [(ngModel)]="circuit.pointsForts[i].icon"
+                  required
+                >
+                  <option value="">Choisir une icône</option>
+                  <option value="🏛️">🏛️ Histoire & Culture</option>
+                  <option value="🌿">🌿 Nature & Écologie</option>
+                  <option value="🍲">🍲 Gastronomie</option>
+                  <option value="🏖️">🏖️ Plages & Détente</option>
+                  <option value="🏞️">🏞️ Paysages</option>
+                  <option value="🎭">🎭 Traditions</option>
+                  <option value="🚶">🚶 Randonnée</option>
+                  <option value="🏊">🏊 Activités aquatiques</option>
+                  <option value="🎨">🎨 Art & Artisanat</option>
+                  <option value="🏰">🏰 Patrimoine</option>
+                  <option value="🌅">🌅 Couchers de soleil</option>
+                  <option value="🐘">🐘 Faune</option>
+                  <option value="🌺">🌺 Flore</option>
+                  <option value="🎶">🎶 Musique & Danse</option>
+                  <option value="🏺">🏺 Archéologie</option>
+                </select>
+                <input
+                  type="text"
+                  [name]="'point-title-' + i"
+                  [(ngModel)]="circuit.pointsForts[i].title"
+                  placeholder="Titre du point fort"
+                  required
+                >
+                <textarea
+                  [name]="'point-desc-' + i"
+                  [(ngModel)]="circuit.pointsForts[i].desc"
+                  placeholder="Description du point fort"
+                  rows="2"
+                  required
+                ></textarea>
+              </div>
+            </div>
+            <button type="button" class="btn-add-point" (click)="addPointFort()">+ Ajouter un point fort personnalisé</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informations pratiques -->
+      <div class="form-section">
+        <h3>Informations pratiques</h3>
+        <div class="infos-pratiques">
+          <div class="form-subsection">
+            <h4>Ce qui est inclus</h4>
+            <div class="list-input">
+              <div class="list-item" *ngFor="let item of circuit.inclus; let i = index; trackBy: trackByIndex">
+                <input
+                  type="text"
+                  [name]="'inclus-' + i"
+                  [(ngModel)]="circuit.inclus[i]"
+                  placeholder="Ex: Guide accompagnateur"
+                  required
+                >
+                <button type="button" class="btn-remove-item" (click)="removeInclus(i)" *ngIf="circuit.inclus.length > 1">×</button>
+              </div>
+              <button type="button" class="btn-add-item" (click)="addInclus()">+ Ajouter un élément inclus</button>
+            </div>
+          </div>
+
+          <div class="form-subsection">
+            <h4>Ce qui n'est pas inclus</h4>
+            <div class="list-input">
+              <div class="list-item" *ngFor="let item of circuit.nonInclus; let i = index; trackBy: trackByIndex">
+                <input
+                  type="text"
+                  [name]="'nonInclus-' + i"
+                  [(ngModel)]="circuit.nonInclus[i]"
+                  placeholder="Ex: Vols internationaux"
+                  required
+                >
+                <button type="button" class="btn-remove-item" (click)="removeNonInclus(i)" *ngIf="circuit.nonInclus.length > 1">×</button>
+              </div>
+              <button type="button" class="btn-add-item" (click)="addNonInclus()">+ Ajouter un élément non inclus</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="cancel()">Annuler</button>
+        <button type="submit" class="btn-submit" [disabled]="!circuitForm.form.valid || isLoading">
+          {{ isLoading ? 'Mise à jour...' : 'Mettre à jour' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <ng-template #loading>
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Chargement du circuit...</p>
+    </div>
+  </ng-template>
+</div>

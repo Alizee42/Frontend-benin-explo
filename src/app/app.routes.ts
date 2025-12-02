@@ -44,36 +44,51 @@ export const routes: Routes = [
   {
     path: 'admin/dashboard',
     loadComponent: () =>
-      import('./features/admin/pages/dashboard/dashboard.component').then(m => m.DashboardComponent)
+      import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
   },
 
   /* ADMIN CIRCUITS MANAGEMENT */
   {
     path: 'admin/circuits',
     loadComponent: () =>
-      import('./features/admin/pages/circuits-admin/circuits-admin.component').then(m => m.CircuitsAdminComponent)
+      import('./features/admin/circuit/circuits-admin.component').then(m => m.CircuitsAdminComponent)
   },
 
-  /* ADMIN ZONES MANAGEMENT */
+  /* ADMIN ADD CIRCUIT */
   {
-    path: 'admin/zones',
+    path: 'admin/circuits/add-circuit',
     loadComponent: () =>
-      import('./features/admin/pages/zones-admin/zones-admin.component').then(m => m.ZonesAdminComponent)
+      import('./features/admin/circuit/add-circuit/add-circuit.component').then(m => m.AddCircuitComponent)
   },
 
-  /* ADMIN ACTIVITES MANAGEMENT */
+  /* ADMIN EDIT CIRCUIT */
   {
-    path: 'admin/activites',
+    path: 'admin/circuits/edit-circuit/:id',
     loadComponent: () =>
-      import('./features/admin/pages/activites-admin/activites-admin.component').then(m => m.ActivitesAdminComponent)
+      import('./features/admin/circuit/edit-circuit/edit-circuit.component').then(m => m.EditCircuitComponent)
   },
 
-  /* ADMIN CIRCUITS PERSONNALISES MANAGEMENT */
+  /* ADMIN DETAIL CIRCUIT */
+  {
+    path: 'admin/circuits/detail/:id',
+    loadComponent: () =>
+      import('./features/admin/circuit/circuit-details/circuit-details.component').then(m => m.CircuitDetailsComponent)
+  },
+
+  /* ADMIN CIRCUITS PERSONNALISES */
   {
     path: 'admin/circuits-personnalises',
     loadComponent: () =>
-      import('./features/admin/pages/circuits-personnalises-admin/circuits-personnalises-admin.component').then(m => m.CircuitsPersonnalisesAdminComponent)
+      import('./features/admin/circuits-personnalises/circuits-personnalises-admin.component').then(m => m.CircuitsPersonnalisesAdminComponent)
   },
+
+  /* ADMIN DETAIL CIRCUIT PERSONNALISE */
+  {
+    path: 'admin/circuits-personnalises/detail/:id',
+    loadComponent: () =>
+      import('./features/admin/circuits-personnalises/detail/circuit-personnalise-detail.component').then(m => m.CircuitPersonnaliseDetailComponent)
+  },
+
 
   /* PROFIL */
   {

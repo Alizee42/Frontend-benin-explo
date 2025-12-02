@@ -28,12 +28,12 @@
       <article class="circuit-card" *ngFor="let c of circuits">
 
         <div class="card-image">
-          <img [src]="getImageForCircuit(c)" alt="{{ c.nom }}">
+          <img [src]="getImageForCircuit(c)" alt="{{ c.titre }}">
           <div class="card-badge">{{ c.dureeIndicative }}</div>
         </div>
 
         <div class="card-body">
-          <h3 class="card-title">{{ c.nom }}</h3>
+          <h3 class="card-title">{{ c.titre }}</h3>
           <p class="card-desc">
             {{ getShortDescription(c) }}
           </p>

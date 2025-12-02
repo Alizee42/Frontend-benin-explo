@@ -1,0 +1,119 @@
+<app-header mode="compact"></app-header>
+
+<div class="circuit-detail-container">
+  <div class="detail-card" *ngIf="demande; else loading">
+    <div class="detail-header">
+      <button class="btn-back" (click)="goBack()">← Retour à la liste</button>
+      <h1>Demande de circuit personnalisé #{{ demande.id }}</h1>
+      <div class="status-badge" [ngClass]="getStatusBadgeClass(demande.statut)">
+        {{ demande.statut }}
+      </div>
+    </div>
+
+    <div class="detail-content">
+      <!-- Informations client -->
+      <div class="info-section">
+        <h2>Informations client</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Nom :</label>
+            <span>{{ demande.client.nom }}</span>
+          </div>
+          <div class="info-item">
+            <label>Email :</label>
+            <span>{{ demande.client.email }}</span>
+          </div>
+          <div class="info-item">
+            <label>Téléphone :</label>
+            <span>{{ demande.client.telephone }}</span>
+          </div>
+          <div class="info-item">
+            <label>Date de soumission :</label>
+            <span>{{ formatDate(demande.dateCreation) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Détails du circuit -->
+      <div class="info-section">
+        <h2>Détails du circuit demandé</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Nombre de personnes :</label>
+            <span>{{ demande.nombrePersonnes }}</span>
+          </div>
+          <div class="info-item">
+            <label>Nombre de jours :</label>
+            <span>{{ demande.nombreJours }}</span>
+          </div>
+          <div class="info-item">
+            <label>Hébergement inclus :</label>
+            <span>{{ demande.avecHebergement ? 'Oui' : 'Non' }}</span>
+          </div>
+          <div class="info-item">
+            <label>Transport inclus :</label>
+            <span>{{ demande.avecTransport ? 'Oui' : 'Non' }}</span>
+          </div>
+          <div class="info-item" *ngIf="demande.prixEstime">
+            <label>Prix estimé :</label>
+            <span class="prix">{{ formatPrix(demande.prixEstime) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zones et activités -->
+      <div class="info-section">
+        <h2>Zones et activités souhaitées</h2>
+        <div class="zones-activites">
+          <div class="zones-section">
+            <h3>Zones géographiques :</h3>
+            <div class="tags">
+              <span class="tag" *ngFor="let zone of demande.zones">{{ zone }}</span>
+            </div>
+          </div>
+          <div class="activites-section">
+            <h3>Activités souhaitées :</h3>
+            <div class="tags">
+              <span class="tag" *ngFor="let activite of demande.activites">{{ activite }}</span>
+            </div>
+          </div>
+          <div class="extras-section" *ngIf="demande.extras && demande.extras.length > 0">
+            <h3>Extras demandés :</h3>
+            <div class="tags">
+              <span class="tag" *ngFor="let extra of demande.extras">{{ extra }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions-section" *ngIf="demande.statut === 'En attente'">
+        <h2>Actions</h2>
+        <div class="action-buttons">
+          <button class="btn-approve" (click)="approveDemande()">
+            ✅ Approuver la demande
+          </button>
+          <button class="btn-reject" (click)="rejectDemande()">
+            ❌ Refuser la demande
+          </button>
+        </div>
+      </div>
+
+      <div class="actions-section" *ngIf="demande.statut === 'Validé'">
+        <h2>Actions supplémentaires</h2>
+        <div class="action-buttons">
+          <button class="btn-convert" (click)="convertToCircuit()">
+            🔄 Convertir en circuit catalogue
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #loading>
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Chargement des détails de la demande...</p>
+    </div>
+  </ng-template>
+</div>

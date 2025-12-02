@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 export interface TableColumn {
   key: string;
   label: string;
-  type?: 'text' | 'number' | 'date' | 'boolean' | 'array' | 'actions';
+  type?: 'text' | 'number' | 'date' | 'boolean' | 'array' | 'actions' | 'image';
   sortable?: boolean;
   width?: string;
 }
@@ -55,6 +55,18 @@ export class DataTableComponent {
         return value ? new Date(value).toLocaleDateString('fr-FR') : '';
       default:
         return value;
+    }
+  }
+
+  onImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    const cell = img.parentElement;
+    if (cell) {
+      const noImageDiv = cell.querySelector('.no-image') as HTMLElement;
+      if (noImageDiv) {
+        noImageDiv.style.display = 'flex';
+      }
     }
   }
 

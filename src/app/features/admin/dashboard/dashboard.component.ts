@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { HeaderComponent } from '../../../../shared/components/header/header.component';
-import { AuthService } from '../../../../services/auth.service';
+import { HeaderComponent } from '../../../shared/components/header/header.component';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',

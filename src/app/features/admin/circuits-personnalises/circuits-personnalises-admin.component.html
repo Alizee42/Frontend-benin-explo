@@ -1,0 +1,51 @@
+<app-header mode="compact"></app-header>
+
+<div class="circuits-personnalises-admin-container">
+  <div class="admin-header">
+    <h1>Gestion des circuits personnalisés</h1>
+    <p>Gérez les demandes de circuits personnalisés soumises par les clients</p>
+  </div>
+
+  <div class="content-card">
+    <div class="stats-section">
+      <div class="stat-card">
+        <div class="stat-number">{{ totalDemandes }}</div>
+        <div class="stat-label">Total demandes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ demandesEnAttente }}</div>
+        <div class="stat-label">En attente</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ demandesApprouvees }}</div>
+        <div class="stat-label">Approuvées</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ demandesRefusees }}</div>
+        <div class="stat-label">Refusées</div>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <h2>Liste des demandes</h2>
+
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Chargement des demandes...</p>
+      </div>
+
+      <div *ngIf="!isLoading && demandes.length === 0" class="empty-state">
+        <p>Aucune demande de circuit personnalisé pour le moment.</p>
+      </div>
+
+      <div *ngIf="!isLoading && demandes.length > 0" class="data-table-container">
+        <app-data-table
+          [data]="demandes"
+          [columns]="tableColumns"
+          [actions]="tableActions"
+          (actionClick)="onActionClick($event)">
+        </app-data-table>
+      </div>
+    </div>
+  </div>
+</div>

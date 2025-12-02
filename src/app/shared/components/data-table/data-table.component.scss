@@ -124,11 +124,48 @@
         // Actions Cell
         .actions-cell {
           display: flex;
-          gap: 0.3rem;
-          flex-wrap: nowrap;
           align-items: center;
-          min-width: 100px;
-          justify-content: flex-end;
+          gap: 0.5rem;
+          flex-wrap: nowrap; // force single line for action buttons
+          overflow-x: auto; // allow horizontal scroll if too many actions
+        }
+
+        // Image Cell (miniature)
+        .image-cell {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 44px;
+
+          .table-image {
+            width: 36px;
+            height: 26px;
+            max-width: 36px;
+            max-height: 26px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+            &:hover {
+              transform: scale(1.06);
+              box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            }
+          }
+
+          .no-image {
+            width: 36px;
+            height: 26px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+
+            i { font-size: 1rem; }
+          }
         }
       }
     }
@@ -137,7 +174,7 @@
 
 // Action Buttons
 .btn-action {
-  padding: 0.4rem;
+  padding: 0.4rem 0.6rem;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -146,33 +183,23 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0;
+  gap: 0.3rem;
   transition: all 0.2s ease;
   text-decoration: none;
   min-width: 32px;
   height: 32px;
+  margin-right: 0.3rem;
 
   i {
     font-size: 1rem;
     flex-shrink: 0;
   }
-
-  span {
-    display: none; // Hide text, keep only icons
-  }
-
-  // Default style
-  &.btn-default {
-    background: #6c757d;
-    color: white;
-
-    &:hover:not(:disabled) {
-      background: #5a6268;
-      transform: translateY(-1px);
+    span {
+      display: none; // hide text, show icons only
     }
-  }
+  
 
-  // Edit style
+
   &.btn-edit {
     background: var(--be-gold);
     color: var(--be-dark);
@@ -205,10 +232,21 @@
     }
   }
 
-  // Warning style
-  &.btn-warning {
+  // Info style
+  &.btn-info {
+    background: #17a2b8;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #138496;
+      transform: translateY(-1px);
+    }
+  }
+
+  // Toggle style
+  &.btn-toggle {
     background: #ffc107;
-    color: #212529;
+    color: var(--be-dark);
 
     &:hover:not(:disabled) {
       background: #e0a800;
@@ -226,6 +264,7 @@
     cursor: not-allowed;
     transform: none !important;
   }
+
 }
 
 // Responsive Design
@@ -252,9 +291,10 @@
         font-size: 0.7rem;
         min-width: 28px;
         height: 28px;
+        margin-right: 0.2rem;
 
         span {
-          display: none; // Keep text hidden on mobile too
+          display: none; // Keep text hidden on mobile
         }
 
         i {
@@ -262,6 +302,13 @@
         }
       }
     }
+  }
+}
+
+@media (min-width: 769px) {
+  .actions-cell .btn-action {
+    min-width: 32px; // Keep compact size for icons only
+    padding: 0.4rem;
   }
 }
 
