@@ -13,6 +13,8 @@ export interface CircuitDTO {
   img: string; // Image principale (hero image)
   galerie: string[]; // Galerie d'images (3-10 images)
   programme: string[]; // Programme jour par jour
+  tourisme?: string[]; // Lieux/attractions à visiter
+  aventures?: string[]; // Activités/aventures proposées
   pointsForts: PointFort[]; // Points forts avec icône
   inclus: string[]; // Ce qui est inclus
   nonInclus: string[]; // Ce qui n'est pas inclus

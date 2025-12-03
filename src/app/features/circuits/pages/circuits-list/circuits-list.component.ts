@@ -144,8 +144,18 @@ export class CircuitsListComponent implements OnInit {
   getImageForCircuit(circuit: CircuitDTO): string {
     // Utiliser l'image du circuit si elle existe, sinon utiliser le mapping par défaut
     if (circuit.img && circuit.img.trim()) {
-      // S'assurer que le chemin commence par /
-      return circuit.img.startsWith('/') ? circuit.img : '/' + circuit.img;
+      const raw = circuit.img.trim();
+      // Si c'est déjà une URL absolue (http/https) -> retourner telle quelle
+      if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('//')) {
+        return raw;
+      }
+      // S'assurer que le chemin commence par '/'
+      const img = raw.startsWith('/') ? raw : '/' + raw;
+      // Si l'URL pointe vers le endpoint backend (/images/...), préfixer avec l'hôte backend
+      if (img.startsWith('/images') || img.startsWith('/api/images')) {
+        return `http://localhost:8080${img}`;
+      }
+      return img;
     }
     return this.imageMap[circuit.id] || '/assets/images/circuit-default.jpg';
   }

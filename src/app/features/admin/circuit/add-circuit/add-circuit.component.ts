@@ -6,6 +6,7 @@ import { HeaderComponent } from '../../../../shared/components/header/header.com
 import { CircuitDTO, PointFort } from '../../../../models/circuit.dto';
 import { CircuitService } from '../../../../services/circuit.service';
 import { ZonesService, Zone } from '../../../../services/zones.service';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-add-circuit',
@@ -30,6 +31,8 @@ export class AddCircuitComponent {
     img: '',
     galerie: [],
     programme: [''],
+    tourisme: [''],
+    aventures: [''],
     pointsForts: [{ icon: '', title: '', desc: '' }],
     inclus: [''],
     nonInclus: ['']
@@ -40,6 +43,7 @@ export class AddCircuitComponent {
   heroImageFile: File | null = null;
   galerieFiles: File[] = [];
   currentStep = 1;
+
 
   // Points forts prédéfinis
   predefinedPointsForts = [
@@ -102,10 +106,11 @@ export class AddCircuitComponent {
     const file = event.target.files[0];
     if (file) {
       this.heroImageFile = file;
-      // Convertir l'image en base64
+      // optionally keep a preview: convert to base64 for preview only
       this.convertFileToBase64(file).then(base64 => {
-        this.circuit.img = base64;
-      });
+        // preview only, not used for upload
+        // set temporary preview if needed
+      }).catch(() => {});
     }
   }
 
@@ -113,11 +118,7 @@ export class AddCircuitComponent {
     const files = Array.from(event.target.files) as File[];
     if (files.length >= 3 && files.length <= 10) {
       this.galerieFiles = files;
-      // Convertir toutes les images en base64
-      const promises = files.map(file => this.convertFileToBase64(file));
-      Promise.all(promises).then(base64Images => {
-        this.circuit.galerie = base64Images;
-      });
+      // previews can be generated if needed
     } else {
       alert('Veuillez sélectionner entre 3 et 10 images.');
       event.target.value = '';
@@ -144,6 +145,27 @@ export class AddCircuitComponent {
   removeJour(index: number) {
     if (this.circuit.programme!.length > 1) {
       this.circuit.programme!.splice(index, 1);
+    }
+  }
+
+  // Gestion tourisme / aventures
+  addTourisme() {
+    this.circuit.tourisme!.push('');
+  }
+
+  removeTourisme(index: number) {
+    if (this.circuit.tourisme!.length > 1) {
+      this.circuit.tourisme!.splice(index, 1);
+    }
+  }
+
+  addAventure() {
+    this.circuit.aventures!.push('');
+  }
+
+  removeAventure(index: number) {
+    if (this.circuit.aventures!.length > 1) {
+      this.circuit.aventures!.splice(index, 1);
     }
   }
 
@@ -194,6 +216,19 @@ export class AddCircuitComponent {
     console.log('Hero image file:', this.heroImageFile);
     console.log('Galerie files:', this.galerieFiles);
 
+    
+
+    // Nettoyage: supprimer les points forts complètement vides (utilisateur n'a pas rempli les champs)
+    if (this.circuit.pointsForts && this.circuit.pointsForts.length > 0) {
+      this.circuit.pointsForts = this.circuit.pointsForts.filter(p => {
+        const icon = (p.icon || '').toString().trim();
+        const title = (p.title || '').toString().trim();
+        const desc = (p.desc || '').toString().trim();
+        // on garde uniquement les points où au moins un champ est renseigné
+        return icon !== '' || title !== '' || desc !== '';
+      });
+    }
+
     // Validation des champs obligatoires
     if (!this.circuit.titre || !this.circuit.resume || !this.circuit.description ||
         !this.circuit.dureeIndicative || !this.circuit.prixIndicatif || !this.circuit.localisation) {
@@ -222,9 +257,23 @@ export class AddCircuitComponent {
       return;
     }
 
-    // Validation des points forts
-    if (this.circuit.pointsForts.some(point => !point.icon.trim() || !point.title.trim() || !point.desc.trim())) {
-      alert('Veuillez remplir tous les champs des points forts.');
+    // Validation tourisme / aventures (optionnel mais nettoyer les entrées vides)
+    if (this.circuit.tourisme && this.circuit.tourisme.length > 0) {
+      this.circuit.tourisme = this.circuit.tourisme.filter(t => t && t.toString().trim() !== '');
+    }
+    if (this.circuit.aventures && this.circuit.aventures.length > 0) {
+      this.circuit.aventures = this.circuit.aventures.filter(a => a && a.toString().trim() !== '');
+    }
+
+    // Validation des points forts: il doit y avoir au moins 1 point fort complet
+    if (!this.circuit.pointsForts || this.circuit.pointsForts.length === 0) {
+      alert('Veuillez ajouter au moins un point fort (icône, titre et description).');
+      console.error('Aucun point fort renseigné');
+      return;
+    }
+    // Vérifier que tous les points fournis sont complets
+    if (this.circuit.pointsForts.some(point => !point.icon || !point.icon.toString().trim() || !point.title || !point.title.toString().trim() || !point.desc || !point.desc.toString().trim())) {
+      alert('Veuillez remplir tous les champs des points forts (icône, titre et description).');
       console.error('Points forts incomplets');
       return;
     }
@@ -245,19 +294,60 @@ export class AddCircuitComponent {
     console.log('Toutes les validations passées, envoi au backend...');
     this.isLoading = true;
 
-    // Dans un vrai projet, il faudrait d'abord uploader les images
-    // Pour l'instant, on simule avec les noms de fichiers
-    this.circuitService.createCircuit(this.circuit as Omit<CircuitDTO, 'id'>).subscribe({
-      next: (createdCircuit) => {
-        console.log('Circuit créé:', createdCircuit);
-        this.router.navigate(['/admin/circuits']);
-      },
-      error: (error) => {
-        console.error('Erreur création circuit', error);
-        alert('Erreur lors de la création du circuit. Veuillez réessayer.');
+    (async () => {
+      try {
+        // 1) uploader l'image principale
+        if (!this.heroImageFile) throw new Error('Image principale manquante');
+        console.log('[AddCircuit] uploading hero image:', this.heroImageFile.name);
+        const heroResp = await lastValueFrom(this.circuitService.uploadImage(this.heroImageFile, 'circuits/hero'));
+        console.log('[AddCircuit] hero upload response:', heroResp);
+        // backend retourne { filename, url }
+        this.circuit.img = `http://localhost:8080${heroResp.url}`;
+
+        // 2) uploader la galerie en parallèle
+        console.log('[AddCircuit] uploading gallery images count:', this.galerieFiles.length);
+        const galerieResults: Array<{ filename: string; url: string }> = [];
+        const failedFiles: Array<{ name: string; error: any }> = [];
+        for (const file of this.galerieFiles) {
+          try {
+            const r = await lastValueFrom(this.circuitService.uploadImage(file, 'circuits/galerie'));
+            console.log('[AddCircuit] gallery upload response for', file.name, r);
+            galerieResults.push(r);
+          } catch (uploadErr) {
+            console.error('[AddCircuit] gallery upload failed for', file.name, uploadErr);
+            failedFiles.push({ name: file.name, error: uploadErr });
+          }
+        }
+
+        console.log('[AddCircuit] gallery upload summary successes:', galerieResults.length, 'failures:', failedFiles.length);
+        // If some uploads failed, inform the user but continue with the successful ones
+        if (failedFiles.length > 0) {
+          const names = failedFiles.map(f => f.name).join(', ');
+          alert('Certaines images de la galerie n\'ont pas pu être uploadées: ' + names + '. Le circuit sera créé avec les images uploadées. Vous pouvez réessayer pour les fichiers manquants.');
+        }
+
+        this.circuit.galerie = galerieResults.map(r => `http://localhost:8080${r.url}`);
+
+        // 3) créer le circuit avec les URLs complètes
+        console.log('[AddCircuit] creating circuit payload:', this.circuit);
+        this.circuitService.createCircuit(this.circuit as Omit<CircuitDTO, 'id'>).subscribe({
+          next: (createdCircuit) => {
+            console.log('[AddCircuit] Circuit créé:', createdCircuit);
+            this.router.navigate(['/admin/circuits']);
+          },
+          error: (error) => {
+            console.error('[AddCircuit] Erreur création circuit', error);
+            alert('Erreur lors de la création du circuit. Veuillez réessayer.');
+            this.isLoading = false;
+          }
+        });
+
+      } catch (err: any) {
+        console.error('Erreur lors de l\'upload des images:', err);
+        alert('Erreur lors de l\'upload des images : ' + (err.message || err));
         this.isLoading = false;
       }
-    });
+    })();
   }
 
   cancel() {

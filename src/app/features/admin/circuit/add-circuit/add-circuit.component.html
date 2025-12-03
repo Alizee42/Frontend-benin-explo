@@ -178,24 +178,23 @@
         </div>
       </div>
 
-      <!-- Programme jour par jour (toujours dans l'étape 2) -->
+      <!-- Programme (toujours dans l'étape 2) -->
       <div class="form-section" *ngIf="currentStep === 2">
-        <h3>Programme jour par jour</h3>
+        <h3>Programme</h3>
         <div class="programme-section">
-          <div class="programme-item" *ngFor="let jour of circuit.programme; let i = index; trackBy: trackByIndex">
-            <div class="jour-header">
-              <span class="jour-number">Jour {{ i + 1 }}</span>
+          <div class="programme-item" *ngFor="let step of circuit.programme; let i = index; trackBy: trackByIndex">
+            <div class="programme-row">
+              <textarea
+                [name]="'programme-' + i"
+                [(ngModel)]="circuit.programme[i]"
+                placeholder="Description du programme"
+                rows="3"
+                required
+              ></textarea>
               <button type="button" class="btn-remove" (click)="removeJour(i)" *ngIf="circuit.programme.length > 1">×</button>
             </div>
-            <textarea
-              [name]="'jour-' + i"
-              [(ngModel)]="circuit.programme[i]"
-              placeholder="Description des activités du jour {{ i + 1 }}"
-              rows="3"
-              required
-            ></textarea>
           </div>
-          <button type="button" class="btn-add-jour" (click)="addJour()">+ Ajouter un jour</button>
+          <button type="button" class="btn-add-jour" (click)="addJour()">+ Ajouter une étape</button>
         </div>
       </div>
 
@@ -266,6 +265,7 @@
           </div>
           <button type="button" class="btn-add-point" (click)="addPointFort()">+ Ajouter un point fort personnalisé</button>
         </div>
+        
       </div>
 
       <!-- Informations pratiques (toujours dans l'étape 3) -->

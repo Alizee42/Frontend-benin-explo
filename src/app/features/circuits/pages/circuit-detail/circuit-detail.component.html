@@ -1,98 +1,121 @@
 <!-- HERO VISUEL -->
-<section class="detail-hero">
-  <img [src]="circuit.img" class="hero-img" />
+<ng-container *ngIf="!loading && circuit; else loadingTpl">
 
-  <div class="hero-overlay"></div>
+  <!-- HERO VISUEL -->
+  <section class="detail-hero">
+    <img [src]="getImageUrl(circuit!.img)" class="hero-img" />
 
-  <div class="hero-content">
-    <h1>{{ circuit.titre }}</h1>
-    <p class="location">{{ circuit.localisation }}</p>
-    <div class="hero-badges">
-      <span class="badge">{{ circuit.duree }}</span>
-      <span class="badge">Culturel</span>
-      <span class="badge">⭐ 4.8/5 (12 avis)</span>
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+      <h1>{{ circuit!.titre }}</h1>
+      <p class="location">{{ circuit!.localisation }}</p>
+      <div class="hero-badges">
+        <span class="badge">{{ circuit!.dureeIndicative }}</span>
+        <span class="badge">Culturel</span>
+        <span class="badge" *ngIf="zone">{{ zone.nom }}</span>
+        <span class="badge">⭐ 4.8/5 (12 avis)</span>
+      </div>
+      </div>
+
+      
+  </section>
+
+  <!-- CONTENU -->
+  <section class="content">
+
+    <!-- Présentation (fusion Présentation + Description en une seule section) -->
+    <div class="section">
+      <h2>Présentation</h2>
+
+      <!-- Résumé court (si présent) -->
+      <p class="intro" *ngIf="circuit!.resume">
+        {{ circuit!.resume }}
+      </p>
+
+      <!-- Description longue (si présente) : affichée sous le même titre, sans second en-tête -->
+      <p class="description-text" *ngIf="circuit!.description">
+        {{ circuit!.description }}
+      </p>
     </div>
-  </div>
-</section>
 
-<!-- CONTENU -->
-<section class="content">
-
-  <!-- Présentation -->
-  <div class="section">
-    <h2>Présentation</h2>
-    <p class="intro">
-      {{ circuit.resume }}
-    </p>
-  </div>
-
-  <!-- Galerie d'images -->
-  <div class="section">
-    <h2>Galerie</h2>
-    <div class="gallery">
-      <img src="assets/images/esclaves.jpg" alt="Image 1">
-      <img src="assets/images/village.jpg" alt="Image 2">
-      <img src="assets/images/royal-palaces-of-abomey.jpg" alt="Image 3">
-      <img src="assets/images/templepython.jpg" alt="Image 4">
+    <!-- Galerie d'images -->
+    <div class="section" *ngIf="circuit!.galerie?.length">
+      <h2>Galerie</h2>
+      <div class="gallery">
+        <img *ngFor="let g of circuit!.galerie" [src]="getImageUrl(g)" alt="Image" />
+      </div>
     </div>
-  </div>
 
-  <!-- Programme du jour -->
-  <div class="section">
-    <h2>Programme du jour</h2>
-    <div class="timeline">
-      <div class="timeline-item" *ngFor="let p of circuit.programme; let i = index">
-        <div class="timeline-marker">{{ i + 1 }}</div>
-        <div class="timeline-content">
-          <p>{{ p }}</p>
+    <!-- Programmes (plusieurs jours possibles) -->
+    <div class="section" *ngIf="circuit!.programme?.length">
+      <h2>Programmes</h2>
+      <p class="muted">(Liste des étapes / jours du circuit)</p>
+      <div class="timeline">
+        <div class="timeline-item" *ngFor="let p of circuit!.programme; let i = index">
+          <div class="timeline-marker">{{ i + 1 }}</div>
+          <div class="timeline-content">
+            <p>{{ p }}</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Points forts -->
-  <div class="section">
-    <h2>Points forts du circuit</h2>
-    <div class="points-forts">
-      <div class="fort-card" *ngFor="let fort of circuit.pointsForts">
-        <div class="fort-icon">{{ fort.icon }}</div>
-        <h3>{{ fort.title }}</h3>
-        <p>{{ fort.desc }}</p>
+    <!-- Points forts -->
+    <div class="section" *ngIf="circuit!.pointsForts?.length">
+      <h2>Points forts du circuit</h2>
+      <div class="points-forts">
+        <div class="fort-card" *ngFor="let fort of circuit!.pointsForts">
+          <div class="fort-icon">{{ fort.icon }}</div>
+          <h3>{{ fort.title }}</h3>
+          <p>{{ fort.desc }}</p>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Informations pratiques -->
-  <div class="section">
-    <h2>Informations pratiques</h2>
-    <div class="info-grid">
-      <div class="info-card">
-        <h4>Durée</h4>
-        <p>{{ circuit.duree }}</p>
-      </div>
-      <div class="info-card">
-        <h4>Localisation</h4>
-        <p>{{ circuit.localisation }}</p>
-      </div>
-      <div class="info-card">
-        <h4>Prix</h4>
-        <p>À partir de 100 €</p>
-      </div>
-      <div class="info-card">
-        <h4>Inclus</h4>
-        <p>Guide, transport, déjeuner</p>
+    <!-- Informations pratiques -->
+    <div class="section">
+      <h2>Informations pratiques</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <h4>Durée</h4>
+          <p>{{ circuit!.dureeIndicative }}</p>
+        </div>
+        <div class="info-card">
+          <h4>Localisation</h4>
+          <p>{{ circuit!.localisation }}</p>
+        </div>
+        <div class="info-card" *ngIf="zone">
+          <h4>Zone</h4>
+          <p>{{ zone.nom }}</p>
+        </div>
+        <div class="info-card">
+          <h4>Prix</h4>
+          <p>À partir de {{ circuit!.prixIndicatif }} €</p>
+        </div>
+        
+        <div class="info-card" *ngIf="circuit!.formuleProposee">
+          <h4>Formule</h4>
+          <p>{{ circuit!.formuleProposee }}</p>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- CTA Réservation -->
-  <div class="section cta-section">
-    <h2>Prêt à vivre cette aventure ?</h2>
-    <p>Contactez-nous pour organiser votre circuit personnalisé au Bénin.</p>
-    <div class="cta-buttons">
-      <a routerLink="/circuit" class="btn-back">← Retour aux circuits</a>
-      <button class="btn-reserve">Réserver maintenant</button>
+    <!-- CTA Réservation -->
+    <div class="section cta-section">
+      <h2>Prêt à vivre cette aventure ?</h2>
+      <p>Contactez-nous pour organiser votre circuit personnalisé au Bénin.</p>
+      <div class="cta-buttons">
+        <a routerLink="/circuit" class="btn-back">← Retour aux circuits</a>
+        <button class="btn-reserve">Réserver maintenant</button>
+      </div>
     </div>
-  </div>
 
-</section>
+  </section>
+
+</ng-container>
+
+<ng-template #loadingTpl>
+  <div class="loading">Chargement du circuit...</div>
+</ng-template>
+

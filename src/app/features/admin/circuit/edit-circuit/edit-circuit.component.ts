@@ -6,6 +6,7 @@ import { HeaderComponent } from '../../../../shared/components/header/header.com
 import { CircuitDTO, PointFort } from '../../../../models/circuit.dto';
 import { CircuitService } from '../../../../services/circuit.service';
 import { ZonesService, Zone } from '../../../../services/zones.service';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-edit-circuit',
@@ -107,10 +108,7 @@ export class EditCircuitComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       this.heroImageFile = file;
-      // Convertir l'image en base64
-      this.convertFileToBase64(file).then(base64 => {
-        this.circuit.img = base64;
-      });
+      // optional: preview only
     }
   }
 
@@ -118,11 +116,6 @@ export class EditCircuitComponent implements OnInit {
     const files = Array.from(event.target.files) as File[];
     if (files.length >= 3 && files.length <= 10) {
       this.galerieFiles = files;
-      // Convertir toutes les images en base64
-      const promises = files.map(file => this.convertFileToBase64(file));
-      Promise.all(promises).then(base64Images => {
-        this.circuit.galerie = base64Images;
-      });
     } else {
       alert('Veuillez sélectionner entre 3 et 10 images.');
       event.target.value = '';
@@ -195,6 +188,16 @@ export class EditCircuitComponent implements OnInit {
   }
 
   onSubmit() {
+    // Nettoyage: supprimer les points forts complètement vides (utilisateur n'a pas rempli les champs)
+    if (this.circuit.pointsForts && this.circuit.pointsForts.length > 0) {
+      this.circuit.pointsForts = this.circuit.pointsForts.filter(p => {
+        const icon = (p.icon || '').toString().trim();
+        const title = (p.title || '').toString().trim();
+        const desc = (p.desc || '').toString().trim();
+        return icon !== '' || title !== '' || desc !== '';
+      });
+    }
+
     // Validation des champs obligatoires
     if (!this.circuit.titre || !this.circuit.resume || !this.circuit.description ||
         !this.circuit.dureeIndicative || !this.circuit.prixIndicatif || !this.circuit.localisation) {
@@ -228,19 +231,58 @@ export class EditCircuitComponent implements OnInit {
 
     this.isLoading = true;
 
-    // Dans un vrai projet, il faudrait d'abord uploader les images
-    // Pour l'instant, on simule avec les noms de fichiers
-    this.circuitService.updateCircuit(this.circuit.id, this.circuit).subscribe({
-      next: (updatedCircuit) => {
-        console.log('Circuit mis à jour:', updatedCircuit);
-        this.router.navigate(['/admin/circuits']);
-      },
-      error: (error) => {
-        console.error('Erreur mise à jour circuit', error);
-        alert('Erreur lors de la mise à jour du circuit. Veuillez réessayer.');
+    (async () => {
+      try {
+        // If a new hero file was selected, upload it
+        if (this.heroImageFile) {
+          console.log('[EditCircuit] uploading hero image:', this.heroImageFile.name);
+          const heroResp = await lastValueFrom(this.circuitService.uploadImage(this.heroImageFile, 'circuits/hero'));
+          console.log('[EditCircuit] hero upload response:', heroResp);
+          this.circuit.img = `http://localhost:8080${heroResp.url}`;
+        }
+
+        // If new gallery files selected, upload them (sequential, resilient)
+        if (this.galerieFiles && this.galerieFiles.length > 0) {
+          console.log('[EditCircuit] uploading gallery images count:', this.galerieFiles.length);
+          const galerieResults: Array<{ filename: string; url: string }> = [];
+          const failedFiles: Array<{ name: string; error: any }> = [];
+          for (const file of this.galerieFiles) {
+            try {
+              const r = await lastValueFrom(this.circuitService.uploadImage(file, 'circuits/galerie'));
+              console.log('[EditCircuit] gallery upload response for', file.name, r);
+              galerieResults.push(r);
+            } catch (uploadErr) {
+              console.error('[EditCircuit] gallery upload failed for', file.name, uploadErr);
+              failedFiles.push({ name: file.name, error: uploadErr });
+            }
+          }
+          console.log('[EditCircuit] gallery upload summary successes:', galerieResults.length, 'failures:', failedFiles.length);
+          if (failedFiles.length > 0) {
+            const names = failedFiles.map(f => f.name).join(', ');
+            alert('Certaines images de la galerie n\'ont pas pu être uploadées: ' + names + '. Le circuit sera mis à jour avec les images uploadées. Vous pouvez réessayer pour les fichiers manquants.');
+          }
+          this.circuit.galerie = galerieResults.map(r => `http://localhost:8080${r.url}`);
+        }
+
+        // then update the circuit
+        this.circuitService.updateCircuit(this.circuit.id, this.circuit).subscribe({
+          next: (updatedCircuit) => {
+            console.log('Circuit mis à jour:', updatedCircuit);
+            this.router.navigate(['/admin/circuits']);
+          },
+          error: (error) => {
+            console.error('Erreur mise à jour circuit', error);
+            alert('Erreur lors de la mise à jour du circuit. Veuillez réessayer.');
+            this.isLoading = false;
+          }
+        });
+
+      } catch (err: any) {
+        console.error('Erreur upload images:', err);
+        alert('Erreur lors de l\'upload des images: ' + (err.message || err));
         this.isLoading = false;
       }
-    });
+    })();
   }
 
   cancel() {

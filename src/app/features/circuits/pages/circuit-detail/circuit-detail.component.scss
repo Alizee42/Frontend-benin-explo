@@ -53,6 +53,8 @@
 /* CONTENU GLOBAL */
 .content {
   padding: 2rem 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* BOUTON RETOUR */
@@ -91,9 +93,37 @@
 
 /* INTRO */
 .intro {
-  font-size: 1.05rem;
-  line-height: 1.5;
-  color: #444;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: #2f2f2f;
+  background: linear-gradient(180deg, #ffffff 0%, #fffef8 100%);
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+  margin-bottom: 0.8rem;
+  text-align: justify;
+}
+
+/* DESCRIPTION */
+
+.description-text {
+  background: linear-gradient(180deg, #ffffff 0%, #fffef8 100%);
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  font-size: 1.03rem;
+  line-height: 1.7;
+  color: #333;
+  text-align: justify;
+  white-space: pre-line; /* preserve line breaks */
+  hyphens: auto;
+  margin: 0.6rem 0 0.2rem 0;
+}
+
+/* Si une section contient intro + description, on les groupe visuellement */
+.section > .intro + .description-text,
+.section > .description-text {
+  max-width: 1200px;
 }
 
 /* LISTES EN CARTES */
@@ -117,6 +147,7 @@
   color: #333;
   box-shadow: 0 3px 10px rgba(0,0,0,0.05);
 }
+
 
 /* TIMELINE */
 .timeline {

@@ -54,6 +54,13 @@ export const routes: Routes = [
       import('./features/admin/circuit/circuits-admin.component').then(m => m.CircuitsAdminComponent)
   },
 
+  /* ADMIN ZONES */
+  {
+    path: 'admin/zones',
+    loadComponent: () =>
+      import('./features/admin/zones/zones-admin.component').then(m => m.ZonesAdminComponent)
+  },
+
   /* ADMIN ADD CIRCUIT */
   {
     path: 'admin/circuits/add-circuit',
