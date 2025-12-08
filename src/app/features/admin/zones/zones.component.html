@@ -1,0 +1,58 @@
+<div class="zones-admin">
+  <app-header mode="compact"></app-header>
+
+  <main class="page-content">
+    <div class="actions-bar">
+      <h1 class="page-title">
+        <i class="ri-map-pin-line"></i>
+        Gestion des zones
+      </h1>
+      <button class="btn-add" (click)="openAddModal()">
+        <i class="ri-add-line"></i>
+        Ajouter une zone
+      </button>
+    </div>
+
+    <app-data-table
+      [columns]="tableColumns"
+      [data]="zones"
+      [loading]="loading"
+      [actions]="tableActions"
+      (actionClick)="onTableAction($event)"
+      (rowClick)="onRowClick($event)">
+    </app-data-table>
+  </main>
+</div>
+
+<!-- Modal pour ajouter/modifier (réutilise app-modal) -->
+<app-modal [title]="isEditing ? 'Modifier la zone' : 'Ajouter une zone'" [open]="showModal" (close)="closeModal()">
+  <form (ngSubmit)="saveZone()" #zoneForm="ngForm">
+    <div class="form-group">
+      <label for="nom">Nom *</label>
+      <input
+        type="text"
+        id="nom"
+        name="nom"
+        [(ngModel)]="currentZone.nom"
+        required
+        placeholder="Ex: Sud, Centre, Nord"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea
+        id="description"
+        name="description"
+        [(ngModel)]="currentZone.description"
+        placeholder="Description de la zone géographique"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
+      <button type="submit" class="btn-primary" [disabled]="!zoneForm.valid">{{ isEditing ? 'Modifier' : 'Ajouter' }}</button>
+    </div>
+  </form>
+</app-modal>

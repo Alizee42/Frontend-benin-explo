@@ -1,0 +1,60 @@
+<div class="villes-admin">
+  <app-header mode="compact"></app-header>
+
+  <main class="page-content">
+    <div class="actions-bar">
+      <h1 class="page-title">
+        <i class="ri-building-4-line"></i>
+        Gestion des villes
+      </h1>
+      <button class="btn-add" (click)="openAddModal()">
+        <i class="ri-add-line"></i>
+        Ajouter une ville
+      </button>
+    </div>
+
+    <app-data-table
+      [columns]="tableColumns"
+      [data]="villes"
+      [loading]="loading"
+      [actions]="tableActions"
+      (actionClick)="onTableAction($event)"
+      (rowClick)="onRowClick($event)">
+    </app-data-table>
+  </main>
+</div>
+
+<!-- Modal pour ajouter/modifier (réutilise app-modal) -->
+<app-modal [title]="isEditing ? 'Modifier la ville' : 'Ajouter une ville'" [open]="showModal" (close)="closeModal()">
+  <form (ngSubmit)="saveVille()" #villeForm="ngForm">
+    <div class="form-group">
+      <label for="nom">Nom de la ville *</label>
+      <input
+        type="text"
+        id="nom"
+        name="nom"
+        [(ngModel)]="currentVille.nom"
+        required
+        placeholder="Ex: Cotonou, Ouidah, Abomey"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="zoneId">Zone *</label>
+      <select
+        id="zoneId"
+        name="zoneId"
+        [(ngModel)]="currentVille.zoneId"
+        required
+      >
+        <option value="">Sélectionner une zone</option>
+        <option *ngFor="let zone of zones" [value]="zone.id">{{ zone.nom }}</option>
+      </select>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
+      <button type="submit" class="btn-primary" [disabled]="!villeForm.valid">{{ isEditing ? 'Modifier' : 'Ajouter' }}</button>
+    </div>
+  </form>
+</app-modal>

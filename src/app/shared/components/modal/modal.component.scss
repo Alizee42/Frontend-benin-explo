@@ -1,3 +1,8 @@
+.modal { }
+.modal-content { }
+.modal-header { display:flex; align-items:center; justify-content:space-between; }
+.modal-header h3 { margin:0; font-size:1.05rem; }
+.close-btn { background:transparent; border:none; cursor:pointer; padding:6px; border-radius:6px; }
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -68,21 +73,22 @@
     font-weight: 600;
   }
 
-  .close-btn {
-    background: none;
-    border: none;
-    color: var(--be-light);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: all 0.2s ease;
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--be-light);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background-color 0.12s ease, color 0.12s ease;
 
-    &:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: rotate(90deg);
+      span { line-height: 1; font-size: 1.2rem; display:inline-block; }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
     }
-  }
 }
 
 .modal-body {
@@ -158,40 +164,42 @@
   top: 0;
   z-index: 1;
 
-  h2 {
+  .modal-title, h2 {
     margin: 0;
     color: var(--be-light);
     font-size: 1.25rem;
     font-weight: 600;
     flex: 1;
-    text-align: center;
+    /* Titre aligné à gauche pour un rendu cohérent */
+    text-align: left;
     margin-right: 2.5rem; // Espace pour le bouton close
   }
 
-  .close-btn {
-    background: none;
-    border: none;
-    color: var(--be-light);
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0.75rem;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    min-width: 44px;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--be-light);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.75rem;
+      border-radius: 50%;
+      transition: background-color 0.12s ease, color 0.12s ease;
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-    &:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateY(-50%) rotate(90deg);
+      span { line-height: 1; font-size: 1.25rem; }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
     }
-  }
 }
 
 .modal-body {
@@ -310,4 +318,58 @@
   .modal-overlay {
     padding: 3rem;
   }
+}
+
+/* Styles pour boutons projetés dans le body (ex: activite-form) */
+.modal-content .modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.modal-content .modal-actions .btn-primary {
+  background: linear-gradient(180deg, var(--be-green) 0%, #00695c 100%);
+  color: var(--be-light);
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-content .modal-actions .btn-primary[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.modal-content .modal-actions .btn-secondary {
+  background: transparent;
+  color: #1f2937; /* dark text */
+  border: 1px solid rgba(0,0,0,0.08);
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Renforcer styles génériques pour s'assurer que les boutons
+   projetés héritent bien du style même si d'autres règles globales
+   réinitialisent les styles */
+.modal-content .modal-actions button,
+.modal-content .modal-actions .btn-primary,
+.modal-content .modal-actions .btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.modal-content .modal-actions .btn-primary {
+  box-shadow: 0 6px 14px rgba(0, 105, 92, 0.12);
+}
+
+.modal-content .modal-actions .btn-secondary {
+  background: transparent;
 }

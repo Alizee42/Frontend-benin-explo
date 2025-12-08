@@ -275,6 +275,32 @@
       transform: translateY(-1px);
     }
   }
+
+  .incompatibles-warning {
+    margin-top: 0.5rem;
+    background: #fff7f6;
+    border: 1px solid #fde2e1;
+    padding: 0.5rem;
+    border-radius: 6px;
+
+    .incompatible {
+      color: #b91c1c;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    ul { margin: 0 0 0.5rem 1rem; }
+
+    .btn-remove {
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.25rem 0.5rem;
+      cursor: pointer;
+    }
+  }
 }
 
 // Points forts prédéfinis
@@ -605,4 +631,16 @@
       flex-direction: column;
     }
   }
+}
+
+/* Validation styles */
+.invalid {
+  border-color: #e53935 !important;
+  box-shadow: 0 0 0 3px rgba(229,57,53,0.06);
+}
+
+.error {
+  color: #e53935;
+  font-size: 0.875rem;
+  margin-top: 6px;
 }

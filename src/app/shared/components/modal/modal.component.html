@@ -1,23 +1,14 @@
-<div class="modal-overlay" *ngIf="isVisible" (click)="onBackdropClick()">
-  <div class="modal-content" [ngClass]="size" (click)="onContentClick($event)">
-    <!-- Modal Header -->
-    <div class="modal-header" *ngIf="title">
-      <h2>{{ title }}</h2>
-      <button
-        class="close-btn"
-        *ngIf="showCloseButton"
-        (click)="closeModal()"
-        aria-label="Fermer">
-        <i class="ri-close-line"></i>
+<div class="modal-overlay" *ngIf="open" (click)="onBackdropClick($event)">
+  <div class="modal-content" [ngClass]="size" role="dialog" aria-modal="true" (click)="onContentClick($event)">
+    <div class="modal-header">
+      <h3 class="modal-title">{{ title }}</h3>
+      <button *ngIf="showCloseButton" class="close-btn" (click)="closeModal()" aria-label="Fermer la fenêtre">
+        <span aria-hidden="true">×</span>
       </button>
     </div>
-
-    <!-- Modal Body -->
     <div class="modal-body">
       <ng-content></ng-content>
     </div>
-
-    <!-- Modal Footer -->
     <div class="modal-footer" *ngIf="showFooter">
       <ng-content select="[modal-footer]"></ng-content>
     </div>

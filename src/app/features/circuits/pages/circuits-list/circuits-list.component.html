@@ -17,14 +17,28 @@
 
     <!-- Filters -->
     <div class="filters" *ngIf="!loading">
-      <button class="filter-btn active">Tous</button>
-      <button class="filter-btn">Culturel</button>
-      <button class="filter-btn">Nature</button>
-      <button class="filter-btn">Aventure</button>
+      <button
+        class="filter-btn"
+        [class.active]="selectedZoneId === null"
+        (click)="filterByZone(null)">
+        Tous ({{ allCircuits.length }})
+      </button>
+      <button
+        *ngFor="let zone of zones"
+        class="filter-btn"
+        [class.active]="selectedZoneId === zone.id"
+        (click)="filterByZone(zone.id)">
+        {{ zone.nom }} ({{ getCircuitsCountForZone(zone.id) }})
+      </button>
     </div>
 
     <!-- Cards -->
     <div class="circuits-grid" *ngIf="!loading">
+      <div *ngIf="circuits.length === 0" class="no-circuits">
+        <p>Aucun circuit trouvé pour cette zone.</p>
+        <button class="btn-secondary" (click)="filterByZone(null)">Voir tous les circuits</button>
+      </div>
+
       <article class="circuit-card" *ngFor="let c of circuits">
 
         <div class="card-image">

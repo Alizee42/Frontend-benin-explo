@@ -58,7 +58,21 @@ export const routes: Routes = [
   {
     path: 'admin/zones',
     loadComponent: () =>
-      import('./features/admin/zones/zones-admin.component').then(m => m.ZonesAdminComponent)
+      import('./features/admin/zones/zones.component').then(m => m.ZonesComponent)
+  },
+
+  /* ADMIN ACTIVITES */
+  {
+    path: 'admin/activites',
+    loadComponent: () =>
+      import('./features/admin/activites/activites-admin.component').then(m => m.ActivitesAdminComponent)
+  },
+
+  /* ADMIN VILLES */
+  {
+    path: 'admin/villes',
+    loadComponent: () =>
+      import('./features/admin/villes/villes.component').then(m => m.VillesComponent)
   },
 
   /* ADMIN ADD CIRCUIT */

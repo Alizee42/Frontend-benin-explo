@@ -6,6 +6,7 @@ import { HeaderComponent } from '../../../../shared/components/header/header.com
 import { CircuitDTO, PointFort } from '../../../../models/circuit.dto';
 import { CircuitService } from '../../../../services/circuit.service';
 import { ZonesService, Zone } from '../../../../services/zones.service';
+import { VillesService, VilleDTO } from '../../../../services/villes.service';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -27,6 +28,8 @@ export class EditCircuitComponent implements OnInit {
     localisation: '',
     actif: true,
     zoneId: null,
+    villeId: null,
+    villeNom: '',
     activiteIds: [],
     img: '',
     galerie: [],
@@ -36,6 +39,7 @@ export class EditCircuitComponent implements OnInit {
     nonInclus: ['']
   };
   zones: Zone[] = [];
+  villes: VilleDTO[] = [];
   isLoading = false;
   circuitId: string | null = null;
   heroImageFile: File | null = null;
@@ -64,7 +68,8 @@ export class EditCircuitComponent implements OnInit {
     private circuitService: CircuitService,
     private router: Router,
     private route: ActivatedRoute,
-    private zonesService: ZonesService
+    private zonesService: ZonesService,
+    private villesService: VillesService
   ) {}
 
   ngOnInit() {
@@ -73,6 +78,7 @@ export class EditCircuitComponent implements OnInit {
       this.loadCircuit();
     }
     this.loadZones();
+    this.loadVilles();
   }
 
   loadCircuit() {
@@ -99,6 +105,17 @@ export class EditCircuitComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erreur chargement zones', error);
+      }
+    });
+  }
+
+  loadVilles() {
+    this.villesService.getAll().subscribe({
+      next: (villes) => {
+        this.villes = villes;
+      },
+      error: (error) => {
+        console.error('Erreur chargement villes', error);
       }
     });
   }
@@ -206,8 +223,12 @@ export class EditCircuitComponent implements OnInit {
     }
 
     // Validation des images (optionnel en édition)
-    // Validation du programme
-    if (this.circuit.programme.some(jour => !jour.trim())) {
+    // Validation du programme (compatible string[] ou ProgrammeDay[])
+    if (this.circuit.programme.some(jour => {
+      if (typeof jour === 'string') return !jour.trim();
+      // object case: check description field
+      return !(jour.description && jour.description.toString().trim());
+    })) {
       alert('Veuillez remplir tous les jours du programme.');
       return;
     }

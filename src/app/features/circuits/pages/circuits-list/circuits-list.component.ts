@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CircuitService } from '../../../../services/circuit.service';
+import { ZonesService, Zone } from '../../../../services/zones.service';
 import { CircuitDTO } from '../../../../models/circuit.dto';
 
 @Component({
@@ -14,7 +15,10 @@ import { CircuitDTO } from '../../../../models/circuit.dto';
 export class CircuitsListComponent implements OnInit {
 
   circuits: CircuitDTO[] = [];
+  allCircuits: CircuitDTO[] = []; // Pour garder tous les circuits
+  zones: Zone[] = [];
   loading = true;
+  selectedZoneId: number | null = null; // Zone sélectionnée pour filtrage
 
   // 🔹 Circuits de démo (utilisés si la BDD est vide ou en erreur)
   private demoCircuits: CircuitDTO[] = [
@@ -29,6 +33,8 @@ export class CircuitsListComponent implements OnInit {
       localisation: 'Ouidah — Porte du retour des esclaves',
       actif: true,
       zoneId: 1,
+      villeId: 3, // Ouidah
+      villeNom: 'Ouidah',
       activiteIds: [],
       img: '/assets/images/esclaves.jpg',
       galerie: ['/assets/images/esclaves.jpg', '/assets/images/village.jpg', '/assets/images/royal-palaces-of-abomey.jpg'],
@@ -52,6 +58,8 @@ export class CircuitsListComponent implements OnInit {
       localisation: 'Possotomé & Grand-Popo — Littoral béninois',
       actif: true,
       zoneId: 2,
+      villeId: 6, // Grand-Popo (approximatif)
+      villeNom: 'Grand-Popo',
       activiteIds: [],
       img: '/assets/images/village.jpg',
       galerie: ['/assets/images/village.jpg', '/assets/images/esclaves.jpg', '/assets/images/templepython.jpg'],
@@ -75,6 +83,8 @@ export class CircuitsListComponent implements OnInit {
       localisation: 'Abomey — Ancienne capitale du royaume du Danxomè',
       actif: true,
       zoneId: 3,
+      villeId: 7, // Abomey
+      villeNom: 'Abomey',
       activiteIds: [],
       img: '/assets/images/royal-palaces-of-abomey.jpg',
       galerie: ['/assets/images/royal-palaces-of-abomey.jpg', '/assets/images/esclaves.jpg', '/assets/images/village.jpg'],
@@ -98,6 +108,8 @@ export class CircuitsListComponent implements OnInit {
       localisation: 'Dassa-Zoumè — Collines sacrées du Bénin',
       actif: true,
       zoneId: 4,
+      villeId: 10, // Dassa-Zoumè
+      villeNom: 'Dassa-Zoumè',
       activiteIds: [],
       img: '/assets/images/templepython.jpg',
       galerie: ['/assets/images/templepython.jpg', '/assets/images/royal-palaces-of-abomey.jpg', '/assets/images/esclaves.jpg'],
@@ -120,25 +132,60 @@ export class CircuitsListComponent implements OnInit {
     4: '/assets/images/templepython.jpg'
   };
 
-  constructor(private circuitService: CircuitService) {}
+  constructor(
+    private circuitService: CircuitService,
+    private zonesService: ZonesService
+  ) {}
 
   ngOnInit(): void {
+    this.loadZones();
+    this.loadCircuits();
+  }
+
+  loadZones(): void {
+    this.zonesService.getAllZones().subscribe({
+      next: (zones) => {
+        this.zones = zones;
+      },
+      error: (error) => {
+        console.error('Erreur chargement zones', error);
+      }
+    });
+  }
+
+  loadCircuits(): void {
     this.circuitService.getAllCircuits().subscribe({
       next: (data: CircuitDTO[]) => {
         if (data && data.length > 0) {
+          this.allCircuits = data;
           this.circuits = data;
         } else {
           // Si aucun circuit en base → on affiche les circuits de démo
+          this.allCircuits = this.demoCircuits;
           this.circuits = this.demoCircuits;
         }
         this.loading = false;
       },
       error: (err: any) => {
         console.error('Erreur chargement circuits', err);
+        this.allCircuits = this.demoCircuits;
         this.circuits = this.demoCircuits;
         this.loading = false;
       }
     });
+  }
+
+  filterByZone(zoneId: number | null): void {
+    this.selectedZoneId = zoneId;
+    if (zoneId === null) {
+      this.circuits = this.allCircuits;
+    } else {
+      this.circuits = this.allCircuits.filter(circuit => circuit.zoneId === zoneId);
+    }
+  }
+
+  getCircuitsCountForZone(zoneId: number): number {
+    return this.allCircuits.filter(circuit => circuit.zoneId === zoneId).length;
   }
 
   getImageForCircuit(circuit: CircuitDTO): string {

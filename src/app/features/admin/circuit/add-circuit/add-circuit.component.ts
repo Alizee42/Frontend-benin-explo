@@ -5,7 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../../../shared/components/header/header.component';
 import { CircuitDTO, PointFort } from '../../../../models/circuit.dto';
 import { CircuitService } from '../../../../services/circuit.service';
-import { ZonesService, Zone } from '../../../../services/zones.service';
+import { ActivitesService, Activite } from '../../../../services/activites.service';
+import { ZonesAdminService, ZoneDTO as Zone } from '../../../../services/zones-admin.service';
+import { VillesService, VilleDTO } from '../../../../services/villes.service';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -27,6 +29,8 @@ export class AddCircuitComponent {
     localisation: '',
     actif: true,
     zoneId: null,
+    villeId: null,
+    villeNom: '',
     activiteIds: [],
     img: '',
     galerie: [],
@@ -39,10 +43,23 @@ export class AddCircuitComponent {
   };
 
   zones: Zone[] = [];
+  villes: VilleDTO[] = [];
   isLoading = false;
   heroImageFile: File | null = null;
   galerieFiles: File[] = [];
   currentStep = 1;
+
+  // ProgrammeDays for UI editor (structured per day)
+  programmeDays: Array<{ day: number; title?: string; approxTime?: string; description: string; mealsIncluded?: string[]; activities?: number[]; location?: string; durationHours?: number }> = [
+    { day: 1, description: '', activities: [] }
+  ];
+
+  // Available activities to choose from
+  availableActivites: Activite[] = [];
+  // Flags d'affichage des erreurs par étape
+  showErrorsStep1 = false;
+  showErrorsStep2 = false;
+  showErrorsStep3 = false;
 
 
   // Points forts prédéfinis
@@ -66,16 +83,64 @@ export class AddCircuitComponent {
 
   constructor(
     private circuitService: CircuitService,
-    private zonesService: ZonesService,
+    private zonesService: ZonesAdminService,
+    private villesService: VillesService,
+    private activitesService: ActivitesService,
     private router: Router
   ) {}
 
   ngOnInit() {
     this.loadZones();
+    this.loadVilles();
+    this.loadActivites();
+    // initialize programmeDays from existing circuit.programme if present (compat: string[])
+    if (this.circuit.programme && this.circuit.programme.length > 0) {
+      // if items are strings, convert to structured days
+      this.programmeDays = this.circuit.programme.map((p: any, idx: number) => {
+        if (typeof p === 'string') return { day: idx + 1, description: p, activities: [] };
+        return { day: p.day ?? idx + 1, title: p.title, approxTime: p.approxTime, description: p.description ?? '', mealsIncluded: p.mealsIncluded ?? [], activities: p.activities ?? [], location: p.location, durationHours: p.durationHours };
+      });
+    }
+  }
+
+  loadActivites() {
+    // load full list of activities so admin can pick per day
+    this.activitesService.getAllActivites().subscribe({
+      next: (acts) => this.availableActivites = acts,
+      error: (err) => console.error('Erreur chargement activités', err)
+    });
+  }
+
+  /** Retourne la liste d'activités autorisées pour le jour `index` en fonction de la ville/zone */
+  getActivitiesForDay(index: number): Activite[] {
+    const day = this.programmeDays[index];
+    const jourVilleId = (day as any).villeId ?? this.circuit.villeId;
+    if (!jourVilleId) return this.availableActivites || [];
+    // trouver zone de la ville
+    const ville = this.villes.find(v => v.id === jourVilleId) as any;
+    const jourZoneId = ville ? ville.zoneId : undefined;
+    if (jourZoneId === undefined || jourZoneId === null) return this.availableActivites || [];
+    return (this.availableActivites || []).filter(a => a.zoneId === jourZoneId);
+  }
+
+  /** Retourne les activités déjà sélectionnées pour le jour qui sont incompatibles avec la ville/zone */
+  getSelectedIncompatibleActivities(index: number): Activite[] {
+    const day = this.programmeDays[index];
+    if (!day || !day.activities || day.activities.length === 0) return [];
+    const allowed = this.getActivitiesForDay(index).map(a => a.id);
+    const incompatibleIds = (day.activities || []).filter((aid: number) => allowed.indexOf(aid) === -1);
+    return incompatibleIds.map((id: number) => this.availableActivites.find(a => a.id === id)).filter(Boolean) as Activite[];
+  }
+
+  removeIncompatibleActivities(index: number) {
+    const day = this.programmeDays[index];
+    if (!day || !day.activities) return;
+    const allowed = this.getActivitiesForDay(index).map(a => a.id);
+    day.activities = day.activities.filter(aid => allowed.indexOf(aid) !== -1);
   }
 
   loadZones() {
-    this.zonesService.getAllZones().subscribe({
+    this.zonesService.getAll().subscribe({
       next: (zones) => {
         this.zones = zones;
       },
@@ -85,13 +150,52 @@ export class AddCircuitComponent {
     });
   }
 
+  loadVilles() {
+    this.villesService.getAll().subscribe({
+      next: (villes) => {
+        this.villes = villes;
+      },
+      error: (error) => {
+        console.error('Erreur chargement villes', error);
+      }
+    });
+  }
+
   goToStep(step: number) {
+    console.log('[AddCircuit] goToStep requested:', { from: this.currentStep, to: step });
+    // allow direct go only if target is previous or current; if forward, validate intermediate
+    if (step > this.currentStep) {
+      // validate current step before moving forward
+      if (this.currentStep === 1) {
+        const ok = this.validateStep1();
+        console.log('[AddCircuit] validateStep1 result (goToStep):', ok, this.getStep1Debug());
+        if (!ok) { this.showErrorsStep1 = true; return; }
+      }
+      if (this.currentStep === 2) {
+        const ok2 = this.validateStep2();
+        console.log('[AddCircuit] validateStep2 result (goToStep):', ok2);
+        if (!ok2) { this.showErrorsStep2 = true; return; }
+      }
+    }
     this.currentStep = step;
   }
 
   nextStep() {
+    console.log('[AddCircuit] nextStep called from', this.currentStep);
     if (this.currentStep < 3) {
+      if (this.currentStep === 1) {
+        const ok = this.validateStep1();
+        console.log('[AddCircuit] validateStep1 result (nextStep):', ok, this.getStep1Debug());
+        if (!ok) { this.showErrorsStep1 = true; return; }
+        this.showErrorsStep1 = false;
+      } else if (this.currentStep === 2) {
+        const ok2 = this.validateStep2();
+        console.log('[AddCircuit] validateStep2 result (nextStep):', ok2);
+        if (!ok2) { this.showErrorsStep2 = true; return; }
+        this.showErrorsStep2 = false;
+      }
       this.currentStep++;
+      console.log('[AddCircuit] moved to step', this.currentStep);
     }
   }
 
@@ -118,8 +222,12 @@ export class AddCircuitComponent {
     const files = Array.from(event.target.files) as File[];
     if (files.length >= 3 && files.length <= 10) {
       this.galerieFiles = files;
+      this.showErrorsStep2 = false;
       // previews can be generated if needed
     } else {
+      this.galerieFiles = [];
+      this.showErrorsStep2 = true;
+      // keep native alert for immediate feedback
       alert('Veuillez sélectionner entre 3 et 10 images.');
       event.target.value = '';
     }
@@ -139,12 +247,15 @@ export class AddCircuitComponent {
 
   // Gestion du programme jour par jour
   addJour() {
-    this.circuit.programme!.push('');
+    const nextDay = this.programmeDays.length + 1;
+    this.programmeDays.push({ day: nextDay, description: '' });
   }
 
   removeJour(index: number) {
-    if (this.circuit.programme!.length > 1) {
-      this.circuit.programme!.splice(index, 1);
+    if (this.programmeDays.length > 1) {
+      this.programmeDays.splice(index, 1);
+      // re-number days
+      this.programmeDays.forEach((d, i) => d.day = i + 1);
     }
   }
 
@@ -211,6 +322,69 @@ export class AddCircuitComponent {
     return index;
   }
 
+  // Validation par étape
+  private validateStep1(): boolean {
+    const titre = (this.circuit.titre || '').toString().trim();
+    const description = (this.circuit.description || '').toString().trim();
+    // accept both property names if present (legacy/different bindings)
+    const dureeVal = (this.circuit.dureeIndicative ?? (this.circuit as any).duree) || '';
+    const duree = dureeVal.toString().trim();
+    const prixVal = Number(this.circuit.prixIndicatif);
+    const prixOk = !isNaN(prixVal) && prixVal > 0;
+    const villeIdRaw = this.circuit.villeId;
+    const villeOk = villeIdRaw !== null && villeIdRaw !== undefined && String(villeIdRaw).trim() !== '';
+
+    const okTitre = titre.length > 0;
+    const okDescription = description.length > 0;
+    const okDuree = duree.length > 0;
+    const okPrix = prixOk;
+    const okVille = villeOk;
+    const result = okTitre && okDescription && okDuree && okPrix && okVille;
+
+    // debug log
+    console.log('[AddCircuit] validateStep1 checks:', {
+      okTitre, okDescription, okDuree, okPrix, okVille, result,
+      circuitSnapshot: {
+        titre: this.circuit.titre,
+        description: this.circuit.description,
+        dureeIndicative: this.circuit.dureeIndicative,
+        dureeLegacy: (this.circuit as any).duree,
+        prixIndicatif: this.circuit.prixIndicatif,
+        villeId: this.circuit.villeId
+      }
+    });
+
+    return result;
+  }
+
+  // helper to return a small debug object for template logs
+  private getStep1Debug() {
+    return {
+      titre: this.circuit.titre,
+      descriptionLen: this.circuit.description ? this.circuit.description.length : 0,
+      duree: this.circuit.dureeIndicative,
+      prix: this.circuit.prixIndicatif,
+      villeId: this.circuit.villeId
+    };
+  }
+
+  // Exposé au template : indique si le prix est invalide
+  isPrixInvalid(): boolean {
+    return !(this.circuit.prixIndicatif != null && !isNaN(Number(this.circuit.prixIndicatif)) && Number(this.circuit.prixIndicatif) > 0);
+  }
+
+  private validateStep2(): boolean {
+    // hero image and gallery
+    const okHero = !!this.heroImageFile;
+    const okGalerie = this.galerieFiles && this.galerieFiles.length >= 3 && this.galerieFiles.length <= 10;
+    // programme all filled (structured days)
+    const okProgramme = this.programmeDays && this.programmeDays.length > 0 && this.programmeDays.every(p => p && p.description && p.description.toString().trim() !== '');
+
+    const result = okHero && okGalerie && okProgramme;
+    console.log('[AddCircuit] validateStep2 checks:', { okHero, okGalerie, okProgramme, result });
+    return result;
+  }
+
   onSubmit() {
     console.log('Circuit data:', this.circuit);
     console.log('Hero image file:', this.heroImageFile);
@@ -229,11 +403,15 @@ export class AddCircuitComponent {
       });
     }
 
-    // Validation des champs obligatoires
-    if (!this.circuit.titre || !this.circuit.resume || !this.circuit.description ||
-        !this.circuit.dureeIndicative || !this.circuit.prixIndicatif || !this.circuit.localisation) {
-      alert('Veuillez remplir tous les champs obligatoires.');
-      console.error('Champs obligatoires manquants');
+    // Validation des champs obligatoires (assurer que step1/2 sont valides avant submit)
+    if (!this.validateStep1()) {
+      this.showErrorsStep1 = true;
+      this.currentStep = 1;
+      return;
+    }
+    if (!this.validateStep2()) {
+      this.showErrorsStep2 = true;
+      this.currentStep = 2;
       return;
     }
 
@@ -250,9 +428,9 @@ export class AddCircuitComponent {
       return;
     }
 
-    // Validation du programme
-    if (this.circuit.programme.some(jour => !jour.trim())) {
-      alert('Veuillez remplir tous les jours du programme.');
+    // Validation du programme (utilise programmeDays structuré)
+    if (!this.programmeDays || this.programmeDays.some(jour => !jour.description || !jour.description.toString().trim())) {
+      alert('Veuillez remplir la description pour chaque jour du programme.');
       console.error('Programme incomplet');
       return;
     }
@@ -330,7 +508,14 @@ export class AddCircuitComponent {
 
         // 3) créer le circuit avec les URLs complètes
         console.log('[AddCircuit] creating circuit payload:', this.circuit);
-        this.circuitService.createCircuit(this.circuit as Omit<CircuitDTO, 'id'>).subscribe({
+          // Send the structured programmeDays (ProgrammeDay[]) as the programme payload.
+          // Note: backend must accept ProgrammeDay[] for full structure. If backend still expects string[],
+          // uncomment the fallback below that sends descriptions only.
+          this.circuit.programme = this.programmeDays as any;
+          /* fallback for legacy backend:
+          this.circuit.programme = this.programmeDays.map(d => d.description);
+          */
+          this.circuitService.createCircuit(this.circuit as Omit<CircuitDTO, 'id'>).subscribe({
           next: (createdCircuit) => {
             console.log('[AddCircuit] Circuit créé:', createdCircuit);
             this.router.navigate(['/admin/circuits']);

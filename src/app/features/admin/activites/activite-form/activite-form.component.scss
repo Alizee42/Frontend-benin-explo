@@ -1,0 +1,31 @@
+/* Form styles aligned with admin modals */
+.form-group {
+	margin-bottom: 16px;
+
+	label {
+		display: block;
+		margin-bottom: 6px;
+		font-weight: 500;
+		color: #333;
+	}
+
+	input, select, textarea {
+		width: 100%;
+		padding: 10px;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		font-size: 14px;
+
+		&:focus {
+			outline: none;
+			border-color: #007bff;
+		}
+	}
+}
+
+.form-row { display:flex; gap:12px; }
+.form-row .col { flex:1; }
+
+.actions, .modal-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:16px; }
+
+.help-text { font-size: 12px; color: #666; margin-top: 6px; }

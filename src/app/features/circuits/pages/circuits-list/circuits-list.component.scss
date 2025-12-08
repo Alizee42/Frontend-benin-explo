@@ -182,3 +182,35 @@
     }
   }
 }
+
+/* Message aucun circuit */
+.no-circuits {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  background: var(--be-light);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+
+  p {
+    font-size: 1.2rem;
+    color: var(--be-dark);
+    margin-bottom: 1rem;
+  }
+
+  .btn-secondary {
+    background: var(--be-grey);
+    color: var(--be-dark);
+    border: 2px solid var(--be-grey);
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+
+    &:hover {
+      background: var(--be-dark);
+      color: var(--be-light);
+    }
+  }
+}

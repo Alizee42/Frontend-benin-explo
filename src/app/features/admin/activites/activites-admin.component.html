@@ -1,0 +1,35 @@
+<div class="activites-admin">
+  <app-header mode="compact"></app-header>
+
+  <main class="page-content">
+  <div class="actions-bar">
+    <h1 class="page-title">
+      <i class="ri-calendar-event-line"></i>
+      Gestion des activités
+    </h1>
+    <button class="btn-add" (click)="openAddModal()">
+      <i class="ri-add-line"></i>
+      Ajouter une activité
+    </button>
+  </div>
+
+  <app-data-table
+    [columns]="tableColumns"
+    [data]="activites"
+    [loading]="loading"
+    [actions]="tableActions"
+    (actionClick)="onTableAction($event)"
+    (rowClick)="onRowClick($event)">
+  </app-data-table>
+  </main>
+
+  <!-- Modal add/edit activite (réutilise app-modal) -->
+  <app-modal [title]="isEditing ? 'Modifier l\'activité' : 'Ajouter une activité'" [open]="showModal" (close)="closeModal()">
+    <app-activite-form
+      [activite]="currentActivite"
+      [zones]="zones"
+      (save)="onFormSave($event)"
+      (cancel)="closeModal()">
+    </app-activite-form>
+  </app-modal>
+</div>

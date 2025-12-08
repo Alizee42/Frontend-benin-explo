@@ -6,6 +6,7 @@ import { DataTableComponent, TableColumn, TableAction } from '../../../shared/co
 import { AuthService } from '../../../services/auth.service';
 import { CircuitService } from '../../../services/circuit.service';
 import { ZonesService, Zone } from '../../../services/zones.service';
+import { VillesService, VilleDTO } from '../../../services/villes.service';
 import { CircuitDTO } from '../../../models/circuit.dto';
 
 @Component({
@@ -18,13 +19,14 @@ import { CircuitDTO } from '../../../models/circuit.dto';
 export class CircuitsAdminComponent implements OnInit {
   circuits: CircuitDTO[] = [];
   zones: Zone[] = [];
+  villes: VilleDTO[] = [];
   loading = true;
 
   // Configuration du tableau
   tableColumns: TableColumn[] = [
     { key: 'img', label: 'Miniature', type: 'image', width: '80px' },
     { key: 'titre', label: 'Nom du circuit', type: 'text' },
-    { key: 'zoneNom', label: 'Zone', type: 'text', width: '120px' },
+    { key: 'villeEtZone', label: 'Ville (Zone géographique)', type: 'text', width: '220px' },
     { key: 'dureeIndicative', label: 'Durée', type: 'text', width: '120px' },
     { key: 'prixIndicatif', label: 'Prix indicatif', type: 'number', width: '120px' },
     { key: 'statut', label: 'Statut', type: 'text', width: '120px' },
@@ -67,6 +69,7 @@ export class CircuitsAdminComponent implements OnInit {
   constructor(
     private circuitService: CircuitService,
     private zonesService: ZonesService,
+    private villesService: VillesService,
     private router: Router,
     private authService: AuthService
   ) {}
@@ -78,7 +81,7 @@ export class CircuitsAdminComponent implements OnInit {
       return;
     }
 
-    // Load zones first, then circuits
+    // Load zones first, then villes, then circuits
     this.loadZones();
   }
 
@@ -86,11 +89,30 @@ export class CircuitsAdminComponent implements OnInit {
     this.zonesService.getAllZones().subscribe({
       next: (zones) => {
         this.zones = zones;
-        this.loadCircuits();
+        this.loadVilles();
       },
       error: (error) => {
         console.error('Erreur chargement zones', error);
-        this.loadCircuits(); // Load circuits anyway
+        this.loadVilles(); // Try to load villes and circuits anyway
+      }
+    });
+  }
+
+  loadVilles() {
+    this.villesService.getAll().subscribe({
+      next: (villes) => {
+        this.villes = villes.map((v: any) => ({
+          id: v.id !== undefined ? v.id : v.idVille,
+          nom: v.nom,
+          zoneId: v.zoneId ?? v.zone?.id ?? null,
+          zoneNom: v.zoneNom ?? (v.zone ? v.zone.nom : ''),
+          ...v
+        }));
+        this.loadCircuits();
+      },
+      error: (err) => {
+        console.error('Erreur chargement villes', err);
+        this.loadCircuits();
       }
     });
   }
@@ -102,11 +124,25 @@ export class CircuitsAdminComponent implements OnInit {
         console.log('Circuits loaded from API:', data.length, 'circuits');
         console.log('Sample imgs from API (first 5):', data.slice(0, 5).map((c: any) => c.img));
         // Add zone names and status to circuits
-        this.circuits = data.map(circuit => ({
-          ...circuit,
-          zoneNom: this.getZoneName(circuit.zoneId),
-          statut: circuit.actif ? 'Actif' : 'Inactif'
-        }));
+        this.circuits = data.map(circuit => {
+          // determine zone name: prefer zoneId on circuit, else use ville -> zone
+          let zoneName = this.getZoneName(circuit.zoneId);
+          if (!zoneName && circuit.villeId) {
+            const ville = this.villes.find(v => v.id === circuit.villeId);
+            if (ville && ville.zoneId) {
+              zoneName = this.getZoneName(ville.zoneId);
+            }
+          }
+
+          const villeNom = circuit.villeNom || '';
+          const villeEtZone = villeNom ? `${villeNom}${zoneName ? ' (' + zoneName + ')' : ''}` : (circuit.localisation || '');
+
+          return {
+            ...circuit,
+            villeEtZone,
+            statut: circuit.actif ? 'Actif' : 'Inactif'
+          };
+        });
         this.loading = false;
       },
       error: (error) => {

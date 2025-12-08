@@ -34,15 +34,18 @@
           </div>
 
           <div class="form-group">
-            <label for="localisation">Localisation *</label>
-            <input
-              type="text"
-              id="localisation"
-              name="localisation"
-              [(ngModel)]="circuit.localisation"
+            <label for="villeId">Ville *</label>
+            <select
+              id="villeId"
+              name="villeId"
+              [(ngModel)]="circuit.villeId"
               required
-              placeholder="Ex: Ouidah — Porte du retour des esclaves"
             >
+              <option value="">Sélectionner une ville</option>
+              <option *ngFor="let ville of villes" [value]="ville.id">
+                {{ ville.nom }} ({{ ville.zoneNom }})
+              </option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -97,17 +100,7 @@
             </select>
           </div>
 
-          <div class="form-group">
-            <label for="zone">Zone géographique</label>
-            <select
-              id="zone"
-              name="zone"
-              [(ngModel)]="circuit.zoneId"
-            >
-              <option value="">Sélectionner une zone</option>
-              <option *ngFor="let zone of zones" [value]="zone.id">{{ zone.nom }}</option>
-            </select>
-          </div>
+          <!-- Zone géographique supprimée : elle est désormais liée à la ville sélectionnée -->
         </div>
       </div>
 

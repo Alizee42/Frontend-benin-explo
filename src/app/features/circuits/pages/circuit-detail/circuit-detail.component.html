@@ -9,11 +9,10 @@
 
     <div class="hero-content">
       <h1>{{ circuit!.titre }}</h1>
-      <p class="location">{{ circuit!.localisation }}</p>
+      <p class="location">{{ circuit!.villeNom || circuit!.localisation }}</p>
       <div class="hero-badges">
         <span class="badge">{{ circuit!.dureeIndicative }}</span>
         <span class="badge">Culturel</span>
-        <span class="badge" *ngIf="zone">{{ zone.nom }}</span>
         <span class="badge">⭐ 4.8/5 (12 avis)</span>
       </div>
       </div>
@@ -28,12 +27,7 @@
     <div class="section">
       <h2>Présentation</h2>
 
-      <!-- Résumé court (si présent) -->
-      <p class="intro" *ngIf="circuit!.resume">
-        {{ circuit!.resume }}
-      </p>
-
-      <!-- Description longue (si présente) : affichée sous le même titre, sans second en-tête -->
+      <!-- Description (unique) -->
       <p class="description-text" *ngIf="circuit!.description">
         {{ circuit!.description }}
       </p>
@@ -52,10 +46,21 @@
       <h2>Programmes</h2>
       <p class="muted">(Liste des étapes / jours du circuit)</p>
       <div class="timeline">
-        <div class="timeline-item" *ngFor="let p of circuit!.programme; let i = index">
-          <div class="timeline-marker">{{ i + 1 }}</div>
+        <div class="timeline-item" *ngFor="let p of circuitProgramme; let i = index">
+          <div class="timeline-marker">{{ p.day }}</div>
           <div class="timeline-content">
-            <p>{{ p }}</p>
+            <h3 *ngIf="p.title">{{ p.title }}</h3>
+            <small *ngIf="p.approxTime" class="muted">{{ p.approxTime }}</small>
+            <p>{{ p.description }}</p>
+            <div class="day-activities" *ngIf="p.activities && p.activities.length">
+              <h4>Activités prévues</h4>
+              <ul>
+                <li *ngFor="let aid of p.activities">
+                  {{ getActivityName(aid) }}
+                  <span *ngIf="isActivityIncompatible(p, aid)" class="incompatible">⚠ Activité hors zone</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -83,11 +88,7 @@
         </div>
         <div class="info-card">
           <h4>Localisation</h4>
-          <p>{{ circuit!.localisation }}</p>
-        </div>
-        <div class="info-card" *ngIf="zone">
-          <h4>Zone</h4>
-          <p>{{ zone.nom }}</p>
+          <p>{{ circuit!.villeNom || circuit!.localisation }}</p>
         </div>
         <div class="info-card">
           <h4>Prix</h4>

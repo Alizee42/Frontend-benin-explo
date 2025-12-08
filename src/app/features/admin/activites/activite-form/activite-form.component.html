@@ -1,0 +1,35 @@
+<form (ngSubmit)="onSave()" #activiteForm="ngForm">
+  <div class="form-group">
+    <label>Nom</label>
+    <input [(ngModel)]="activite!.nom" name="nom" required />
+  </div>
+  <div class="form-group">
+    <label>Description</label>
+    <textarea [(ngModel)]="activite!.description" name="description" rows="3"></textarea>
+  </div>
+  <div class="form-row">
+    <div class="form-group col">
+      <label>Type</label>
+      <input [(ngModel)]="activite!.type" name="type" />
+    </div>
+    <div class="form-group col">
+      <label>Durée (mn)</label>
+      <input type="number" [(ngModel)]="activite!.duree" name="duree" />
+    </div>
+    <div class="form-group col">
+      <label>Prix</label>
+      <input type="number" [(ngModel)]="activite!.prix" name="prix" />
+    </div>
+  </div>
+  <div class="form-group">
+    <label>Zone</label>
+    <select [(ngModel)]="activite!.zoneId" name="zoneId">
+      <option [ngValue]="0">-- sélectionner --</option>
+      <option *ngFor="let z of zones" [ngValue]="z.id">{{ z.nom }}</option>
+    </select>
+  </div>
+  <div class="modal-actions">
+    <button type="button" class="btn-secondary" (click)="cancel.emit()">Annuler</button>
+    <button type="submit" class="btn-primary" [disabled]="!activiteForm.form.valid">Enregistrer</button>
+  </div>
+</form>
