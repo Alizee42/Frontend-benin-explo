@@ -1,5 +1,6 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ModalComponent } from '../modal/modal.component';
 
 export interface TableColumn {
   key: string;
@@ -20,7 +21,7 @@ export interface TableAction {
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ModalComponent],
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss']
 })
@@ -30,9 +31,25 @@ export class DataTableComponent {
   @Input() loading = false;
   @Input() emptyMessage = 'Aucune donnée disponible';
   @Input() actions: TableAction[] = [];
+  @Input() rowClickable = false;
+  // Pagination (client-side). If `pageable` is true, the table slices the provided `data`.
+  @Input() pageable = false;
+  @Input() pageSize = 10;
 
   @Output() actionClick = new EventEmitter<{action: string, item: any}>();
   @Output() rowClick = new EventEmitter<any>();
+  @Output() pageChange = new EventEmitter<{page: number, pageSize: number}>();
+
+  // pagination state
+  currentPage = 1;
+  // expose Math to the template for helpers like Math.min
+  public Math = Math;
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['data'] && !changes['data'].firstChange) {
+      this.currentPage = 1;
+    }
+  }
 
   onActionClick(action: string, item: any, event: Event) {
     event.stopPropagation();
@@ -44,7 +61,9 @@ export class DataTableComponent {
   }
 
   getCellValue(item: any, column: TableColumn): any {
-    const value = item[column.key];
+    const value = this.getNested(item, column.key);
+
+    if (value === null || value === undefined || value === '') return '-';
 
     switch (column.type) {
       case 'array':
@@ -52,10 +71,25 @@ export class DataTableComponent {
       case 'boolean':
         return value ? 'Oui' : 'Non';
       case 'date':
-        return value ? new Date(value).toLocaleDateString('fr-FR') : '';
+        return value ? new Date(value).toLocaleDateString('fr-FR') : '-';
+      case 'number':
+        return typeof value === 'number' ? value.toLocaleString('fr-FR') : value;
       default:
         return value;
     }
+  }
+
+  // Support nested keys like 'zone.nom' to access nested object properties
+  private getNested(obj: any, key: string): any {
+    if (!obj || !key) return null;
+    if (key.indexOf('.') === -1) return obj[key];
+    const parts = key.split('.');
+    let cur = obj;
+    for (const p of parts) {
+      if (cur == null) return null;
+      cur = cur[p];
+    }
+    return cur;
   }
 
   /**
@@ -73,8 +107,11 @@ export class DataTableComponent {
     // Déjà une data URL
     if (trimmed.startsWith('data:')) return trimmed;
 
-    // URL distante
-    if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) return trimmed;
+    // URL distante absolue
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+
+    // URL relative (commence par '/') -> prefixer l'API backend en dev
+    if (trimmed.startsWith('/')) return `http://localhost:8080${trimmed}`;
 
     // Si ressemble à du base64 (commence par /9j/ pour JPEG ou iVBORw0KGgo pour PNG)
     const jpegStart = trimmed.startsWith('/9j/');
@@ -103,5 +140,49 @@ export class DataTableComponent {
 
   isActionVisible(action: TableAction, item: any): boolean {
     return !action.condition || action.condition(item);
+  }
+
+  get totalPages(): number {
+    if (!this.pageable) return 1;
+    return Math.max(1, Math.ceil((this.data || []).length / (this.pageSize || 10)));
+  }
+
+  // returns the array of items to render for the current page
+  get pagedData(): any[] {
+    if (!this.pageable) return this.data || [];
+    const start = (this.currentPage - 1) * this.pageSize;
+    return (this.data || []).slice(start, start + this.pageSize);
+  }
+
+  changePage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.pageChange.emit({ page: this.currentPage, pageSize: this.pageSize });
+  }
+
+  prevPage() { this.changePage(this.currentPage - 1); }
+  nextPage() { this.changePage(this.currentPage + 1); }
+
+  // Image preview (lightbox) state
+  imageModalOpen = false;
+  imageModalUrl: string | null = null;
+
+  openImage(url: string | null) {
+    if (!url) return;
+    // Prefer absolute or data URLs; if relative path starting with '/', prefix to dev backend
+    const resolved = (url.startsWith('http') || url.startsWith('data:')) ? url : `http://localhost:8080${url}`;
+    this.imageModalUrl = resolved;
+    this.imageModalOpen = true;
+  }
+
+  closeImage() {
+    this.imageModalOpen = false;
+    this.imageModalUrl = null;
+  }
+
+  onImageClick(event: Event, url: string | null) {
+    // prevent row click from firing (which opens edit modal)
+    event.stopPropagation();
+    this.openImage(url);
   }
 }

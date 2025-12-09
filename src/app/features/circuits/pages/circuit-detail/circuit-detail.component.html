@@ -19,7 +19,139 @@
 
       
   </section>
+    <section class="content">
 
+      <div class="content-grid">
+        <!-- Main column -->
+        <div class="main-column">
+
+          <!-- Présentation (fusion Présentation + Description en une seule section) -->
+          <div class="section">
+            <h2>Présentation</h2>
+
+            <!-- Description (unique) -->
+            <p class="description-text" *ngIf="circuit!.description">
+              {{ circuit!.description }}
+            </p>
+          </div>
+
+          <!-- Galerie d'images -->
+          <div class="section" *ngIf="circuit!.galerie?.length">
+            <h2>Galerie</h2>
+            <div class="gallery gallery-large">
+              <img *ngFor="let g of circuit!.galerie" [src]="getImageUrl(g)" alt="Image" />
+            </div>
+          </div>
+
+          <!-- Programmes (plusieurs jours possibles) -->
+          <div class="section" *ngIf="circuit!.programme?.length">
+            <h2>Programmes</h2>
+            <p class="muted">(Liste des étapes / jours du circuit)</p>
+            <div class="timeline">
+              <div class="timeline-item" *ngFor="let p of circuitProgramme; let i = index">
+                <div class="timeline-marker">{{ p.day }}</div>
+                <div class="timeline-content">
+                  <div class="day-header">
+                    <h3>{{ p.title || ('Jour ' + p.day) }}</h3>
+                    <div class="day-badges">
+                      <span class="badge small" *ngIf="p.approxTime">{{ p.approxTime }}</span>
+                      <span class="badge small" *ngFor="let m of p.mealsIncluded">{{ m }}</span>
+                    </div>
+                  </div>
+
+                  <p class="day-desc">{{ p.description }}</p>
+
+                  <div class="day-activities" *ngIf="p.activities && p.activities.length">
+                    <h4>Activités prévues</h4>
+                    <div class="activity-chips">
+                      <span class="activity-chip" *ngFor="let aid of p.activities">
+                        {{ getActivityName(aid) }}
+                        <span *ngIf="isActivityIncompatible(p, aid)" class="incompatible" title="Hors zone">⚠</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Points forts -->
+          <div class="section" *ngIf="circuit!.pointsForts?.length">
+            <h2>Points forts du circuit</h2>
+            <div class="points-forts">
+              <div class="fort-card" *ngFor="let fort of circuit!.pointsForts">
+                <div class="fort-icon">{{ fort.icon }}</div>
+                <h3>{{ fort.title }}</h3>
+                <p>{{ fort.desc }}</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="info-box sticky">
+            <h3 class="price">À partir de</h3>
+            <div class="price-amount">{{ circuit!.prixIndicatif }} <span class="currency">€</span></div>
+            <p class="subtitle">{{ circuit!.dureeIndicative }} · {{ circuit!.villeNom || circuit!.localisation }}</p>
+
+            <div class="meta">
+              <div class="meta-row"><strong>Formule:</strong> <span>{{ circuit!.formuleProposee || 'Standard' }}</span></div>
+              <div class="meta-row"><strong>Langues:</strong> <span>FR, EN</span></div>
+            </div>
+
+            <div class="aventures" *ngIf="circuit!.aventures?.length">
+              <h4>Aventures</h4>
+              <div class="aventures-chips">
+                <span class="chip" *ngFor="let a of circuit!.aventures">{{ a }}</span>
+              </div>
+            </div>
+
+            <div class="cta-block">
+              <button class="btn-reserve">Réserver</button>
+              <a routerLink="/contact" class="btn-contact">Contact</a>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+      <!-- Informations pratiques (full width under columns) -->
+      <div class="section info-full">
+        <h2>Informations pratiques</h2>
+        <div class="info-grid">
+          <div class="info-card">
+            <h4>Durée</h4>
+            <p>{{ circuit!.dureeIndicative }}</p>
+          </div>
+          <div class="info-card">
+            <h4>Localisation</h4>
+            <p>{{ circuit!.villeNom || circuit!.localisation }}</p>
+          </div>
+          <div class="info-card">
+            <h4>Prix</h4>
+            <p>À partir de {{ circuit!.prixIndicatif }} €</p>
+          </div>
+
+          <div class="info-card" *ngIf="circuit!.formuleProposee">
+            <h4>Formule</h4>
+            <p>{{ circuit!.formuleProposee }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA Réservation large -->
+      <div class="section cta-section">
+        <h2>Prêt à vivre cette aventure ?</h2>
+        <p>Contactez-nous pour organiser votre circuit personnalisé au Bénin.</p>
+        <div class="cta-buttons">
+          <a routerLink="/circuit" class="btn-back">← Retour aux circuits</a>
+          <button class="btn-reserve">Réserver maintenant</button>
+        </div>
+      </div>
+
+    </section>
   <!-- CONTENU -->
   <section class="content">
 
@@ -49,17 +181,24 @@
         <div class="timeline-item" *ngFor="let p of circuitProgramme; let i = index">
           <div class="timeline-marker">{{ p.day }}</div>
           <div class="timeline-content">
-            <h3 *ngIf="p.title">{{ p.title }}</h3>
-            <small *ngIf="p.approxTime" class="muted">{{ p.approxTime }}</small>
-            <p>{{ p.description }}</p>
+            <div class="day-header">
+              <h3>{{ p.title || ('Jour ' + p.day) }}</h3>
+              <div class="day-badges">
+                <span class="badge small" *ngIf="p.approxTime">{{ p.approxTime }}</span>
+                <span class="badge small" *ngFor="let m of p.mealsIncluded">{{ m }}</span>
+              </div>
+            </div>
+
+            <p class="day-desc">{{ p.description }}</p>
+
             <div class="day-activities" *ngIf="p.activities && p.activities.length">
               <h4>Activités prévues</h4>
-              <ul>
-                <li *ngFor="let aid of p.activities">
+              <div class="activity-chips">
+                <span class="activity-chip" *ngFor="let aid of p.activities">
                   {{ getActivityName(aid) }}
-                  <span *ngIf="isActivityIncompatible(p, aid)" class="incompatible">⚠ Activité hors zone</span>
-                </li>
-              </ul>
+                  <span *ngIf="isActivityIncompatible(p, aid)" class="incompatible" title="Hors zone">⚠</span>
+                </span>
+              </div>
             </div>
           </div>
         </div>

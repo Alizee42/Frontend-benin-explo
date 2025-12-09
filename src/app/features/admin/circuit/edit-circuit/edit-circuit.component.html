@@ -20,84 +20,60 @@
               placeholder="Ex: Ouidah Tour - Porte du retour des esclaves"
             >
           </div>
+          <!-- Ligne compacte: Ville | Durée -->
+          <div class="form-group compact-row full-width">
+            <div class="compact-item">
+              <label for="villeId">Ville *</label>
+              <select id="villeId" name="villeId" [(ngModel)]="circuit.villeId" required>
+                <option value="">Sélectionner une ville</option>
+                <option *ngFor="let ville of villes" [value]="ville.id">{{ ville.nom }} ({{ ville.zoneNom }})</option>
+              </select>
+            </div>
 
-          <div class="form-group full-width">
-            <label for="resume">Résumé *</label>
-            <textarea
-              id="resume"
-              name="resume"
-              [(ngModel)]="circuit.resume"
-              required
-              placeholder="Résumé accrocheur du circuit (2-3 phrases)"
-              rows="3"
-            ></textarea>
+            <div class="compact-item">
+              <label for="dureeIndicative">Durée indicative *</label>
+              <select id="dureeIndicative" name="dureeIndicative" [(ngModel)]="circuit.dureeIndicative" required>
+                <option value="">Sélectionner une durée</option>
+                <option value="1 jour">1 jour</option>
+                <option value="2 jours">2 jours</option>
+                <option value="3 jours">3 jours</option>
+                <option value="4 jours">4 jours</option>
+                <option value="5 jours">5 jours</option>
+                <option value="6 jours">6 jours</option>
+                <option value="1 semaine">1 semaine</option>
+                <option value="2 semaines">2 semaines</option>
+                <option value="3 semaines">3 semaines</option>
+                <option value="1 mois">1 mois</option>
+              </select>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label for="villeId">Ville *</label>
-            <select
-              id="villeId"
-              name="villeId"
-              [(ngModel)]="circuit.villeId"
-              required
-            >
-              <option value="">Sélectionner une ville</option>
-              <option *ngFor="let ville of villes" [value]="ville.id">
-                {{ ville.nom }} ({{ ville.zoneNom }})
-              </option>
-            </select>
-          </div>
+          <!-- Prix et Formule côte à côte (chaque moitié) -->
+          <div class="form-group compact-row full-width">
+            <div class="compact-item">
+              <label for="prixIndicatif">Prix indicatif *</label>
+              <div class="price-row">
+                <input type="number" id="prixIndicatif" name="prixIndicatif" [(ngModel)]="circuit.prixIndicatif" required min="0" step="0.01" placeholder="Prix" />
+                <label class="checkbox-inline small-inline"><input type="checkbox" name="saisirEnCFA" [(ngModel)]="saisirEnCFA"> Saisir en XOF</label>
+                <span class="conversion small-inline">• {{ displayPriceFormatted() }}</span>
+              </div>
+            </div>
 
-          <div class="form-group">
-            <label for="dureeIndicative">Durée indicative *</label>
-            <select
-              id="dureeIndicative"
-              name="dureeIndicative"
-              [(ngModel)]="circuit.dureeIndicative"
-              required
-            >
-              <option value="">Sélectionner une durée</option>
-              <option value="1 jour">1 jour</option>
-              <option value="2 jours">2 jours</option>
-              <option value="3 jours">3 jours</option>
-              <option value="4 jours">4 jours</option>
-              <option value="5 jours">5 jours</option>
-              <option value="6 jours">6 jours</option>
-              <option value="1 semaine">1 semaine</option>
-              <option value="2 semaines">2 semaines</option>
-              <option value="3 semaines">3 semaines</option>
-              <option value="1 mois">1 mois</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="prixIndicatif">Prix indicatif *</label>
-            <input
-              type="number"
-              id="prixIndicatif"
-              name="prixIndicatif"
-              [(ngModel)]="circuit.prixIndicatif"
-              required
-              min="0"
-              step="0.01"
-              placeholder="Prix en FCFA"
-            >
-          </div>
-
-          <div class="form-group">
-            <label for="formuleProposee">Formule proposée</label>
-            <select
-              id="formuleProposee"
-              name="formuleProposee"
-              [(ngModel)]="circuit.formuleProposee"
-            >
-              <option value="">Sélectionner une formule</option>
-              <option value="Découverte">Découverte</option>
-              <option value="Aventure">Aventure</option>
-              <option value="Culturel">Culturel</option>
-              <option value="Nature">Nature</option>
-              <option value="Gastronomique">Gastronomique</option>
-            </select>
+            <div class="compact-item">
+              <label for="formuleProposee">Formule proposée</label>
+              <select
+                id="formuleProposee"
+                name="formuleProposee"
+                [(ngModel)]="circuit.formuleProposee"
+              >
+                <option value="">Sélectionner une formule</option>
+                <option value="Découverte">Découverte</option>
+                <option value="Aventure">Aventure</option>
+                <option value="Culturel">Culturel</option>
+                <option value="Nature">Nature</option>
+                <option value="Gastronomique">Gastronomique</option>
+              </select>
+            </div>
           </div>
 
           <!-- Zone géographique supprimée : elle est désormais liée à la ville sélectionnée -->
@@ -121,6 +97,9 @@
             <div *ngIf="circuit.img" class="current-image">
               <small>Image actuelle: {{ circuit.img }}</small>
             </div>
+            <div class="image-previews" *ngIf="heroPreview">
+              <img [src]="heroPreview" alt="Aperçu image principale" />
+            </div>
           </div>
 
           <div class="form-group full-width">
@@ -136,6 +115,9 @@
             <small class="form-hint">Sélectionnez 3 à 10 images. Formats: JPG/PNG</small>
             <div *ngIf="circuit.galerie && circuit.galerie.length > 0" class="current-gallery">
               <small>Images actuelles: {{ circuit.galerie.length }} image(s)</small>
+            </div>
+            <div class="image-previews" *ngIf="galeriePreviews && galeriePreviews.length > 0">
+              <img *ngFor="let p of galeriePreviews" [src]="p" alt="Aperçu galerie" />
             </div>
           </div>
         </div>

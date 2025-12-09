@@ -113,9 +113,42 @@ form { padding: 18px 20px 24px; }
 
 .modal .modal-actions { display:flex; justify-content:flex-end; gap:10px; padding: 0 20px 20px; }
 
+/* Use the same primary/secondary modal button styles as other admin forms (blue primary) */
 .modal .btn-primary { background: var(--be-green); color: white; border-radius: 8px; padding:10px 16px; border:none; font-weight:600; }
-.modal .btn-primary:hover { filter: brightness(.95); }
-.modal .btn-secondary { background: #f1f3f5; color: #222; border-radius:8px; padding:10px 14px; border:none; }
+.modal .btn-primary:hover { background: #2e5c4a; }
+.modal .btn-secondary { background: #6c757d; color: white; border-radius:8px; padding:10px 14px; border:none; }
+
+/* Also target modal overlays/content variants so projected forms (child components)
+	 receive the same modal button styling regardless of internal class names */
+.modal-overlay .modal-actions,
+.modal-content .modal-actions,
+.modal-overlay .modal-content .modal-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	padding: 0 20px 20px;
+}
+
+.modal-overlay .modal-actions .btn-primary,
+.modal-content .modal-actions .btn-primary,
+.modal-overlay .modal-content .modal-actions .btn-primary {
+	background: var(--be-green);
+	color: white;
+	border-radius: 8px;
+	padding: 10px 16px;
+	border: none;
+	font-weight: 600;
+}
+
+.modal-overlay .modal-actions .btn-secondary,
+.modal-content .modal-actions .btn-secondary,
+.modal-overlay .modal-content .modal-actions .btn-secondary {
+	background: #6c757d;
+	color: white;
+	border-radius: 8px;
+	padding: 10px 14px;
+	border: none;
+}
 
 /* Accessibility: reduce motion respects */
 @media (prefers-reduced-motion: reduce) {
@@ -130,4 +163,22 @@ form { padding: 18px 20px 24px; }
 	.modal-content { width: 96%; max-width: 96%; border-radius: 10px; }
 	.modal-header { padding: 12px 14px; }
 	form { padding: 14px; }
+}
+
+/* Ensure images projected into modals scale properly and are not cropped.
+	 Use a global selector so projected content (ng-content) is affected. */
+.modal-overlay .image-preview img {
+	display: block;
+	margin: 0 auto;
+	width: auto !important;
+	height: auto !important;
+	/* Prefer fitting to the modal content width first, then the viewport */
+	max-width: min(calc(100% - 4rem), 90vw) !important;
+	max-height: calc(100vh - 12rem) !important;
+	object-fit: contain !important;
+}
+
+/* Allow modal content to accommodate the scaled image without clipping */
+.modal-overlay .modal-content {
+	overflow: visible;
 }

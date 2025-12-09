@@ -16,7 +16,8 @@ export interface Zone {
 })
 export class ZonesService {
 
-  private apiUrl = 'http://localhost:8080/admin/zones';
+  // Utiliser l'API REST publique côté backend (ZoneController -> /api/zones)
+  private apiUrl = 'http://localhost:8080/api/zones';
 
   constructor(private http: HttpClient) {}
 

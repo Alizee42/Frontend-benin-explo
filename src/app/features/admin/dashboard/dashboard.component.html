@@ -2,154 +2,127 @@
   <app-header mode="compact"></app-header>
 
   <main class="admin-layout">
-    <!-- BANDEAU BIENVENUE -->
-    <section class="admin-header-strip">
-      <div class="admin-header-main">
-        <h1 class="admin-title">Bonjour, {{ userFirstName }} 👋</h1>
-        <p class="admin-subtitle">
-          Retrouvez ici les informations clés et les accès rapides pour piloter Bénin Explo.
+    <!-- HERO / BIENVENUE -->
+    <section class="admin-hero">
+      <div class="admin-hero-main">
+        <p class="admin-hero-kicker">Tableau de bord</p>
+        <h1 class="admin-hero-title">Bonjour, {{ userFirstName }} 👋</h1>
+        <p class="admin-hero-subtitle">
+          Vue d'ensemble de l'activité et accès rapide à tous les outils de gestion Bénin Explo.
         </p>
       </div>
-      <div class="admin-header-meta">
+      <div class="admin-hero-meta">
         <span class="admin-role-chip">Administrateur</span>
-        <span class="admin-context">Dernière connexion : 01/12/2025 • 10:24</span>
+        <span class="admin-hero-context">Dernière connexion : 01/12/2025 • 10:24</span>
       </div>
     </section>
 
-    <!-- LIGNE 1 : 3 CARTES STATS -->
-    <section class="admin-row admin-row-stats">
-      <article class="admin-card stat-card">
-        <div class="stat-header">
-          <span class="stat-label">Circuits actifs</span>
-          <i class="ri-map-pin-line"></i>
+    <!-- BLOC KPIs / VUE D'ENSEMBLE -->
+    <section class="admin-section kpi-section">
+      <header class="section-header">
+        <div class="section-header-main">
+          <h2>Vue d'ensemble</h2>
+          <p>Quelques indicateurs clés pour suivre rapidement l'activité.</p>
         </div>
-        <p class="stat-value">56</p>
-        <p class="stat-hint">Circuits publiés et visibles sur le site.</p>
-      </article>
+      </header>
 
-      <article class="admin-card stat-card">
-        <div class="stat-header">
-          <span class="stat-label">Réservations (30j)</span>
-          <i class="ri-calendar-line"></i>
-        </div>
-        <p class="stat-value">789</p>
-        <p class="stat-hint">Demandes et réservations confirmées.</p>
-      </article>
+      <div class="kpi-grid">
+        <article class="kpi-card">
+          <div class="kpi-icon">
+            <i class="ri-map-pin-line"></i>
+          </div>
+          <div class="kpi-content">
+            <p class="kpi-label">Circuits en ligne</p>
+            <p class="kpi-value">24</p>
+            <p class="kpi-hint">Circuits actuellement visibles côté public.</p>
+          </div>
+        </article>
 
-      <article class="admin-card stat-card">
-        <div class="stat-header">
-          <span class="stat-label">Taux de satisfaction</span>
-          <i class="ri-star-line"></i>
-        </div>
-        <p class="stat-value">4,8 / 5</p>
-        <p class="stat-hint">Moyenne des avis clients.</p>
-      </article>
+        <article class="kpi-card">
+          <div class="kpi-icon">
+            <i class="ri-calendar-check-line"></i>
+          </div>
+          <div class="kpi-content">
+            <p class="kpi-label">Réservations (30 derniers jours)</p>
+            <p class="kpi-value">12</p>
+            <p class="kpi-hint">Total toutes plateformes confondues.</p>
+          </div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-icon">
+            <i class="ri-emotion-happy-line"></i>
+          </div>
+          <div class="kpi-content">
+            <p class="kpi-label">Satisfaction estimée</p>
+            <p class="kpi-value">4,8 / 5</p>
+            <p class="kpi-hint">Basé sur les retours clients.</p>
+          </div>
+        </article>
+      </div>
     </section>
 
-    <!-- LIGNE 2 : MODULES DE GESTION (en grille) -->
-    <section class="admin-row admin-row-modules">
-      <article class="admin-card admin-modules-card">
-        <header class="card-header">
+    <!-- MODULES DE GESTION -->
+    <section class="admin-section modules-section">
+      <header class="section-header">
+        <div class="section-header-main">
           <h2>Modules de gestion</h2>
-          <p>Accédez aux principales sections d'administration.</p>
-        </header>
-
-        <div class="modules-grid">
-          <a routerLink="/admin/circuits" class="module-item">
-            <div class="module-icon">
-              <i class="ri-map-pin-line"></i>
-            </div>
-            <div class="module-body">
-              <span class="module-title">Circuits</span>
-              <span class="module-subtitle">Catalogue officiel</span>
-            </div>
-          </a>
-
-          <a routerLink="/admin/zones" class="module-item">
-            <div class="module-icon">
-              <i class="ri-earth-line"></i>
-            </div>
-            <div class="module-body">
-              <span class="module-title">Zones</span>
-              <span class="module-subtitle">Géographie & régions</span>
-            </div>
-          </a>
-
-          <a routerLink="/admin/villes" class="module-item">
-            <div class="module-icon">
-              <i class="ri-building-line"></i>
-            </div>
-            <div class="module-body">
-              <span class="module-title">Villes</span>
-              <span class="module-subtitle">Localisations touristiques</span>
-            </div>
-          </a>
-
-          <a routerLink="/admin/activites" class="module-item">
-            <div class="module-icon">
-              <i class="ri-calendar-event-line"></i>
-            </div>
-            <div class="module-body">
-              <span class="module-title">Activités</span>
-              <span class="module-subtitle">Par zone touristique</span>
-            </div>
-          </a>
-
-          <a routerLink="/admin/circuits-personnalises" class="module-item">
-            <div class="module-icon">
-              <i class="ri-user-star-line"></i>
-            </div>
-            <div class="module-body">
-              <span class="module-title">Circuits perso</span>
-              <span class="module-subtitle">Demandes sur mesure</span>
-            </div>
-          </a>
+          <p>Accédez aux principaux espaces d'administration de la plateforme.</p>
         </div>
-      </article>
-    </section>
+      </header>
 
-    <!-- LIGNE 3 : ACTIONS RAPIDES -->
-    <section class="admin-row admin-row-actions">
-      <article class="admin-card admin-actions-card">
-        <header class="card-header">
-          <h2>Actions rapides</h2>
-          <p>Opérations fréquentes accessibles en un clic.</p>
-        </header>
+      <div class="modules-grid">
+        <a routerLink="/admin/circuits" class="module-card">
+          <div class="module-icon">
+            <i class="ri-map-pin-line"></i>
+          </div>
+          <div class="module-content">
+            <p class="module-title">Circuits</p>
+            <p class="module-subtitle">Créer, modifier et publier les circuits officiels.</p>
+          </div>
+        </a>
 
-        <div class="actions-grid">
-          <button class="action-item">
-            <i class="ri-add-line"></i>
-            <div>
-              <span class="action-title">Créer un circuit</span>
-              <span class="action-subtitle">Nouveau circuit catalogue</span>
-            </div>
-          </button>
+        <a routerLink="/admin/zones" class="module-card">
+          <div class="module-icon">
+            <i class="ri-earth-line"></i>
+          </div>
+          <div class="module-content">
+            <p class="module-title">Zones</p>
+            <p class="module-subtitle">Définir les grandes zones géographiques et thématiques.</p>
+          </div>
+        </a>
 
-          <button class="action-item" disabled>
-            <i class="ri-user-add-line"></i>
-            <div>
-              <span class="action-title">Ajouter utilisateur</span>
-              <span class="action-subtitle">Gestion des comptes</span>
-            </div>
-          </button>
+        <a routerLink="/admin/villes" class="module-card">
+          <div class="module-icon">
+            <i class="ri-building-line"></i>
+          </div>
+          <div class="module-content">
+            <p class="module-title">Villes</p>
+            <p class="module-subtitle">Gérer les villes et points d'intérêt touristiques.</p>
+          </div>
+        </a>
 
-          <button class="action-item" disabled>
+        <a routerLink="/admin/activites" class="module-card">
+          <div class="module-icon">
             <i class="ri-calendar-event-line"></i>
-            <div>
-              <span class="action-title">Nouvelle réservation</span>
-              <span class="action-subtitle">Demande manuelle</span>
-            </div>
-          </button>
+          </div>
+          <div class="module-content">
+            <p class="module-title">Activités</p>
+            <p class="module-subtitle">Programmer les activités par zone et par ville.</p>
+          </div>
+        </a>
 
-          <button class="action-item" disabled>
-            <i class="ri-file-chart-line"></i>
-            <div>
-              <span class="action-title">Rapports</span>
-              <span class="action-subtitle">Statistiques détaillées</span>
-            </div>
-          </button>
-        </div>
-      </article>
+        <a routerLink="/admin/circuits-personnalises" class="module-card">
+          <div class="module-icon">
+            <i class="ri-user-star-line"></i>
+          </div>
+          <div class="module-content">
+            <p class="module-title">Circuits personnalisés</p>
+            <p class="module-subtitle">Suivre et traiter les demandes sur mesure.</p>
+          </div>
+        </a>
+      </div>
     </section>
+
   </main>
 </div>

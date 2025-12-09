@@ -60,8 +60,9 @@
 
 // Table Wrapper
 .table-wrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  /* Avoid internal scrolling: allow table to reflow instead of forcing horizontal scroll */
+  overflow-x: visible;
+  -webkit-overflow-scrolling: auto;
 }
 
 // Data Table
@@ -70,7 +71,7 @@
   border-collapse: collapse;
   font-size: 0.9rem;
 
-  thead {
+    thead {
     background: var(--be-green);
 
     th {
@@ -80,7 +81,8 @@
       color: var(--be-light);
       border-bottom: 2px solid var(--be-gold);
       position: relative;
-      white-space: nowrap;
+      white-space: normal; /* allow wrapping to avoid horizontal scroll */
+      word-break: break-word;
 
       &.sortable {
         cursor: pointer;
@@ -120,6 +122,8 @@
         border-bottom: 1px solid #e9ecef;
         color: var(--be-dark);
         vertical-align: middle;
+        white-space: normal; /* allow cell content to wrap instead of forcing scroll */
+        word-break: break-word;
 
         // Actions Cell
         .actions-cell {
@@ -132,30 +136,31 @@
 
         // Image Cell (miniature)
         .image-cell {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-width: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 72px;
 
-          .table-image {
-            width: 36px;
-            height: 26px;
-            max-width: 36px;
-            max-height: 26px;
+                .table-image {
+                  width: 56px;
+                  height: 40px;
+                  max-width: 56px;
+                  max-height: 40px;
             object-fit: cover;
             border-radius: 4px;
             border: 1px solid #e9ecef;
             transition: transform 0.15s ease, box-shadow 0.15s ease;
+            cursor: zoom-in;
 
             &:hover {
-              transform: scale(1.06);
-              box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+              transform: scale(1.08);
+              box-shadow: 0 6px 18px rgba(0,0,0,0.12);
             }
           }
 
           .no-image {
-            width: 36px;
-            height: 26px;
+            width: 56px;
+            height: 40px;
             background: #f8f9fa;
             border: 1px solid #e9ecef;
             border-radius: 4px;
@@ -169,6 +174,22 @@
         }
       }
     }
+  }
+
+  /* Modal preview image */
+  .image-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .image-preview img {
+    max-width: 90vw;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
   }
 }
 
@@ -305,6 +326,82 @@
   }
 }
 
+/* Mobile: switch to stacked rows (label + value) to improve readability */
+@media (max-width: 720px) {
+  .table-wrapper {
+    overflow-x: hidden; /* avoid horizontal scroll, use stacked rows */
+  }
+
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table tbody .data-row {
+    display: block;
+    margin-bottom: 0.6rem;
+    padding: 0.6rem 0;
+    background: transparent;
+    border-radius: 8px;
+    box-shadow: none;
+    border-bottom: 1px solid #eee;
+  }
+
+  .data-table tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border: none;
+    background: transparent;
+  }
+
+  /* Label shown on the left of each cell */
+  .data-table tbody td::before {
+    content: attr(data-label);
+    display: inline-block;
+    width: 45%;
+    max-width: 45%;
+    margin-right: 0.6rem;
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 0.78rem;
+  }
+
+  /* Hide label for image and actions cells (they render differently) */
+  .data-table tbody td[data-type="image"]::before,
+  .data-table tbody td[data-type="actions"]::before {
+    content: none;
+    width: auto;
+    margin: 0;
+  }
+
+  .data-table tbody td .image-cell {
+    justify-content: flex-start;
+    gap: 0.6rem;
+  }
+
+  /* Actions: make buttons scrollable horizontally or stacked */
+  .data-table tbody td[data-type="actions"] .actions-cell {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  /* Ensure values wrap nicely */
+  .data-table tbody td span,
+  .data-table tbody td .module-body,
+  .data-table tbody td .kpi-content {
+    text-align: right;
+    display: block;
+    width: 55%;
+    max-width: 55%;
+    color: var(--be-dark);
+    word-break: break-word;
+  }
+
+}
+
 @media (min-width: 769px) {
   .actions-cell .btn-action {
     min-width: 32px; // Keep compact size for icons only
@@ -319,4 +416,46 @@
     border-left: none;
     border-right: none;
   }
+}
+
+/* Pagination controls */
+.table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-top: 1px solid #eef2f6;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.page-btn, .page-number {
+  padding: 6px 10px;
+  background: #f1f5f9;
+  border: 1px solid #e6eef6;
+  color: #333;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.page-number.active {
+  background: var(--be-green);
+  color: #fff;
+  border-color: var(--be-green);
+}
+
+.page-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 0.9rem;
+  color: #54606a;
 }

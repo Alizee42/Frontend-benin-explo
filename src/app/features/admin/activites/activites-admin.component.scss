@@ -142,10 +142,10 @@ form {
       border-radius: 4px;
       font-size: 14px;
 
-      &:focus {
-        outline: none;
-        border-color: #007bff;
-      }
+        &:focus {
+          outline: none;
+          border-color: var(--be-green);
+        }
     }
   }
 
@@ -173,11 +173,11 @@ form {
       }
 
       &.btn-primary {
-        background: #007bff;
+        background: var(--be-green);
         color: white;
 
         &:hover:not(:disabled) {
-          background: #0056b3;
+          background: #2e5c4a;
         }
 
         &:disabled {
@@ -190,7 +190,7 @@ form {
 }
 
 .btn-primary {
-  background: #007bff;
+  background: var(--be-green);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -200,7 +200,7 @@ form {
   transition: background 0.3s;
 
   &:hover {
-    background: #0056b3;
+    background: #2e5c4a;
   }
 
   i {

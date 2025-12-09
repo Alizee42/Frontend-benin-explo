@@ -9,17 +9,49 @@
   </div>
   <div class="form-row">
     <div class="form-group col">
+      <label>Ville</label>
+      <select [(ngModel)]="activite!.ville" name="ville">
+        <option [ngValue]="''">-- sélectionner --</option>
+        <option *ngFor="let v of villes" [ngValue]="v.nom">{{ v.nom }}</option>
+      </select>
+    </div>
+    <div class="form-group col">
       <label>Type</label>
-      <input [(ngModel)]="activite!.type" name="type" />
+      <select [(ngModel)]="activite!.type" name="type">
+        <option [ngValue]="''">-- sélectionner --</option>
+        <option *ngFor="let t of (typeOptions || types)" [ngValue]="t">{{ t }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group col">
+      <label>Durée (Heures / Minutes)</label>
+      <div class="duration-split">
+        <div class="duration-item">
+          <select [(ngModel)]="hours" name="hours">
+            <option *ngFor="let h of hoursOptions" [ngValue]="h">{{ h }}h</option>
+          </select>
+        </div>
+        <div class="duration-item">
+          <input type="number" min="0" max="59" [(ngModel)]="minutes" name="minutes" />
+        </div>
+      </div>
     </div>
     <div class="form-group col">
-      <label>Durée (mn)</label>
-      <input type="number" [(ngModel)]="activite!.duree" name="duree" />
+      <label>Prix (EUR)</label>
+      <input type="number" step="0.01" min="0" [(ngModel)]="activite!.prix" name="prix" placeholder="Ex. 12.50" />
     </div>
-    <div class="form-group col">
-      <label>Prix</label>
-      <input type="number" [(ngModel)]="activite!.prix" name="prix" />
+  </div>
+  <div class="form-group">
+    <label>Image principale</label>
+    <input type="file" (change)="onFileSelected($event)" />
+    <div *ngIf="uploading" class="uploading">Upload en cours...</div>
+    <div *ngIf="uploadError" class="error">{{ uploadError }}</div>
+    <div *ngIf="$any(activite).imagePreview" class="image-preview">
+      <img [src]="$any(activite).imagePreview" alt="Aperçu" />
     </div>
+    <div *ngIf="!$any(activite).imagePreview && $any(activite).imagePrincipaleId" class="media-id">ID média: {{ $any(activite).imagePrincipaleId }}</div>
   </div>
   <div class="form-group">
     <label>Zone</label>

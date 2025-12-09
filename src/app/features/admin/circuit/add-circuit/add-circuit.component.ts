@@ -42,11 +42,20 @@ export class AddCircuitComponent {
     nonInclus: ['']
   };
 
+  // Conversion EUR <-> XOF
+  readonly RATE_XOF_PER_EUR = 655.957;
+  // Si coché, l'administrateur saisit le prix en XOF (CFA) dans le champ prix;
+  // on convertira en EUR avant l'envoi au backend.
+  saisirEnCFA = false;
+
   zones: Zone[] = [];
   villes: VilleDTO[] = [];
   isLoading = false;
   heroImageFile: File | null = null;
   galerieFiles: File[] = [];
+  // Previews
+  heroPreview: string | null = null;
+  galeriePreviews: string[] = [];
   currentStep = 1;
 
   // ProgrammeDays for UI editor (structured per day)
@@ -212,9 +221,8 @@ export class AddCircuitComponent {
       this.heroImageFile = file;
       // optionally keep a preview: convert to base64 for preview only
       this.convertFileToBase64(file).then(base64 => {
-        // preview only, not used for upload
-        // set temporary preview if needed
-      }).catch(() => {});
+        this.heroPreview = base64;
+      }).catch(() => { this.heroPreview = null; });
     }
   }
 
@@ -223,7 +231,12 @@ export class AddCircuitComponent {
     if (files.length >= 3 && files.length <= 10) {
       this.galerieFiles = files;
       this.showErrorsStep2 = false;
-      // previews can be generated if needed
+      // generate previews
+      this.galeriePreviews = [];
+      Promise.all(files.slice(0, 10).map(f => this.convertFileToBase64(f).catch(() => null)))
+        .then(previews => {
+          this.galeriePreviews = previews.filter(Boolean) as string[];
+        }).catch(() => { this.galeriePreviews = []; });
     } else {
       this.galerieFiles = [];
       this.showErrorsStep2 = true;
@@ -373,6 +386,34 @@ export class AddCircuitComponent {
     return !(this.circuit.prixIndicatif != null && !isNaN(Number(this.circuit.prixIndicatif)) && Number(this.circuit.prixIndicatif) > 0);
   }
 
+  // Helper pour afficher le prix converti dans le template
+  // - Si `saisirEnCFA` est coché, l'administrateur saisit en XOF => on affiche l'équivalent en EUR
+  // - Sinon, on affiche la valeur en XOF (conversion depuis EUR)
+  displayPrice(): number {
+    if (this.circuit.prixIndicatif == null) return 0;
+    const val = Number(this.circuit.prixIndicatif);
+    if (isNaN(val)) return 0;
+    try {
+      if (this.saisirEnCFA) {
+        // prixIndicatif contient XOF, afficher EUR
+        return val / this.RATE_XOF_PER_EUR;
+      }
+      // prixIndicatif contient EUR, afficher XOF
+      return val * this.RATE_XOF_PER_EUR;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  // Retourne le prix formaté avec unité (évite les expressions complexes dans le template)
+  displayPriceFormatted(): string {
+    const v = this.displayPrice();
+    if (this.saisirEnCFA) {
+      return v.toFixed(2) + ' €';
+    }
+    return Math.round(v).toString() + ' XOF';
+  }
+
   private validateStep2(): boolean {
     // hero image and gallery
     const okHero = !!this.heroImageFile;
@@ -507,15 +548,24 @@ export class AddCircuitComponent {
         this.circuit.galerie = galerieResults.map(r => `http://localhost:8080${r.url}`);
 
         // 3) créer le circuit avec les URLs complètes
-        console.log('[AddCircuit] creating circuit payload:', this.circuit);
-          // Send the structured programmeDays (ProgrammeDay[]) as the programme payload.
-          // Note: backend must accept ProgrammeDay[] for full structure. If backend still expects string[],
-          // uncomment the fallback below that sends descriptions only.
-          this.circuit.programme = this.programmeDays as any;
-          /* fallback for legacy backend:
-          this.circuit.programme = this.programmeDays.map(d => d.description);
-          */
-          this.circuitService.createCircuit(this.circuit as Omit<CircuitDTO, 'id'>).subscribe({
+        console.log('[AddCircuit] creating circuit payload (legacy string[] programme):', this.circuit);
+
+        // Si l'admin a saisi le prix en XOF (CFA), convertir en EUR avant l'envoi
+        if (this.saisirEnCFA && this.circuit.prixIndicatif != null && !isNaN(Number(this.circuit.prixIndicatif))) {
+          try {
+            this.circuit.prixIndicatif = Number(Number(this.circuit.prixIndicatif) / this.RATE_XOF_PER_EUR);
+          } catch (e) {
+            console.warn('Conversion prix XOF->EUR failed', e);
+          }
+        }
+
+        // IMPORTANT : le backend actuel attend un tableau de chaînes pour `programme`
+        // (champ `programme` est une String JSON dans l'entité, désérialisée en List<String> dans CircuitService).
+        // Pour éviter l'erreur de parse JSON "Cannot deserialize value of type String from Object",
+        // on envoie uniquement la description de chaque jour sous forme de string[].
+        this.circuit.programme = this.programmeDays.map(d => d.description);
+
+        this.circuitService.createCircuit(this.circuit as Omit<CircuitDTO, 'id'>).subscribe({
           next: (createdCircuit) => {
             console.log('[AddCircuit] Circuit créé:', createdCircuit);
             this.router.navigate(['/admin/circuits']);

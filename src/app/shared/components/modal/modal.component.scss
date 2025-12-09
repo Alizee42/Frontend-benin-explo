@@ -209,6 +209,28 @@
   overflow-y: auto;
 }
 
+/* When the modal body contains an image preview, center it and ensure
+   the image scales to fit the viewport without being cropped. */
+.modal-body .image-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0; /* image-preview handles its own padding */
+}
+
+.modal-body .image-preview img {
+  width: auto;
+  height: auto;
+  /* leave a comfortable gap for modal paddings/header/footer */
+  max-width: calc(100vw - 4rem) !important;
+  /* also allow fitting to modal content width if smaller */
+  max-width: min(calc(100vw - 4rem), calc(100% - 4rem)) !important;
+  max-height: calc(100vh - 12rem) !important;
+  object-fit: contain !important;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
 .modal-footer {
   padding: 1.25rem 1.5rem;
   border-top: 2px solid var(--be-sand);

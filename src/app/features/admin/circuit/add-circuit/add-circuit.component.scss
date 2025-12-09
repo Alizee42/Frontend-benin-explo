@@ -139,6 +139,30 @@
   gap: 0.75rem;
 }
 
+/* Compact row used for Ville / Durée / Prix */
+.compact-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.compact-row .compact-item {
+  flex: 1 1 0;
+  min-width: 140px;
+}
+.price-row { display:flex; gap:0.5rem; align-items:center; margin-top:0.25rem; }
+.price-row { display:flex; gap:0.5rem; align-items:center; margin-top:0.25rem; }
+.price-row input[type="number"] {
+  flex: 1 1 0;
+  min-width: 0; /* allow flex children to shrink properly */
+  width: auto; /* don't force 100% inside flex */
+}
+.price-row .checkbox-inline, .price-row .conversion { flex-shrink: 0; }
+.small-inline { font-size:0.85rem; color:#6b7280; }
+
+/* Image previews */
+.image-previews { display:flex; gap:0.5rem; margin-top:0.5rem; flex-wrap:wrap; }
+.image-previews img { width:72px; height:72px; object-fit:cover; border-radius:6px; border:1px solid #e5e7eb; }
+
 .form-group {
   margin-bottom: 0.75rem;
 
@@ -630,6 +654,31 @@
       width: 100%;
       flex-direction: column;
     }
+  }
+}
+
+/* Mobile: stack compact rows so inputs (prix) restent visibles */
+@media (max-width: 480px) {
+  .compact-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .compact-row .compact-item {
+    flex: none;
+    width: 100%;
+  }
+  .price-row {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .price-row input[type="number"] {
+    min-width: 0;
+    width: 100%;
+  }
+  .price-row .checkbox-inline, .price-row .conversion {
+    flex: none;
+    width: 100%;
+    margin-top: 0.25rem;
   }
 }
 

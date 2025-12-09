@@ -130,11 +130,11 @@
     }
 
     .btn-primary {
-      background: var(--be-gold);
-      color: var(--be-dark);
+      background: var(--be-green);
+      color: var(--be-light);
 
       &:hover {
-        background: #b8945a;
+        background: #2e5c4a;
         transform: translateY(-1px);
       }
     }

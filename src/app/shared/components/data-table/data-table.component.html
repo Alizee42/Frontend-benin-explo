@@ -27,10 +27,10 @@
       </thead>
       <tbody>
         <tr
-          *ngFor="let item of data"
+          *ngFor="let item of pagedData"
           class="data-row"
-          (click)="onRowClick(item)">
-          <td *ngFor="let column of columns">
+          (click)="rowClickable && onRowClick(item)">
+          <td *ngFor="let column of columns" [attr.data-label]="column.label" [attr.data-type]="column.type">
             <!-- Actions Column -->
             <div *ngIf="column.type === 'actions'" class="actions-cell">
               <button
@@ -56,6 +56,9 @@
                 [src]="getImageSrc(getCellValue(item, column))"
                 [alt]="column.label"
                 class="table-image"
+                (click)="onImageClick($event, getImageSrc(getCellValue(item, column)))"
+                role="button"
+                title="Cliquer pour agrandir"
                 (error)="onImageError($event)">
               <div *ngIf="!getCellValue(item, column)" class="no-image">
                 <i class="ri-image-line"></i>
@@ -65,5 +68,21 @@
         </tr>
       </tbody>
     </table>
+    <!-- Pagination controls (client-side) -->
+    <div *ngIf="pageable && totalPages > 1" class="table-pagination">
+      <div class="pagination-info">Affichage {{ ((currentPage-1)*pageSize)+1 }} - {{ Math.min(currentPage*pageSize, data.length) }} sur {{ data.length }}</div>
+      <div class="pagination-controls">
+        <button class="page-btn" [disabled]="currentPage===1" (click)="prevPage()">Préc</button>
+        <button *ngFor="let p of [].constructor(totalPages); let i = index" class="page-number" [class.active]="currentPage===i+1" (click)="changePage(i+1)">{{ i+1 }}</button>
+        <button class="page-btn" [disabled]="currentPage===totalPages" (click)="nextPage()">Suiv</button>
+      </div>
+    </div>
   </div>
+  
+  <!-- Image preview modal -->
+  <app-modal [open]="imageModalOpen" [size]="'large'" [showFooter]="false" (close)="closeImage()">
+    <div class="image-preview" *ngIf="imageModalUrl">
+      <img [src]="imageModalUrl" alt="Aperçu image" />
+    </div>
+  </app-modal>
 </div>

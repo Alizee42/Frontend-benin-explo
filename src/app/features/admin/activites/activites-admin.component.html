@@ -16,18 +16,21 @@
   <app-data-table
     [columns]="tableColumns"
     [data]="activites"
+    [pageable]="true"
+    [pageSize]="5"
     [loading]="loading"
     [actions]="tableActions"
     (actionClick)="onTableAction($event)"
-    (rowClick)="onRowClick($event)">
+    >
   </app-data-table>
   </main>
 
   <!-- Modal add/edit activite (réutilise app-modal) -->
-  <app-modal [title]="isEditing ? 'Modifier l\'activité' : 'Ajouter une activité'" [open]="showModal" (close)="closeModal()">
+  <app-modal [title]="isEditing ? 'Modifier l\'activité' : 'Ajouter une activité'" [open]="showModal" [size]="'xlarge'" (close)="closeModal()">
     <app-activite-form
       [activite]="currentActivite"
       [zones]="zones"
+      [villes]="villes"
       (save)="onFormSave($event)"
       (cancel)="closeModal()">
     </app-activite-form>

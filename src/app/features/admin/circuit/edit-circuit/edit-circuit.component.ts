@@ -17,6 +17,11 @@ import { lastValueFrom } from 'rxjs';
   styleUrls: ['./edit-circuit.component.scss']
 })
 export class EditCircuitComponent implements OnInit {
+  // Taux fixe approximatif EUR <-> XOF (1 EUR = 655.957 XOF)
+  readonly RATE_XOF_PER_EUR = 655.957;
+  // Si coché, l'administrateur saisit le prix en XOF (CFA) dans le champ prix;
+  // à l'enregistrement on convertira en EUR (valeur envoyée au backend).
+  saisirEnCFA = false;
   circuit: CircuitDTO = {
     id: 0,
     titre: '',
@@ -44,6 +49,9 @@ export class EditCircuitComponent implements OnInit {
   circuitId: string | null = null;
   heroImageFile: File | null = null;
   galerieFiles: File[] = [];
+  // Previews
+  heroPreview: string | null = null;
+  galeriePreviews: string[] = [];
 
   // Points forts prédéfinis
   predefinedPointsForts = [
@@ -126,6 +134,9 @@ export class EditCircuitComponent implements OnInit {
     if (file) {
       this.heroImageFile = file;
       // optional: preview only
+      this.convertFileToBase64(file).then(base64 => {
+        this.heroPreview = base64;
+      }).catch(() => { this.heroPreview = null; });
     }
   }
 
@@ -133,6 +144,12 @@ export class EditCircuitComponent implements OnInit {
     const files = Array.from(event.target.files) as File[];
     if (files.length >= 3 && files.length <= 10) {
       this.galerieFiles = files;
+      // generate previews for selected files
+      this.galeriePreviews = [];
+      Promise.all(files.slice(0, 10).map(f => this.convertFileToBase64(f).catch(() => null)))
+        .then(previews => {
+          this.galeriePreviews = previews.filter(Boolean) as string[];
+        }).catch(() => { this.galeriePreviews = []; });
     } else {
       alert('Veuillez sélectionner entre 3 et 10 images.');
       event.target.value = '';
@@ -204,6 +221,27 @@ export class EditCircuitComponent implements OnInit {
     return index;
   }
 
+  // Retourne le prix affiché (converti selon le mode de saisie)
+  displayPrice(): number {
+    if (!this.circuit || this.circuit.prixIndicatif == null || isNaN(Number(this.circuit.prixIndicatif))) {
+      return 0;
+    }
+    return this.saisirEnCFA
+      ? Number(this.circuit.prixIndicatif) / this.RATE_XOF_PER_EUR
+      : Number(this.circuit.prixIndicatif) * this.RATE_XOF_PER_EUR;
+  }
+
+  // Retourne le prix formaté avec unité (évite les expressions complexes dans le template)
+  displayPriceFormatted(): string {
+    const value = this.displayPrice();
+    if (this.saisirEnCFA) {
+      // lorsqu'on saisit en XOF, on affiche la conversion en EUR avec deux décimales
+      return value.toFixed(2) + ' €';
+    }
+    // sinon on affiche en XOF arrondi
+    return Math.round(value).toString() + ' XOF';
+  }
+
   onSubmit() {
     // Nettoyage: supprimer les points forts complètement vides (utilisateur n'a pas rempli les champs)
     if (this.circuit.pointsForts && this.circuit.pointsForts.length > 0) {
@@ -217,7 +255,7 @@ export class EditCircuitComponent implements OnInit {
 
     // Validation des champs obligatoires
     if (!this.circuit.titre || !this.circuit.resume || !this.circuit.description ||
-        !this.circuit.dureeIndicative || !this.circuit.prixIndicatif || !this.circuit.localisation) {
+        !this.circuit.dureeIndicative || this.circuit.prixIndicatif == null || isNaN(Number(this.circuit.prixIndicatif)) || !this.circuit.localisation) {
       alert('Veuillez remplir tous les champs obligatoires.');
       return;
     }
@@ -283,6 +321,16 @@ export class EditCircuitComponent implements OnInit {
             alert('Certaines images de la galerie n\'ont pas pu être uploadées: ' + names + '. Le circuit sera mis à jour avec les images uploadées. Vous pouvez réessayer pour les fichiers manquants.');
           }
           this.circuit.galerie = galerieResults.map(r => `http://localhost:8080${r.url}`);
+        }
+
+        // Convertir le prix si l'admin a indiqué l'avoir saisi en XOF
+        const originalPrix = this.circuit.prixIndicatif;
+        if (this.saisirEnCFA && originalPrix != null && !isNaN(Number(originalPrix))) {
+          try {
+            this.circuit.prixIndicatif = Number(Number(originalPrix) / this.RATE_XOF_PER_EUR);
+          } catch (e) {
+            console.warn('Conversion prix XOF->EUR failed', e);
+          }
         }
 
         // then update the circuit
