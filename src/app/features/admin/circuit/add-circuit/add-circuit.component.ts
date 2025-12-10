@@ -49,6 +49,9 @@ export class AddCircuitComponent {
   saisirEnCFA = false;
 
   zones: Zone[] = [];
+  // Cache des noms de zones par id — utile si les activités arrivent
+  // avant la liste complète de zones (évite d'afficher "Zone #id").
+  zoneNameCache: Record<number, string> = {};
   villes: VilleDTO[] = [];
   isLoading = false;
   heroImageFile: File | null = null;
@@ -58,13 +61,35 @@ export class AddCircuitComponent {
   galeriePreviews: string[] = [];
   currentStep = 1;
 
-  // ProgrammeDays for UI editor (structured per day)
-  programmeDays: Array<{ day: number; title?: string; approxTime?: string; description: string; mealsIncluded?: string[]; activities?: number[]; location?: string; durationHours?: number }> = [
-    { day: 1, description: '', activities: [] }
+  // ProgrammeDays pour l'éditeur (un jour = zones + villes + activités + titre optionnel)
+  // selectedZoneIds / selectedVilleIds sont uniquement pour l'UI; le backend reçoit juste les activities[] par jour.
+  programmeDays: Array<{
+    day: number;
+    title?: string;
+    zoneId?: number | null;      // conservé pour compat, mais l'UI utilise selectedZoneIds
+    villeId?: number | null;     // conservé pour compat, mais l'UI utilise selectedVilleIds
+    selectedZoneIds?: number[];  // plusieurs zones possibles dans une journée
+    selectedVilleIds?: number[]; // plusieurs villes possibles dans ces zones
+    activities?: number[];
+    notes?: string;
+  }> = [
+    {
+      day: 1,
+      zoneId: null,
+      villeId: null,
+      selectedZoneIds: [],
+      selectedVilleIds: [],
+      activities: []
+    }
   ];
 
   // Available activities to choose from
   availableActivites: Activite[] = [];
+  // per-day UI state: search filter and option to show all activities
+  activityFilterText: string[] = [];
+  showAllActivitiesForDay: boolean[] = [];
+  // per-day expansion state for groups (zoneKey => boolean)
+  expandedZoneState: Array<Record<string, boolean>> = [];
   // Flags d'affichage des erreurs par étape
   showErrorsStep1 = false;
   showErrorsStep2 = false;
@@ -104,11 +129,34 @@ export class AddCircuitComponent {
     this.loadActivites();
     // initialize programmeDays from existing circuit.programme if present (compat: string[])
     if (this.circuit.programme && this.circuit.programme.length > 0) {
-      // if items are strings, convert to structured days
+      // compat : si programme = string[], on crée juste des jours vides avec ville du circuit
       this.programmeDays = this.circuit.programme.map((p: any, idx: number) => {
-        if (typeof p === 'string') return { day: idx + 1, description: p, activities: [] };
-        return { day: p.day ?? idx + 1, title: p.title, approxTime: p.approxTime, description: p.description ?? '', mealsIncluded: p.mealsIncluded ?? [], activities: p.activities ?? [], location: p.location, durationHours: p.durationHours };
+        if (typeof p === 'string') {
+          return {
+            day: idx + 1,
+            zoneId: this.circuit.zoneId ?? null,
+            villeId: null,
+            selectedZoneIds: this.circuit.zoneId != null ? [this.circuit.zoneId] : [],
+            selectedVilleIds: [],
+            activities: [],
+            notes: p
+          };
+        }
+        return {
+          day: p.day ?? idx + 1,
+          title: p.title,
+          zoneId: this.circuit.zoneId ?? null,
+          villeId: p.villeId ?? null,
+          selectedZoneIds: this.circuit.zoneId != null ? [this.circuit.zoneId] : [],
+          selectedVilleIds: p.villeId != null ? [p.villeId] : [],
+          activities: p.activities ?? [],
+          notes: p.description ?? ''
+        };
       });
+      // init per-day UI arrays
+      this.activityFilterText = this.programmeDays.map(() => '');
+      this.showAllActivitiesForDay = this.programmeDays.map(() => false);
+      this.expandedZoneState = this.programmeDays.map(() => ({}));
     }
   }
 
@@ -120,16 +168,85 @@ export class AddCircuitComponent {
     });
   }
 
-  /** Retourne la liste d'activités autorisées pour le jour `index` en fonction de la ville/zone */
+  /** Villes proposées pour un jour donné, en fonction des zones sélectionnées pour ce jour */
+  getVillesForDay(index: number): VilleDTO[] {
+    const day = this.programmeDays[index];
+    if (!day) {
+      return [];
+    }
+
+    // Utiliser les zones sélectionnées pour ce jour (multi-zones possible).
+    const zoneIds = (day.selectedZoneIds && day.selectedZoneIds.length)
+      ? day.selectedZoneIds
+      : (day.zoneId != null
+          ? [day.zoneId]
+          : (this.circuit.zoneId != null ? [this.circuit.zoneId] : []));
+
+    if (!zoneIds.length) {
+      return [];
+    }
+
+    return this.villes.filter(v => v.zoneId != null && zoneIds.includes(v.zoneId));
+  }
+
+  /** Retourne la liste d'activités autorisées pour le jour `index` en fonction des zones/villes sélectionnées */
   getActivitiesForDay(index: number): Activite[] {
     const day = this.programmeDays[index];
-    const jourVilleId = (day as any).villeId ?? this.circuit.villeId;
-    if (!jourVilleId) return this.availableActivites || [];
-    // trouver zone de la ville
-    const ville = this.villes.find(v => v.id === jourVilleId) as any;
-    const jourZoneId = ville ? ville.zoneId : undefined;
-    if (jourZoneId === undefined || jourZoneId === null) return this.availableActivites || [];
-    return (this.availableActivites || []).filter(a => a.zoneId === jourZoneId);
+    if (!day) {
+      return [];
+    }
+
+    let baseList = this.availableActivites || [];
+
+    // 1) Déterminer les zones prises en compte pour ce jour
+    const zoneIds = (day.selectedZoneIds && day.selectedZoneIds.length)
+      ? day.selectedZoneIds
+      : (day.zoneId != null
+          ? [day.zoneId]
+          : (this.circuit.zoneId != null ? [this.circuit.zoneId] : []));
+
+    if (zoneIds.length) {
+      baseList = baseList.filter(a => a.zoneId != null && zoneIds.includes(a.zoneId));
+    } else {
+      // aucune zone choisie → aucune activité proposée
+      return [];
+    }
+
+    // 2) Villes sélectionnées : multi-villes possible (ou ancienne propriété villeId pour compat)
+    const villeIds = (day.selectedVilleIds && day.selectedVilleIds.length)
+      ? day.selectedVilleIds
+      : (day.villeId != null ? [day.villeId] : []);
+
+    if (villeIds.length) {
+      const villeNames = villeIds
+        .map(id => this.villes.find(v => v.id === id))
+        .filter((v): v is VilleDTO => !!v)
+        .map(v => v.nom);
+
+      if (villeNames.length) {
+        baseList = baseList.filter(a => !!a.ville && villeNames.includes(a.ville));
+      }
+    }
+
+    return baseList;
+  }
+
+  /** Activités autorisées pour le jour mais pas encore sélectionnées (colonne de gauche) */
+  getAvailableActivitiesNotSelected(index: number): Activite[] {
+    const allowed = this.getActivitiesForDay(index);
+    const day = this.programmeDays[index];
+    const selectedIds = new Set(day?.activities || []);
+    return allowed.filter(a => !selectedIds.has(a.id));
+  }
+
+  /** Activités déjà sélectionnées pour le jour (colonne de droite) */
+  getSelectedActivities(index: number): Activite[] {
+    const day = this.programmeDays[index];
+    if (!day || !day.activities || day.activities.length === 0) {
+      return [];
+    }
+    const selectedIds = new Set(day.activities);
+    return (this.availableActivites || []).filter(a => selectedIds.has(a.id));
   }
 
   /** Retourne les activités déjà sélectionnées pour le jour qui sont incompatibles avec la ville/zone */
@@ -148,10 +265,245 @@ export class AddCircuitComponent {
     day.activities = day.activities.filter(aid => allowed.indexOf(aid) !== -1);
   }
 
+  onToggleActivity(dayIndex: number, activityId: number, event: Event) {
+    const input = event.target as HTMLInputElement | null;
+    const checked = !!input?.checked;
+    const day = this.programmeDays[dayIndex];
+    if (!day) return;
+    if (!day.activities) {
+      day.activities = [];
+    }
+    if (checked) {
+      if (!day.activities.includes(activityId)) {
+        day.activities.push(activityId);
+      }
+    } else {
+      day.activities = day.activities.filter(id => id !== activityId);
+    }
+  }
+
+  removeActivity(dayIndex: number, activityId: number) {
+    const day = this.programmeDays[dayIndex];
+    if (!day || !day.activities) return;
+    day.activities = day.activities.filter(id => id !== activityId);
+  }
+
+  // Helpers for grouping, recherche et affichage dans le template
+  zoneName(zoneId?: number | null): string {
+    if (zoneId == null) return 'Zone inconnue';
+    // 1) Vérifier le cache d'abord (peut être rempli par loadZones ou fetch à la demande)
+    if (this.zoneNameCache && this.zoneNameCache[zoneId]) return this.zoneNameCache[zoneId];
+    // 2) Puis la liste complète des zones si chargée
+    const z = this.zones.find(x => x.id === zoneId);
+    if (z && z.nom) {
+      this.zoneNameCache[zoneId] = z.nom;
+      return z.nom;
+    }
+    // 3) Si aucune info disponible, on essaie de lancer un fetch asynchrone
+    this.ensureZoneNameCached(zoneId);
+    // 4) fallback lisible (éviter "Zone #1") — on préfère 'Zone inconnue' plutôt que #id
+    return 'Zone inconnue';
+  }
+
+  /** Noms des villes sélectionnées pour un jour (pour l'affichage des filtres) */
+  getSelectedVilleNamesForDay(index: number): string[] {
+    const day = this.programmeDays[index];
+    if (!day) return [];
+
+    const villeIds = (day.selectedVilleIds && day.selectedVilleIds.length)
+      ? day.selectedVilleIds
+      : (day.villeId != null ? [day.villeId] : []);
+
+    if (!villeIds.length) return [];
+
+    const names: string[] = [];
+    for (const id of villeIds) {
+      const v = this.villes.find(x => x.id === id);
+      if (v && v.nom) {
+        names.push(v.nom);
+      }
+    }
+    return names;
+  }
+
+  /**
+   * Si le nom de la zone n'est pas en cache, récupère la zone par id
+   * et met à jour le `zoneNameCache` (appel asynchrone). Le template
+   * se mettra à jour automatiquement quand la réponse arrivera.
+   */
+  private ensureZoneNameCached(zoneId: number) {
+    if (zoneId == null) return;
+    if (this.zoneNameCache[zoneId]) return; // déjà en cache
+    // si la liste complète est déjà chargée, le cache devrait l'avoir; sinon on fait un appel
+    this.zonesService.getById(zoneId).subscribe({
+      next: (z) => {
+        if (z && z.nom) {
+          this.zoneNameCache[zoneId] = z.nom;
+        }
+      },
+      error: (err) => {
+        // ne pas spammer la console, mais logguer utilement
+        console.warn('[AddCircuit] impossible de récupérer le nom de la zone', zoneId, err);
+      }
+    });
+  }
+
+  private villeNameById(villeId?: number | null): string {
+    if (villeId == null) return '';
+    const v = this.villes.find(x => x.id === villeId);
+    return v ? v.nom : '';
+  }
+
+  /** Noms des zones sélectionnées pour un jour (pour affichage) */
+  getSelectedZoneNamesForDay(index: number): string[] {
+    const day = this.programmeDays[index];
+    if (!day) return [];
+
+    const zoneIds = (day.selectedZoneIds && day.selectedZoneIds.length)
+      ? day.selectedZoneIds
+      : (day.zoneId != null
+          ? [day.zoneId]
+          : (this.circuit.zoneId != null ? [this.circuit.zoneId] : []));
+
+    if (!zoneIds.length) return [];
+
+    return zoneIds.map(id => this.zoneName(id));
+  }
+
+  /** Retourne la liste d'activités disponibles (non sélectionnées) groupées par zone->ville
+   *  Si `showAll` est vrai pour le jour on ignore le filtrage par zone/ville et on renvoie toutes les activités (hors sélectionnées).
+   */
+  getAvailableActivitiesGrouped(index: number) {
+    const day = this.programmeDays[index];
+    if (!day) return [];
+
+    const showAll = !!this.showAllActivitiesForDay[index];
+    // base list: either all activities or the zone/ville-filtered list
+    let base = showAll ? (this.availableActivites || []) : this.getActivitiesForDay(index) || [];
+
+    // exclude selected
+    const selected = new Set(day.activities || []);
+    base = base.filter(a => !selected.has(a.id));
+
+    // apply search filter if present
+    const q = (this.activityFilterText[index] || '').trim().toLowerCase();
+    if (q) {
+      base = base.filter(a => (a.nom || '').toLowerCase().includes(q) || (a.ville || '').toLowerCase().includes(q) || (a.type || '').toLowerCase().includes(q));
+    }
+
+    // group by zoneId and within by ville (string)
+    const mapZone = new Map<number|string, { zoneId?: number|null; zoneName?: string; villes: Map<string, Activite[]>; noVille: Activite[] }>();
+    for (const a of base) {
+      const zkey = a.zoneId != null ? a.zoneId : 'nogroup';
+      if (!mapZone.has(zkey)) {
+        // get a friendly zone name (uses cache, zones list or triggers async fetch if needed)
+        const zId = typeof zkey === 'number' ? (zkey as number) : undefined;
+        const zName = zId != null ? this.zoneName(zId) : (a.zone || 'Zone inconnue');
+        mapZone.set(zkey, { zoneId: typeof zkey === 'number' ? zkey : undefined, zoneName: zName, villes: new Map(), noVille: [] });
+      }
+      const zoneEntry = mapZone.get(zkey)!;
+      const villeName = a.ville ?? '';
+      if (villeName) {
+        if (!zoneEntry.villes.has(villeName)) zoneEntry.villes.set(villeName, []);
+        zoneEntry.villes.get(villeName)!.push(a);
+      } else {
+        zoneEntry.noVille.push(a);
+      }
+    }
+
+    // Convert map to array for template iteration
+    const groups: Array<any> = [];
+    for (const [, val] of mapZone) {
+      const villesArr: Array<any> = [];
+      for (const [vn, acts] of val.villes) {
+        villesArr.push({ villeName: vn, activities: acts });
+      }
+      // create a stable string key for expansion toggles
+      const zoneKey = val.zoneId != null ? 'z_' + val.zoneId : 'nogroup';
+      groups.push({ zoneId: val.zoneId, zoneKey: zoneKey, zoneName: val.zoneName, villes: villesArr, noVille: val.noVille });
+    }
+    // sort groups by zoneName for stable order
+    groups.sort((a, b) => (a.zoneName || '').localeCompare(b.zoneName || ''));
+    return groups;
+  }
+
+  getGroupActivityCount(dayIndex: number, group: any): number {
+    let c = 0;
+    if (!group) return 0;
+    if (group.villes && group.villes.length) {
+      for (const v of group.villes) c += (v.activities || []).length;
+    }
+    if (group.noVille) c += group.noVille.length;
+    return c;
+  }
+
+  toggleGroup(dayIndex: number, zoneKey: string) {
+    if (!this.expandedZoneState[dayIndex]) this.expandedZoneState[dayIndex] = {};
+    const cur = !!this.expandedZoneState[dayIndex][zoneKey];
+    this.expandedZoneState[dayIndex][zoneKey] = !cur;
+  }
+
+  isGroupExpanded(dayIndex: number, zoneKey: string): boolean {
+    // default: expanded when not explicitly set? we'll default to false for compactness
+    if (!this.expandedZoneState[dayIndex]) return false;
+    return !!this.expandedZoneState[dayIndex][zoneKey];
+  }
+
+  // Sélection des zones / villes pour un jour (multi-sélection)
+  onToggleDayZone(dayIndex: number, zoneId: number, event: Event) {
+    const input = event.target as HTMLInputElement | null;
+    const checked = !!input?.checked;
+    const day = this.programmeDays[dayIndex];
+    if (!day) return;
+
+    if (!day.selectedZoneIds) {
+      day.selectedZoneIds = [];
+    }
+
+    if (checked) {
+      if (!day.selectedZoneIds.includes(zoneId)) {
+        day.selectedZoneIds.push(zoneId);
+      }
+    } else {
+      day.selectedZoneIds = day.selectedZoneIds.filter(id => id !== zoneId);
+      // Nettoyer les villes qui ne sont plus dans les zones sélectionnées
+      if (day.selectedVilleIds && day.selectedVilleIds.length) {
+        const selectedZones = day.selectedZoneIds || [];
+        const allowedVilleIds = this.villes
+          .filter(v => v.zoneId != null && selectedZones.includes(v.zoneId))
+          .map(v => v.id);
+        day.selectedVilleIds = day.selectedVilleIds.filter(id => allowedVilleIds.includes(id));
+      }
+    }
+  }
+
+  onToggleDayVille(dayIndex: number, villeId: number, event: Event) {
+    const input = event.target as HTMLInputElement | null;
+    const checked = !!input?.checked;
+    const day = this.programmeDays[dayIndex];
+    if (!day) return;
+
+    if (!day.selectedVilleIds) {
+      day.selectedVilleIds = [];
+    }
+
+    if (checked) {
+      if (!day.selectedVilleIds.includes(villeId)) {
+        day.selectedVilleIds.push(villeId);
+      }
+    } else {
+      day.selectedVilleIds = day.selectedVilleIds.filter(id => id !== villeId);
+    }
+  }
+
   loadZones() {
     this.zonesService.getAll().subscribe({
       next: (zones) => {
         this.zones = zones;
+        // remplir le cache immédiatement pour accélérer l'affichage
+        for (const z of zones) {
+          if (z && z.id != null && z.nom) this.zoneNameCache[z.id] = z.nom;
+        }
       },
       error: (error) => {
         console.error('Erreur chargement zones', error);
@@ -170,6 +522,66 @@ export class AddCircuitComponent {
     });
   }
 
+  /**
+   * Synchronise automatiquement le nombre de jours du programme
+   * avec la durée choisie à l'étape 1 (1 jour, 3 jours, 1 semaine, etc.).
+   */
+  onDureeChange(value: string) {
+    this.circuit.dureeIndicative = value;
+    const targetDays = this.computeDaysFromDuree(value);
+    if (!targetDays || targetDays <= 0) {
+      return;
+    }
+
+    // Allonger ou réduire le tableau programmeDays pour coller au nombre de jours
+    if (this.programmeDays.length < targetDays) {
+      for (let d = this.programmeDays.length + 1; d <= targetDays; d++) {
+        this.programmeDays.push({
+          day: d,
+          zoneId: this.circuit.zoneId ?? null,
+          villeId: null,
+          selectedZoneIds: this.circuit.zoneId != null ? [this.circuit.zoneId] : [],
+          selectedVilleIds: [],
+          activities: [],
+          notes: ''
+        });
+        this.activityFilterText.push('');
+        this.showAllActivitiesForDay.push(false);
+        this.expandedZoneState.push({});
+      }
+    } else if (this.programmeDays.length > targetDays) {
+      this.programmeDays = this.programmeDays.slice(0, targetDays);
+      this.activityFilterText = this.activityFilterText.slice(0, targetDays);
+      this.showAllActivitiesForDay = this.showAllActivitiesForDay.slice(0, targetDays);
+      this.expandedZoneState = this.expandedZoneState.slice(0, targetDays);
+    }
+
+    // Re-numéroter proprement les jours
+    this.programmeDays.forEach((day, idx) => day.day = idx + 1);
+  }
+
+  private computeDaysFromDuree(duree: string | null | undefined): number {
+    if (!duree) return 0;
+    const val = duree.toLowerCase().trim();
+    // Cas "X jours"
+    const joursMatch = val.match(/(\d+)\s*jour/);
+    if (joursMatch) {
+      const n = parseInt(joursMatch[1], 10);
+      if (!isNaN(n) && n > 0) return n;
+    }
+    // Cas "X semaine(s)"
+    const semMatch = val.match(/(\d+)\s*semaine/);
+    if (semMatch) {
+      const n = parseInt(semMatch[1], 10);
+      if (!isNaN(n) && n > 0) return n * 7;
+    }
+    // Cas "1 mois" -> approx 30 jours
+    if (val.includes('mois')) {
+      return 30;
+    }
+    return 0;
+  }
+
   goToStep(step: number) {
     console.log('[AddCircuit] goToStep requested:', { from: this.currentStep, to: step });
     // allow direct go only if target is previous or current; if forward, validate intermediate
@@ -182,8 +594,13 @@ export class AddCircuitComponent {
       }
       if (this.currentStep === 2) {
         const ok2 = this.validateStep2();
-        console.log('[AddCircuit] validateStep2 result (goToStep):', ok2);
+        console.log('[AddCircuit] validateStep2 (programme) result (goToStep):', ok2);
         if (!ok2) { this.showErrorsStep2 = true; return; }
+      }
+      if (this.currentStep === 3) {
+        const ok3 = this.validateStep3();
+        console.log('[AddCircuit] validateStep3 (medias) result (goToStep):', ok3);
+        if (!ok3) { this.showErrorsStep3 = true; return; }
       }
     }
     this.currentStep = step;
@@ -191,7 +608,7 @@ export class AddCircuitComponent {
 
   nextStep() {
     console.log('[AddCircuit] nextStep called from', this.currentStep);
-    if (this.currentStep < 3) {
+    if (this.currentStep < 4) {
       if (this.currentStep === 1) {
         const ok = this.validateStep1();
         console.log('[AddCircuit] validateStep1 result (nextStep):', ok, this.getStep1Debug());
@@ -199,9 +616,14 @@ export class AddCircuitComponent {
         this.showErrorsStep1 = false;
       } else if (this.currentStep === 2) {
         const ok2 = this.validateStep2();
-        console.log('[AddCircuit] validateStep2 result (nextStep):', ok2);
+        console.log('[AddCircuit] validateStep2 (programme) result (nextStep):', ok2);
         if (!ok2) { this.showErrorsStep2 = true; return; }
         this.showErrorsStep2 = false;
+      } else if (this.currentStep === 3) {
+        const ok3 = this.validateStep3();
+        console.log('[AddCircuit] validateStep3 (medias) result (nextStep):', ok3);
+        if (!ok3) { this.showErrorsStep3 = true; return; }
+        this.showErrorsStep3 = false;
       }
       this.currentStep++;
       console.log('[AddCircuit] moved to step', this.currentStep);
@@ -230,7 +652,7 @@ export class AddCircuitComponent {
     const files = Array.from(event.target.files) as File[];
     if (files.length >= 3 && files.length <= 10) {
       this.galerieFiles = files;
-      this.showErrorsStep2 = false;
+      this.showErrorsStep3 = false;
       // generate previews
       this.galeriePreviews = [];
       Promise.all(files.slice(0, 10).map(f => this.convertFileToBase64(f).catch(() => null)))
@@ -239,7 +661,7 @@ export class AddCircuitComponent {
         }).catch(() => { this.galeriePreviews = []; });
     } else {
       this.galerieFiles = [];
-      this.showErrorsStep2 = true;
+      this.showErrorsStep3 = true;
       // keep native alert for immediate feedback
       alert('Veuillez sélectionner entre 3 et 10 images.');
       event.target.value = '';
@@ -261,7 +683,18 @@ export class AddCircuitComponent {
   // Gestion du programme jour par jour
   addJour() {
     const nextDay = this.programmeDays.length + 1;
-    this.programmeDays.push({ day: nextDay, description: '' });
+    this.programmeDays.push({
+      day: nextDay,
+      zoneId: this.circuit.zoneId ?? null,
+      villeId: null,
+      selectedZoneIds: this.circuit.zoneId != null ? [this.circuit.zoneId] : [],
+      selectedVilleIds: [],
+      activities: [],
+      notes: ''
+    });
+    this.activityFilterText.push('');
+    this.showAllActivitiesForDay.push(false);
+    this.expandedZoneState.push({});
   }
 
   removeJour(index: number) {
@@ -269,6 +702,9 @@ export class AddCircuitComponent {
       this.programmeDays.splice(index, 1);
       // re-number days
       this.programmeDays.forEach((d, i) => d.day = i + 1);
+      this.activityFilterText.splice(index, 1);
+      this.showAllActivitiesForDay.splice(index, 1);
+      this.expandedZoneState.splice(index, 1);
     }
   }
 
@@ -344,25 +780,23 @@ export class AddCircuitComponent {
     const duree = dureeVal.toString().trim();
     const prixVal = Number(this.circuit.prixIndicatif);
     const prixOk = !isNaN(prixVal) && prixVal > 0;
-    const villeIdRaw = this.circuit.villeId;
-    const villeOk = villeIdRaw !== null && villeIdRaw !== undefined && String(villeIdRaw).trim() !== '';
 
     const okTitre = titre.length > 0;
     const okDescription = description.length > 0;
     const okDuree = duree.length > 0;
     const okPrix = prixOk;
-    const okVille = villeOk;
-    const result = okTitre && okDescription && okDuree && okPrix && okVille;
+    const result = okTitre && okDescription && okDuree && okPrix;
 
     // debug log
     console.log('[AddCircuit] validateStep1 checks:', {
-      okTitre, okDescription, okDuree, okPrix, okVille, result,
+      okTitre, okDescription, okDuree, okPrix, result,
       circuitSnapshot: {
         titre: this.circuit.titre,
         description: this.circuit.description,
         dureeIndicative: this.circuit.dureeIndicative,
         dureeLegacy: (this.circuit as any).duree,
         prixIndicatif: this.circuit.prixIndicatif,
+        zoneId: this.circuit.zoneId,
         villeId: this.circuit.villeId
       }
     });
@@ -384,6 +818,14 @@ export class AddCircuitComponent {
   // Exposé au template : indique si le prix est invalide
   isPrixInvalid(): boolean {
     return !(this.circuit.prixIndicatif != null && !isNaN(Number(this.circuit.prixIndicatif)) && Number(this.circuit.prixIndicatif) > 0);
+  }
+
+  // Villes filtrées par la zone principale choisie à l'étape 1
+  getVillesForCurrentZone(): VilleDTO[] {
+    if (!this.circuit.zoneId) {
+      return this.villes;
+    }
+    return this.villes.filter(v => v.zoneId === this.circuit.zoneId);
   }
 
   // Helper pour afficher le prix converti dans le template
@@ -415,14 +857,20 @@ export class AddCircuitComponent {
   }
 
   private validateStep2(): boolean {
-    // hero image and gallery
+    // Étape 2 : programme (jours + au moins une activité sélectionnée sur l'ensemble du séjour)
+    const hasDays = this.programmeDays && this.programmeDays.length > 0;
+    const hasAnyActivity = hasDays && this.programmeDays.some(p => p.activities && p.activities.length > 0);
+    const result = hasDays && hasAnyActivity;
+    console.log('[AddCircuit] validateStep2 (programme) checks:', { hasDays, hasAnyActivity, result });
+    return result;
+  }
+
+  private validateStep3(): boolean {
+    // Étape 3 : images (hero + galerie)
     const okHero = !!this.heroImageFile;
     const okGalerie = this.galerieFiles && this.galerieFiles.length >= 3 && this.galerieFiles.length <= 10;
-    // programme all filled (structured days)
-    const okProgramme = this.programmeDays && this.programmeDays.length > 0 && this.programmeDays.every(p => p && p.description && p.description.toString().trim() !== '');
-
-    const result = okHero && okGalerie && okProgramme;
-    console.log('[AddCircuit] validateStep2 checks:', { okHero, okGalerie, okProgramme, result });
+    const result = okHero && okGalerie;
+    console.log('[AddCircuit] validateStep3 (medias) checks:', { okHero, okGalerie, result });
     return result;
   }
 
@@ -455,6 +903,11 @@ export class AddCircuitComponent {
       this.currentStep = 2;
       return;
     }
+    if (!this.validateStep3()) {
+      this.showErrorsStep3 = true;
+      this.currentStep = 3;
+      return;
+    }
 
     // Validation des images
     if (!this.heroImageFile) {
@@ -469,12 +922,7 @@ export class AddCircuitComponent {
       return;
     }
 
-    // Validation du programme (utilise programmeDays structuré)
-    if (!this.programmeDays || this.programmeDays.some(jour => !jour.description || !jour.description.toString().trim())) {
-      alert('Veuillez remplir la description pour chaque jour du programme.');
-      console.error('Programme incomplet');
-      return;
-    }
+    // Programme : on a déjà validé l'étape 2, pas besoin d'imposer une description texte
 
     // Validation tourisme / aventures (optionnel mais nettoyer les entrées vides)
     if (this.circuit.tourisme && this.circuit.tourisme.length > 0) {
@@ -548,7 +996,7 @@ export class AddCircuitComponent {
         this.circuit.galerie = galerieResults.map(r => `http://localhost:8080${r.url}`);
 
         // 3) créer le circuit avec les URLs complètes
-        console.log('[AddCircuit] creating circuit payload (legacy string[] programme):', this.circuit);
+        console.log('[AddCircuit] creating circuit payload (structured programmeDays):', this.circuit);
 
         // Si l'admin a saisi le prix en XOF (CFA), convertir en EUR avant l'envoi
         if (this.saisirEnCFA && this.circuit.prixIndicatif != null && !isNaN(Number(this.circuit.prixIndicatif))) {
@@ -559,11 +1007,21 @@ export class AddCircuitComponent {
           }
         }
 
-        // IMPORTANT : le backend actuel attend un tableau de chaînes pour `programme`
-        // (champ `programme` est une String JSON dans l'entité, désérialisée en List<String> dans CircuitService).
-        // Pour éviter l'erreur de parse JSON "Cannot deserialize value of type String from Object",
-        // on envoie uniquement la description de chaque jour sous forme de string[].
-        this.circuit.programme = this.programmeDays.map(d => d.description);
+        // Programme structuré : mapper vers le format attendu par le backend (ProgrammeDay)
+        // -> seulement day, description, approxTime, mealsIncluded, activities
+        this.circuit.programme = this.programmeDays.map(d => ({
+          day: d.day,
+          description: (d.notes || '').toString().trim(),
+          approxTime: null,
+          mealsIncluded: [] as string[],
+          activities: d.activities || []
+        }) as any);
+
+        // Remplir activiteIds du circuit à partir des activités choisies dans le programme
+        if (this.programmeDays && this.programmeDays.length > 0) {
+          const allActs = this.programmeDays.flatMap(d => d.activities || []);
+          this.circuit.activiteIds = Array.from(new Set(allActs));
+        }
 
         this.circuitService.createCircuit(this.circuit as Omit<CircuitDTO, 'id'>).subscribe({
           next: (createdCircuit) => {

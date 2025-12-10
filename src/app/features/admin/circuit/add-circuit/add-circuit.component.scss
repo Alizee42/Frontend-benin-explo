@@ -263,6 +263,12 @@
         }
       }
     }
+    .jour-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
 
     textarea {
       width: 100%;
@@ -324,6 +330,176 @@
       padding: 0.25rem 0.5rem;
       cursor: pointer;
     }
+  }
+
+  .programme-hint {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.9rem;
+    color: #6b7280;
+  }
+}
+
+// Activités par jour dans l'étape Programme
+.jour-activites-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.jour-activites-columns {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1rem;
+  align-items: start;
+}
+
+.jour-activites-col {
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 0.6rem;
+  border-radius: 8px;
+}
+
+.activities-controls {
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.4rem 0.5rem;
+  align-items:center;
+  margin-bottom:0.5rem;
+}
+.activities-controls input[type="text"] {
+  flex:1 1 180px;
+  padding:0.45rem 0.5rem;
+}
+
+.filter-summary {
+  width:100%;
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.3rem;
+}
+
+.chip {
+  display:inline-flex;
+  align-items:center;
+  padding:0.12rem 0.5rem;
+  border-radius:999px;
+  font-size:0.75rem;
+  font-weight:500;
+}
+
+.chip-zone {
+  background:#ecfdf5;
+  color:#166534;
+  border:1px solid #bbf7d0;
+}
+
+.chip-ville {
+  background:#eff6ff;
+  color:#1d4ed8;
+  border:1px solid #bfdbfe;
+}
+
+.group-header {
+  display:flex;
+  align-items:center;
+  gap:0.4rem;
+  margin-top:0.4rem;
+  margin-bottom:0.25rem;
+  color: #0f172a;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.chevron {
+  font-size:0.8rem;
+  color:#6b7280;
+}
+
+.zone-pill {
+  padding:0.12rem 0.5rem;
+  border-radius:999px;
+  background:#f9fafb;
+  border:1px solid #e5e7eb;
+  font-size:0.8rem;
+}
+
+.ville-header {
+  display:flex;
+  align-items:center;
+  gap:0.4rem;
+  margin:0.25rem 0;
+  color:#374151;
+  font-size:0.85rem;
+}
+
+.ville-name {
+  font-weight:500;
+}
+
+.activity-meta { color:#6b7280; margin-left:0.35rem; font-size:0.8rem; }
+
+.selected-list { display:flex; flex-direction:column; gap:0.35rem; }
+.selected-activity { display:flex; justify-content:space-between; align-items:center; padding:0.35rem 0.5rem; border-radius:6px; background:#f8fafc; border:1px solid #e6eef3; }
+.selected-main { display:flex; flex-direction:column; }
+.btn-remove-activity { background:#ef4444; color:white; border:none; padding:0.35rem 0.6rem; border-radius:6px; cursor:pointer; }
+
+.count-badge { background:#eef2ff; color:#3730a3; padding:0.12rem 0.45rem; border-radius:999px; font-size:0.75rem; margin-left:0.5rem; }
+
+.empty-activities {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.activity-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  font-size: 0.8rem;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 12px;
+    height: 12px;
+  }
+
+  .activity-main {
+    font-weight: 500;
+    color: #111827;
+  }
+
+  .activity-zone {
+    color: #6b7280;
+  }
+}
+
+// Listes de sélection pour zones / villes (puces cliquables)
+.pill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.pill-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  font-size: 0.8rem;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 12px;
+    height: 12px;
   }
 }
 

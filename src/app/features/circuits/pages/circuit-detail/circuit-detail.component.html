@@ -1,259 +1,203 @@
-<!-- HERO VISUEL -->
-<ng-container *ngIf="!loading && circuit; else loadingTpl">
+<div class="circuit-details">
+  <main class="page-content">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading">
+      <div class="loading-spinner"></div>
+      <p>Chargement du circuit...</p>
+    </div>
 
-  <!-- HERO VISUEL -->
-  <section class="detail-hero">
-    <img [src]="getImageUrl(circuit!.img)" class="hero-img" />
-
-    <div class="hero-overlay"></div>
-
-    <div class="hero-content">
-      <h1>{{ circuit!.titre }}</h1>
-      <p class="location">{{ circuit!.villeNom || circuit!.localisation }}</p>
-      <div class="hero-badges">
-        <span class="badge">{{ circuit!.dureeIndicative }}</span>
-        <span class="badge">Culturel</span>
-        <span class="badge">⭐ 4.8/5 (12 avis)</span>
-      </div>
-      </div>
-
-      
-  </section>
-    <section class="content">
-
-      <div class="content-grid">
-        <!-- Main column -->
-        <div class="main-column">
-
-          <!-- Présentation (fusion Présentation + Description en une seule section) -->
-          <div class="section">
-            <h2>Présentation</h2>
-
-            <!-- Description (unique) -->
-            <p class="description-text" *ngIf="circuit!.description">
-              {{ circuit!.description }}
-            </p>
+    <!-- Circuit Details -->
+    <div *ngIf="!loading && circuit" class="circuit-content">
+      <!-- Header with actions -->
+      <div class="circuit-header">
+        <div class="header-info">
+          <h1 class="circuit-title">{{ circuit.titre }}</h1>
+          <div class="circuit-meta">
+            <span class="meta-item">
+              <i class="ri-map-pin-line"></i>
+              {{ zone?.nom || 'Zone non définie' }}
+            </span>
+            <span class="meta-item">
+              <i class="ri-time-line"></i>
+              {{ circuit.dureeIndicative }}
+            </span>
+            <span class="meta-item">
+              <i class="ri-money-euro-circle-line"></i>
+              {{ circuit.prixIndicatif }} €
+            </span>
+            <span class="meta-item status" [ngClass]="getStatutClass(circuit.actif)">
+              <i class="ri-circle-fill"></i>
+              {{ getStatutLabel(circuit.actif) }}
+            </span>
           </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn-secondary" (click)="goBack()">
+            <i class="ri-arrow-left-line"></i>
+            Retour
+          </button>
+        </div>
+      </div>
 
-          <!-- Galerie d'images -->
-          <div class="section" *ngIf="circuit!.galerie?.length">
-            <h2>Galerie</h2>
-            <div class="gallery gallery-large">
-              <img *ngFor="let g of circuit!.galerie" [src]="getImageUrl(g)" alt="Image" />
+      <!-- Main Image -->
+      <div class="circuit-image" *ngIf="circuit.img">
+        <img [src]="circuit.img" [alt]="circuit.titre" class="main-image">
+      </div>
+
+      <!-- Content Sections -->
+      <div class="content-grid">
+
+        <!-- Informations générales -->
+        <section class="content-section">
+          <h2 class="section-title">
+            <i class="ri-information-line"></i>
+            Informations générales
+          </h2>
+          <div class="section-content">
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Résumé</label>
+                <p>{{ circuit.resume }}</p>
+              </div>
+              <div class="info-item">
+                <label>Description</label>
+                <p>{{ circuit.description }}</p>
+              </div>
+              <div class="info-item">
+                <label>Formule proposée</label>
+                <p>{{ circuit.formuleProposee }}</p>
+              </div>
+              <div class="info-item">
+                <label>Localisation</label>
+                <p>{{ circuit.villeNom || circuit.localisation }}</p>
+              </div>
             </div>
           </div>
+        </section>
 
-          <!-- Programmes (plusieurs jours possibles) -->
-          <div class="section" *ngIf="circuit!.programme?.length">
-            <h2>Programmes</h2>
-            <p class="muted">(Liste des étapes / jours du circuit)</p>
-            <div class="timeline">
-              <div class="timeline-item" *ngFor="let p of circuitProgramme; let i = index">
-                <div class="timeline-marker">{{ p.day }}</div>
-                <div class="timeline-content">
-                  <div class="day-header">
-                    <h3>{{ p.title || ('Jour ' + p.day) }}</h3>
-                    <div class="day-badges">
-                      <span class="badge small" *ngIf="p.approxTime">{{ p.approxTime }}</span>
-                      <span class="badge small" *ngFor="let m of p.mealsIncluded">{{ m }}</span>
-                    </div>
+        <!-- Programme (utilise la structure normalisée `circuitProgramme`) -->
+        <section class="content-section" *ngIf="circuitProgramme && circuitProgramme.length > 0">
+          <h2 class="section-title">
+            <i class="ri-calendar-event-line"></i>
+            Programme jour par jour
+          </h2>
+          <div class="section-content">
+            <div class="program-list">
+              <div class="program-item" *ngFor="let jour of circuitProgramme; let i = index">
+                <div class="program-day">
+                  <span class="day-number">Jour {{ jour.day }}</span>
+                </div>
+                <div class="program-content">
+                  <div class="program-header" *ngIf="jour.title || jour.approxTime">
+                    <h3 *ngIf="jour.title">{{ jour.title }}</h3>
                   </div>
-
-                  <p class="day-desc">{{ p.description }}</p>
-
-                  <div class="day-activities" *ngIf="p.activities && p.activities.length">
-                    <h4>Activités prévues</h4>
-                    <div class="activity-chips">
-                      <span class="activity-chip" *ngFor="let aid of p.activities">
-                        {{ getActivityName(aid) }}
-                        <span *ngIf="isActivityIncompatible(p, aid)" class="incompatible" title="Hors zone">⚠</span>
+                  <p class="description" [class.clamped]="!isExpanded(i)">
+                    {{ jour.description }}
+                  </p>
+                  <button class="read-more" *ngIf="(jour.description?.length || 0) > 220" (click)="toggleExpand(i)">
+                    {{ isExpanded(i) ? 'Réduire' : 'Lire la suite' }}
+                  </button>
+                  <div
+                    class="day-meta"
+                    *ngIf="jour.approxTime || (jour.mealsIncluded && jour.mealsIncluded.length) || (jour.activities && jour.activities.length)"
+                  >
+                    <span class="meta-chip" *ngIf="jour.approxTime">{{ jour.approxTime }}</span>
+                    <span class="meta-chip" *ngFor="let m of (jour.mealsIncluded || [])">
+                      Repas : {{ m }}
+                    </span>
+                    <span class="meta-chip activities" *ngIf="jour.activities && jour.activities.length">
+                      Activités :
+                      <span class="activity-name" *ngFor="let aid of jour.activities; let last = last">
+                        {{ getActivityName(aid) }}<span *ngIf="!last">, </span>
                       </span>
-                    </div>
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+        </section>
 
-          <!-- Points forts -->
-          <div class="section" *ngIf="circuit!.pointsForts?.length">
-            <h2>Points forts du circuit</h2>
-            <div class="points-forts">
-              <div class="fort-card" *ngFor="let fort of circuit!.pointsForts">
-                <div class="fort-icon">{{ fort.icon }}</div>
-                <h3>{{ fort.title }}</h3>
-                <p>{{ fort.desc }}</p>
+        <!-- Points forts -->
+        <section class="content-section" *ngIf="circuit.pointsForts && circuit.pointsForts.length > 0">
+          <h2 class="section-title">
+            <i class="ri-star-line"></i>
+            Points forts
+          </h2>
+          <div class="section-content">
+            <div class="points-grid">
+              <div class="point-card" *ngFor="let point of circuit.pointsForts">
+                <div class="point-icon">{{ point.icon }}</div>
+                <div class="point-content">
+                  <h4>{{ point.title }}</h4>
+                  <p>{{ point.desc }}</p>
+                </div>
               </div>
             </div>
           </div>
+        </section>
 
-        </div>
-
-        <!-- Sidebar -->
-        <aside class="sidebar">
-          <div class="info-box sticky">
-            <h3 class="price">À partir de</h3>
-            <div class="price-amount">{{ circuit!.prixIndicatif }} <span class="currency">€</span></div>
-            <p class="subtitle">{{ circuit!.dureeIndicative }} · {{ circuit!.villeNom || circuit!.localisation }}</p>
-
-            <div class="meta">
-              <div class="meta-row"><strong>Formule:</strong> <span>{{ circuit!.formuleProposee || 'Standard' }}</span></div>
-              <div class="meta-row"><strong>Langues:</strong> <span>FR, EN</span></div>
-            </div>
-
-            <div class="aventures" *ngIf="circuit!.aventures?.length">
-              <h4>Aventures</h4>
-              <div class="aventures-chips">
-                <span class="chip" *ngFor="let a of circuit!.aventures">{{ a }}</span>
-              </div>
-            </div>
-
-            <div class="cta-block">
-              <button class="btn-reserve">Réserver</button>
-              <a routerLink="/contact" class="btn-contact">Contact</a>
-            </div>
-          </div>
-        </aside>
-
-      </div>
-
-      <!-- Informations pratiques (full width under columns) -->
-      <div class="section info-full">
-        <h2>Informations pratiques</h2>
-        <div class="info-grid">
-          <div class="info-card">
-            <h4>Durée</h4>
-            <p>{{ circuit!.dureeIndicative }}</p>
-          </div>
-          <div class="info-card">
-            <h4>Localisation</h4>
-            <p>{{ circuit!.villeNom || circuit!.localisation }}</p>
-          </div>
-          <div class="info-card">
-            <h4>Prix</h4>
-            <p>À partir de {{ circuit!.prixIndicatif }} €</p>
-          </div>
-
-          <div class="info-card" *ngIf="circuit!.formuleProposee">
-            <h4>Formule</h4>
-            <p>{{ circuit!.formuleProposee }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- CTA Réservation large -->
-      <div class="section cta-section">
-        <h2>Prêt à vivre cette aventure ?</h2>
-        <p>Contactez-nous pour organiser votre circuit personnalisé au Bénin.</p>
-        <div class="cta-buttons">
-          <a routerLink="/circuit" class="btn-back">← Retour aux circuits</a>
-          <button class="btn-reserve">Réserver maintenant</button>
-        </div>
-      </div>
-
-    </section>
-  <!-- CONTENU -->
-  <section class="content">
-
-    <!-- Présentation (fusion Présentation + Description en une seule section) -->
-    <div class="section">
-      <h2>Présentation</h2>
-
-      <!-- Description (unique) -->
-      <p class="description-text" *ngIf="circuit!.description">
-        {{ circuit!.description }}
-      </p>
-    </div>
-
-    <!-- Galerie d'images -->
-    <div class="section" *ngIf="circuit!.galerie?.length">
-      <h2>Galerie</h2>
-      <div class="gallery">
-        <img *ngFor="let g of circuit!.galerie" [src]="getImageUrl(g)" alt="Image" />
-      </div>
-    </div>
-
-    <!-- Programmes (plusieurs jours possibles) -->
-    <div class="section" *ngIf="circuit!.programme?.length">
-      <h2>Programmes</h2>
-      <p class="muted">(Liste des étapes / jours du circuit)</p>
-      <div class="timeline">
-        <div class="timeline-item" *ngFor="let p of circuitProgramme; let i = index">
-          <div class="timeline-marker">{{ p.day }}</div>
-          <div class="timeline-content">
-            <div class="day-header">
-              <h3>{{ p.title || ('Jour ' + p.day) }}</h3>
-              <div class="day-badges">
-                <span class="badge small" *ngIf="p.approxTime">{{ p.approxTime }}</span>
-                <span class="badge small" *ngFor="let m of p.mealsIncluded">{{ m }}</span>
-              </div>
-            </div>
-
-            <p class="day-desc">{{ p.description }}</p>
-
-            <div class="day-activities" *ngIf="p.activities && p.activities.length">
-              <h4>Activités prévues</h4>
-              <div class="activity-chips">
-                <span class="activity-chip" *ngFor="let aid of p.activities">
-                  {{ getActivityName(aid) }}
-                  <span *ngIf="isActivityIncompatible(p, aid)" class="incompatible" title="Hors zone">⚠</span>
-                </span>
+        <!-- Galerie d'images -->
+        <section class="content-section" *ngIf="circuit.galerie && circuit.galerie.length > 0">
+          <h2 class="section-title">
+            <i class="ri-image-line"></i>
+            Galerie d'images
+          </h2>
+          <div class="section-content">
+            <div class="gallery-grid">
+              <div class="gallery-item" *ngFor="let image of circuit.galerie">
+                <img [src]="image" [alt]="circuit.titre" class="gallery-image">
               </div>
             </div>
           </div>
+        </section>
+
+        <!-- Inclus / Non inclus -->
+        <div class="content-row">
+          <section class="content-section half" *ngIf="circuit.inclus && circuit.inclus.length > 0">
+            <h2 class="section-title">
+              <i class="ri-check-line"></i>
+              Inclus dans le circuit
+            </h2>
+            <div class="section-content">
+              <ul class="list">
+                <li *ngFor="let item of circuit.inclus">{{ item }}</li>
+              </ul>
+            </div>
+          </section>
+
+          <section class="content-section half" *ngIf="circuit.nonInclus && circuit.nonInclus.length > 0">
+            <h2 class="section-title">
+              <i class="ri-close-line"></i>
+              Non inclus
+            </h2>
+            <div class="section-content">
+              <ul class="list">
+                <li *ngFor="let item of circuit.nonInclus">{{ item }}</li>
+              </ul>
+            </div>
+          </section>
         </div>
+
+        <!-- Activités -->
+        <section class="content-section" *ngIf="circuit.activiteIds && circuit.activiteIds.length > 0">
+          <h2 class="section-title">
+            <i class="ri-calendar-check-line"></i>
+            Activités associées
+          </h2>
+          <div class="section-content">
+            <div class="tags">
+              <span class="tag" *ngFor="let activiteId of circuit.activiteIds">
+                Activité {{ activiteId }}
+              </span>
+            </div>
+          </div>
+        </section>
+
       </div>
     </div>
-
-    <!-- Points forts -->
-    <div class="section" *ngIf="circuit!.pointsForts?.length">
-      <h2>Points forts du circuit</h2>
-      <div class="points-forts">
-        <div class="fort-card" *ngFor="let fort of circuit!.pointsForts">
-          <div class="fort-icon">{{ fort.icon }}</div>
-          <h3>{{ fort.title }}</h3>
-          <p>{{ fort.desc }}</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Informations pratiques -->
-    <div class="section">
-      <h2>Informations pratiques</h2>
-      <div class="info-grid">
-        <div class="info-card">
-          <h4>Durée</h4>
-          <p>{{ circuit!.dureeIndicative }}</p>
-        </div>
-        <div class="info-card">
-          <h4>Localisation</h4>
-          <p>{{ circuit!.villeNom || circuit!.localisation }}</p>
-        </div>
-        <div class="info-card">
-          <h4>Prix</h4>
-          <p>À partir de {{ circuit!.prixIndicatif }} €</p>
-        </div>
-        
-        <div class="info-card" *ngIf="circuit!.formuleProposee">
-          <h4>Formule</h4>
-          <p>{{ circuit!.formuleProposee }}</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- CTA Réservation -->
-    <div class="section cta-section">
-      <h2>Prêt à vivre cette aventure ?</h2>
-      <p>Contactez-nous pour organiser votre circuit personnalisé au Bénin.</p>
-      <div class="cta-buttons">
-        <a routerLink="/circuit" class="btn-back">← Retour aux circuits</a>
-        <button class="btn-reserve">Réserver maintenant</button>
-      </div>
-    </div>
-
-  </section>
-
-</ng-container>
+  </main>
+</div>
 
 <ng-template #loadingTpl>
   <div class="loading">Chargement du circuit...</div>
