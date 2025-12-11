@@ -122,135 +122,218 @@
 
         <!-- Zone principale du circuit était ici, mais on ne l'utilise plus dans cette étape -->
 
-        <div class="programme-section">
-          <div class="programme-item" *ngFor="let step of programmeDays; let i = index; trackBy: trackByIndex">
-            <div class="jour-header">
-              <span class="jour-number">Jour {{ step.day }}</span>
-              <button type="button" class="btn-remove" (click)="removeJour(i)" *ngIf="programmeDays.length > 1">×</button>
-            </div>
-            <div class="jour-fields">
-              <div class="form-group small">
-                <label for="jour-title-{{ i }}">Titre du jour (optionnel)</label>
-                <input id="jour-title-{{ i }}" type="text" [name]="'jour-title-' + i" [(ngModel)]="programmeDays[i].title" placeholder="Ex: Arrivée et installation" />
-              </div>
-              <div class="form-group small">
-                <label>Zones du jour</label>
-                <div class="pill-list">
-                  <label class="pill-option" *ngFor="let zone of zones">
-                    <input
-                      type="checkbox"
-                      [checked]="programmeDays[i].selectedZoneIds?.includes(zone.id)"
-                      (change)="onToggleDayZone(i, zone.id, $event)"
-                    />
-                    <span>{{ zone.nom }}</span>
-                  </label>
-                </div>
-              </div>
-              <div class="form-group small" *ngIf="getVillesForDay(i).length">
-                <label>Villes du jour</label>
-                <div class="pill-list">
-                  <label class="pill-option" *ngFor="let ville of getVillesForDay(i)">
-                    <input
-                      type="checkbox"
-                      [checked]="programmeDays[i].selectedVilleIds?.includes(ville.id)"
-                      (change)="onToggleDayVille(i, ville.id, $event)"
-                    />
-                    <span>{{ ville.nom }}</span>
-                  </label>
-                </div>
-              </div>
-            </div>
+        <div class="programme-layout">
+          <!-- Panneau latéral : vue d'ensemble du programme -->
+          <aside class="programme-sidebar">
+            <h4 class="sidebar-title">Vue d'ensemble du programme</h4>
+            <p class="sidebar-text">
+              Visualise rapidement chaque jour : titre, nombre d'activités et progression globale avant de valider le circuit.
+            </p>
 
-            <div class="form-group full-width">
-              <label>Activités prévues ce jour</label>
-              <div class="jour-activites-columns">
-                <!-- Colonne gauche : activités disponibles (non sélectionnées) -->
-                <div class="jour-activites-col">
-                  <div class="activities-controls">
-                    <h4 class="sub-title">Activités disponibles</h4>
-                    <input type="text" placeholder="Rechercher une activité / ville / type" [(ngModel)]="activityFilterText[i]" [ngModelOptions]="{standalone: true}" />
-                    <label class="small-inline"><input type="checkbox" [(ngModel)]="showAllActivitiesForDay[i]" [ngModelOptions]="{standalone: true}" /> Afficher toutes les activités</label>
-                    <div
-                      class="filter-summary"
-                      *ngIf="getSelectedZoneNamesForDay(i).length || getSelectedVilleNamesForDay(i).length"
-                    >
-                      <ng-container *ngFor="let z of getSelectedZoneNamesForDay(i)">
-                        <span class="chip chip-zone">{{ z }}</span>
-                      </ng-container>
-                      <ng-container *ngFor="let v of getSelectedVilleNamesForDay(i)">
-                        <span class="chip chip-ville">{{ v }}</span>
-                      </ng-container>
-                    </div>
+            <ul class="programme-overview">
+              <li class="overview-item" *ngFor="let step of programmeDays">
+                <div class="overview-main">
+                  <span class="overview-day">Jour {{ step.day }}</span>
+                  <span class="overview-title">{{ step.title || 'Sans titre' }}</span>
+                </div>
+                <span class="overview-activities">
+                  {{ (step.activities || []).length || 0 }} activité{{ (step.activities || []).length > 1 ? 's' : '' }}
+                </span>
+              </li>
+            </ul>
+
+            <div class="overview-footer">
+              <span class="overview-chip">
+                {{ programmeDays.length }} jour{{ programmeDays.length > 1 ? 's' : '' }} au total
+              </span>
+            </div>
+          </aside>
+
+          <!-- Colonne principale : configuration détaillée jour par jour -->
+          <div class="programme-section">
+            <div class="programme-item" *ngFor="let step of programmeDays; let i = index; trackBy: trackByIndex">
+              <div class="jour-header">
+                <span class="jour-number">Jour {{ step.day }}</span>
+                <button type="button" class="btn-remove" (click)="removeJour(i)" *ngIf="programmeDays.length > 1">×</button>
+              </div>
+              <div class="jour-fields">
+                <div class="form-group small">
+                  <label for="jour-title-{{ i }}">Titre du jour (optionnel)</label>
+                  <input
+                    id="jour-title-{{ i }}"
+                    type="text"
+                    [name]="'jour-title-' + i"
+                    [(ngModel)]="programmeDays[i].title"
+                    placeholder="Ex: Arrivée et installation"
+                  />
+                  <small class="field-hint">Sert de sous-titre dans la fiche détail du circuit.</small>
+                </div>
+                <div class="form-group small">
+                  <label for="zone-jour-{{ i }}">Zone du jour</label>
+                  <select
+                    id="zone-jour-{{ i }}"
+                    [(ngModel)]="programmeDays[i].zoneId"
+                    (ngModelChange)="onDayZoneSelectChange(i, $event)"
+                    [ngModelOptions]="{standalone: true}"
+                  >
+                    <option [ngValue]="null">Sélectionner une zone</option>
+                    <option *ngFor="let zone of zones" [ngValue]="zone.id">
+                      {{ zone.nom }}
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group small" *ngIf="getVillesForDay(i).length">
+                  <label>Villes du jour</label>
+                  <div class="pill-list">
+                    <label class="pill-option" *ngFor="let ville of getVillesForDay(i)">
+                      <input
+                        type="checkbox"
+                        [checked]="programmeDays[i].selectedVilleIds?.includes(ville.id)"
+                        (change)="onToggleDayVille(i, ville.id, $event)"
+                      />
+                      <span>{{ ville.nom }}</span>
+                    </label>
                   </div>
+                </div>
+                <div class="form-group full-width">
+                  <label>Notes / petit texte (optionnel)</label>
+                  <textarea
+                    [name]="'programme-notes-' + i"
+                    [(ngModel)]="programmeDays[i].notes"
+                    placeholder="Quelques mots si tu veux préciser ce qui se passe ce jour-là"
+                    rows="2"
+                  ></textarea>
+                </div>
+              </div>
+              <div class="form-group full-width">
+                <label>Activités du jour</label>
 
-                  <div class="jour-activites-list">
-                    <div class="empty-activities" *ngIf="getAvailableActivitiesGrouped(i).length === 0">
-                      Aucune activité disponible pour cette ville / zone.
+                <!-- Cas 1 : aucune zone sélectionnée et aucune activité -->
+                <div
+                  class="empty-activities empty-activities-main"
+                  *ngIf="hasNoSelectedZones(i) && getAvailableActivitiesGrouped(i).length === 0 && !getSelectedActivities(i)?.length"
+                >
+                  Sélectionne d'abord une ou plusieurs zones (et éventuellement des villes) pour voir les activités proposées.
+                </div>
+
+                <!-- Cas 2 : zones sélectionnées mais aucune activité configurée -->
+                <div
+                  class="empty-activities empty-activities-main"
+                  *ngIf="hasSelectedZones(i) && getAvailableActivitiesGrouped(i).length === 0 && !getSelectedActivities(i)?.length"
+                >
+                  Aucune activité configurée pour les zones sélectionnées pour le moment.
+                </div>
+
+                <!-- Cas 3 : au moins une activité disponible ou déjà sélectionnée → afficher les deux colonnes -->
+                <div
+                  class="jour-activites-columns"
+                  *ngIf="getAvailableActivitiesGrouped(i).length > 0 || getSelectedActivities(i)?.length"
+                >
+                  <!-- Colonne gauche : catalogue -->
+                  <div class="jour-activites-col">
+                    <div class="activities-controls">
+                      <input
+                        type="text"
+                        placeholder="Rechercher une activité, ville ou type"
+                        [(ngModel)]="activityFilterText[i]"
+                        [ngModelOptions]="{standalone: true}"
+                      />
+                      <label class="small-inline">
+                        <input
+                          type="checkbox"
+                          [(ngModel)]="showAllActivitiesForDay[i]"
+                          [ngModelOptions]="{standalone: true}"
+                        />
+                        Voir tout le catalogue
+                      </label>
+                      <div
+                        class="filter-summary"
+                        *ngIf="getSelectedZoneNamesForDay(i).length || getSelectedVilleNamesForDay(i).length"
+                      >
+                        <ng-container *ngFor="let z of getSelectedZoneNamesForDay(i)">
+                          <span class="chip chip-zone">{{ z }}</span>
+                        </ng-container>
+                        <ng-container *ngFor="let v of getSelectedVilleNamesForDay(i)">
+                          <span class="chip chip-ville">{{ v }}</span>
+                        </ng-container>
+                      </div>
                     </div>
 
-                    <div *ngFor="let group of getAvailableActivitiesGrouped(i)">
-                      <div class="group-header" (click)="toggleGroup(i, group.zoneKey)">
-                        <span class="chevron">{{ isGroupExpanded(i, group.zoneKey) ? '▾' : '▸' }}</span>
-                        <span class="zone-pill">{{ group.zoneName }}</span>
-                        <span class="count-badge">{{ getGroupActivityCount(i, group) }}</span>
+                    <div class="jour-activites-list">
+                      <div class="empty-activities" *ngIf="getAvailableActivitiesGrouped(i).length === 0">
+                        Aucune activité trouvée pour ce filtre.
                       </div>
-                      <div *ngIf="isGroupExpanded(i, group.zoneKey)">
-                        <div class="group-villes" *ngIf="group.villes && group.villes.length">
-                          <div *ngFor="let v of group.villes">
-                            <div class="ville-header">
-                              <span class="ville-name">{{ v.villeName }}</span>
-                              <span class="count-badge">{{ v.activities.length }}</span>
+
+                      <div *ngFor="let group of getAvailableActivitiesGrouped(i)">
+                        <div class="group-header" (click)="toggleGroup(i, group.zoneKey)">
+                          <span class="chevron">{{ isGroupExpanded(i, group.zoneKey) ? '▾' : '▸' }}</span>
+                          <span class="zone-pill">{{ group.zoneName }}</span>
+                          <span class="count-badge">{{ getGroupActivityCount(i, group) }}</span>
+                        </div>
+                        <div *ngIf="isGroupExpanded(i, group.zoneKey)">
+                          <div class="group-villes" *ngIf="group.villes && group.villes.length">
+                            <div *ngFor="let v of group.villes">
+                              <div class="ville-header">
+                                <span class="ville-name">{{ v.villeName }}</span>
+                                <span class="count-badge">{{ v.activities.length }}</span>
+                              </div>
+                              <label class="activity-option" *ngFor="let a of v.activities">
+                                <input type="checkbox" (change)="onToggleActivity(i, a.id, $event)" />
+                                <span class="activity-main">{{ a.nom }}</span>
+                                <span class="activity-meta">
+                                  <small *ngIf="a.type">{{ a.type }}</small>
+                                </span>
+                              </label>
                             </div>
-                            <label class="activity-option" *ngFor="let a of v.activities">
+                          </div>
+                          <div class="group-no-ville" *ngIf="group.noVille && group.noVille.length">
+                            <div class="ville-header">
+                              Autres activités
+                              <span class="count-badge">{{ group.noVille.length }}</span>
+                            </div>
+                            <label class="activity-option" *ngFor="let a of group.noVille">
                               <input type="checkbox" (change)="onToggleActivity(i, a.id, $event)" />
                               <span class="activity-main">{{ a.nom }}</span>
-                              <span class="activity-meta"> <small *ngIf="a.type">• {{ a.type }}</small></span>
+                              <span class="activity-meta">
+                                <small *ngIf="a.ville">{{ a.ville }}</small>
+                                <small *ngIf="a.type">• {{ a.type }}</small>
+                              </span>
                             </label>
                           </div>
                         </div>
-                        <div class="group-no-ville" *ngIf="group.noVille && group.noVille.length">
-                          <div class="ville-header">Autres activités <span class="count-badge">{{ group.noVille.length }}</span></div>
-                          <label class="activity-option" *ngFor="let a of group.noVille">
-                            <input type="checkbox" (change)="onToggleActivity(i, a.id, $event)" />
-                            <span class="activity-main">{{ a.nom }}</span>
-                            <span class="activity-meta"> <small *ngIf="a.ville">• {{ a.ville }}</small> <small *ngIf="a.type">• {{ a.type }}</small></span>
-                          </label>
-                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <!-- Colonne droite : activités déjà sélectionnées -->
-                <div class="jour-activites-col">
-                  <h4 class="sub-title">Sélection pour ce jour <span class="count-badge">{{ (programmeDays[i].activities || []).length }}</span></h4>
-                  <div class="jour-activites-list selected-list">
-                    <div class="empty-activities" *ngIf="!getSelectedActivities(i)?.length">
-                      Aucune activité sélectionnée pour ce jour.
-                    </div>
-                    <div class="selected-activity" *ngFor="let a of getSelectedActivities(i)">
-                      <div class="selected-main">
-                        <span class="activity-main">{{ a.nom }}</span>
-                        <span class="activity-meta"><small *ngIf="a.ville">{{ a.ville }}</small> <small *ngIf="a.type">• {{ a.type }}</small></span>
+                  <!-- Colonne droite : activités déjà sélectionnées -->
+                  <div class="jour-activites-col">
+                    <h4 class="sub-title">
+                      Sélection du jour
+                      <span class="count-badge">{{ (programmeDays[i].activities || []).length }}</span>
+                    </h4>
+                    <div class="jour-activites-list selected-list">
+                      <div class="empty-activities" *ngIf="!getSelectedActivities(i)?.length">
+                        Aucune activité sélectionnée.
                       </div>
-                      <button type="button" class="btn-remove-activity" (click)="removeActivity(i, a.id)">Retirer</button>
+                      <div class="selected-activity" *ngFor="let a of getSelectedActivities(i)">
+                        <div class="selected-main">
+                          <span class="activity-main">{{ a.nom }}</span>
+                          <span class="activity-meta">
+                            <small *ngIf="a.ville">{{ a.ville }}</small>
+                            <small *ngIf="a.type">• {{ a.type }}</small>
+                          </span>
+                        </div>
+                        <button type="button" class="btn-remove-activity" (click)="removeActivity(i, a.id)">
+                          Retirer
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            <div class="form-group full-width">
-              <label>Notes / petit texte (optionnel)</label>
-              <textarea
-                [name]="'programme-notes-' + i"
-                [(ngModel)]="programmeDays[i].notes"
-                placeholder="Quelques mots si tu veux préciser ce qui se passe ce jour-là"
-                rows="2"
-              ></textarea>
-            </div>
+            <button type="button" class="btn-add-jour" (click)="addJour()">+ Ajouter un jour</button>
           </div>
-          <button type="button" class="btn-add-jour" (click)="addJour()">+ Ajouter un jour</button>
         </div>
       </div>
 
