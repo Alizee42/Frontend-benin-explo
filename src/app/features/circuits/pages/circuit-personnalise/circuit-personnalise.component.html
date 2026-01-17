@@ -69,27 +69,32 @@
           </h3>
 
           <div class="jour-content" *ngIf="expanded[i]">
-            <!-- Sélection des zones -->
+            <!-- Sélection zone/ville -->
             <div class="zones-section">
-              <h4>Zones à visiter (1-2 zones)</h4>
-              <div class="zones-selected">
-                <div class="zone-tag" *ngFor="let zone of jour.zones; let j = index">
-                  {{ zone.nom }}
-                  <button (click)="retirerZone(i, j)">×</button>
+              <h4>Zone et ville</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Zone</label>
+                  <select [(ngModel)]="jour.zoneId" (ngModelChange)="onZoneChange(jour, $event)" [name]="'zone-' + i">
+                    <option [ngValue]="null">Toutes les zones</option>
+                    <option *ngFor="let z of zones; trackBy: trackByZone" [ngValue]="z.idZone">{{ z.nom }}</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Ville</label>
+                  <select [(ngModel)]="jour.villeId" (ngModelChange)="onVilleChange(jour, $event)" [name]="'ville-' + i">
+                    <option [ngValue]="null">Toutes les villes</option>
+                    <option *ngFor="let v of jour.villes; trackBy: trackByVille" [ngValue]="v.id">{{ v.nom }}</option>
+                  </select>
                 </div>
               </div>
-              <div class="zones-list">
-                <div class="zone-option" *ngFor="let zone of zones"
-                     [class.disabled]="jour.zones.length >= 2 || (jour.zones.length === 1 && !zonesProches(jour.zones[0], zone))"
-                     (click)="jour.zones.length < 2 && (!jour.zones.length || zonesProches(jour.zones[0], zone)) ? ajouterZone(i, zone) : null">
-                  <h5>{{ zone.nom }}</h5>
-                  <p>{{ zone.description }}</p>
-                </div>
-              </div>
+              <p class="hint" *ngIf="jour.zoneId">
+                Zone sélectionnée : {{ getZoneNames(jour) }}
+              </p>
             </div>
 
             <!-- Sélection des activités -->
-            <div class="activites-section" *ngIf="jour.zones.length > 0">
+            <div class="activites-section">
               <h4>Activités (3-5 activités)</h4>
               <div class="activites-list">
                 <div class="activite-option" *ngFor="let activite of getActivitesDisponibles(i)"
@@ -97,10 +102,21 @@
                      (click)="toggleActivite(i, activite)">
                   <div class="activite-header">
                     <h5>{{ activite.nom }}</h5>
-                    <span class="prix">{{ activite.prix }}€</span>
+                    <div class="activite-actions">
+                      <button *ngIf="activite.image" class="btn-view-image" (click)="openImageModal(activite.image, $event)" title="Voir l'image">
+                        <i class="ri-eye-line"></i>
+                      </button>
+                      <span class="prix" *ngIf="activite.prix != null">{{ activite.prix }}€</span>
+                    </div>
                   </div>
                   <p>{{ activite.description }}</p>
-                  <small>{{ activite.duree }}</small>
+                  <small>
+                    <span *ngIf="activite.dureeDisplay; else dureeMinutes">{{ activite.dureeDisplay }}</span>
+                    <ng-template #dureeMinutes>
+                      <span *ngIf="activite.dureeMinutes">{{ activite.dureeMinutes }} min</span>
+                    </ng-template>
+                    <span *ngIf="activite.ville"> • {{ activite.ville }}</span>
+                  </small>
                 </div>
               </div>
             </div>
@@ -179,7 +195,15 @@
             <div class="jour-resume" *ngFor="let jour of jours">
               <h4>Jour {{ jour.numero }}</h4>
               <p><strong>Zones :</strong> {{ getZoneNames(jour) }}</p>
-              <p><strong>Activités :</strong> {{ getActiviteNames(jour) }}</p>
+              <div class="activites-resume" *ngIf="jour.activites.length > 0">
+                <strong>Activités :</strong>
+                <div class="activite-item" *ngFor="let actId of jour.activites">
+                  <ng-container *ngIf="getActiviteById(actId) as act">
+                    <img *ngIf="act.image" [src]="act.image" alt="{{ act.nom }}" class="activite-image" />
+                    <span>{{ act.nom }}</span>
+                  </ng-container>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -259,3 +283,11 @@
     </div>
   </div>
 </section>
+
+<!-- Image Modal -->
+<div class="image-modal" *ngIf="imageModalOpen" (click)="closeImageModal()">
+  <div class="image-modal-content" (click)="$event.stopPropagation()">
+    <button class="close-btn" (click)="closeImageModal()">&times;</button>
+    <img *ngIf="imageModalUrl" [src]="imageModalUrl" alt="Image de l'activité" />
+  </div>
+</div>

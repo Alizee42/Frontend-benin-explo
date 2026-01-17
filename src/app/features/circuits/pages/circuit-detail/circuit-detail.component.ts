@@ -68,7 +68,7 @@ export class CircuitDetailComponent implements OnInit {
     if (!zoneId) return;
     this.zonesService.getAllZones().subscribe({
       next: (zones) => {
-        this.zone = zones.find(z => z.id === zoneId) || null;
+        this.zone = zones.find(z => z.idZone === zoneId) || null;
       },
       error: (err) => {
         console.error('[CircuitDetail] erreur loadZone', err);

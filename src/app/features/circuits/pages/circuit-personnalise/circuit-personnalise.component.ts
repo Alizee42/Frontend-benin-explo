@@ -1,29 +1,22 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { CircuitsPersonnalisesService, DemandeCircuitPersonnalise } from '../../../../services/circuits-personnalises.service';
+import { ZonesService, Zone as ApiZone } from '../../../../services/zones.service';
+import { ActivitesService, Activite as ApiActivite } from '../../../../services/activites.service';
+import { VillesService, VilleDTO } from '../../../../services/villes.service';
 
-interface Zone {
-  id: number;
-  nom: string;
-  region: string;
-  description: string;
-}
+interface Zone extends ApiZone {}
 
-interface Activite {
-  id: number;
-  nom: string;
-  description: string;
-  zoneIds: number[]; // zones où cette activité est disponible
-  duree: string;
-  prix: number;
-}
+interface Activite extends ApiActivite {}
 
 interface Jour {
   numero: number;
-  zones: Zone[];
-  activites: Activite[];
+  zoneId: number | null;
+  villeId: number | null;
+  activites: number[];
+  villes?: VilleDTO[]; // ajouter pour stocker les villes filtrées
 }
 
 interface OptionsGenerales {
@@ -53,21 +46,18 @@ interface DemandeCircuit {
   styleUrl: './circuit-personnalise.component.scss'
 })
 export class CircuitPersonnaliseComponent {
-  private http = inject(HttpClient);
   private router = inject(Router);
+  private circuitsPersonnalisesService = inject(CircuitsPersonnalisesService);
+  private zonesService = inject(ZonesService);
+  private activitesService = inject(ActivitesService);
+  private villesService = inject(VillesService);
 
   // Étapes du formulaire
   etape = 1; // 1: durée, 2: jours, 3: options, 4: résumé, 5: formulaire
 
-  // Données mock
-  zones: Zone[] = [
-    { id: 1, nom: 'Cotonou', region: 'Sud', description: 'Capitale économique' },
-    { id: 2, nom: 'Porto-Novo', region: 'Sud', description: 'Capitale politique' },
-    { id: 3, nom: 'Ouidah', region: 'Sud', description: 'Ville historique' },
-    { id: 4, nom: 'Abomey', region: 'Centre', description: 'Ancienne capitale royale' },
-    { id: 5, nom: 'Parakou', region: 'Nord', description: 'Centre commercial' },
-    { id: 6, nom: 'Natitingou', region: 'Nord', description: 'Porte du Nord' }
-  ];
+  // Données chargées depuis le backend
+  zones: Zone[] = [];
+  villes: VilleDTO[] = [];
 
   hebergements: string[] = [
     'Airbnb Villa Luxe Cotonou',
@@ -85,16 +75,7 @@ export class CircuitPersonnaliseComponent {
     'Bus touristique (9+ personnes)'
   ];
 
-  activites: Activite[] = [
-    { id: 1, nom: 'Visite du marché Dantokpa', description: 'Plus grand marché d\'Afrique de l\'Ouest', zoneIds: [1], duree: '2h', prix: 20 },
-    { id: 2, nom: 'Musée Honmé', description: 'Histoire du royaume du Dahomey', zoneIds: [4], duree: '1.5h', prix: 15 },
-    { id: 3, nom: 'Route des Esclaves', description: 'Circuit historique de la traite', zoneIds: [3], duree: '3h', prix: 25 },
-    { id: 4, nom: 'Palais Royal d\'Abomey', description: 'Patrimoine UNESCO', zoneIds: [4], duree: '2h', prix: 20 },
-    { id: 5, nom: 'Lac Nokoué', description: 'Balade en pirogue', zoneIds: [1, 2], duree: '4h', prix: 30 },
-    { id: 6, nom: 'Pendjari National Park', description: 'Safari et faune sauvage', zoneIds: [6], duree: '1 jour', prix: 50 },
-    { id: 7, nom: 'Marché de Parakou', description: 'Artisanat et commerce', zoneIds: [5], duree: '2h', prix: 15 },
-    { id: 8, nom: 'Temple des Pythons', description: 'Culte vaudou', zoneIds: [3], duree: '1h', prix: 10 }
-  ];
+  activites: Activite[] = [];
 
   // État du formulaire
   nombreJours = 1;
@@ -127,8 +108,47 @@ export class CircuitPersonnaliseComponent {
 
   joursExpanded = false;
 
+  // Image modal state
+  imageModalOpen = false;
+  imageModalUrl: string | null = null;
+
   constructor() {
     this.initialiserJours();
+    this.chargerDonnees();
+  }
+
+  private chargerDonnees() {
+    this.zonesService.getAllZones().subscribe({
+      next: zones => {
+        this.zones = zones;
+        console.log('[circuit-personnalise] zones chargées', this.zones);
+      },
+      error: err => {
+        console.error('Erreur chargement zones pour circuit personnalisé', err);
+      }
+    });
+
+    this.activitesService.getAllActivites().subscribe({
+      next: activites => {
+        this.activites = activites;
+        console.log('[circuit-personnalise] activités chargées', this.activites);
+      },
+      error: err => {
+        console.error('Erreur chargement activités pour circuit personnalisé', err);
+      }
+    });
+
+    this.villesService.getAll().subscribe({
+      next: villes => {
+        this.villes = villes;
+        console.log('[circuit-personnalise] villes chargées', this.villes);
+        // Mettre à jour les villes des jours existants
+        this.jours.forEach(j => j.villes = this.getVillesForZone(j.zoneId));
+      },
+      error: err => {
+        console.error('Erreur chargement villes pour circuit personnalisé', err);
+      }
+    });
   }
 
   initialiserJours() {
@@ -136,8 +156,10 @@ export class CircuitPersonnaliseComponent {
     for (let i = 1; i <= this.nombreJours; i++) {
       this.jours.push({
         numero: i,
-        zones: [],
-        activites: []
+        zoneId: null,
+        villeId: null,
+        activites: [],
+        villes: this.villes // toutes au début
       });
     }
     this.expanded = new Array(this.nombreJours).fill(false);
@@ -154,40 +176,29 @@ export class CircuitPersonnaliseComponent {
     this.expanded[index] = !this.expanded[index];
   }
 
-  // Vérifier si deux zones sont proches
-  zonesProches(zone1: Zone, zone2: Zone): boolean {
-    // Logique simplifiée : même région = proche
-    return zone1.region === zone2.region;
+  onZoneChange(jour: Jour, zoneId: number | null) {
+    console.log('[circuit-personnalise] onZoneChange jour', jour.numero, 'zoneId', zoneId);
+    jour.zoneId = zoneId;
+    jour.villeId = null;
+    jour.activites = [];
+    jour.villes = this.getVillesForZone(zoneId);
+    console.log('[circuit-personnalise] villes filtrées pour jour', jour.numero, jour.villes.map(v => v.nom));
   }
 
-  // Obtenir activités disponibles pour les zones sélectionnées
-  getActivitesPourZones(zoneIds: number[]): Activite[] {
-    return this.activites.filter(a => a.zoneIds.some(id => zoneIds.includes(id)));
+  getVillesForZone(zoneId: number | null): VilleDTO[] {
+    if (!zoneId) return this.villes;
+    const filtered = this.villes.filter(v => v.zoneId == zoneId);
+    console.log('[circuit-personnalise] getVillesForZone', zoneId, 'filtered count:', filtered.length, filtered.map(v => v.nom));
+    return filtered;
   }
 
-  ajouterZone(jourIndex: number, zone: Zone) {
-    const jour = this.jours[jourIndex];
-    if (jour.zones.length >= 2) return;
-
-    // Vérifier proximité si deuxième zone
-    if (jour.zones.length === 1 && !this.zonesProches(jour.zones[0], zone)) {
-      alert('Cette zone est trop éloignée de la première sélectionnée.');
-      return;
-    }
-
-    jour.zones.push(zone);
-  }
-
-  retirerZone(jourIndex: number, zoneIndex: number) {
-    const jour = this.jours[jourIndex];
-    jour.zones.splice(zoneIndex, 1);
-    // Réinitialiser activités si zones changent
-    jour.activites = jour.activites.filter(a => this.getActivitesPourZones(jour.zones.map(z => z.id)).some(act => act.id === a.id));
+  getVilleNamesForZone(zoneId: number): string {
+    return this.getVillesForZone(zoneId).map(v => v.nom).join(', ');
   }
 
   toggleActivite(jourIndex: number, activite: Activite) {
     const jour = this.jours[jourIndex];
-    const index = jour.activites.findIndex(a => a.id === activite.id);
+    const index = jour.activites.indexOf(activite.id);
 
     if (index > -1) {
       jour.activites.splice(index, 1);
@@ -196,34 +207,53 @@ export class CircuitPersonnaliseComponent {
         alert('Maximum 5 activités par jour.');
         return;
       }
-      jour.activites.push(activite);
+      jour.activites.push(activite.id);
     }
   }
 
   isActiviteSelected(jourIndex: number, activite: Activite): boolean {
-    return this.jours[jourIndex].activites.some(a => a.id === activite.id);
+    return this.jours[jourIndex].activites.includes(activite.id);
   }
 
   getActivitesDisponibles(jourIndex: number): Activite[] {
-    const jour = this.jours[jourIndex];
-    if (jour.zones.length === 0) return [];
-    return this.getActivitesPourZones(jour.zones.map(z => z.id));
+    // Version simple : on affiche toutes les activités pour chaque jour
+    return this.activites;
   }
 
   calculerPrixTotal(): number {
     let total = 0;
     this.jours.forEach(jour => {
-      jour.activites.forEach(act => total += act.prix);
+      jour.activites.forEach(id => {
+        const act = this.activites.find(a => a.id === id);
+        if (act && act.prix != null) {
+          total += act.prix;
+        }
+      });
     });
     return total;
   }
 
   getZoneNames(jour: Jour): string {
-    return jour.zones.map(z => z.nom).join(', ');
+    if (!jour.zoneId) return '';
+    const z = this.zones.find(z => z.idZone === jour.zoneId);
+    return z ? z.nom : '';
   }
 
   getActiviteNames(jour: Jour): string {
-    return jour.activites.map(a => a.nom).join(', ');
+    return jour.activites
+      .map(id => this.activites.find(a => a.id === id)?.nom)
+      .filter((n): n is string => !!n)
+      .join(', ');
+  }
+
+  getActiviteById(id: number): Activite | undefined {
+    return this.activites.find(a => a.id === id);
+  }
+
+  onVilleChange(jour: Jour, villeId: number | null) {
+    console.log('[circuit-personnalise] onVilleChange jour', jour.numero, 'villeId', villeId);
+    jour.villeId = villeId;
+    jour.activites = [];
   }
 
   getTransportsDisponibles(): string[] {
@@ -263,7 +293,30 @@ export class CircuitPersonnaliseComponent {
     this.isSubmitting = true;
     this.submitError = false;
 
-    this.http.post('http://localhost:8080/api/circuits/personnalise', this.demande).subscribe({
+    const payload: Omit<DemandeCircuitPersonnalise, 'id' | 'dateCreation' | 'statut'> = {
+      client: {
+        nom: `${this.demande.prenom} ${this.demande.nom}`.trim(),
+        email: this.demande.email,
+        telephone: this.demande.telephone
+      },
+      nombrePersonnes: this.demande.nombrePersonnes,
+      nombreJours: this.demande.nombreJours,
+      zones: this.jours
+        .map(j => j.zoneId)
+        .filter((id): id is number => id != null)
+        .map(id => this.zones.find(z => z.idZone === id)?.nom || '')
+        .filter(n => !!n),
+      activites: this.jours
+        .flatMap(j => j.activites)
+        .map(id => this.activites.find(a => a.id === id)?.nom || '')
+        .filter(n => !!n),
+      avecHebergement: !!this.options.hebergement,
+      avecTransport: !!this.options.transport,
+      extras: this.buildExtrasFromOptionsAndMessage(),
+      prixEstime: this.calculerPrixTotal()
+    };
+
+    this.circuitsPersonnalisesService.createDemande(payload).subscribe({
       next: () => {
         this.submitSuccess = true;
         this.isSubmitting = false;
@@ -281,5 +334,50 @@ export class CircuitPersonnaliseComponent {
 
   toggleJoursExpanded() {
     this.joursExpanded = !this.joursExpanded;
+  }
+
+  private buildExtrasFromOptionsAndMessage(): string[] {
+    const extras: string[] = [];
+
+    if (this.options.guide) {
+      extras.push('Guide touristique');
+    }
+    if (this.options.chauffeur) {
+      extras.push('Chauffeur privé');
+    }
+    if (this.options.pensionComplete) {
+      extras.push('Pension complète');
+    }
+    if (this.options.hebergement) {
+      extras.push(`Hébergement: ${this.options.hebergement}`);
+    }
+    if (this.options.transport) {
+      extras.push(`Transport: ${this.options.transport}`);
+    }
+    if (this.demande.message) {
+      extras.push(`Message client: ${this.demande.message}`);
+    }
+
+    return extras.length ? extras : undefined as any;
+  }
+
+  openImageModal(url: string | null, event: Event) {
+    event.stopPropagation(); // Prevent selecting the activity
+    if (!url) return;
+    this.imageModalUrl = url.startsWith('http') || url.startsWith('data:') ? url : `http://localhost:8080${url}`;
+    this.imageModalOpen = true;
+  }
+
+  closeImageModal() {
+    this.imageModalOpen = false;
+    this.imageModalUrl = null;
+  }
+
+  trackByVille(index: number, ville: VilleDTO): number {
+    return ville.id;
+  }
+
+  trackByZone(index: number, zone: Zone): number {
+    return zone.idZone;
   }
 }

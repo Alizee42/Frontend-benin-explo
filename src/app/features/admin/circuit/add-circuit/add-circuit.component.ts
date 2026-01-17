@@ -88,12 +88,26 @@ export class AddCircuitComponent {
   // per-day UI state: search filter and option to show all activities
   activityFilterText: string[] = [];
   showAllActivitiesForDay: boolean[] = [];
+  compactView: boolean[] = []; // nouvelle option pour vue compacte
+  dayExpanded: boolean[] = []; // état d'expansion pour l'accordéon des jours
   // per-day expansion state for groups (zoneKey => boolean)
   expandedZoneState: Array<Record<string, boolean>> = [];
+  // Caches pré-calculés pour éviter recomputation excessive depuis le template
+  computedGroups: Array<any[]> = [];
+  computedSelectedActivities: Array<Activite[]> = [];
+  computedVillesPerDay: Array<VilleDTO[]> = [];
   // Flags d'affichage des erreurs par étape
   showErrorsStep1 = false;
   showErrorsStep2 = false;
   showErrorsStep3 = false;
+
+  // Logique de compatibilité géographique des zones
+  // Les zones adjacentes sont compatibles, mais pas les extrêmes (Sud-Nord)
+  private readonly ZONE_COMPATIBILITY: Record<string, string[]> = {
+    'Sud': ['Sud', 'Centre'],      // Sud peut être avec Sud ou Centre
+    'Centre': ['Sud', 'Centre', 'Nord'], // Centre peut être avec toutes
+    'Nord': ['Centre', 'Nord']     // Nord peut être avec Centre ou Nord
+  };
 
 
   // Points forts prédéfinis
@@ -156,14 +170,39 @@ export class AddCircuitComponent {
       // init per-day UI arrays
       this.activityFilterText = this.programmeDays.map(() => '');
       this.showAllActivitiesForDay = this.programmeDays.map(() => false);
+      this.compactView = this.programmeDays.map(() => false); // initialiser compactView
+      this.dayExpanded = this.programmeDays.map((_, idx) => idx === 0); // ouvrir le premier jour par défaut
       this.expandedZoneState = this.programmeDays.map(() => ({}));
+      // init computed caches
+      this.computedGroups = this.programmeDays.map(() => []);
+      this.computedSelectedActivities = this.programmeDays.map(() => []);
+      this.computedVillesPerDay = this.programmeDays.map(() => []);
+      // precompute for all days
+      this.recomputeAllDays();
+    }
+    else {
+      // ensure per-day UI arrays and caches exist for the default single day
+      this.activityFilterText = this.programmeDays.map(() => '');
+      this.showAllActivitiesForDay = this.programmeDays.map(() => false);
+      this.compactView = this.programmeDays.map(() => false);
+      this.dayExpanded = this.programmeDays.map((_, idx) => idx === 0);
+      this.expandedZoneState = this.programmeDays.map(() => ({}));
+      this.computedGroups = this.programmeDays.map(() => []);
+      this.computedSelectedActivities = this.programmeDays.map(() => []);
+      this.computedVillesPerDay = this.programmeDays.map(() => []);
+      this.recomputeAllDays();
     }
   }
 
   loadActivites() {
     // load full list of activities so admin can pick per day
     this.activitesService.getAllActivites().subscribe({
-      next: (acts) => this.availableActivites = acts,
+      next: (acts) => {
+        console.log('[AddCircuit] activités chargées depuis l’API :', acts);
+        this.availableActivites = acts;
+        // Recompute caches now that activities are available
+        this.recomputeAllDays();
+      },
       error: (err) => console.error('Erreur chargement activités', err)
     });
   }
@@ -189,14 +228,35 @@ export class AddCircuitComponent {
     return this.villes.filter(v => v.zoneId != null && zoneIds.includes(v.zoneId));
   }
 
+  // Recompute helpers: fill computed arrays for a given day index
+  recomputeDay(index: number) {
+    if (index < 0 || index >= this.programmeDays.length) return;
+    // villes
+    this.computedVillesPerDay[index] = this.getVillesForDay(index) || [];
+    // selected activities (données complètes)
+    const day = this.programmeDays[index];
+    const selectedIds = new Set(day?.activities || []);
+    this.computedSelectedActivities[index] = (this.availableActivites || []).filter(a => selectedIds.has(a.id));
+    // available groups
+    this.computedGroups[index] = this.getAvailableActivitiesGroupedRaw(index);
+  }
+
+  private recomputeAllDays() {
+    for (let i = 0; i < this.programmeDays.length; i++) {
+      this.recomputeDay(i);
+    }
+  }
+
   /** Retourne la liste d'activités autorisées pour le jour `index` en fonction des zones/villes sélectionnées */
   getActivitiesForDay(index: number): Activite[] {
     const day = this.programmeDays[index];
     if (!day) {
+      console.log('[AddCircuit] getActivitiesForDay -> aucun day pour index', index);
       return [];
     }
 
     let baseList = this.availableActivites || [];
+    console.log('[AddCircuit] getActivitiesForDay - baseList initiale', { index, baseList });
 
     // 1) Déterminer les zones prises en compte pour ce jour
     const zoneIds = (day.selectedZoneIds && day.selectedZoneIds.length)
@@ -205,11 +265,15 @@ export class AddCircuitComponent {
           ? [day.zoneId]
           : (this.circuit.zoneId != null ? [this.circuit.zoneId] : []));
 
+    console.log('[AddCircuit] getActivitiesForDay - zones prises en compte', { index, zoneIds, day });
+
     if (zoneIds.length) {
       baseList = baseList.filter(a => a.zoneId != null && zoneIds.includes(a.zoneId));
+      console.log('[AddCircuit] getActivitiesForDay - après filtre zones', { index, baseList });
     } else {
-      // aucune zone choisie → aucune activité proposée
-      return [];
+      // aucune zone choisie → retourner toutes les activités (catalogue complet)
+      console.log('[AddCircuit] getActivitiesForDay - aucune zone choisie, catalogue complet retourné');
+      return baseList;
     }
 
     // 2) Villes sélectionnées : multi-villes possible (ou ancienne propriété villeId pour compat)
@@ -223,8 +287,11 @@ export class AddCircuitComponent {
         .filter((v): v is VilleDTO => !!v)
         .map(v => v.nom);
 
+      console.log('[AddCircuit] getActivitiesForDay - villes prises en compte', { index, villeIds, villeNames });
+
       if (villeNames.length) {
         baseList = baseList.filter(a => !!a.ville && villeNames.includes(a.ville));
+        console.log('[AddCircuit] getActivitiesForDay - après filtre villes', { index, baseList });
       }
     }
     return baseList;
@@ -273,23 +340,38 @@ export class AddCircuitComponent {
       day.activities = [];
     }
     if (checked) {
+      // Vérifier la compatibilité géographique avant d'ajouter
+      const compatibilityCheck = this.checkGeographicCompatibility(dayIndex, activityId);
+      if (!compatibilityCheck.compatible) {
+        alert(`Impossible d'ajouter cette activité : ${compatibilityCheck.reason}`);
+        // Remettre la checkbox à false
+        if (input) input.checked = false;
+        return;
+      }
       if (!day.activities.includes(activityId)) {
         day.activities.push(activityId);
       }
     } else {
       day.activities = day.activities.filter(id => id !== activityId);
     }
+    // mettre à jour cache pour cette journée
+    this.recomputeDay(dayIndex);
   }
 
   removeActivity(dayIndex: number, activityId: number) {
     const day = this.programmeDays[dayIndex];
     if (!day || !day.activities) return;
     day.activities = day.activities.filter(id => id !== activityId);
+    this.recomputeDay(dayIndex);
   }
 
-  // Helpers for grouping, recherche et affichage dans le template
+  /**
+   * Retourne le nom de la zone à partir de son id.
+   * Si la zone n'est pas connue ou pas encore chargée,
+   * on renvoie un libellé neutre "Zone non définie".
+   */
   zoneName(zoneId?: number | null): string {
-    if (zoneId == null) return 'Zone inconnue';
+    if (zoneId == null) return 'Zone non définie';
     // 1) Vérifier le cache d'abord (peut être rempli par loadZones ou fetch à la demande)
     if (this.zoneNameCache && this.zoneNameCache[zoneId]) return this.zoneNameCache[zoneId];
     // 2) Puis la liste complète des zones si chargée
@@ -300,9 +382,95 @@ export class AddCircuitComponent {
     }
     // 3) Si aucune info disponible, on essaie de lancer un fetch asynchrone
     this.ensureZoneNameCached(zoneId);
-    // 4) fallback lisible (éviter "Zone #1") — on préfère 'Zone inconnue' plutôt que #id
-    return 'Zone inconnue';
+    // 4) fallback lisible
+    return 'Zone non définie';
   }
+
+  /**
+   * Vérifie si une activité peut être ajoutée à un jour en fonction de la compatibilité géographique
+   */
+  checkGeographicCompatibility(dayIndex: number, activityId: number): { compatible: boolean; reason?: string } {
+    const day = this.programmeDays[dayIndex];
+    if (!day) return { compatible: false, reason: 'Jour introuvable' };
+
+    const activity = this.availableActivites.find(a => a.id === activityId);
+    if (!activity) {
+      return { compatible: false, reason: 'Activité introuvable' };
+    }
+
+    const activityZoneName = this.zoneName(activity.zoneId);
+    // Si la zone de l'activité est inconnue / non définie, on ne bloque pas
+    if (!activityZoneName || activityZoneName === 'Zone non définie') {
+      return { compatible: true };
+    }
+
+    // Si une zone unique est sélectionnée pour le jour, vérifier la compatibilité avec cette zone
+    if (day.zoneId != null) {
+      const dayZoneName = this.zoneName(day.zoneId);
+      const allowedForDay = this.ZONE_COMPATIBILITY[dayZoneName] || [dayZoneName];
+      if (!allowedForDay.includes(activityZoneName)) {
+        return { compatible: false, reason: `L'activité appartient à "${activityZoneName}" et n'est pas compatible avec la zone du jour "${dayZoneName}".` };
+      }
+      // compatible with day's zone
+      return { compatible: true };
+    }
+
+    // Sinon (pas de zone unique définie), utiliser la logique basée sur les activités déjà sélectionnées
+    if (!day.activities || day.activities.length === 0) {
+      // Premier activité du jour : toujours compatible
+      return { compatible: true };
+    }
+
+    const existingZones = day.activities
+      .map(aid => this.availableActivites.find(a => a.id === aid))
+      .filter(a => a != null)
+      .map(a => this.zoneName(a!.zoneId))
+      .filter(zone => zone && zone !== 'Zone inconnue');
+
+    for (const existingZone of existingZones) {
+      const compatibleZones = this.ZONE_COMPATIBILITY[existingZone] || [];
+      if (!compatibleZones.includes(activityZoneName)) {
+        return {
+          compatible: false,
+          reason: `Impossible de combiner "${activityZoneName}" avec "${existingZone}". Les zones sont trop éloignées géographiquement.`
+        };
+      }
+    }
+
+    return { compatible: true };
+  }
+
+  /**
+   * Vérifie s'il y a des avertissements de compatibilité géographique pour un jour
+   */
+  getGeographicCompatibilityWarnings(dayIndex: number): string[] {
+    const day = this.programmeDays[dayIndex];
+    if (!day || !day.activities || day.activities.length < 2) {
+      return [];
+    }
+
+    const warnings: string[] = [];
+    const activities = day.activities
+      .map(aid => this.availableActivites.find(a => a.id === aid))
+      .filter(a => a != null) as Activite[];
+
+    // Grouper par zone
+    const zonesInDay = [...new Set(activities.map(a => this.zoneName(a.zoneId)).filter(z => z && z !== 'Zone non définie'))];
+
+    // Vérifier les combinaisons problématiques
+    if (zonesInDay.includes('Sud') && zonesInDay.includes('Nord')) {
+      warnings.push('⚠️ Attention : combiner Sud et Nord nécessite un long trajet (>400km)');
+    }
+
+    if (zonesInDay.length > 2) {
+      warnings.push('⚠️ Plusieurs zones dans une journée : vérifier la faisabilité logistique');
+    }
+
+    return warnings;
+  }
+
+  // Helpers for grouping, recherche et affichage dans le template
+  // (zoneName method removed here to avoid duplicate implementation)
 
   /** Noms des villes sélectionnées pour un jour (pour l'affichage des filtres) */
   getSelectedVilleNamesForDay(index: number): string[] {
@@ -383,30 +551,36 @@ export class AddCircuitComponent {
   /** Retourne la liste d'activités disponibles (non sélectionnées) groupées par zone->ville
    *  Si `showAll` est vrai pour le jour on ignore le filtrage par zone/ville et on renvoie toutes les activités (hors sélectionnées).
    */
+  // Legacy public getter kept for external uses, but prefer using computedGroups in template
   getAvailableActivitiesGrouped(index: number) {
     const day = this.programmeDays[index];
     if (!day) return [];
+    // return computed if present
+    return this.computedGroups[index] || [];
+  }
 
+  // Internal raw grouping logic used to build the computed groups when state changes
+  private getAvailableActivitiesGroupedRaw(index: number) {
+    const day = this.programmeDays[index];
+    if (!day) return [];
     const showAll = !!this.showAllActivitiesForDay[index];
-    // base list: either all activities or the zone/ville-filtered list
     let base = showAll ? (this.availableActivites || []) : this.getActivitiesForDay(index) || [];
-
-    // exclude selected
     const selected = new Set(day.activities || []);
     base = base.filter(a => !selected.has(a.id));
-
-    // apply search filter if present
     const q = (this.activityFilterText[index] || '').trim().toLowerCase();
     if (q) {
       base = base.filter(a => (a.nom || '').toLowerCase().includes(q) || (a.ville || '').toLowerCase().includes(q) || (a.type || '').toLowerCase().includes(q));
     }
 
-    // group by zoneId and within by ville (string)
+    if (showAll) {
+      // Quand on montre tout le catalogue, on ne groupe pas par zones : une seule liste plate
+      return [{ zoneId: null, zoneKey: 'all', zoneName: '', villes: [], noVille: base }];
+    }
+
     const mapZone = new Map<number|string, { zoneId?: number|null; zoneName?: string; villes: Map<string, Activite[]>; noVille: Activite[] }>();
     for (const a of base) {
       const zkey = a.zoneId != null ? a.zoneId : 'nogroup';
       if (!mapZone.has(zkey)) {
-        // get a friendly zone name (uses cache, zones list or triggers async fetch if needed)
         const zId = typeof zkey === 'number' ? (zkey as number) : undefined;
         const zName = zId != null ? this.zoneName(zId) : (a.zone || 'Zone inconnue');
         mapZone.set(zkey, { zoneId: typeof zkey === 'number' ? zkey : undefined, zoneName: zName, villes: new Map(), noVille: [] });
@@ -420,21 +594,16 @@ export class AddCircuitComponent {
         zoneEntry.noVille.push(a);
       }
     }
-
-    // Convert map to array for template iteration
     const groups: Array<any> = [];
     for (const [, val] of mapZone) {
       const villesArr: Array<any> = [];
       for (const [vn, acts] of val.villes) {
         villesArr.push({ villeName: vn, activities: acts });
       }
-      // trier les villes par ordre alphabétique
       villesArr.sort((a, b) => (a.villeName || '').localeCompare(b.villeName || ''));
-      // create a stable string key for expansion toggles
       const zoneKey = val.zoneId != null ? 'z_' + val.zoneId : 'nogroup';
       groups.push({ zoneId: val.zoneId, zoneKey: zoneKey, zoneName: val.zoneName, villes: villesArr, noVille: val.noVille });
     }
-    // sort groups by zoneName for stable order
     groups.sort((a, b) => (a.zoneName || '').localeCompare(b.zoneName || ''));
     return groups;
   }
@@ -458,54 +627,95 @@ export class AddCircuitComponent {
   isGroupExpanded(dayIndex: number, zoneKey: string): boolean {
     // default: expanded when not explicitly set? we'll default to false for compactness
     if (!this.expandedZoneState[dayIndex]) return false;
+    // Pour le catalogue complet, forcer l'expansion
+    if (zoneKey === 'all') return true;
     return !!this.expandedZoneState[dayIndex][zoneKey];
   }
 
-  // Sélection des zones / villes pour un jour (multi-sélection)
-  onToggleDayZone(dayIndex: number, zoneId: number, event: Event) {
-    const input = event.target as HTMLInputElement | null;
-    const checked = !!input?.checked;
+  /** Sélectionner/désélectionner toutes les activités d'un groupe */
+  selectAllActivitiesInGroup(dayIndex: number, group: any, event: Event) {
+    event.stopPropagation(); // empêcher le toggle du groupe
     const day = this.programmeDays[dayIndex];
     if (!day) return;
 
-    if (!day.selectedZoneIds) {
-      day.selectedZoneIds = [];
-    }
+    const allActivitiesInGroup = this.getAllActivitiesInGroup(group);
+    const allSelected = allActivitiesInGroup.every(act => this.isActivitySelected(dayIndex, act.id));
 
-    console.log('[AddCircuit] onToggleDayZone BEFORE', {
-      dayIndex,
-      zoneId,
-      checked,
-      beforeSelected: [...day.selectedZoneIds]
-    });
-
-    if (checked) {
-      if (!day.selectedZoneIds.includes(zoneId)) {
-        day.selectedZoneIds.push(zoneId);
-      }
+    if (allSelected) {
+      // Désélectionner tout
+      allActivitiesInGroup.forEach(act => {
+        const index = day.activities?.indexOf(act.id);
+        if (index !== undefined && index >= 0) {
+          day.activities?.splice(index, 1);
+        }
+      });
     } else {
-      day.selectedZoneIds = day.selectedZoneIds.filter(id => id !== zoneId);
-      // Nettoyer les villes qui ne sont plus dans les zones sélectionnées
-      if (day.selectedVilleIds && day.selectedVilleIds.length) {
-        const selectedZones = day.selectedZoneIds || [];
-        const allowedVilleIds = this.villes
-          .filter(v => v.zoneId != null && selectedZones.includes(v.zoneId))
-          .map(v => v.id);
-        day.selectedVilleIds = day.selectedVilleIds.filter(id => allowedVilleIds.includes(id));
-      }
+      // Sélectionner tout
+      if (!day.activities) day.activities = [];
+      allActivitiesInGroup.forEach(act => {
+        if (!day.activities?.includes(act.id)) {
+          day.activities?.push(act.id);
+        }
+      });
     }
-
-    console.log('[AddCircuit] onToggleDayZone AFTER', {
-      dayIndex,
-      zoneId,
-      checked,
-      afterSelected: [...day.selectedZoneIds]
-    });
   }
 
-  onToggleDayVille(dayIndex: number, villeId: number, event: Event) {
-    const input = event.target as HTMLInputElement | null;
-    const checked = !!input?.checked;
+  /** Récupérer toutes les activités d'un groupe (noVille + villes) */
+  getAllActivitiesInGroup(group: any): Activite[] {
+    let activities: Activite[] = [...(group.noVille || [])];
+    if (group.villes) {
+      group.villes.forEach((villeGroup: any) => {
+        activities = activities.concat(villeGroup.activities || []);
+      });
+    }
+    return activities;
+  }
+
+  /** Vérifier si une activité est sélectionnée pour un jour */
+  isActivitySelected(dayIndex: number, activityId: number): boolean {
+    const day = this.programmeDays[dayIndex];
+    return !!(day?.activities?.includes(activityId));
+  }
+
+  /** Basculer l'expansion d'un jour dans l'accordéon */
+  toggleDayExpansion(dayIndex: number): void {
+    this.dayExpanded[dayIndex] = !this.dayExpanded[dayIndex];
+  }
+
+  // Sélection d'une zone unique pour un jour
+  onDayZoneSelectChange(dayIndex: number, zoneId: number | null) {
+    const day = this.programmeDays[dayIndex];
+    if (!day) return;
+    // Mémoriser la zone choisie
+    day.zoneId = zoneId ?? null;
+    // Garder selectedZoneIds pour compatibilité interne
+    day.selectedZoneIds = zoneId != null ? [zoneId] : [];
+
+    // Nettoyer les villes qui ne sont plus dans la zone sélectionnée
+    if (day.selectedVilleIds && day.selectedVilleIds.length && zoneId != null) {
+      const allowedVilleIds = this.villes
+        .filter((v: VilleDTO) => v.zoneId != null && v.zoneId === zoneId)
+        .map((v: VilleDTO) => v.id);
+      day.selectedVilleIds = day.selectedVilleIds.filter((id: number) => allowedVilleIds.includes(id));
+    }
+
+    // recompute caches
+    this.recomputeDay(dayIndex);
+
+    // si des activités deviennent incompatibles, demander confirmation avant suppression
+    const incompatible = this.getSelectedIncompatibleActivities(dayIndex);
+    if (incompatible && incompatible.length) {
+      const names = incompatible.map(a => a.nom).join(', ');
+      const confirmRemove = confirm(`Les activités suivantes ne sont plus compatibles avec la zone sélectionnée : ${names}. Voulez-vous les retirer ?`);
+      if (confirmRemove) {
+        this.removeIncompatibleActivities(dayIndex);
+        this.recomputeDay(dayIndex);
+      }
+    }
+  }
+
+  onToggleDayVille(dayIndex: number, villeId: number, eventOrChecked: Event | boolean) {
+    const checked = typeof eventOrChecked === 'boolean' ? eventOrChecked : !!((eventOrChecked as Event).target as HTMLInputElement)?.checked;
     const day = this.programmeDays[dayIndex];
     if (!day) return;
 
@@ -520,6 +730,7 @@ export class AddCircuitComponent {
     } else {
       day.selectedVilleIds = day.selectedVilleIds.filter(id => id !== villeId);
     }
+    this.recomputeDay(dayIndex);
   }
 
   loadZones() {
@@ -539,6 +750,8 @@ export class AddCircuitComponent {
         }
 
         console.log('[AddCircuit] zones loaded (normalized)', normalized);
+        // recompute caches as zones (names) may have changed
+        this.recomputeAllDays();
       },
       error: (error) => {
         console.error('Erreur chargement zones', error);
@@ -550,6 +763,8 @@ export class AddCircuitComponent {
     this.villesService.getAll().subscribe({
       next: (villes) => {
         this.villes = villes;
+        // recompute caches as available villes changed
+        this.recomputeAllDays();
       },
       error: (error) => {
         console.error('Erreur chargement villes', error);
@@ -729,24 +944,17 @@ export class AddCircuitComponent {
     });
     this.activityFilterText.push('');
     this.showAllActivitiesForDay.push(false);
+    this.compactView.push(false);
+    this.dayExpanded.push(true);
     this.expandedZoneState.push({});
+    // keep computed arrays in sync and compute for the new day
+    this.computedGroups.push([]);
+    this.computedSelectedActivities.push([]);
+    this.computedVillesPerDay.push([]);
+    this.recomputeDay(this.programmeDays.length - 1);
   }
 
-  /** Sélection via select (une seule zone par jour) */
-  onDayZoneSelectChange(dayIndex: number, zoneId: number | null) {
-    const day = this.programmeDays[dayIndex];
-    if (!day) return;
-
-    day.selectedZoneIds = zoneId != null ? [zoneId] : [];
-
-    // Nettoyer les villes qui ne sont plus dans la zone sélectionnée
-    if (day.selectedVilleIds && day.selectedVilleIds.length && zoneId != null) {
-      const allowedVilleIds = this.villes
-        .filter((v: VilleDTO) => v.zoneId != null && v.zoneId === zoneId)
-        .map((v: VilleDTO) => v.id);
-      day.selectedVilleIds = day.selectedVilleIds.filter((id: number) => allowedVilleIds.includes(id));
-    }
-  }
+  
 
   removeJour(index: number) {
     if (this.programmeDays.length > 1) {
@@ -755,7 +963,15 @@ export class AddCircuitComponent {
       this.programmeDays.forEach((d, i) => d.day = i + 1);
       this.activityFilterText.splice(index, 1);
       this.showAllActivitiesForDay.splice(index, 1);
+      this.compactView.splice(index, 1);
+      this.dayExpanded.splice(index, 1);
       this.expandedZoneState.splice(index, 1);
+      // keep computed arrays in sync
+      this.computedGroups.splice(index, 1);
+      this.computedSelectedActivities.splice(index, 1);
+      this.computedVillesPerDay.splice(index, 1);
+      // recompute remaining days to ensure state is consistent
+      this.recomputeAllDays();
     }
   }
 
@@ -820,6 +1036,10 @@ export class AddCircuitComponent {
   // Utilitaire pour le tracking des arrays
   trackByIndex(index: number): number {
     return index;
+  }
+
+  trackByZoneId(index: number, zone: Zone): number {
+    return zone.id;
   }
 
   // Validation par étape

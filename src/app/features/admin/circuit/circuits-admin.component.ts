@@ -41,19 +41,13 @@ export class CircuitsAdminComponent implements OnInit {
       action: 'view-details'
     },
     {
-      label: 'Voir sur le site',
-      icon: 'ri-external-link-line',
-      class: 'btn-default',
-      action: 'view'
-    },
-    {
       label: 'Modifier',
       icon: 'ri-edit-line',
       class: 'btn-edit',
       action: 'edit'
     },
     {
-      label: 'Activer / désactiver',
+      label: 'Actif / inactif',
       icon: 'ri-toggle-line',
       class: 'btn-toggle',
       action: 'toggle-status'
@@ -61,7 +55,7 @@ export class CircuitsAdminComponent implements OnInit {
     {
       label: 'Supprimer',
       icon: 'ri-delete-bin-line',
-      class: 'btn-delete',
+      class: 'btn-danger',
       action: 'delete'
     }
   ];
@@ -250,7 +244,7 @@ export class CircuitsAdminComponent implements OnInit {
 
   getZoneName(zoneId: number | null): string {
     if (!zoneId) return 'Non défini';
-    const zone = this.zones.find(z => z.id === zoneId);
+    const zone = this.zones.find(z => z.idZone === zoneId);
     return zone ? zone.nom : 'Zone inconnue';
   }
 

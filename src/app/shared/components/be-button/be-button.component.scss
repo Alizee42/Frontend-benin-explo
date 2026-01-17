@@ -1,0 +1,50 @@
+.be-btn {
+  cursor: pointer;
+  border-radius: 999px;
+  border: none;
+  padding: 0.45rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.be-btn-full {
+  width: 100%;
+}
+
+.be-btn-primary {
+  background: var(--be-green);
+  color: #f9fafb;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+}
+
+.be-btn-primary:disabled {
+  opacity: 0.6;
+  box-shadow: none;
+  cursor: default;
+}
+
+.be-btn-secondary {
+  background: var(--be-gold);
+  color: var(--be-brown);
+}
+
+.be-btn-ghost {
+  background: transparent;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.be-btn-danger {
+  background: transparent;
+  color: #b91c1c;
+}
+
+.be-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}

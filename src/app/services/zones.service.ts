@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Zone {
-  id: number;
+  idZone: number;
   nom: string;
   region: string;
   description: string;

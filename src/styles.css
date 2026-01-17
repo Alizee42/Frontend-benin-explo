@@ -50,7 +50,14 @@ main.main {
 .logo img {
 	display: block;
 }
-
+ input, textarea, select {
+        padding: 0.6rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-family: inherit;
+			padding: 0 1rem;
+}
 /* Global modal - consistent, modern look for all pages */
 .modal {
 	position: fixed;

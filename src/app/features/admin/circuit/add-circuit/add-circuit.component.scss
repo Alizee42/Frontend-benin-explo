@@ -323,6 +323,32 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 0.75rem;
+      cursor: pointer;
+
+      .jour-left {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .jour-title {
+        font-size: 0.9rem;
+        color: #4b5563;
+        font-weight: 500;
+      }
+
+      .jour-right {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .chips {
+        display:flex;
+        gap:0.35rem;
+        flex-wrap:wrap;
+        max-width: 420px;
+      }
 
       .jour-number {
         font-weight: 600;

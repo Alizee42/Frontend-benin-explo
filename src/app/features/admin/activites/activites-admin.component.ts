@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -46,29 +46,34 @@ export class ActivitesAdminComponent implements OnInit {
     { label: 'Supprimer', icon: 'ri-delete-bin-line', class: 'btn-delete', action: 'delete' }
   ];
 
-  constructor(private activitesService: ActivitesService, private zonesService: ZonesAdminService, private villesService: VillesService, private mediaService: MediaService) {}
+  constructor(private activitesService: ActivitesService, private zonesService: ZonesAdminService, private villesService: VillesService, private mediaService: MediaService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     // Load zones and villes first, then activities so we can resolve zone names
-    this.loadZones();
-    this.loadVilles();
-    this.loadActivites();
+    this.loadZonesAndVillesThenActivities();
   }
 
-  loadZones() {
-    this.zonesService.getAll().subscribe({ next: (z: ZoneDTO[]) => { this.zones = z.map((zz: any) => ({ id: zz.id !== undefined ? zz.id : zz.idZone, nom: zz.nom, description: zz.description, ...zz })); }, error: (err: any) => { console.error('Erreur chargement zones', err); } });
-  }
-
-  loadVilles() {
-    this.villes = [];
-    this.villesService.getAll().subscribe({ next: (vs: VilleDTO[]) => { this.villes = vs; }, error: (err: any) => { console.error('Erreur chargement villes', err); } });
+  loadZonesAndVillesThenActivities() {
+    this.zonesService.getAll().subscribe({
+      next: (z: ZoneDTO[]) => {
+        this.zones = z.map((zz: any) => ({ id: zz.id !== undefined ? zz.id : zz.idZone, nom: zz.nom, description: zz.description, ...zz }));
+        this.villesService.getAll().subscribe({
+          next: (vs: VilleDTO[]) => {
+            this.villes = vs;
+            this.loadActivites();
+          },
+          error: (err: any) => { console.error('Erreur chargement villes', err); this.loadActivites(); }
+        });
+      },
+      error: (err: any) => { console.error('Erreur chargement zones', err); this.loadActivites(); }
+    });
   }
 
   loadActivites() {
     this.loading = true;
     this.activitesService.getAllActivites().subscribe({
       next: (acts: Activite[]) => {
-        console.log('[ActivitesAdmin] loaded activities:', acts);
+        console.log('[ActivitesAdmin] loaded activities count:', acts.length);
         // resolve zone name for each activity if zones already loaded
         const EUR_TO_XOF = 655.957; // rate for conversion (1 EUR = 655.957 XOF)
         this.activites = acts.map(a => {
@@ -84,15 +89,15 @@ export class ActivitesAdminComponent implements OnInit {
           })();
 
           // format duration: prefer exact minutes if available, otherwise use decimal hours
-          const minutes = ((a as any).dureeMinutes != null) ? (a as any).dureeMinutes as number : Math.round(((a as any).duree ?? 0) * 60);
+          const minutes = ((a as any).dureeMinutes != null) ? Number((a as any).dureeMinutes) : Math.round((Number((a as any).duree ?? 0) || 0) * 60);
           const hh = Math.floor(minutes / 60);
           const mm = minutes % 60;
           const dureeDisplay = `${hh}h${mm.toString().padStart(2, '0')}`;
 
           // format price: EUR with 2 decimals, XOF rounded integer
-          const prixNum = (a.prix != null) ? a.prix : null;
+          const prixNum = (a.prix != null) ? Number(a.prix) : null;
           let prixDisplay = '-';
-          if (prixNum !== null && prixNum !== undefined) {
+          if (prixNum !== null && !isNaN(prixNum)) {
             const eur = prixNum.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             const xof = Math.round(prixNum * EUR_TO_XOF).toLocaleString('fr-FR');
             prixDisplay = `${eur} € / ${xof} XOF`;
@@ -118,6 +123,10 @@ export class ActivitesAdminComponent implements OnInit {
           }
         });
         this.loading = false;
+        // Force change detection for the table
+        this.activites = [...this.activites];
+        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         console.error('Erreur chargement activités', err);
@@ -145,6 +154,10 @@ export class ActivitesAdminComponent implements OnInit {
   openEditModal(a: any): void {
     this.isEditing = true;
     this.currentActivite = { ...a };
+    // Pour l'édition, si l'activité a une image chargée, la copier dans imagePreview pour l'afficher
+    if (a.image) {
+      (this.currentActivite as any).imagePreview = a.image;
+    }
     this.showModal = true;
   }
 
@@ -156,17 +169,64 @@ export class ActivitesAdminComponent implements OnInit {
     if (this.isEditing && (this.currentActivite as any).id) {
       this.activitesService.updateActivite((this.currentActivite as any).id, this.currentActivite as Partial<Activite>).subscribe({
         next: (resp) => {
-          console.log('[ActivitesAdmin] update response:', resp);
-          this.loadActivites();
+          console.log('[ActivitesAdmin] update success for id', (this.currentActivite as any).id, resp);
+          // Recalculer dureeDisplay et prixDisplay pour l'activité mise à jour sans reload complet
+          const updated = resp as Activite;
+          const zoneName = this.zones.find(z => z.id === (updated as any).zoneId)?.nom || '';
+          updated.zone = zoneName;
+
+          // Résoudre le nom de la ville
+          let villeName = '';
+          const updatedVille = (updated as any).ville;
+          if (updatedVille !== undefined && updatedVille !== null) {
+            if (typeof updatedVille === 'number') {
+              villeName = this.villes.find(v => v.id === updatedVille)?.nom || '';
+            } else {
+              villeName = updatedVille as string;
+            }
+          }
+          updated.ville = villeName;
+          const EUR_TO_XOF = 655.957;
+          const minutes = ((updated as any).dureeMinutes != null) ? Number((updated as any).dureeMinutes) : Math.round((Number((updated as any).duree ?? 0) || 0) * 60);
+          const hh = Math.floor(minutes / 60);
+          const mm = minutes % 60;
+          updated.dureeDisplay = `${hh}h${mm.toString().padStart(2, '0')}`;
+
+          const prixNum = (updated.prix != null) ? Number(updated.prix) : null;
+          let prixDisplay = '-';
+          if (prixNum !== null && !isNaN(prixNum)) {
+            const eur = prixNum.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const xof = Math.round(prixNum * EUR_TO_XOF).toLocaleString('fr-FR');
+            prixDisplay = `${eur} € / ${xof} XOF`;
+          }
+          updated.prixDisplay = prixDisplay;
+
+          // Recharger l'image si imagePrincipaleId a changé
+          const imgId = (updated as any).imagePrincipaleId;
+          if (imgId) {
+            this.mediaService.getImageUrl(imgId).subscribe({
+              next: (url) => { console.debug('[ActivitesAdmin] resolved image url for updated item id', imgId, url); updated.image = url || null; },
+              error: (err) => { console.warn('[ActivitesAdmin] media fetch failed for updated item id', imgId, err); updated.image = null; }
+            });
+          } else {
+            updated.image = null;
+          }
+
+          // Mettre à jour dans la liste
+          const index = this.activites.findIndex(a => a.id === updated.id);
+          if (index >= 0) {
+            this.activites[index] = { ...this.activites[index], ...updated };
+            this.activites = [...this.activites]; // trigger change detection
+          }
           this.closeModal();
         },
-        error: (err: any) => { console.error('Erreur update', err); }
+        error: (err) => { console.error('[ActivitesAdmin] Erreur update for id', (this.currentActivite as any).id, err); }
       });
     } else {
       const payload = {
         nom: this.currentActivite.nom || '',
         description: this.currentActivite.description || '',
-        // prix removed from admin form payload by request
+        prix: this.currentActivite.prix ?? null,
         duree: this.currentActivite.duree ?? 1,
         type: (this.currentActivite.type as any) || 'Culture',
         zoneId: this.currentActivite.zoneId || 0,
@@ -195,6 +255,24 @@ export class ActivitesAdminComponent implements OnInit {
             }
 
             const createdWithZone: Activite = { ...(created as Activite), zone: zoneName, ville: villeName };
+
+            // Calculer dureeDisplay et prixDisplay pour la nouvelle activité
+            const EUR_TO_XOF = 655.957;
+            const minutes = ((created as any).dureeMinutes != null) ? Number((created as any).dureeMinutes) : Math.round((Number((created as any).duree ?? 0) || 0) * 60);
+            const hh = Math.floor(minutes / 60);
+            const mm = minutes % 60;
+            const dureeDisplay = `${hh}h${mm.toString().padStart(2, '0')}`;
+
+            const prixNum = (created.prix != null) ? Number(created.prix) : null;
+            let prixDisplay = '-';
+            if (prixNum !== null && !isNaN(prixNum)) {
+              const eur = prixNum.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+              const xof = Math.round(prixNum * EUR_TO_XOF).toLocaleString('fr-FR');
+              prixDisplay = `${eur} € / ${xof} XOF`;
+            }
+
+            createdWithZone.dureeDisplay = dureeDisplay;
+            createdWithZone.prixDisplay = prixDisplay;
 
             // si l'activité créée contient un imagePrincipaleId, charger son URL
             const imgId = (created as any).imagePrincipaleId;

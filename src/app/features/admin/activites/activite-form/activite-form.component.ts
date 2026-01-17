@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -33,23 +33,35 @@ export class ActiviteFormComponent {
   // selectable hours options (0..24)
   hoursOptions: number[] = Array.from({ length: 25 }, (_, i) => i);
 
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
   constructor(private http: HttpClient) {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['activite'] && this.activite) {
-      // activite.duree is expressed in hours (decimal) in the frontend model
-      const dureeHours = (this.activite as any).duree ?? 0;
+      // Durée en heures décimales dans le modèle front
+      const dureeHours = Number((this.activite as any).duree ?? 0) || 0;
       this.hours = Math.floor(dureeHours);
       this.minutes = Math.round((dureeHours - this.hours) * 60);
-      // if the source is a decimal user may prefer direct input; keep enterAsDecimal false by default
+      if (this.minutes === 60) {
+        this.hours += 1;
+        this.minutes = 0;
+      }
+    }
+    // Reset file input to avoid keeping previous file
+    if (this.fileInput) {
+      this.fileInput.nativeElement.value = '';
     }
   }
 
   onSave() {
     if (!this.activite) return;
-    // compute decimal hours from hours + minutes
-    const totalHours = (Number(this.hours) || 0) + ((Number(this.minutes) || 0) / 60);
-    (this.activite as any).duree = Math.round(totalHours * 100) / 100; // keep 2 decimals
+    // Normalisation des valeurs saisies
+    const h = Number(this.hours) || 0;
+    const m = Number(this.minutes) || 0;
+    const totalMinutes = h * 60 + m;
+    const totalHours = totalMinutes / 60;
+    (this.activite as any).duree = Math.round(totalHours * 100) / 100;
     this.save.emit(this.activite);
   }
 
@@ -64,8 +76,11 @@ export class ActiviteFormComponent {
     // Upload the file first, then create a media entry and store both id and preview URL
     this.http.post<any>('http://localhost:8080/api/images/upload', fd).subscribe({
       next: (res) => {
-        // res contains { filename, url }
-        const uploadedUrl = res?.url || res?.filename || null;
+        // res expected: { filename, url }
+        let uploadedUrl: string | null = res?.url || res?.filename || null;
+        if (uploadedUrl && !uploadedUrl.startsWith('http') && !uploadedUrl.startsWith('/')) {
+          uploadedUrl = '/images/' + uploadedUrl;
+        }
         const media = { url: uploadedUrl, type: 'image', description: '' };
         this.http.post<any>('http://localhost:8080/api/media', media).subscribe({
           next: (m) => {
@@ -73,7 +88,6 @@ export class ActiviteFormComponent {
               (this.activite as any).imagePrincipaleId = m.id;
               // store a preview url on the activite object for immediate UI preview
               let preview = m.url || uploadedUrl || null;
-              // if backend returns a root-relative path like '/images/..', prefix dev host
               if (preview && typeof preview === 'string' && preview.startsWith('/')) {
                 preview = 'http://localhost:8080' + preview;
               }

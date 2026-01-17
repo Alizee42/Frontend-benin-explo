@@ -15,9 +15,9 @@
         <div class="header-info">
           <h1 class="circuit-title">{{ circuit.titre }}</h1>
           <div class="circuit-meta">
-            <span class="meta-item">
+            <span class="meta-item" *ngIf="zone?.nom">
               <i class="ri-map-pin-line"></i>
-              {{ zone?.nom || 'Zone non définie' }}
+              {{ zone?.nom }}
             </span>
             <span class="meta-item">
               <i class="ri-time-line"></i>
@@ -62,20 +62,20 @@
           <div class="section-content">
             <div class="info-grid">
               <div class="info-item">
-                <label>Résumé</label>
-                <p>{{ circuit.resume }}</p>
-              </div>
-              <div class="info-item">
                 <label>Description</label>
                 <p>{{ circuit.description }}</p>
               </div>
-              <div class="info-item">
-                <label>Formule proposée</label>
-                <p>{{ circuit.formuleProposee }}</p>
+              <div class="info-item" *ngIf="circuit.dureeIndicative">
+                <label>Durée indicative</label>
+                <p>{{ circuit.dureeIndicative }}</p>
               </div>
-              <div class="info-item">
-                <label>Localisation</label>
-                <p>{{ circuit.villeNom || circuit.localisation }}</p>
+              <div class="info-item" *ngIf="circuit.prixIndicatif">
+                <label>Prix indicatif</label>
+                <p>{{ circuit.prixIndicatif }} €</p>
+              </div>
+              <div class="info-item" *ngIf="uniqueCities.length > 0">
+                <label>{{ uniqueCities.length === 1 ? 'Ville' : 'Villes' }}</label>
+                <p>{{ uniqueCities.join(', ') }}</p>
               </div>
             </div>
           </div>
@@ -94,7 +94,24 @@
                   <span class="day-number">Jour {{ i + 1 }}</span>
                 </div>
                 <div class="program-content">
-                  <p>{{ jour }}</p>
+                  <!-- Cas legacy: simple string -->
+                  <ng-container *ngIf="!isProgrammeDay(jour)">
+                    <p class="program-description">{{ jour }}</p>
+                  </ng-container>
+
+                  <!-- Cas structuré: ProgrammeDay -->
+                  <ng-container *ngIf="isProgrammeDay(jour)">
+                    <p class="program-description" *ngIf="jour.description">
+                      {{ jour.description }}
+                    </p>
+
+                    <p class="program-activities" *ngIf="jour.activities && jour.activities.length">
+                      Activités :
+                      <span *ngFor="let actId of jour.activities; let last = last">
+                        {{ getActiviteName(actId) }}<span *ngIf="!last">, </span>
+                      </span>
+                    </p>
+                  </ng-container>
                 </div>
               </div>
             </div>

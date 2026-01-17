@@ -79,7 +79,7 @@ export const routes: Routes = [
   {
     path: 'admin/circuits/add-circuit',
     loadComponent: () =>
-      import('./features/admin/circuit/add-circuit/add-circuit.component').then(m => m.AddCircuitComponent)
+      import('./features/admin/circuit/add-circuit-v2/add-circuit-v2.component').then(m => m.AddCircuitV2Component)
   },
 
   /* ADMIN EDIT CIRCUIT */

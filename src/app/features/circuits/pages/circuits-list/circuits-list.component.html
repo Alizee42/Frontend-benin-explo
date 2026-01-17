@@ -26,9 +26,9 @@
       <button
         *ngFor="let zone of zones"
         class="filter-btn"
-        [class.active]="selectedZoneId === zone.id"
-        (click)="filterByZone(zone.id)">
-        {{ zone.nom }} ({{ getCircuitsCountForZone(zone.id) }})
+        [class.active]="selectedZoneId === zone.idZone"
+        (click)="filterByZone(zone.idZone)">
+        {{ zone.nom }} ({{ getCircuitsCountForZone(zone.idZone) }})
       </button>
     </div>
 

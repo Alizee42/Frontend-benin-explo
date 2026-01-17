@@ -1,4 +1,4 @@
-<form (ngSubmit)="onSave()" #activiteForm="ngForm">
+<form (ngSubmit)="onSave()" #activiteForm="ngForm" class="activite-form">
   <div class="form-group">
     <label>Nom</label>
     <input [(ngModel)]="activite!.nom" name="nom" required />
@@ -7,7 +7,7 @@
     <label>Description</label>
     <textarea [(ngModel)]="activite!.description" name="description" rows="3"></textarea>
   </div>
-  <div class="form-row">
+  <div class="form-row three-cols">
     <div class="form-group col">
       <label>Ville</label>
       <select [(ngModel)]="activite!.ville" name="ville">
@@ -20,6 +20,13 @@
       <select [(ngModel)]="activite!.type" name="type">
         <option [ngValue]="''">-- sélectionner --</option>
         <option *ngFor="let t of (typeOptions || types)" [ngValue]="t">{{ t }}</option>
+      </select>
+    </div>
+    <div class="form-group col">
+      <label>Zone</label>
+      <select [(ngModel)]="activite!.zoneId" name="zoneId">
+        <option [ngValue]="0">-- sélectionner --</option>
+        <option *ngFor="let z of zones" [ngValue]="z.id">{{ z.nom }}</option>
       </select>
     </div>
   </div>
@@ -43,22 +50,17 @@
       <input type="number" step="0.01" min="0" [(ngModel)]="activite!.prix" name="prix" placeholder="Ex. 12.50" />
     </div>
   </div>
-  <div class="form-group">
+  <div class="form-group image-group">
     <label>Image principale</label>
-    <input type="file" (change)="onFileSelected($event)" />
+    <input #fileInput type="file" (change)="onFileSelected($event)" />
     <div *ngIf="uploading" class="uploading">Upload en cours...</div>
     <div *ngIf="uploadError" class="error">{{ uploadError }}</div>
-    <div *ngIf="$any(activite).imagePreview" class="image-preview">
+    <div class="image-preview" *ngIf="$any(activite).imagePreview">
       <img [src]="$any(activite).imagePreview" alt="Aperçu" />
     </div>
-    <div *ngIf="!$any(activite).imagePreview && $any(activite).imagePrincipaleId" class="media-id">ID média: {{ $any(activite).imagePrincipaleId }}</div>
-  </div>
-  <div class="form-group">
-    <label>Zone</label>
-    <select [(ngModel)]="activite!.zoneId" name="zoneId">
-      <option [ngValue]="0">-- sélectionner --</option>
-      <option *ngFor="let z of zones" [ngValue]="z.id">{{ z.nom }}</option>
-    </select>
+    <div class="media-id" *ngIf="!$any(activite).imagePreview && $any(activite).imagePrincipaleId">
+      ID média: {{ $any(activite).imagePrincipaleId }}
+    </div>
   </div>
   <div class="modal-actions">
     <button type="button" class="btn-secondary" (click)="cancel.emit()">Annuler</button>
