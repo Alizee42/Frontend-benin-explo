@@ -75,16 +75,16 @@
               <div class="form-row">
                 <div class="form-group">
                   <label>Zone</label>
-                  <select [(ngModel)]="jour.zoneId" (ngModelChange)="onZoneChange(jour, $event)" [name]="'zone-' + i">
+                  <select [(ngModel)]="jour.zoneId" (ngModelChange)="jour.villeId = null; jour.activites = []" [name]="'zone-' + i">
                     <option [ngValue]="null">Toutes les zones</option>
-                    <option *ngFor="let z of zones; trackBy: trackByZone" [ngValue]="z.idZone">{{ z.nom }}</option>
+                    <option *ngFor="let z of zones" [ngValue]="z.idZone">{{ z.nom }}</option>
                   </select>
                 </div>
                 <div class="form-group">
                   <label>Ville</label>
-                  <select [(ngModel)]="jour.villeId" (ngModelChange)="onVilleChange(jour, $event)" [name]="'ville-' + i">
+                  <select [(ngModel)]="jour.villeId" (ngModelChange)="jour.activites = []" [name]="'ville-' + i">
                     <option [ngValue]="null">Toutes les villes</option>
-                    <option *ngFor="let v of jour.villes; trackBy: trackByVille" [ngValue]="v.id">{{ v.nom }}</option>
+                    <option *ngFor="let v of getVillesForZone(jour.zoneId)" [ngValue]="v.id">{{ v.nom }}</option>
                   </select>
                 </div>
               </div>

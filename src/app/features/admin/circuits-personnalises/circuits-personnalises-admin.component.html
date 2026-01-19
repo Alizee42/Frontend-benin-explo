@@ -1,51 +1,117 @@
-<app-header mode="compact"></app-header>
+<div class="circuits-admin circuits-personnalises-admin">
+  <app-header mode="compact"></app-header>
 
-<div class="circuits-personnalises-admin-container">
-  <div class="admin-header">
-    <h1>Gestion des circuits personnalisés</h1>
-    <p>Gérez les demandes de circuits personnalisés soumises par les clients</p>
-  </div>
+  <main class="page-content">
+    <div class="actions-bar">
+      <h1 class="page-title">
+        <i class="ri-route-line"></i>
+        Circuits personnalisés
+      </h1>
+    </div>
 
-  <div class="content-card">
-    <div class="stats-section">
-      <div class="stat-card">
-        <div class="stat-number">{{ totalDemandes }}</div>
-        <div class="stat-label">Total demandes</div>
+    <div class="content-card">
+      <div class="stats-section">
+        <div class="stat-card">
+          <div class="stat-number">{{ totalDemandes }}</div>
+          <div class="stat-label">Total demandes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ demandesEnAttente }}</div>
+          <div class="stat-label">En attente</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ demandesApprouvees }}</div>
+          <div class="stat-label">Approuvées</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ demandesRefusees }}</div>
+          <div class="stat-label">Refusées</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-number">{{ demandesEnAttente }}</div>
-        <div class="stat-label">En attente</div>
+
+      <div class="table-section">
+        <h2>Liste des demandes</h2>
+
+        <div *ngIf="isLoading" class="loading-container">
+          <div class="spinner"></div>
+          <p>Chargement des demandes...</p>
+        </div>
+
+        <div *ngIf="!isLoading && demandes.length === 0" class="empty-state">
+          <p>Aucune demande de circuit personnalisé pour le moment.</p>
+        </div>
+
+        <div *ngIf="!isLoading && demandes.length > 0" class="data-table-container">
+          <app-data-table
+            [data]="demandes"
+            [columns]="tableColumns"
+            [actions]="tableActions"
+            (actionClick)="onActionClick($event)">
+          </app-data-table>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-number">{{ demandesApprouvees }}</div>
-        <div class="stat-label">Approuvées</div>
+    </div>
+  </main>
+</div>
+
+<!-- Modale de personnalisation d'email -->
+<div class="email-modal-overlay" *ngIf="showEmailModal" (click)="closeEmailModal()">
+  <div class="email-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ currentEmailAction === 'approbation' ? 'Email d\'approbation' : 'Email de refus' }}</h3>
+      <button type="button" class="close-btn" (click)="closeEmailModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="email-subject">Sujet de l'email</label>
+        <input
+          type="text"
+          id="email-subject"
+          [(ngModel)]="emailSubject"
+          class="form-control"
+          placeholder="Sujet de l'email"
+        >
       </div>
-      <div class="stat-card">
-        <div class="stat-number">{{ demandesRefusees }}</div>
-        <div class="stat-label">Refusées</div>
+
+      <div class="form-group" *ngIf="currentEmailAction === 'refus'">
+        <label for="refusal-reason">Motif du refus *</label>
+        <textarea
+          id="refusal-reason"
+          [(ngModel)]="refusalReason"
+          (input)="onRefusalReasonChange()"
+          class="form-control"
+          rows="3"
+          placeholder="Veuillez indiquer le motif du refus..."
+          required
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="email-body">Corps de l'email</label>
+        <textarea
+          id="email-body"
+          [(ngModel)]="emailBody"
+          class="form-control email-body"
+          rows="15"
+          placeholder="Contenu de l'email"
+        ></textarea>
+        <small class="form-hint">
+          Les variables suivantes sont automatiquement remplacées : &#123;nom&#125;, &#123;id&#125;, &#123;zones&#125;, &#123;activites&#125;, etc.
+        </small>
       </div>
     </div>
 
-    <div class="table-section">
-      <h2>Liste des demandes</h2>
-
-      <div *ngIf="isLoading" class="loading-container">
-        <div class="spinner"></div>
-        <p>Chargement des demandes...</p>
-      </div>
-
-      <div *ngIf="!isLoading && demandes.length === 0" class="empty-state">
-        <p>Aucune demande de circuit personnalisé pour le moment.</p>
-      </div>
-
-      <div *ngIf="!isLoading && demandes.length > 0" class="data-table-container">
-        <app-data-table
-          [data]="demandes"
-          [columns]="tableColumns"
-          [actions]="tableActions"
-          (actionClick)="onActionClick($event)">
-        </app-data-table>
-      </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" (click)="closeEmailModal()">Annuler</button>
+      <button
+        type="button"
+        class="btn-send"
+        (click)="sendEmail()"
+        [disabled]="currentEmailAction === 'refus' && !refusalReason.trim()"
+      >
+        Envoyer l'email
+      </button>
     </div>
   </div>
 </div>

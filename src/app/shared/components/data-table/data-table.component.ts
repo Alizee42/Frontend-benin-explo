@@ -8,6 +8,7 @@ export interface TableColumn {
   type?: 'text' | 'number' | 'date' | 'boolean' | 'array' | 'actions' | 'image';
   sortable?: boolean;
   width?: string;
+  formatter?: (value: any) => string;
 }
 
 export interface TableAction {

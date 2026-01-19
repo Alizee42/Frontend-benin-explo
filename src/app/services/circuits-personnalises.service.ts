@@ -46,6 +46,10 @@ export class CircuitsPersonnalisesService {
     return this.http.patch<DemandeCircuitPersonnalise>(`${this.apiUrl}/${id}/statut`, { statut });
   }
 
+  envoyerEmail(id: number, emailData: { subject: string; body: string }): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/envoyer-email`, emailData);
+  }
+
   deleteDemande(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }

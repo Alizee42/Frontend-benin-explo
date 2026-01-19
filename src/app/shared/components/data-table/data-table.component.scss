@@ -264,13 +264,46 @@
     }
   }
 
-  // Toggle style
-  &.btn-toggle {
-    background: #ffc107;
+  // View style
+  &.btn-view {
+    background: var(--be-gold);
     color: var(--be-dark);
 
     &:hover:not(:disabled) {
-      background: #e0a800;
+      background: #b8945a;
+      transform: translateY(-1px);
+    }
+  }
+
+  // Contact style
+  &.btn-contact {
+    background: #17a2b8;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #138496;
+      transform: translateY(-1px);
+    }
+  }
+
+  // Approve style
+  &.btn-approve {
+    background: var(--be-green);
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #2e5c4a;
+      transform: translateY(-1px);
+    }
+  }
+
+  // Reject style
+  &.btn-reject {
+    background: #dc3545;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background: #c82333;
       transform: translateY(-1px);
     }
   }

@@ -46,7 +46,7 @@
 
             <!-- Regular Data -->
             <span *ngIf="column.type !== 'actions' && column.type !== 'image'">
-              {{ getCellValue(item, column) }}
+              {{ column.formatter ? column.formatter(getCellValue(item, column)) : getCellValue(item, column) }}
             </span>
 
             <!-- Image Column -->
