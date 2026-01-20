@@ -38,8 +38,6 @@ export class CircuitDetailsComponent implements OnInit {
   loadCircuit(id: number) {
     this.circuitService.getCircuitById(id).subscribe({
       next: (circuit: CircuitDTO) => {
-        console.log('[CircuitDetails] Circuit chargé', circuit);
-        console.log('[CircuitDetails] Programme reçu', circuit.programme);
         this.circuit = circuit;
         this.loadZone(circuit.zoneId);
         this.loadActivitesForCircuit(circuit);

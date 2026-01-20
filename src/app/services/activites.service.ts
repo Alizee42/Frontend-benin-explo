@@ -91,13 +91,22 @@ export class ActivitesService {
 
   private transformDto(dto: any): Activite {
     if (!dto) return null as any;
+    const minutes = dto.dureeInterne != null ? dto.dureeInterne : null;
+    let dureeDisplay: string | undefined = undefined;
+    if (minutes != null) {
+      const hh = Math.floor(minutes / 60);
+      const mm = minutes % 60;
+      dureeDisplay = `${hh}h${mm.toString().padStart(2, '0')}`;
+    }
+
     const a: Activite = {
       id: dto.id,
       nom: dto.nom,
       description: dto.description,
       prix: dto.poids ?? null,
       duree: dto.dureeInterne != null ? Math.round(dto.dureeInterne / 60 * 100) / 100 : null, // hours with 2 decimals
-      dureeMinutes: dto.dureeInterne != null ? dto.dureeInterne : null,
+      dureeMinutes: minutes,
+      dureeDisplay,
       type: dto.difficulte ?? undefined,
       zoneId: dto.zoneId ?? 0,
       zone: undefined,

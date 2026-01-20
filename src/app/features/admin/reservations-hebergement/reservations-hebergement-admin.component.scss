@@ -1,0 +1,190 @@
+.reservations-admin-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 2rem;
+
+  h1 {
+    color: var(--be-green);
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+  }
+
+  p {
+    color: #666;
+    margin: 0;
+  }
+}
+
+.filters-section {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  align-items: end;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .filter-select, .filter-input {
+      padding: 0.5rem;
+      border: 2px solid #e1e5e9;
+      border-radius: 6px;
+      font-size: 0.9rem;
+
+      &:focus {
+        outline: none;
+        border-color: var(--be-green);
+      }
+    }
+
+    .filter-select {
+      min-width: 150px;
+    }
+
+    .filter-input {
+      min-width: 250px;
+
+      @media (max-width: 768px) {
+        min-width: auto;
+      }
+    }
+  }
+}
+
+.table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  overflow: hidden;
+}
+
+.reservation-details {
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    .detail-item {
+      &.full-width {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+      }
+
+      span {
+        color: #555;
+
+        &.price {
+          font-weight: 700;
+          color: var(--be-gold);
+          font-size: 1.1rem;
+        }
+
+        &.status-badge {
+          display: inline-block;
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          text-transform: uppercase;
+
+          &.badge-success {
+            background: #d4edda;
+            color: #155724;
+          }
+
+          &.badge-warning {
+            background: #fff3cd;
+            color: #856404;
+          }
+
+          &.badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+          }
+
+          &.badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
+          }
+
+          &.badge-secondary {
+            background: #e2e3e5;
+            color: #383d41;
+          }
+        }
+      }
+
+      .status-select {
+        padding: 0.5rem;
+        border: 2px solid #e1e5e9;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        width: 100%;
+
+        &:focus {
+          outline: none;
+          border-color: var(--be-green);
+        }
+      }
+    }
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e1e5e9;
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &.btn-primary {
+        background: var(--be-green);
+        color: white;
+
+        &:hover {
+          background: var(--be-green-dark);
+        }
+      }
+
+      &.btn-secondary {
+        background: #6c757d;
+        color: white;
+
+        &:hover {
+          background: #5a6268;
+        }
+      }
+    }
+  }
+}

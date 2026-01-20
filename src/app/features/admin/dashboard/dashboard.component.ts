@@ -21,7 +21,6 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    console.log('Dashboard component ngOnInit called');
 
     // Check if user is logged in and is admin
     if (!this.authService.isLoggedIn() || !this.authService.isAdmin()) {

@@ -73,7 +73,6 @@ export class ActivitesAdminComponent implements OnInit {
     this.loading = true;
     this.activitesService.getAllActivites().subscribe({
       next: (acts: Activite[]) => {
-        console.log('[ActivitesAdmin] loaded activities count:', acts.length);
         // resolve zone name for each activity if zones already loaded
         const EUR_TO_XOF = 655.957; // rate for conversion (1 EUR = 655.957 XOF)
         this.activites = acts.map(a => {
@@ -169,7 +168,6 @@ export class ActivitesAdminComponent implements OnInit {
     if (this.isEditing && (this.currentActivite as any).id) {
       this.activitesService.updateActivite((this.currentActivite as any).id, this.currentActivite as Partial<Activite>).subscribe({
         next: (resp) => {
-          console.log('[ActivitesAdmin] update success for id', (this.currentActivite as any).id, resp);
           // Recalculer dureeDisplay et prixDisplay pour l'activité mise à jour sans reload complet
           const updated = resp as Activite;
           const zoneName = this.zones.find(z => z.id === (updated as any).zoneId)?.nom || '';
@@ -234,10 +232,8 @@ export class ActivitesAdminComponent implements OnInit {
         ville: (this.currentActivite as any).ville ?? null,
         imagePrincipaleId: (this.currentActivite as any).imagePrincipaleId ?? null
       };
-      console.log('[ActivitesAdmin] create payload:', payload);
       this.activitesService.createActivite(payload).subscribe({
         next: (created) => {
-          console.log('[ActivitesAdmin] create response:', created);
           // Insérer directement l'activité créée dans la liste pour mise à jour instantanée
             const zoneName = this.zones.find(z => z.id === (created as any).zoneId)?.nom || '';
             // résoudre le nom de la ville : backend peut renvoyer `ville` comme string ou id, ou rien
@@ -298,7 +294,6 @@ export class ActivitesAdminComponent implements OnInit {
   }
 
   onFormSave(payload: Partial<Activite>) {
-    console.log('[ActivitesAdmin] onFormSave payload:', payload);
     this.currentActivite = { ...payload };
     this.saveActivite();
   }

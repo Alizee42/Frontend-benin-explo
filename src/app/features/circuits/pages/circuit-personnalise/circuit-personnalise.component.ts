@@ -6,6 +6,7 @@ import { CircuitsPersonnalisesService, DemandeCircuitPersonnalise } from '../../
 import { ZonesService, Zone as ApiZone } from '../../../../services/zones.service';
 import { ActivitesService, Activite as ApiActivite } from '../../../../services/activites.service';
 import { VillesService, VilleDTO } from '../../../../services/villes.service';
+import { HebergementsService, HebergementDTO } from '../../../../services/hebergements.service';
 
 interface Zone extends ApiZone {}
 
@@ -51,6 +52,10 @@ export class CircuitPersonnaliseComponent {
   private zonesService = inject(ZonesService);
   private activitesService = inject(ActivitesService);
   private villesService = inject(VillesService);
+  private hebergementsService = inject(HebergementsService);
+
+  // Durée maximale d'activités autorisée par jour (en minutes)
+  private readonly DAILY_MINUTES_LIMIT = 12 * 60; // 12 heures d'activités par jour
 
   // Étapes du formulaire
   etape = 1; // 1: durée, 2: jours, 3: options, 4: résumé, 5: formulaire
@@ -58,15 +63,7 @@ export class CircuitPersonnaliseComponent {
   // Données chargées depuis le backend
   zones: Zone[] = [];
   villes: VilleDTO[] = [];
-
-  hebergements: string[] = [
-    'Airbnb Villa Luxe Cotonou',
-    'Airbnb Appartement Centre Porto-Novo',
-    'Airbnb Maison Traditionnelle Ouidah',
-    'Airbnb Hôtel Boutique Abomey',
-    'Airbnb Lodge Nature Parakou',
-    'Airbnb Écolodge Natitingou'
-  ];
+  hebergements: HebergementDTO[] = [];
 
   transports: string[] = [
     'Voiture compacte (1-2 personnes)',
@@ -121,7 +118,6 @@ export class CircuitPersonnaliseComponent {
     this.zonesService.getAllZones().subscribe({
       next: zones => {
         this.zones = zones;
-        console.log('[circuit-personnalise] zones chargées', this.zones);
       },
       error: err => {
         console.error('Erreur chargement zones pour circuit personnalisé', err);
@@ -131,7 +127,6 @@ export class CircuitPersonnaliseComponent {
     this.activitesService.getAllActivites().subscribe({
       next: activites => {
         this.activites = activites;
-        console.log('[circuit-personnalise] activités chargées', this.activites);
       },
       error: err => {
         console.error('Erreur chargement activités pour circuit personnalisé', err);
@@ -141,12 +136,20 @@ export class CircuitPersonnaliseComponent {
     this.villesService.getAll().subscribe({
       next: villes => {
         this.villes = villes;
-        console.log('[circuit-personnalise] villes chargées', this.villes);
         // Mettre à jour les villes des jours existants
         this.jours.forEach(j => j.villes = this.getVillesForZone(j.zoneId));
       },
       error: err => {
         console.error('Erreur chargement villes pour circuit personnalisé', err);
+      }
+    });
+
+    this.hebergementsService.getAll().subscribe({
+      next: hebergements => {
+        this.hebergements = hebergements;
+      },
+      error: err => {
+        console.error('Erreur chargement hébergements pour circuit personnalisé', err);
       }
     });
   }
@@ -177,23 +180,27 @@ export class CircuitPersonnaliseComponent {
   }
 
   onZoneChange(jour: Jour, zoneId: number | null) {
-    console.log('[circuit-personnalise] onZoneChange jour', jour.numero, 'zoneId', zoneId);
     jour.zoneId = zoneId;
     jour.villeId = null;
     jour.activites = [];
     jour.villes = this.getVillesForZone(zoneId);
-    console.log('[circuit-personnalise] villes filtrées pour jour', jour.numero, jour.villes.map(v => v.nom));
   }
 
   getVillesForZone(zoneId: number | null): VilleDTO[] {
     if (!zoneId) return this.villes;
     const filtered = this.villes.filter(v => v.zoneId == zoneId);
-    console.log('[circuit-personnalise] getVillesForZone', zoneId, 'filtered count:', filtered.length, filtered.map(v => v.nom));
     return filtered;
   }
 
   getVilleNamesForZone(zoneId: number): string {
     return this.getVillesForZone(zoneId).map(v => v.nom).join(', ');
+  }
+
+  private getActiviteDurationMinutes(activite: Activite): number {
+    const minutes = (activite as any).dureeMinutes != null
+      ? Number((activite as any).dureeMinutes)
+      : (activite.duree != null ? Math.round(Number(activite.duree) * 60) : 0);
+    return isNaN(minutes) ? 0 : minutes;
   }
 
   toggleActivite(jourIndex: number, activite: Activite) {
@@ -207,6 +214,21 @@ export class CircuitPersonnaliseComponent {
         alert('Maximum 5 activités par jour.');
         return;
       }
+
+      // Vérifier que la somme des durées ne dépasse pas la limite quotidienne
+      const currentTotal = jour.activites.reduce((sum, id) => {
+        const act = this.activites.find(a => a.id === id);
+        return sum + (act ? this.getActiviteDurationMinutes(act) : 0);
+      }, 0);
+
+      const newTotal = currentTotal + this.getActiviteDurationMinutes(activite);
+
+      if (newTotal > this.DAILY_MINUTES_LIMIT) {
+        const heuresMax = this.DAILY_MINUTES_LIMIT / 60;
+        alert(`Vous dépassez la durée maximale de ${heuresMax}h d'activités pour une journée.`);
+        return;
+      }
+
       jour.activites.push(activite.id);
     }
   }
@@ -216,8 +238,32 @@ export class CircuitPersonnaliseComponent {
   }
 
   getActivitesDisponibles(jourIndex: number): Activite[] {
-    // Version simple : on affiche toutes les activités pour chaque jour
-    return this.activites;
+    const jour = this.jours[jourIndex];
+
+    // Si aucune zone / ville n'est choisie, on propose tout
+    if (!jour.zoneId && !jour.villeId) {
+      return this.activites;
+    }
+
+    let disponibles = this.activites;
+
+    // 1) Filtre par zone si sélectionnée
+    if (jour.zoneId) {
+      disponibles = disponibles.filter(a => a.zoneId === jour.zoneId);
+    }
+
+    // 2) Filtre par ville si sélectionnée (en utilisant le nom de la ville)
+    if (jour.villeId) {
+      const ville = this.villes.find(v => v.id === jour.villeId);
+      if (ville) {
+        const villeNom = ville.nom.toLowerCase().trim();
+        disponibles = disponibles.filter(a =>
+          a.ville != null && a.ville.toLowerCase().trim() === villeNom
+        );
+      }
+    }
+
+    return disponibles;
   }
 
   calculerPrixTotal(): number {
@@ -251,7 +297,6 @@ export class CircuitPersonnaliseComponent {
   }
 
   onVilleChange(jour: Jour, villeId: number | null) {
-    console.log('[circuit-personnalise] onVilleChange jour', jour.numero, 'villeId', villeId);
     jour.villeId = villeId;
     jour.activites = [];
   }
@@ -329,7 +374,7 @@ export class CircuitPersonnaliseComponent {
   }
 
   voirHebergements() {
-    alert('Page des hébergements : ' + this.hebergements.join(', '));
+    this.router.navigate(['/hebergements']);
   }
 
   toggleJoursExpanded() {

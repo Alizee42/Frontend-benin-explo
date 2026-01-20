@@ -51,7 +51,6 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
 
     this.circuitsPersonnalisesService.updateStatut(this.demande.id, 'Validé').subscribe({
       next: (demande: DemandeCircuitPersonnalise) => {
-        console.log('Demande approuvée:', demande);
         this.demande = demande;
       },
       error: (error: any) => {
@@ -67,7 +66,6 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
     if (motif) {
       this.circuitsPersonnalisesService.updateStatut(this.demande.id, 'Refusé').subscribe({
         next: (demande: DemandeCircuitPersonnalise) => {
-          console.log('Demande refusée:', demande);
           this.demande = demande;
         },
         error: (error: any) => {
@@ -82,7 +80,6 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
 
     this.circuitsPersonnalisesService.convertirEnCircuitCatalogue(this.demande.id).subscribe({
       next: (result: any) => {
-        console.log('Demande convertie en circuit:', result);
         alert('Demande convertie en circuit du catalogue avec succès !');
         this.router.navigate(['/admin/circuits']);
       },

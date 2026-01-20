@@ -92,7 +92,6 @@ onTableAction(event: {action: string, item: any}) {
 
 onRowClick(item: any) {
   // Navigation ou action sur clic de ligne
-  console.log('Row clicked:', item);
 }
 ```
 

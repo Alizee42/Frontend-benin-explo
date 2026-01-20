@@ -33,6 +33,30 @@ export const routes: Routes = [
     data: { headerLight: true }
   },
 
+  /* HEBERGEMENTS */
+  {
+    path: 'hebergements',
+    loadComponent: () =>
+      import('./features/hebergements/pages/hebergements-list/hebergements-list.component').then(m => m.HebergementsListComponent),
+    data: { headerLight: true }
+  },
+
+  /* RESERVATION HEBERGEMENT */
+  {
+    path: 'reservation-hebergement/:id',
+    loadComponent: () =>
+      import('./features/utilisateur/pages/reservation-hebergement/reservation-hebergement.component').then(m => m.ReservationHebergementComponent),
+    data: { headerLight: true }
+  },
+
+  /* RESERVATION HEBERGEMENT */
+  {
+    path: 'reservation-hebergement/:id',
+    loadComponent: () =>
+      import('./features/utilisateur/pages/reservation-hebergement/reservation-hebergement.component').then(m => m.ReservationHebergementComponent),
+    data: { headerLight: true }
+  },
+
   /* LOGIN */
   {
     path: 'login',
@@ -73,6 +97,20 @@ export const routes: Routes = [
     path: 'admin/villes',
     loadComponent: () =>
       import('./features/admin/villes/villes.component').then(m => m.VillesComponent)
+  },
+
+  /* ADMIN HEBERGEMENTS */
+  {
+    path: 'admin/hebergements',
+    loadComponent: () =>
+      import('./features/admin/hebergements/hebergements-admin.component').then(m => m.HebergementsAdminComponent)
+  },
+
+  /* ADMIN RESERVATIONS HEBERGEMENTS */
+  {
+    path: 'admin/reservations-hebergement',
+    loadComponent: () =>
+      import('./features/admin/reservations-hebergement/reservations-hebergement-admin.component').then(m => m.ReservationsHebergementAdminComponent)
   },
 
   /* ADMIN ADD CIRCUIT */

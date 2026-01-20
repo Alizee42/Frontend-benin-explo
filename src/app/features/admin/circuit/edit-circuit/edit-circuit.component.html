@@ -145,18 +145,55 @@
       <div class="form-section">
         <h3>Programme jour par jour</h3>
         <div class="programme-section">
-          <div class="programme-item" *ngFor="let jour of circuit.programme; let i = index; trackBy: trackByIndex">
+          <div class="programme-item" *ngFor="let jour of programmeDays; let i = index; trackBy: trackByIndex">
             <div class="jour-header">
-              <span class="jour-number">Jour {{ i + 1 }}</span>
-              <button type="button" class="btn-remove" (click)="removeJour(i)" *ngIf="circuit.programme.length > 1">×</button>
+              <span class="jour-number">Jour {{ jour.day }}</span>
+              <button type="button" class="btn-remove" (click)="removeJour(i)" *ngIf="programmeDays.length > 1">×</button>
             </div>
-            <textarea
-              [name]="'jour-' + i"
-              [(ngModel)]="circuit.programme[i]"
-              placeholder="Description des activités du jour {{ i + 1 }}"
-              rows="3"
-              required
-            ></textarea>
+            <div class="form-group">
+              <label>Titre du jour (optionnel)</label>
+              <input
+                type="text"
+                [name]="'jour-title-' + i"
+                [(ngModel)]="programmeDays[i].title"
+                placeholder="Ex: Arrivée et installation"
+              />
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea
+                [name]="'jour-notes-' + i"
+                [(ngModel)]="programmeDays[i].notes"
+                placeholder="Description des activités du jour {{ jour.day }}"
+                rows="3"
+                required
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label>Activités du jour</label>
+              <div class="activities-section">
+                <div class="activities-display">
+                  <div class="activities-header">
+                    <span class="activities-count">{{ (programmeDays[i].activities || []).length }} activité{{ (programmeDays[i].activities || []).length > 1 ? 's' : '' }} sélectionnée{{ (programmeDays[i].activities || []).length > 1 ? 's' : '' }}</span>
+                  </div>
+                  <div class="selected-activities">
+                    <div *ngFor="let actId of programmeDays[i].activities || []" class="activity-chip">
+                      {{ getActiviteName(actId) }}
+                      <button type="button" class="btn-remove-activity" (click)="removeActivityFromDay(i, actId)">×</button>
+                    </div>
+                    <div *ngIf="(programmeDays[i].activities || []).length === 0" class="no-activities">
+                      Aucune activité sélectionnée
+                    </div>
+                  </div>
+                </div>
+                <div class="activities-controls">
+                  <select (change)="addActivityToDay(i, $any($event.target).value); $any($event.target).value = ''">
+                    <option value="">+ Ajouter une activité</option>
+                    <option *ngFor="let act of activites" [value]="act.id">{{ act.nom }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
           <button type="button" class="btn-add-jour" (click)="addJour()">+ Ajouter un jour</button>
         </div>

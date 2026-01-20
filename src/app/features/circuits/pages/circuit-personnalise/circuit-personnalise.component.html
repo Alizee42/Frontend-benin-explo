@@ -95,7 +95,8 @@
 
             <!-- Sélection des activités -->
             <div class="activites-section">
-              <h4>Activités (3-5 activités)</h4>
+              <h4>Activités (jusqu'à 5 activités)</h4>
+              <p class="hint">Vous pouvez choisir au maximum 5 activités par jour, sans dépasser environ 12&nbsp;heures d'activités au total.</p>
               <div class="activites-list">
                 <div class="activite-option" *ngFor="let activite of getActivitesDisponibles(i)"
                      [class.selected]="isActiviteSelected(i, activite)"
@@ -139,7 +140,9 @@
           <label for="hebergement">Hébergement (Airbnb)</label>
           <select id="hebergement" [(ngModel)]="options.hebergement">
             <option value="">Choisir un Airbnb...</option>
-            <option *ngFor="let h of hebergements" [value]="h">{{ h }}</option>
+            <option *ngFor="let h of hebergements" [value]="h.nom">
+              {{ h.nom }} - {{ h.localisation }} ({{ h.prixParNuit | number:'1.0-2' }} €/nuit)
+            </option>
           </select>
           <small><a href="#" (click)="voirHebergements()">Voir tous les hébergements</a></small>
         </div>

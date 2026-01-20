@@ -112,11 +112,9 @@ export class CircuitsAdminComponent implements OnInit {
   }
 
   loadCircuits() {
-    console.log('Loading circuits from API');
     this.circuitService.getAllCircuits().subscribe({
       next: (data) => {
-        console.log('Circuits loaded from API:', data.length, 'circuits');
-        console.log('Sample imgs from API (first 5):', data.slice(0, 5).map((c: any) => c.img));
+
         // Add zone names and status to circuits
         this.circuits = data.map(circuit => {
           // determine zone name: prefer zoneId on circuit, else use ville -> zone
@@ -232,7 +230,6 @@ export class CircuitsAdminComponent implements OnInit {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce circuit ?')) {
       this.circuitService.deleteCircuit(id).subscribe({
         next: () => {
-          console.log('Circuit supprimé:', id);
           this.loadCircuits();
         },
         error: (error) => {

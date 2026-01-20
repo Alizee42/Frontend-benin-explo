@@ -1,0 +1,145 @@
+<div class="reservations-admin-container">
+  <div class="header">
+    <h1>Gestion des Réservations d'Hébergements</h1>
+    <p>Consultez et gérez toutes les réservations d'hébergements</p>
+  </div>
+
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="statusFilter">Filtrer par statut:</label>
+      <select
+        id="statusFilter"
+        [(ngModel)]="statusFilter"
+        (change)="onStatusFilterChange()"
+        class="filter-select">
+        <option value="">Tous les statuts</option>
+        <option value="EN_ATTENTE">En attente</option>
+        <option value="CONFIRMEE">Confirmée</option>
+        <option value="ANNULEE">Annulée</option>
+        <option value="TERMINEE">Terminée</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="searchTerm">Rechercher:</label>
+      <input
+        type="text"
+        id="searchTerm"
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        placeholder="Nom, prénom, hébergement, email..."
+        class="filter-input">
+    </div>
+  </div>
+
+  <div class="table-container">
+    <app-data-table
+      [data]="filteredReservations"
+      [columns]="columns"
+      [loading]="loading"
+      [actions]="tableActions"
+      (actionClick)="onTableAction($event)"
+      emptyMessage="Aucune réservation trouvée">
+    </app-data-table>
+  </div>
+
+  <!-- Modal pour voir/éditer une réservation -->
+  <app-modal
+    [open]="showModal"
+    [title]="modalMode === 'view' ? 'Détails de la réservation' : 'Modifier la réservation'"
+    (close)="closeModal()">
+
+    <div *ngIf="selectedReservation" class="reservation-details">
+      <div class="detail-grid">
+        <div class="detail-item">
+          <label>ID Réservation:</label>
+          <span>{{ selectedReservation.id }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Client:</label>
+          <span>{{ selectedReservation.nomClient }} {{ selectedReservation.prenomClient }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Email:</label>
+          <span>{{ selectedReservation.emailClient }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Téléphone:</label>
+          <span>{{ selectedReservation.telephoneClient }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Hébergement:</label>
+          <span>{{ selectedReservation.hebergementNom }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Date d'arrivée:</label>
+          <span>{{ formatDate(selectedReservation.dateArrivee) }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Date de départ:</label>
+          <span>{{ formatDate(selectedReservation.dateDepart) }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Nombre de nuits:</label>
+          <span>{{ selectedReservation.nombreNuits }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Nombre de personnes:</label>
+          <span>{{ selectedReservation.nombrePersonnes }}</span>
+        </div>
+
+        <div class="detail-item">
+          <label>Prix total:</label>
+          <span class="price">{{ formatPrice(selectedReservation.prixTotal || 0) }}</span>
+        </div>
+
+        <div class="detail-item" *ngIf="modalMode === 'edit'">
+          <label for="statut">Statut:</label>
+          <select
+            id="statut"
+            [(ngModel)]="selectedReservation.statut"
+            class="status-select">
+            <option value="EN_ATTENTE">En attente</option>
+            <option value="CONFIRMEE">Confirmée</option>
+            <option value="ANNULEE">Annulée</option>
+            <option value="TERMINEE">Terminée</option>
+          </select>
+        </div>
+
+        <div class="detail-item" *ngIf="modalMode === 'view'">
+          <label>Statut:</label>
+          <span class="status-badge" [ngClass]="getStatusBadgeClass(selectedReservation.statut || '')">
+            {{ selectedReservation.statut }}
+          </span>
+        </div>
+
+        <div class="detail-item">
+          <label>Date de création:</label>
+          <span>{{ formatDate(selectedReservation.dateCreation || '') }}</span>
+        </div>
+
+        <div class="detail-item full-width" *ngIf="selectedReservation.commentaires">
+          <label>Commentaires:</label>
+          <span>{{ selectedReservation.commentaires }}</span>
+        </div>
+      </div>
+
+      <div class="modal-actions" *ngIf="modalMode === 'edit'">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">
+          Annuler
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveReservation()">
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  </app-modal>
+</div>

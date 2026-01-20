@@ -249,12 +249,10 @@ export class AddCircuitV2Component {
   }
 
   onInclusChange(index: number, value: string) {
-    console.log('[add-circuit-v2] inclus change', index, value);
     this.form.inclus[index] = value;
   }
 
   onNonInclusChange(index: number, value: string) {
-    console.log('[add-circuit-v2] nonInclus change', index, value);
     this.form.nonInclus[index] = value;
   }
 

@@ -62,7 +62,6 @@ export class MyComponent {
   }
 
   onModalClose() {
-    console.log('Modale fermée');
   }
 }
 ```

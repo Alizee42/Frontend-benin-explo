@@ -1,0 +1,64 @@
+<section class="hebergements-page">
+  <div class="hero-section">
+    <div class="hero-overlay">
+      <div class="hero-content">
+        <h1>Hébergements au Bénin</h1>
+        <p>Réservez votre séjour dans les meilleurs établissements du Bénin</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Nos hébergements</h2>
+        <p>Découvrez une sélection d'hébergements de qualité pour votre séjour au Bénin</p>
+      </div>
+
+      <div class="loading" *ngIf="loading">
+        <p>Chargement des hébergements...</p>
+      </div>
+
+      <div class="no-hebergements" *ngIf="!loading && hebergements.length === 0">
+        <p>Aucun hébergement disponible pour le moment.</p>
+      </div>
+
+      <div class="hebergements-grid" *ngIf="!loading && hebergements.length > 0">
+        <div class="hebergement-card" *ngFor="let heb of hebergements">
+          <div class="card-image">
+            <!-- Placeholder pour l'image, à remplacer par une vraie image quand disponible -->
+            <div class="image-placeholder">
+              <i class="ri-hotel-line"></i>
+            </div>
+          </div>
+
+          <div class="card-content">
+            <div class="card-header">
+              <h3>{{ heb.nom }}</h3>
+              <span class="type-badge">{{ heb.type }}</span>
+            </div>
+
+            <div class="location">
+              <i class="ri-map-pin-line"></i>
+              <span>{{ heb.localisation }}</span>
+            </div>
+
+            <p class="description">{{ heb.description }}</p>
+
+            <div class="card-footer">
+              <div class="price">
+                <span class="price-amount">{{ heb.prixParNuit | number:'1.0-2' }} €</span>
+                <span class="price-unit">par nuit</span>
+              </div>
+
+              <button class="btn-reserver" (click)="reserver(heb)">
+                <i class="ri-calendar-check-line"></i>
+                Réserver
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

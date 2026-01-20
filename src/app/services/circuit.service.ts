@@ -42,7 +42,6 @@ export class CircuitService {
     if (folder) {
       form.append('folder', folder);
     }
-    console.log('[CircuitService] uploadImage -> sending file', file.name, 'folder:', folder);
     return this.http.post<{ filename: string; url: string }>(uploadUrl, form)
       .pipe(
         tap(res => console.log('[CircuitService] uploadImage response:', res))

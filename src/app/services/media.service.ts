@@ -36,4 +36,14 @@ export class MediaService {
   getImageUrl(id: number): Observable<string> {
     return this.get(id).pipe(map(m => (m && m.url) ? m.url : ''));
   }
+
+  /**
+   * Upload une image et retourne le MediaDTO créé.
+   */
+  uploadImage(file: File): Observable<MediaDTO> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<MediaDTO>(`${this.apiUrl}/upload`, formData);
+  }
 }

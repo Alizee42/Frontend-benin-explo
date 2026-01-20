@@ -1,0 +1,210 @@
+<div class="reservation-container">
+  <div class="hero-section">
+    <h1>Réserver un hébergement</h1>
+    <p>Réservez votre séjour dans le confort et la tranquillité</p>
+  </div>
+
+  <div class="content-wrapper" *ngIf="!isLoading; else loadingTemplate">
+    <div class="hebergement-info" *ngIf="hebergement">
+      <div class="hebergement-card">
+        <div class="hebergement-gallery" *ngIf="hasMedias; else singleImageTemplate">
+          <button type="button" class="nav-button prev" (click)="previousImage()">
+            ‹
+          </button>
+          <div class="image-wrapper">
+            <img [src]="currentMediaUrl" [alt]="hebergement.nom" class="hebergement-image">
+          </div>
+          <button type="button" class="nav-button next" (click)="nextImage()">
+            ›
+          </button>
+        </div>
+        <ng-template #singleImageTemplate>
+          <div class="image-wrapper">
+            <img src="/assets/images/coucherSoleil.avif" [alt]="hebergement.nom" class="hebergement-image">
+          </div>
+        </ng-template>
+
+        <div class="hebergement-details">
+          <h2>{{ hebergement.nom }}</h2>
+          <p class="description">{{ hebergement.description }}</p>
+          <div class="pricing">
+            <span class="price">{{ hebergement.prixParNuit }}€ / nuit</span>
+          </div>
+        </div>
+        </div>
+      </div>
+
+    <div class="reservation-form">
+      <h3>Réserver ce logement</h3>
+
+      <form (ngSubmit)="onSubmit()" #reservationForm="ngForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nomClient">Nom *</label>
+            <input
+              type="text"
+              id="nomClient"
+              name="nomClient"
+              [(ngModel)]="reservation.nomClient"
+              required
+              #nomClient="ngModel">
+            <div class="error" *ngIf="nomClient.invalid && nomClient.touched">
+              Le nom est requis
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="prenomClient">Prénom *</label>
+            <input
+              type="text"
+              id="prenomClient"
+              name="prenomClient"
+              [(ngModel)]="reservation.prenomClient"
+              required
+              #prenomClient="ngModel">
+            <div class="error" *ngIf="prenomClient.invalid && prenomClient.touched">
+              Le prénom est requis
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="emailClient">Email *</label>
+            <input
+              type="email"
+              id="emailClient"
+              name="emailClient"
+              [(ngModel)]="reservation.emailClient"
+              required
+              email
+              #emailClient="ngModel">
+            <div class="error" *ngIf="emailClient.invalid && emailClient.touched">
+              Un email valide est requis
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="telephoneClient">Téléphone *</label>
+            <input
+              type="tel"
+              id="telephoneClient"
+              name="telephoneClient"
+              [(ngModel)]="reservation.telephoneClient"
+              required
+              #telephoneClient="ngModel">
+            <div class="error" *ngIf="telephoneClient.invalid && telephoneClient.touched">
+              Le téléphone est requis
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dateArrivee">Date d'arrivée *</label>
+            <input
+              type="date"
+              id="dateArrivee"
+              name="dateArrivee"
+              [(ngModel)]="reservation.dateArrivee"
+              [min]="getMinDateArrivee()"
+              required
+              #dateArrivee="ngModel">
+            <div class="error" *ngIf="dateArrivee.invalid && dateArrivee.touched">
+              La date d'arrivée est requise
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="dateDepart">Date de départ *</label>
+            <input
+              type="date"
+              id="dateDepart"
+              name="dateDepart"
+              [(ngModel)]="reservation.dateDepart"
+              [min]="getMinDateDepart()"
+              required
+              #dateDepart="ngModel">
+            <div class="error" *ngIf="dateDepart.invalid && dateDepart.touched">
+              La date de départ est requise
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="nombrePersonnes">Nombre de personnes *</label>
+          <input
+            type="number"
+            id="nombrePersonnes"
+            name="nombrePersonnes"
+            [(ngModel)]="reservation.nombrePersonnes"
+            min="1"
+            max="10"
+            required
+            #nombrePersonnes="ngModel">
+          <div class="error" *ngIf="nombrePersonnes.invalid && nombrePersonnes.touched">
+            Le nombre de personnes doit être entre 1 et 10
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="commentaires">Commentaires (optionnel)</label>
+          <textarea
+            id="commentaires"
+            name="commentaires"
+            [(ngModel)]="reservation.commentaires"
+            rows="4"
+            placeholder="Vos demandes spéciales, allergies, etc.">
+          </textarea>
+        </div>
+
+        <div class="reservation-summary" *ngIf="reservation.dateArrivee && reservation.dateDepart">
+          <h4>Résumé de la réservation</h4>
+          <div class="summary-item">
+            <span>Nombre de nuits:</span>
+            <span>{{ getNombreNuits() }}</span>
+          </div>
+          <div class="summary-item">
+            <span>Prix par nuit:</span>
+            <span>{{ hebergement?.prixParNuit }}€</span>
+          </div>
+          <div class="summary-item total">
+            <span>Total:</span>
+            <span>{{ getTotalPrice() }}€</span>
+          </div>
+        </div>
+
+        <div class="error-message" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <div class="success-message" *ngIf="successMessage">
+          {{ successMessage }}
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="router.navigate(['/hebergements'])">
+            Annuler
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="isSubmitting || !isFormValid()">
+            <span *ngIf="isSubmitting">Réservation en cours...</span>
+            <span *ngIf="!isSubmitting">Réserver maintenant</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <ng-template #loadingTemplate>
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Chargement de l'hébergement...</p>
+    </div>
+  </ng-template>
+</div>

@@ -7,6 +7,7 @@ import { CircuitDTO, PointFort } from '../../../../models/circuit.dto';
 import { CircuitService } from '../../../../services/circuit.service';
 import { ZonesService, Zone } from '../../../../services/zones.service';
 import { VillesService, VilleDTO } from '../../../../services/villes.service';
+import { ActivitesService, Activite } from '../../../../services/activites.service';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -45,6 +46,17 @@ export class EditCircuitComponent implements OnInit {
   };
   zones: Zone[] = [];
   villes: VilleDTO[] = [];
+  activites: Activite[] = [];
+  programmeDays: Array<{
+    day: number;
+    title?: string;
+    zoneId?: number | null;
+    villeId?: number | null;
+    selectedZoneIds?: number[];
+    selectedVilleIds?: number[];
+    activities?: number[];
+    notes?: string;
+  }> = [];
   isLoading = false;
   circuitId: string | null = null;
   heroImageFile: File | null = null;
@@ -77,7 +89,8 @@ export class EditCircuitComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private zonesService: ZonesService,
-    private villesService: VillesService
+    private villesService: VillesService,
+    private activitesService: ActivitesService
   ) {}
 
   ngOnInit() {
@@ -87,6 +100,7 @@ export class EditCircuitComponent implements OnInit {
     }
     this.loadZones();
     this.loadVilles();
+    this.loadActivites();
   }
 
   loadCircuit() {
@@ -96,6 +110,43 @@ export class EditCircuitComponent implements OnInit {
     this.circuitService.getCircuitById(+this.circuitId).subscribe({
       next: (circuit) => {
         this.circuit = circuit;
+        // Initialize programmeDays from circuit.programme
+        if (this.circuit.programme && this.circuit.programme.length > 0) {
+          this.programmeDays = this.circuit.programme.map((p: any, idx: number) => {
+            if (typeof p === 'string') {
+              return {
+                day: idx + 1,
+                zoneId: this.circuit.zoneId ?? null,
+                villeId: null,
+                selectedZoneIds: this.circuit.zoneId != null ? [this.circuit.zoneId] : [],
+                selectedVilleIds: [],
+                activities: [],
+                notes: p
+              };
+            }
+            return {
+              day: p.day ?? idx + 1,
+              title: p.title,
+              zoneId: this.circuit.zoneId ?? null,
+              villeId: p.villeId ?? null,
+              selectedZoneIds: this.circuit.zoneId != null ? [this.circuit.zoneId] : [],
+              selectedVilleIds: p.villeId != null ? [p.villeId] : [],
+              activities: p.activities ?? [],
+              notes: p.description ?? ''
+            };
+          });
+        } else {
+          // Default empty day
+          this.programmeDays = [{
+            day: 1,
+            zoneId: null,
+            villeId: null,
+            selectedZoneIds: [],
+            selectedVilleIds: [],
+            activities: [],
+            notes: ''
+          }];
+        }
         this.isLoading = false;
       },
       error: (error) => {
@@ -124,6 +175,17 @@ export class EditCircuitComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erreur chargement villes', error);
+      }
+    });
+  }
+
+  loadActivites() {
+    this.activitesService.getAllActivites().subscribe({
+      next: (activites) => {
+        this.activites = activites;
+      },
+      error: (error) => {
+        console.error('Erreur chargement activités', error);
       }
     });
   }
@@ -170,12 +232,45 @@ export class EditCircuitComponent implements OnInit {
 
   // Gestion du programme jour par jour
   addJour() {
-    this.circuit.programme.push('');
+    const newDay = this.programmeDays.length + 1;
+    this.programmeDays.push({
+      day: newDay,
+      zoneId: null,
+      villeId: null,
+      selectedZoneIds: [],
+      selectedVilleIds: [],
+      activities: [],
+      notes: ''
+    });
   }
 
   removeJour(index: number) {
-    if (this.circuit.programme.length > 1) {
-      this.circuit.programme.splice(index, 1);
+    if (this.programmeDays.length > 1) {
+      this.programmeDays.splice(index, 1);
+      // Renumber days
+      this.programmeDays.forEach((day, i) => day.day = i + 1);
+    }
+  }
+
+  getActiviteName(actId: number): string {
+    const act = this.activites.find(a => a.id === actId);
+    return act ? act.nom : 'Activité inconnue';
+  }
+
+  addActivityToDay(dayIndex: number, actId: string) {
+    if (!actId) return;
+    const id = +actId;
+    if (!this.programmeDays[dayIndex].activities) {
+      this.programmeDays[dayIndex].activities = [];
+    }
+    if (!this.programmeDays[dayIndex].activities!.includes(id)) {
+      this.programmeDays[dayIndex].activities!.push(id);
+    }
+  }
+
+  removeActivityFromDay(dayIndex: number, actId: number) {
+    if (this.programmeDays[dayIndex].activities) {
+      this.programmeDays[dayIndex].activities = this.programmeDays[dayIndex].activities!.filter(id => id !== actId);
     }
   }
 
@@ -243,7 +338,14 @@ export class EditCircuitComponent implements OnInit {
   }
 
   onSubmit() {
-    // Nettoyage: supprimer les points forts complètement vides (utilisateur n'a pas rempli les champs)
+    this.circuit.programme = this.programmeDays.map(d => ({
+      day: d.day,
+      description: (d.notes || '').toString().trim(),
+      approxTime: undefined,
+      mealsIncluded: [],
+      activities: d.activities || []
+    }));
+
     if (this.circuit.pointsForts && this.circuit.pointsForts.length > 0) {
       this.circuit.pointsForts = this.circuit.pointsForts.filter(p => {
         const icon = (p.icon || '').toString().trim();
@@ -253,31 +355,23 @@ export class EditCircuitComponent implements OnInit {
       });
     }
 
-    // Validation des champs obligatoires
     if (!this.circuit.titre || !this.circuit.resume || !this.circuit.description ||
         !this.circuit.dureeIndicative || this.circuit.prixIndicatif == null || isNaN(Number(this.circuit.prixIndicatif)) || !this.circuit.localisation) {
       alert('Veuillez remplir tous les champs obligatoires.');
       return;
     }
 
-    // Validation des images (optionnel en édition)
-    // Validation du programme (compatible string[] ou ProgrammeDay[])
-    if (this.circuit.programme.some(jour => {
-      if (typeof jour === 'string') return !jour.trim();
-      // object case: check description field
-      return !(jour.description && jour.description.toString().trim());
-    })) {
+
+    if (this.circuit.programme.some((jour: any) => !jour.description || !jour.description.toString().trim())) {
       alert('Veuillez remplir tous les jours du programme.');
       return;
     }
 
-    // Validation des points forts
     if (this.circuit.pointsForts.some(point => !point.icon.trim() || !point.title.trim() || !point.desc.trim())) {
       alert('Veuillez remplir tous les champs des points forts.');
       return;
     }
 
-    // Validation des inclusions
     if (this.circuit.inclus.some(item => !item.trim())) {
       alert('Veuillez remplir tous les éléments inclus.');
       return;
@@ -294,28 +388,23 @@ export class EditCircuitComponent implements OnInit {
       try {
         // If a new hero file was selected, upload it
         if (this.heroImageFile) {
-          console.log('[EditCircuit] uploading hero image:', this.heroImageFile.name);
           const heroResp = await lastValueFrom(this.circuitService.uploadImage(this.heroImageFile, 'circuits/hero'));
-          console.log('[EditCircuit] hero upload response:', heroResp);
           this.circuit.img = `http://localhost:8080${heroResp.url}`;
         }
 
         // If new gallery files selected, upload them (sequential, resilient)
         if (this.galerieFiles && this.galerieFiles.length > 0) {
-          console.log('[EditCircuit] uploading gallery images count:', this.galerieFiles.length);
           const galerieResults: Array<{ filename: string; url: string }> = [];
           const failedFiles: Array<{ name: string; error: any }> = [];
           for (const file of this.galerieFiles) {
             try {
               const r = await lastValueFrom(this.circuitService.uploadImage(file, 'circuits/galerie'));
-              console.log('[EditCircuit] gallery upload response for', file.name, r);
               galerieResults.push(r);
             } catch (uploadErr) {
               console.error('[EditCircuit] gallery upload failed for', file.name, uploadErr);
               failedFiles.push({ name: file.name, error: uploadErr });
             }
           }
-          console.log('[EditCircuit] gallery upload summary successes:', galerieResults.length, 'failures:', failedFiles.length);
           if (failedFiles.length > 0) {
             const names = failedFiles.map(f => f.name).join(', ');
             alert('Certaines images de la galerie n\'ont pas pu être uploadées: ' + names + '. Le circuit sera mis à jour avec les images uploadées. Vous pouvez réessayer pour les fichiers manquants.');
@@ -336,7 +425,6 @@ export class EditCircuitComponent implements OnInit {
         // then update the circuit
         this.circuitService.updateCircuit(this.circuit.id, this.circuit).subscribe({
           next: (updatedCircuit) => {
-            console.log('Circuit mis à jour:', updatedCircuit);
             this.router.navigate(['/admin/circuits']);
           },
           error: (error) => {

@@ -1,0 +1,116 @@
+<div class="hebergements-admin">
+  <app-header mode="compact"></app-header>
+
+  <main class="page-content">
+    <div class="admin-container">
+      <div class="admin-header">
+        <h1>Gestion des Hébergements</h1>
+        <button class="btn-add" (click)="openAddModal()">
+          <i class="ri-add-line"></i>
+          Ajouter un hébergement
+        </button>
+      </div>
+
+      <div class="admin-content">
+        <app-data-table
+          [columns]="tableColumns"
+          [data]="hebergements"
+          [actions]="tableActions"
+          [loading]="loading"
+          (actionClick)="onTableAction($event)">
+        </app-data-table>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL FORM -->
+  <app-modal [title]="isEditing ? 'Modifier un hébergement' : 'Ajouter un hébergement'" [open]="showModal" [size]="'large'" (close)="closeModal()">
+    <div class="modal-header">
+      <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} un hébergement</h3>
+    </div>
+
+    <div class="modal-body">
+      <form class="hebergement-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nom">Nom *</label>
+            <input type="text" id="nom" [(ngModel)]="currentHebergement.nom" name="nom" required>
+          </div>
+
+          <div class="form-group">
+            <label for="type">Type *</label>
+            <select id="type" [(ngModel)]="currentHebergement.type" name="type" required>
+              <option value="">Sélectionner un type</option>
+              <option value="Hôtel">Hôtel</option>
+              <option value="Maison d'hôte">Maison d'hôte</option>
+              <option value="Auberge">Auberge</option>
+              <option value="Lodge">Lodge</option>
+              <option value="Écolodge">Écolodge</option>
+              <option value="Villa">Villa</option>
+              <option value="Appartement">Appartement</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="ville">Ville *</label>
+            <select id="ville" [(ngModel)]="selectedVilleId" name="ville" required>
+              <option [ngValue]="null">Sélectionner une ville</option>
+              <option *ngFor="let ville of villes" [ngValue]="ville.id">
+                {{ ville.nom }} <span *ngIf="ville.zoneNom">- {{ ville.zoneNom }}</span>
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="quartier">Quartier (optionnel)</label>
+            <input type="text" id="quartier" [(ngModel)]="currentHebergement.quartier" name="quartier" placeholder="Ex: Plateau, Fidjrossè...">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="description">Description *</label>
+            <textarea id="description" [(ngModel)]="currentHebergement.description" name="description" rows="3" required></textarea>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="prixParNuit">Prix par nuit (€) *</label>
+            <input type="number" id="prixParNuit" [(ngModel)]="currentHebergement.prixParNuit" name="prixParNuit" step="0.01" min="0" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label>Images de l'hébergement</label>
+            <div class="image-upload-section">
+              <input type="file" id="imageUpload" (change)="onImageSelected($event)" accept="image/*" multiple style="display: none;">
+              <button type="button" class="btn-upload" (click)="triggerImageUpload()">
+                <i class="ri-image-add-line"></i>
+                Ajouter des images
+              </button>
+              <div class="image-preview" *ngIf="selectedImages.length > 0">
+                <div class="image-item" *ngFor="let image of selectedImages; let i = index">
+                  <img [src]="image.preview" alt="Preview" class="preview-img">
+                  <button type="button" class="btn-remove" (click)="removeImage(i)">
+                    <i class="ri-close-line"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModal()">Annuler</button>
+      <button class="btn-save" (click)="saveHebergement()">
+        {{ isEditing ? 'Modifier' : 'Ajouter' }}
+      </button>
+    </div>
+  </app-modal>
+</div>

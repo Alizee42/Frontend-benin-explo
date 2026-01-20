@@ -198,7 +198,6 @@ export class AddCircuitComponent {
     // load full list of activities so admin can pick per day
     this.activitesService.getAllActivites().subscribe({
       next: (acts) => {
-        console.log('[AddCircuit] activités chargées depuis l’API :', acts);
         this.availableActivites = acts;
         // Recompute caches now that activities are available
         this.recomputeAllDays();
@@ -251,12 +250,10 @@ export class AddCircuitComponent {
   getActivitiesForDay(index: number): Activite[] {
     const day = this.programmeDays[index];
     if (!day) {
-      console.log('[AddCircuit] getActivitiesForDay -> aucun day pour index', index);
       return [];
     }
 
     let baseList = this.availableActivites || [];
-    console.log('[AddCircuit] getActivitiesForDay - baseList initiale', { index, baseList });
 
     // 1) Déterminer les zones prises en compte pour ce jour
     const zoneIds = (day.selectedZoneIds && day.selectedZoneIds.length)
@@ -265,14 +262,11 @@ export class AddCircuitComponent {
           ? [day.zoneId]
           : (this.circuit.zoneId != null ? [this.circuit.zoneId] : []));
 
-    console.log('[AddCircuit] getActivitiesForDay - zones prises en compte', { index, zoneIds, day });
 
     if (zoneIds.length) {
       baseList = baseList.filter(a => a.zoneId != null && zoneIds.includes(a.zoneId));
-      console.log('[AddCircuit] getActivitiesForDay - après filtre zones', { index, baseList });
     } else {
       // aucune zone choisie → retourner toutes les activités (catalogue complet)
-      console.log('[AddCircuit] getActivitiesForDay - aucune zone choisie, catalogue complet retourné');
       return baseList;
     }
 
@@ -287,11 +281,9 @@ export class AddCircuitComponent {
         .filter((v): v is VilleDTO => !!v)
         .map(v => v.nom);
 
-      console.log('[AddCircuit] getActivitiesForDay - villes prises en compte', { index, villeIds, villeNames });
 
       if (villeNames.length) {
         baseList = baseList.filter(a => !!a.ville && villeNames.includes(a.ville));
-        console.log('[AddCircuit] getActivitiesForDay - après filtre villes', { index, baseList });
       }
     }
     return baseList;
@@ -749,7 +741,6 @@ export class AddCircuitComponent {
           if (z && z.id != null && z.nom) this.zoneNameCache[z.id] = z.nom;
         }
 
-        console.log('[AddCircuit] zones loaded (normalized)', normalized);
         // recompute caches as zones (names) may have changed
         this.recomputeAllDays();
       },
@@ -833,23 +824,19 @@ export class AddCircuitComponent {
   }
 
   goToStep(step: number) {
-    console.log('[AddCircuit] goToStep requested:', { from: this.currentStep, to: step });
     // allow direct go only if target is previous or current; if forward, validate intermediate
     if (step > this.currentStep) {
       // validate current step before moving forward
       if (this.currentStep === 1) {
         const ok = this.validateStep1();
-        console.log('[AddCircuit] validateStep1 result (goToStep):', ok, this.getStep1Debug());
         if (!ok) { this.showErrorsStep1 = true; return; }
       }
       if (this.currentStep === 2) {
         const ok2 = this.validateStep2();
-        console.log('[AddCircuit] validateStep2 (programme) result (goToStep):', ok2);
         if (!ok2) { this.showErrorsStep2 = true; return; }
       }
       if (this.currentStep === 3) {
         const ok3 = this.validateStep3();
-        console.log('[AddCircuit] validateStep3 (medias) result (goToStep):', ok3);
         if (!ok3) { this.showErrorsStep3 = true; return; }
       }
     }
@@ -857,26 +844,21 @@ export class AddCircuitComponent {
   }
 
   nextStep() {
-    console.log('[AddCircuit] nextStep called from', this.currentStep);
     if (this.currentStep < 4) {
       if (this.currentStep === 1) {
         const ok = this.validateStep1();
-        console.log('[AddCircuit] validateStep1 result (nextStep):', ok, this.getStep1Debug());
         if (!ok) { this.showErrorsStep1 = true; return; }
         this.showErrorsStep1 = false;
       } else if (this.currentStep === 2) {
         const ok2 = this.validateStep2();
-        console.log('[AddCircuit] validateStep2 (programme) result (nextStep):', ok2);
         if (!ok2) { this.showErrorsStep2 = true; return; }
         this.showErrorsStep2 = false;
       } else if (this.currentStep === 3) {
         const ok3 = this.validateStep3();
-        console.log('[AddCircuit] validateStep3 (medias) result (nextStep):', ok3);
         if (!ok3) { this.showErrorsStep3 = true; return; }
         this.showErrorsStep3 = false;
       }
       this.currentStep++;
-      console.log('[AddCircuit] moved to step', this.currentStep);
     }
   }
 
@@ -1059,18 +1041,7 @@ export class AddCircuitComponent {
     const result = okTitre && okDescription && okDuree && okPrix;
 
     // debug log
-    console.log('[AddCircuit] validateStep1 checks:', {
-      okTitre, okDescription, okDuree, okPrix, result,
-      circuitSnapshot: {
-        titre: this.circuit.titre,
-        description: this.circuit.description,
-        dureeIndicative: this.circuit.dureeIndicative,
-        dureeLegacy: (this.circuit as any).duree,
-        prixIndicatif: this.circuit.prixIndicatif,
-        zoneId: this.circuit.zoneId,
-        villeId: this.circuit.villeId
-      }
-    });
+
 
     return result;
   }
@@ -1132,7 +1103,6 @@ export class AddCircuitComponent {
     const hasDays = this.programmeDays && this.programmeDays.length > 0;
     const hasAnyActivity = hasDays && this.programmeDays.some(p => p.activities && p.activities.length > 0);
     const result = hasDays && hasAnyActivity;
-    console.log('[AddCircuit] validateStep2 (programme) checks:', { hasDays, hasAnyActivity, result });
     return result;
   }
 
@@ -1141,16 +1111,11 @@ export class AddCircuitComponent {
     const okHero = !!this.heroImageFile;
     const okGalerie = this.galerieFiles && this.galerieFiles.length >= 3 && this.galerieFiles.length <= 10;
     const result = okHero && okGalerie;
-    console.log('[AddCircuit] validateStep3 (medias) checks:', { okHero, okGalerie, result });
     return result;
   }
 
   onSubmit() {
-    console.log('Circuit data:', this.circuit);
-    console.log('Hero image file:', this.heroImageFile);
-    console.log('Galerie files:', this.galerieFiles);
 
-    
 
     // Nettoyage: supprimer les points forts complètement vides (utilisateur n'a pas rempli les champs)
     if (this.circuit.pointsForts && this.circuit.pointsForts.length > 0) {
@@ -1229,27 +1194,22 @@ export class AddCircuitComponent {
       return;
     }
 
-    console.log('Toutes les validations passées, envoi au backend...');
     this.isLoading = true;
 
     (async () => {
       try {
         // 1) uploader l'image principale
         if (!this.heroImageFile) throw new Error('Image principale manquante');
-        console.log('[AddCircuit] uploading hero image:', this.heroImageFile.name);
         const heroResp = await lastValueFrom(this.circuitService.uploadImage(this.heroImageFile, 'circuits/hero'));
-        console.log('[AddCircuit] hero upload response:', heroResp);
         // backend retourne { filename, url }
         this.circuit.img = `http://localhost:8080${heroResp.url}`;
 
         // 2) uploader la galerie en parallèle
-        console.log('[AddCircuit] uploading gallery images count:', this.galerieFiles.length);
         const galerieResults: Array<{ filename: string; url: string }> = [];
         const failedFiles: Array<{ name: string; error: any }> = [];
         for (const file of this.galerieFiles) {
           try {
             const r = await lastValueFrom(this.circuitService.uploadImage(file, 'circuits/galerie'));
-            console.log('[AddCircuit] gallery upload response for', file.name, r);
             galerieResults.push(r);
           } catch (uploadErr) {
             console.error('[AddCircuit] gallery upload failed for', file.name, uploadErr);
@@ -1257,7 +1217,6 @@ export class AddCircuitComponent {
           }
         }
 
-        console.log('[AddCircuit] gallery upload summary successes:', galerieResults.length, 'failures:', failedFiles.length);
         // If some uploads failed, inform the user but continue with the successful ones
         if (failedFiles.length > 0) {
           const names = failedFiles.map(f => f.name).join(', ');
@@ -1267,7 +1226,6 @@ export class AddCircuitComponent {
         this.circuit.galerie = galerieResults.map(r => `http://localhost:8080${r.url}`);
 
         // 3) créer le circuit avec les URLs complètes
-        console.log('[AddCircuit] creating circuit payload (structured programmeDays):', this.circuit);
 
         // Si l'admin a saisi le prix en XOF (CFA), convertir en EUR avant l'envoi
         if (this.saisirEnCFA && this.circuit.prixIndicatif != null && !isNaN(Number(this.circuit.prixIndicatif))) {
@@ -1296,7 +1254,6 @@ export class AddCircuitComponent {
 
         this.circuitService.createCircuit(this.circuit as Omit<CircuitDTO, 'id'>).subscribe({
           next: (createdCircuit) => {
-            console.log('[AddCircuit] Circuit créé:', createdCircuit);
             this.router.navigate(['/admin/circuits']);
           },
           error: (error) => {
