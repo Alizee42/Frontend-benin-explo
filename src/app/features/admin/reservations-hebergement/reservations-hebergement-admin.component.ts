@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReservationHebergementService } from '../../../services/reservation-hebergement.service';
 import { ReservationHebergementDTO } from '../../../models/reservation-hebergement.dto';
-import { DataTableComponent, TableAction } from '../../../shared/components/data-table/data-table.component';
+import { DataTableComponent, TableAction, TableColumn } from '../../../shared/components/data-table/data-table.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { HeaderComponent } from '../../../shared/components/header/header.component';
 
 @Component({
   selector: 'app-reservations-hebergement-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, DataTableComponent, ModalComponent],
+  imports: [CommonModule, FormsModule, DataTableComponent, ModalComponent, HeaderComponent],
   templateUrl: './reservations-hebergement-admin.component.html',
   styleUrls: ['./reservations-hebergement-admin.component.scss']
 })
@@ -26,16 +27,20 @@ export class ReservationsHebergementAdminComponent implements OnInit {
   statusFilter = '';
   searchTerm = '';
 
+  get totalReservations(): number {
+    return this.reservations.length;
+  }
+
   // Colonnes pour le tableau
-  columns = [
+  columns: TableColumn[] = [
     { key: 'id', label: 'ID', sortable: true },
     { key: 'nomClient', label: 'Client', sortable: true },
     { key: 'hebergementNom', label: 'Hébergement', sortable: true },
-    { key: 'dateArrivee', label: 'Arrivée', sortable: true },
-    { key: 'dateDepart', label: 'Départ', sortable: true },
-    { key: 'prixTotal', label: 'Prix Total', sortable: true },
-    { key: 'statut', label: 'Statut', sortable: true },
-    { key: 'dateCreation', label: 'Créée le', sortable: true }
+    { key: 'dateArrivee', label: 'Arrivée', sortable: true, type: 'date' },
+    { key: 'dateDepart', label: 'Départ', sortable: true, type: 'date' },
+    { key: 'prixTotal', label: 'Prix Total', sortable: true, formatter: (value: number) => (value === null || value === undefined ? '-' : `${value}€`) },
+    { key: 'statut', label: 'Statut', sortable: true, type: 'status', formatter: (value: string) => this.getStatusLabel(value) },
+    { key: 'dateCreation', label: 'Créée le', sortable: true, type: 'date' }
   ];
 
   // Actions pour le tableau
@@ -153,9 +158,36 @@ export class ReservationsHebergementAdminComponent implements OnInit {
     }
   }
 
+  getStatusLabel(statut?: string): string {
+    if (!statut) return '-';
+
+    const normalized = String(statut).trim().toUpperCase();
+    switch (normalized) {
+      case 'CONFIRMEE':
+        return 'Confirmée';
+      case 'EN_ATTENTE':
+        return 'En attente';
+      case 'ANNULEE':
+        return 'Annulée';
+      case 'TERMINEE':
+        return 'Terminée';
+      default:
+        // fallback: humanize a bit
+        return normalized.replace(/_/g, ' ').toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+    }
+  }
+
   formatDate(dateString: string): string {
     if (!dateString) return '';
-    const date = new Date(dateString);
+
+    const trimmed = String(dateString).trim();
+    if (!trimmed) return '';
+
+    // Déjà au format dd/MM/yyyy
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(trimmed)) return trimmed;
+
+    const date = new Date(trimmed);
+    if (Number.isNaN(date.getTime())) return '';
     return date.toLocaleDateString('fr-FR');
   }
 

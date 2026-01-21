@@ -11,12 +11,15 @@ import { ReservationHebergementDTO } from '../../../../models/reservation-heberg
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './reservation-hebergement.component.html',
-  styleUrls: ['./reservation-hebergement.component.scss']
+  styleUrls: ['./reservation-hebergement.component.v2.scss']
 })
 export class ReservationHebergementComponent implements OnInit {
 
   hebergement: HebergementDTO | null = null;
   currentImageIndex = 0;
+  currentStep = 1;
+  totalSteps = 3;
+
   reservation: ReservationHebergementDTO = {
     hebergementId: 0,
     nomClient: '',
@@ -145,30 +148,96 @@ export class ReservationHebergementComponent implements OnInit {
   }
 
   get hasMedias(): boolean {
-    return !!this.hebergement && Array.isArray((this.hebergement as any).imageUrls) && (this.hebergement as any).imageUrls.length > 0;
+    return this.imageUrls.length > 0;
   }
 
   get currentMediaUrl(): string | null {
     if (!this.hasMedias) {
       return null;
     }
-    const imageUrls = (this.hebergement as any).imageUrls as string[];
-    return imageUrls[this.currentImageIndex] ?? null;
+    return this.imageUrls[this.currentImageIndex] ?? null;
+  }
+
+  get imageUrls(): string[] {
+    return this.hebergement ? this.hebergement.imageUrls || [] : [];
   }
 
   previousImage(): void {
     if (!this.hasMedias) {
       return;
     }
-    const imageUrls = (this.hebergement as any).imageUrls as string[];
-    this.currentImageIndex = (this.currentImageIndex - 1 + imageUrls.length) % imageUrls.length;
+    this.currentImageIndex = (this.currentImageIndex - 1 + this.imageUrls.length) % this.imageUrls.length;
   }
 
   nextImage(): void {
     if (!this.hasMedias) {
       return;
     }
-    const imageUrls = (this.hebergement as any).imageUrls as string[];
-    this.currentImageIndex = (this.currentImageIndex + 1) % imageUrls.length;
+    this.currentImageIndex = (this.currentImageIndex + 1) % this.imageUrls.length;
+  }
+
+  setCurrentImage(index: number): void {
+    if (!this.hasMedias) {
+      return;
+    }
+    if (index >= 0 && index < this.imageUrls.length) {
+      this.currentImageIndex = index;
+    }
+  }
+
+  // Stepper methods
+  nextStep(): void {
+    if (this.currentStep < this.totalSteps) {
+      this.currentStep++;
+      this.errorMessage = '';
+    }
+  }
+
+  previousStep(): void {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+      this.errorMessage = '';
+    }
+  }
+
+  goToStep(step: number): void {
+    if (step >= 1 && step <= this.totalSteps) {
+      this.currentStep = step;
+      this.errorMessage = '';
+    }
+  }
+
+  isStepValid(step: number): boolean {
+    switch (step) {
+      case 1:
+        return !!(this.reservation.nomClient && this.reservation.prenomClient &&
+                 this.reservation.emailClient && this.reservation.telephoneClient);
+      case 2:
+        return !!(this.reservation.dateArrivee && this.reservation.dateDepart &&
+                 this.reservation.nombrePersonnes > 0);
+      case 3:
+        return this.isFormValid();
+      default:
+        return false;
+    }
+  }
+
+  canProceedToNext(): boolean {
+    return this.isStepValid(this.currentStep);
+  }
+
+  canOpenStep(step: number): boolean {
+    if (step <= 1) {
+      return true;
+    }
+    if (step <= this.currentStep) {
+      return true;
+    }
+    for (let i = 1; i < step; i++) {
+      if (!this.isStepValid(i)) {
+        return false;
+      }
+    }
+    return true;
   }
 }

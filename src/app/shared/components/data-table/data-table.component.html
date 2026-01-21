@@ -45,7 +45,8 @@
             </div>
 
             <!-- Regular Data -->
-            <span *ngIf="column.type !== 'actions' && column.type !== 'image'">
+            <span *ngIf="column.type !== 'actions' && column.type !== 'image'"
+              [class]="'cell-content ' + (column.type === 'status' && getCellValue(item, column) !== '-' ? 'status-' + getCellValue(item, column) : '')">
               {{ column.formatter ? column.formatter(getCellValue(item, column)) : getCellValue(item, column) }}
             </span>
 

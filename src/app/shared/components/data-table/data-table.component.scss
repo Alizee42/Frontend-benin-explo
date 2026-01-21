@@ -492,3 +492,46 @@
   font-size: 0.9rem;
   color: #54606a;
 }
+
+// Status badges
+.cell-content {
+  &.status-EN_ATTENTE,
+  &.status-CONFIRMEE,
+  &.status-ANNULEE,
+  &.status-TERMINEE {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.22rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    line-height: 1.1;
+    white-space: nowrap;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  &.status-EN_ATTENTE {
+    background: #fff3cd;
+    color: #7a5a00;
+    border-color: rgba(133, 100, 4, 0.25);
+  }
+
+  &.status-CONFIRMEE {
+    background: #d1ecf1;
+    color: #0c5460;
+    border-color: rgba(12, 84, 96, 0.22);
+  }
+
+  &.status-ANNULEE {
+    background: #f8d7da;
+    color: #721c24;
+    border-color: rgba(114, 28, 36, 0.22);
+  }
+
+  &.status-TERMINEE {
+    background: #d4edda;
+    color: #155724;
+    border-color: rgba(21, 87, 36, 0.22);
+  }
+}

@@ -1,64 +1,141 @@
 <section class="hebergements-page">
-  <div class="hero-section">
-    <div class="hero-overlay">
-      <div class="hero-content">
-        <h1>Hébergements au Bénin</h1>
-        <p>Réservez votre séjour dans les meilleurs établissements du Bénin</p>
-      </div>
+  <header class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-overlay" aria-hidden="true"></div>
+    <div class="container hero-inner">
+      <p class="hero-kicker">Hébergements</p>
+      <h1 class="hero-title">Trouvez votre séjour idéal au Bénin</h1>
+      <p class="hero-subtitle">Recherche rapide, filtres utiles, réservation en 1 clic.</p>
     </div>
-  </div>
+  </header>
 
-  <div class="content-section">
+  <main class="content">
     <div class="container">
-      <div class="section-header">
-        <h2>Nos hébergements</h2>
-        <p>Découvrez une sélection d'hébergements de qualité pour votre séjour au Bénin</p>
+      <div class="page-head">
+        <div class="page-head-text">
+          <h2>Nos hébergements</h2>
+          <p>Choisissez selon votre budget, votre localisation et votre style.</p>
+        </div>
+
+        <div class="results" *ngIf="!loading">
+          <span class="count">{{ filteredHebergements.length }}</span>
+          <span class="label">résultat(s)</span>
+        </div>
       </div>
 
-      <div class="loading" *ngIf="loading">
-        <p>Chargement des hébergements...</p>
+      <section class="toolbar" aria-label="Filtres et tri">
+        <div class="search">
+          <i class="ri-search-line" aria-hidden="true"></i>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Rechercher (nom, ville, quartier, description...)"
+            aria-label="Rechercher un hébergement" />
+        </div>
+
+        <div class="filters">
+          <label class="field">
+            <span class="field-label">Type</span>
+            <select [(ngModel)]="typeFilter" aria-label="Filtrer par type">
+              <option value="">Tous</option>
+              <option *ngFor="let t of availableTypes" [value]="t">{{ t }}</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field-label">Trier</span>
+            <select [(ngModel)]="sortBy" aria-label="Trier les hébergements">
+              <option value="recommandes">Recommandés</option>
+              <option value="prixAsc">Prix (croissant)</option>
+              <option value="prixDesc">Prix (décroissant)</option>
+              <option value="alpha">Nom (A → Z)</option>
+            </select>
+          </label>
+
+          <button type="button" class="btn-ghost" (click)="clearFilters()" [disabled]="!searchTerm && !typeFilter && sortBy === 'recommandes'">
+            <i class="ri-refresh-line" aria-hidden="true"></i>
+            Réinitialiser
+          </button>
+        </div>
+      </section>
+
+      <!-- Loading skeletons -->
+      <div class="grid" *ngIf="loading" aria-busy="true" aria-label="Chargement">
+        <article class="card skeleton" *ngFor="let _ of [1,2,3,4,5,6]">
+          <div class="media"></div>
+          <div class="body">
+            <div class="line w60"></div>
+            <div class="line w40"></div>
+            <div class="line w90"></div>
+            <div class="line w70"></div>
+            <div class="line w50"></div>
+          </div>
+        </article>
       </div>
 
-      <div class="no-hebergements" *ngIf="!loading && hebergements.length === 0">
-        <p>Aucun hébergement disponible pour le moment.</p>
+      <!-- Empty state -->
+      <div class="empty" *ngIf="!loading && filteredHebergements.length === 0">
+        <div class="empty-icon">
+          <i class="ri-hotel-line" aria-hidden="true"></i>
+        </div>
+        <h3>Aucun hébergement trouvé</h3>
+        <p>Essayez un autre mot-clé ou réinitialisez les filtres.</p>
+        <button type="button" class="btn-primary" (click)="clearFilters()">
+          Réinitialiser les filtres
+        </button>
       </div>
 
-      <div class="hebergements-grid" *ngIf="!loading && hebergements.length > 0">
-        <div class="hebergement-card" *ngFor="let heb of hebergements">
-          <div class="card-image">
-            <!-- Placeholder pour l'image, à remplacer par une vraie image quand disponible -->
-            <div class="image-placeholder">
-              <i class="ri-hotel-line"></i>
+      <!-- Cards -->
+      <div class="grid" *ngIf="!loading && filteredHebergements.length > 0">
+        <article class="card" *ngFor="let heb of filteredHebergements; trackBy: trackById">
+          <div class="media">
+            <img
+              *ngIf="getCoverUrl(heb)"
+              [src]="getCoverUrl(heb)!"
+              [alt]="heb.nom"
+              loading="lazy"
+              (error)="onImageError($event)" />
+
+            <div class="media-fallback" *ngIf="!getCoverUrl(heb)">
+              <i class="ri-image-line" aria-hidden="true"></i>
+            </div>
+
+            <div class="chips">
+              <span class="chip type">{{ heb.type }}</span>
+              <span class="chip photos" *ngIf="getGalleryCount(heb) > 1">
+                <i class="ri-image-2-line" aria-hidden="true"></i>
+                {{ getGalleryCount(heb) }}
+              </span>
             </div>
           </div>
 
-          <div class="card-content">
-            <div class="card-header">
-              <h3>{{ heb.nom }}</h3>
-              <span class="type-badge">{{ heb.type }}</span>
-            </div>
-
-            <div class="location">
-              <i class="ri-map-pin-line"></i>
-              <span>{{ heb.localisation }}</span>
-            </div>
-
-            <p class="description">{{ heb.description }}</p>
-
-            <div class="card-footer">
+          <div class="body">
+            <div class="title-row">
+              <h3 class="title">{{ heb.nom }}</h3>
               <div class="price">
-                <span class="price-amount">{{ heb.prixParNuit | number:'1.0-2' }} €</span>
-                <span class="price-unit">par nuit</span>
+                <span class="amount">{{ heb.prixParNuit | number:'1.0-2' }} €</span>
+                <span class="unit">/ nuit</span>
               </div>
+            </div>
 
-              <button class="btn-reserver" (click)="reserver(heb)">
-                <i class="ri-calendar-check-line"></i>
+            <div class="meta">
+              <span class="meta-item">
+                <i class="ri-map-pin-2-line" aria-hidden="true"></i>
+                {{ heb.localisation }}<ng-container *ngIf="heb.quartier"> • {{ heb.quartier }}</ng-container>
+              </span>
+            </div>
+
+            <p class="desc">{{ heb.description }}</p>
+
+            <div class="actions">
+              <button type="button" class="btn-primary" (click)="reserver(heb)">
+                <i class="ri-calendar-check-line" aria-hidden="true"></i>
                 Réserver
               </button>
             </div>
           </div>
-        </div>
+        </article>
       </div>
     </div>
-  </div>
+  </main>
 </section>

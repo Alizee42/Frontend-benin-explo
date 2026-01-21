@@ -5,7 +5,7 @@ import { ModalComponent } from '../modal/modal.component';
 export interface TableColumn {
   key: string;
   label: string;
-  type?: 'text' | 'number' | 'date' | 'boolean' | 'array' | 'actions' | 'image';
+  type?: 'text' | 'number' | 'date' | 'boolean' | 'array' | 'actions' | 'image' | 'status';
   sortable?: boolean;
   width?: string;
   formatter?: (value: any) => string;
@@ -72,11 +72,57 @@ export class DataTableComponent {
       case 'boolean':
         return value ? 'Oui' : 'Non';
       case 'date':
-        return value ? new Date(value).toLocaleDateString('fr-FR') : '-';
+        return this.formatDateValue(value);
       case 'number':
         return typeof value === 'number' ? value.toLocaleString('fr-FR') : value;
       default:
         return value;
+    }
+  }
+
+  private formatDateValue(value: any): string {
+    const date = this.parseDate(value);
+    if (!date) return '-';
+    return date.toLocaleDateString('fr-FR');
+  }
+
+  private parseDate(value: any): Date | null {
+    if (value === null || value === undefined || value === '') return null;
+
+    if (value instanceof Date) {
+      return Number.isNaN(value.getTime()) ? null : value;
+    }
+
+    if (typeof value === 'number') {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed) return null;
+
+      // dd/MM/yyyy
+      const frMatch = /^([0-3]\d)\/([0-1]\d)\/(\d{4})$/.exec(trimmed);
+      if (frMatch) {
+        const day = Number(frMatch[1]);
+        const month = Number(frMatch[2]);
+        const year = Number(frMatch[3]);
+        const date = new Date(year, month - 1, day);
+        return Number.isNaN(date.getTime()) ? null : date;
+      }
+
+      // Fallback (ISO 8601, RFC 2822, etc.)
+      const date = new Date(trimmed);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    // last resort
+    try {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date;
+    } catch {
+      return null;
     }
   }
 

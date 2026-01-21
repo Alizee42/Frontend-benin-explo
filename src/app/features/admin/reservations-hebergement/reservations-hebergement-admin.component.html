@@ -1,53 +1,68 @@
-<div class="reservations-admin-container">
-  <div class="header">
-    <h1>Gestion des Réservations d'Hébergements</h1>
-    <p>Consultez et gérez toutes les réservations d'hébergements</p>
-  </div>
+<div class="reservations-hebergement-admin">
+  <app-header mode="compact"></app-header>
 
-  <div class="filters-section">
-    <div class="filter-group">
-      <label for="statusFilter">Filtrer par statut:</label>
-      <select
-        id="statusFilter"
-        [(ngModel)]="statusFilter"
-        (change)="onStatusFilterChange()"
-        class="filter-select">
-        <option value="">Tous les statuts</option>
-        <option value="EN_ATTENTE">En attente</option>
-        <option value="CONFIRMEE">Confirmée</option>
-        <option value="ANNULEE">Annulée</option>
-        <option value="TERMINEE">Terminée</option>
-      </select>
+  <main class="page-content">
+    <div class="actions-bar">
+      <h1 class="page-title">
+        <i class="ri-calendar-check-line"></i>
+        Gestion des réservations d'hébergements
+      </h1>
     </div>
 
-    <div class="filter-group">
-      <label for="searchTerm">Rechercher:</label>
-      <input
-        type="text"
-        id="searchTerm"
-        [(ngModel)]="searchTerm"
-        (input)="onSearchChange()"
-        placeholder="Nom, prénom, hébergement, email..."
-        class="filter-input">
-    </div>
-  </div>
+    <!-- FILTRES ET TABLE -->
+    <section class="admin-section">
+      <header class="section-header">
+        <div class="section-header-main">
+          <h2>Liste des réservations</h2>
+          <p>Filtrez et consultez les détails des réservations.</p>
+        </div>
+      </header>
 
-  <div class="table-container">
-    <app-data-table
-      [data]="filteredReservations"
-      [columns]="columns"
-      [loading]="loading"
-      [actions]="tableActions"
-      (actionClick)="onTableAction($event)"
-      emptyMessage="Aucune réservation trouvée">
-    </app-data-table>
-  </div>
+      <div class="filters-section">
+        <div class="filter-group">
+          <label for="statusFilter">Filtrer par statut:</label>
+          <select
+            id="statusFilter"
+            [(ngModel)]="statusFilter"
+            (change)="onStatusFilterChange()"
+            class="filter-select">
+            <option value="">Tous les statuts</option>
+            <option value="EN_ATTENTE">En attente</option>
+            <option value="CONFIRMEE">Confirmée</option>
+            <option value="ANNULEE">Annulée</option>
+            <option value="TERMINEE">Terminée</option>
+          </select>
+        </div>
 
-  <!-- Modal pour voir/éditer une réservation -->
-  <app-modal
-    [open]="showModal"
-    [title]="modalMode === 'view' ? 'Détails de la réservation' : 'Modifier la réservation'"
-    (close)="closeModal()">
+        <div class="filter-group">
+          <label for="searchTerm">Rechercher:</label>
+          <input
+            type="text"
+            id="searchTerm"
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()"
+            placeholder="Nom, prénom, hébergement, email..."
+            class="filter-input">
+        </div>
+      </div>
+
+      <div class="table-container">
+        <app-data-table
+          [data]="filteredReservations"
+          [columns]="columns"
+          [loading]="loading"
+          [actions]="tableActions"
+          (actionClick)="onTableAction($event)"
+          emptyMessage="Aucune réservation trouvée">
+        </app-data-table>
+      </div>
+    </section>
+
+    <!-- Modal pour voir/éditer une réservation -->
+    <app-modal
+      [open]="showModal"
+      [title]="modalMode === 'view' ? 'Détails de la réservation' : 'Modifier la réservation'"
+      (close)="closeModal()">
 
     <div *ngIf="selectedReservation" class="reservation-details">
       <div class="detail-grid">
@@ -142,4 +157,6 @@
       </div>
     </div>
   </app-modal>
+
+  </main>
 </div>
