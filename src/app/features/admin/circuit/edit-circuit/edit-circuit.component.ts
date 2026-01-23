@@ -389,7 +389,7 @@ export class EditCircuitComponent implements OnInit {
         // If a new hero file was selected, upload it
         if (this.heroImageFile) {
           const heroResp = await lastValueFrom(this.circuitService.uploadImage(this.heroImageFile, 'circuits/hero'));
-          this.circuit.img = `http://localhost:8080${heroResp.url}`;
+          this.circuit.img = heroResp.url;
         }
 
         // If new gallery files selected, upload them (sequential, resilient)
@@ -409,7 +409,7 @@ export class EditCircuitComponent implements OnInit {
             const names = failedFiles.map(f => f.name).join(', ');
             alert('Certaines images de la galerie n\'ont pas pu être uploadées: ' + names + '. Le circuit sera mis à jour avec les images uploadées. Vous pouvez réessayer pour les fichiers manquants.');
           }
-          this.circuit.galerie = galerieResults.map(r => `http://localhost:8080${r.url}`);
+          this.circuit.galerie = galerieResults.map(r => r.url);
         }
 
         // Convertir le prix si l'admin a indiqué l'avoir saisi en XOF

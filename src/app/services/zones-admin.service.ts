@@ -13,7 +13,7 @@ export interface ZoneDTO {
 })
 export class ZonesAdminService {
 
-  private apiUrl = 'http://localhost:8080/api/zones';
+  private apiUrl = '/api/zones';
 
   constructor(private http: HttpClient) { }
 

@@ -409,7 +409,10 @@ export class CircuitPersonnaliseComponent {
   openImageModal(url: string | null, event: Event) {
     event.stopPropagation(); // Prevent selecting the activity
     if (!url) return;
-    this.imageModalUrl = url.startsWith('http') || url.startsWith('data:') ? url : `http://localhost:8080${url}`;
+    const trimmed = url.trim();
+    this.imageModalUrl = (trimmed.startsWith('http') || trimmed.startsWith('data:'))
+      ? trimmed
+      : (trimmed.startsWith('/') ? trimmed : `/${trimmed}`);
     this.imageModalOpen = true;
   }
 

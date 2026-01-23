@@ -107,7 +107,7 @@ export class HebergementsListComponent implements OnInit {
 
     if (trimmed.startsWith('data:')) return trimmed;
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
-    if (trimmed.startsWith('/')) return `http://localhost:8080${trimmed}`;
+    if (trimmed.startsWith('/')) return trimmed;
     return trimmed;
   }
 

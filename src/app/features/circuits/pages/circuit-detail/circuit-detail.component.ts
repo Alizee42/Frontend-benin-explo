@@ -141,7 +141,7 @@ export class CircuitDetailComponent implements OnInit {
     }
     const img = raw.startsWith('/') ? raw : '/' + raw;
     if (img.startsWith('/images') || img.startsWith('/api/images')) {
-      return `http://localhost:8080${img}`;
+      return img;
     }
     return img;
   }

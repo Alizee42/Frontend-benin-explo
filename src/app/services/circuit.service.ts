@@ -9,7 +9,7 @@ import { CircuitDTO } from '../models/circuit.dto';
 })
 export class CircuitService {
 
-  private apiUrl = 'http://localhost:8080/api/circuits';
+  private apiUrl = '/api/circuits';
 
   constructor(private http: HttpClient) {}
 
@@ -36,7 +36,7 @@ export class CircuitService {
   // Upload an image file to the backend uploads folder.
   // Returns the backend JSON response: { filename: string, url: string }
   uploadImage(file: File, folder?: string): Observable<{ filename: string; url: string }> {
-    const uploadUrl = 'http://localhost:8080/api/images/upload';
+    const uploadUrl = '/api/images/upload';
     const form = new FormData();
     form.append('file', file, file.name);
     if (folder) {

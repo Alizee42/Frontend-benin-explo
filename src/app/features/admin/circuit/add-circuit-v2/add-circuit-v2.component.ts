@@ -382,14 +382,14 @@ export class AddCircuitV2Component {
       }
 
       const heroRes = await lastValueFrom(this.circuitService.uploadImage(this.heroImageFile, 'circuits/hero'));
-      this.form.img = `http://localhost:8080${heroRes.url}`;
+      this.form.img = heroRes.url;
 
       const galerieResults: { filename: string; url: string }[] = [];
       for (const f of this.galerieFiles) {
         const r = await lastValueFrom(this.circuitService.uploadImage(f, 'circuits/galerie'));
         galerieResults.push(r);
       }
-      this.form.galerie = galerieResults.map(r => `http://localhost:8080${r.url}`);
+      this.form.galerie = galerieResults.map(r => r.url);
 
       // nettoyer les listes
       this.form.inclus = this.form.inclus.map(s => s.trim()).filter(s => !!s);

@@ -1202,7 +1202,7 @@ export class AddCircuitComponent {
         if (!this.heroImageFile) throw new Error('Image principale manquante');
         const heroResp = await lastValueFrom(this.circuitService.uploadImage(this.heroImageFile, 'circuits/hero'));
         // backend retourne { filename, url }
-        this.circuit.img = `http://localhost:8080${heroResp.url}`;
+        this.circuit.img = heroResp.url;
 
         // 2) uploader la galerie en parallèle
         const galerieResults: Array<{ filename: string; url: string }> = [];
@@ -1223,7 +1223,7 @@ export class AddCircuitComponent {
           alert('Certaines images de la galerie n\'ont pas pu être uploadées: ' + names + '. Le circuit sera créé avec les images uploadées. Vous pouvez réessayer pour les fichiers manquants.');
         }
 
-        this.circuit.galerie = galerieResults.map(r => `http://localhost:8080${r.url}`);
+        this.circuit.galerie = galerieResults.map(r => r.url);
 
         // 3) créer le circuit avec les URLs complètes
 

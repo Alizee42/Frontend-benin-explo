@@ -200,7 +200,7 @@ export class CircuitsListComponent implements OnInit {
       const img = raw.startsWith('/') ? raw : '/' + raw;
       // Si l'URL pointe vers le endpoint backend (/images/...), préfixer avec l'hôte backend
       if (img.startsWith('/images') || img.startsWith('/api/images')) {
-        return `http://localhost:8080${img}`;
+        return img;
       }
       return img;
     }

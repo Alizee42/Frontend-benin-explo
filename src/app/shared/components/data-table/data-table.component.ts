@@ -158,7 +158,7 @@ export class DataTableComponent {
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
 
     // URL relative (commence par '/') -> prefixer l'API backend en dev
-    if (trimmed.startsWith('/')) return `http://localhost:8080${trimmed}`;
+    if (trimmed.startsWith('/')) return trimmed;
 
     // Si ressemble à du base64 (commence par /9j/ pour JPEG ou iVBORw0KGgo pour PNG)
     const jpegStart = trimmed.startsWith('/9j/');
@@ -216,9 +216,11 @@ export class DataTableComponent {
 
   openImage(url: string | null) {
     if (!url) return;
-    // Prefer absolute or data URLs; if relative path starting with '/', prefix to dev backend
-    const resolved = (url.startsWith('http') || url.startsWith('data:')) ? url : `http://localhost:8080${url}`;
-    this.imageModalUrl = resolved;
+    // Prefer absolute or data URLs; sinon garder en relatif (même origine)
+    const trimmed = url.trim();
+    this.imageModalUrl = (trimmed.startsWith('http') || trimmed.startsWith('data:'))
+      ? trimmed
+      : (trimmed.startsWith('/') ? trimmed : `/${trimmed}`);
     this.imageModalOpen = true;
   }
 

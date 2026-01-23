@@ -14,7 +14,7 @@ export interface VilleDTO {
 })
 export class VillesService {
 
-  private apiUrl = 'http://localhost:8080/api/villes';
+  private apiUrl = '/api/villes';
 
   constructor(private http: HttpClient) { }
 

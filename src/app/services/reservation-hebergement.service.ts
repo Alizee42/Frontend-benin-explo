@@ -8,7 +8,7 @@ import { ReservationHebergementDTO } from '../models/reservation-hebergement.dto
 })
 export class ReservationHebergementService {
 
-  private apiUrl = 'http://localhost:8080/api/reservations-hebergement';
+  private apiUrl = '/api/reservations-hebergement';
 
   constructor(private http: HttpClient) { }
 

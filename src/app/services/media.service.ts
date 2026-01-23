@@ -12,7 +12,7 @@ export interface MediaDTO {
 
 @Injectable({ providedIn: 'root' })
 export class MediaService {
-  private apiUrl = 'http://localhost:8080/api/media';
+  private apiUrl = '/api/media';
   constructor(private http: HttpClient) {}
 
   /**
@@ -23,8 +23,11 @@ export class MediaService {
       map(m => {
         if (!m) return m;
         const url = m.url || '';
-        // si URL relative, préfixer avec backend
-        const resolved = url.startsWith('http') ? url : `http://localhost:8080${url}`;
+        // si URL relative, garder en relatif (même origine), compatible Nginx + proxy dev
+        const trimmed = url.trim();
+        const resolved = (trimmed.startsWith('http') || trimmed.startsWith('data:'))
+          ? trimmed
+          : (trimmed.startsWith('/') ? trimmed : `/${trimmed}`);
         return { ...m, url: resolved } as MediaDTO;
       })
     );

@@ -26,7 +26,7 @@ export interface Media {
 })
 export class HebergementsService {
 
-  private apiUrl = 'http://localhost:8080/api/hebergements';
+  private apiUrl = '/api/hebergements';
 
   constructor(private http: HttpClient) {}
 

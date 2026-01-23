@@ -74,7 +74,7 @@ export class ActiviteFormComponent {
     fd.append('file', file);
 
     // Upload the file first, then create a media entry and store both id and preview URL
-    this.http.post<any>('http://localhost:8080/api/images/upload', fd).subscribe({
+    this.http.post<any>('/api/images/upload', fd).subscribe({
       next: (res) => {
         // res expected: { filename, url }
         let uploadedUrl: string | null = res?.url || res?.filename || null;
@@ -82,15 +82,12 @@ export class ActiviteFormComponent {
           uploadedUrl = '/images/' + uploadedUrl;
         }
         const media = { url: uploadedUrl, type: 'image', description: '' };
-        this.http.post<any>('http://localhost:8080/api/media', media).subscribe({
+        this.http.post<any>('/api/media', media).subscribe({
           next: (m) => {
             if (this.activite) {
               (this.activite as any).imagePrincipaleId = m.id;
               // store a preview url on the activite object for immediate UI preview
               let preview = m.url || uploadedUrl || null;
-              if (preview && typeof preview === 'string' && preview.startsWith('/')) {
-                preview = 'http://localhost:8080' + preview;
-              }
               (this.activite as any).imagePreview = preview;
             }
             this.uploading = false;

@@ -26,7 +26,7 @@ export interface DemandeCircuitPersonnalise {
 })
 export class CircuitsPersonnalisesService {
 
-  private apiUrl = 'http://localhost:8080/api/circuits-personnalises';
+  private apiUrl = '/api/circuits-personnalises';
 
   constructor(private http: HttpClient) {}
 

@@ -31,7 +31,7 @@ export interface Activite {
 })
 export class ActivitesService {
 
-  private apiUrl = 'http://localhost:8080/api/activites';
+  private apiUrl = '/api/activites';
 
   constructor(private http: HttpClient) {}
 
@@ -114,7 +114,14 @@ export class ActivitesService {
       ville: dto.ville ?? undefined,
       // if backend provides a resolved image URL, use it (prefix backend host if relative)
       imagePrincipaleId: dto.imagePrincipaleId ?? null,
-      image: (dto as any).imagePrincipaleUrl ? (((dto as any).imagePrincipaleUrl as string).startsWith('http') ? (dto as any).imagePrincipaleUrl : `http://localhost:8080${(dto as any).imagePrincipaleUrl}`) : null
+      image: (dto as any).imagePrincipaleUrl
+        ? (() => {
+          const raw = String((dto as any).imagePrincipaleUrl).trim();
+          if (!raw) return null;
+          if (raw.startsWith('http') || raw.startsWith('data:')) return raw;
+          return raw.startsWith('/') ? raw : `/${raw}`;
+        })()
+        : null
     };
     return a;
   }
