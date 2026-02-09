@@ -65,7 +65,10 @@
           <div class="form-row">
             <div class="form-group">
               <label>Zone (optionnel)</label>
-              <select [(ngModel)]="form.programme[i].zoneId" name="zone-{{i}}">
+              <select 
+                [(ngModel)]="form.programme[i].zoneId" 
+                name="zone-{{i}}"
+                (ngModelChange)="onDayZoneChange(form.programme[i])">
                 <option [ngValue]="null">Toutes les zones</option>
                 <option *ngFor="let z of zones" [ngValue]="z.id">{{ z.nom }}</option>
               </select>
@@ -73,7 +76,10 @@
 
             <div class="form-group">
               <label>Ville (optionnel)</label>
-              <select [(ngModel)]="form.programme[i].villeId" name="ville-{{i}}">
+              <select 
+                [(ngModel)]="form.programme[i].villeId" 
+                name="ville-{{i}}"
+                (ngModelChange)="onDayVilleChange(form.programme[i])">
                 <option [ngValue]="null">Toutes les villes</option>
                 <option *ngFor="let v of getVillesForZone(form.programme[i].zoneId)" [ngValue]="v.id">{{ v.nom }}</option>
               </select>

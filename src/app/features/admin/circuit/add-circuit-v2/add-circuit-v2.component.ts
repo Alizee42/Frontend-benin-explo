@@ -267,18 +267,17 @@ export class AddCircuitV2Component {
 
   getActivitiesForVille(villeId: number | null | undefined, filterText: string): Activite[] {
     let acts = this.activites;
+    
+    // CORRECTION: Filtrer par villeId au lieu de comparaison de strings
     if (villeId) {
-      const selectedVille = this.villes.find(v => v.id === villeId);
-      if (selectedVille) {
-        acts = acts.filter(a => a.ville === selectedVille.nom);
-      }
+      acts = acts.filter(a => a.villeId === villeId);
     }
+    
     if (filterText && filterText.trim()) {
       const lowerFilter = filterText.toLowerCase();
       acts = acts.filter(a =>
         a.nom.toLowerCase().includes(lowerFilter) ||
-        (a.type && a.type.toLowerCase().includes(lowerFilter)) ||
-        (a.ville && a.ville.toLowerCase().includes(lowerFilter))
+        (a.description && a.description.toLowerCase().includes(lowerFilter))
       );
     }
     return acts;
@@ -331,6 +330,60 @@ export class AddCircuitV2Component {
   isActivitySelected(dayIndex: number, activityId: number): boolean {
     const day = this.form.programme[dayIndex];
     return !!day && !!day.activities && day.activities.includes(activityId);
+  }
+
+  /**
+   * Filtre géographique intelligent pour les activités
+   * Empêche de sélectionner des activités trop éloignées
+   */
+  getActivitesDisponibles(day: CircuitProgrammeDayForm): Activite[] {
+    let disponibles = this.activites;
+
+    // 1. Filtrer par zone du jour
+    if (day.zoneId) {
+      disponibles = disponibles.filter(a => a.zoneId === day.zoneId);
+    }
+
+    // 2. Filtrer par ville du jour (encore plus précis)
+    if (day.villeId) {
+      disponibles = disponibles.filter(a => a.villeId === day.villeId);
+    }
+
+    // 3. Filtrer par texte de recherche
+    const filter = this.activityFilterText[day.day - 1]?.toLowerCase().trim();
+    if (filter) {
+      disponibles = disponibles.filter(a =>
+        a.nom.toLowerCase().includes(filter) ||
+        (a.description && a.description.toLowerCase().includes(filter))
+      );
+    }
+
+    return disponibles;
+  }
+
+  /**
+   * Récupère les villes filtrées par zone pour un jour donné
+   */
+  getVillesForDay(day: CircuitProgrammeDayForm): VilleDTO[] {
+    if (!day.zoneId) {
+      return this.villes;
+    }
+    return this.villes.filter(v => v.zoneId === day.zoneId);
+  }
+
+  /**
+   * Quand la zone change, réinitialiser ville et activités
+   */
+  onDayZoneChange(day: CircuitProgrammeDayForm) {
+    day.villeId = null;
+    day.activities = [];
+  }
+
+  /**
+   * Quand la ville change, réinitialiser les activités
+   */
+  onDayVilleChange(day: CircuitProgrammeDayForm) {
+    day.activities = [];
   }
 
   displayConvertedPrice(): string {

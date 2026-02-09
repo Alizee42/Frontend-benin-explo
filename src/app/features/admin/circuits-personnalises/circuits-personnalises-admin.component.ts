@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
-import { CircuitsPersonnalisesService, DemandeCircuitPersonnalise } from '../../../services/circuits-personnalises.service';
+import { CircuitsPersonnalisesService, CircuitPersonnaliseDTO } from '../../../services/circuits-personnalises.service';
 
 @Component({
   selector: 'app-circuits-personnalises-admin',
@@ -14,7 +14,7 @@ import { CircuitsPersonnalisesService, DemandeCircuitPersonnalise } from '../../
   styleUrls: ['./circuits-personnalises-admin.component.scss']
 })
 export class CircuitsPersonnalisesAdminComponent implements OnInit {
-  demandes: DemandeCircuitPersonnalise[] = [];
+  demandes: CircuitPersonnaliseDTO[] = [];
   isLoading = true;
 
   // Templates d'emails personnalisables
@@ -74,16 +74,16 @@ Téléphone : {telephone}`
   // État de la modale d'email
   showEmailModal = false;
   currentEmailAction: 'approbation' | 'refus' | null = null;
-  currentDemande: DemandeCircuitPersonnalise | null = null;
+  currentDemande: CircuitPersonnaliseDTO | null = null;
   emailSubject = '';
   emailBody = '';
   refusalReason = '';
 
   tableColumns = [
     { key: 'id', label: 'ID', sortable: true },
-    { key: 'client.nom', label: 'Nom', sortable: true },
-    { key: 'client.email', label: 'Email', sortable: false },
-    { key: 'client.telephone', label: 'Téléphone', sortable: false },
+    { key: 'nomClient', label: 'Nom', sortable: true },
+    { key: 'emailClient', label: 'Email', sortable: false },
+    { key: 'telephoneClient', label: 'Téléphone', sortable: false },
     { key: 'dateCreation', label: 'Date', sortable: true },
     { key: 'statut', label: 'Statut', sortable: true },
     { key: 'actions', label: 'Actions', type: 'actions' as const }
@@ -101,14 +101,14 @@ Téléphone : {telephone}`
       action: 'approve',
       class: 'btn-approve',
       icon: 'ri-check-line',
-      condition: (item: DemandeCircuitPersonnalise) => item.statut === 'En attente'
+      condition: (item: CircuitPersonnaliseDTO) => item.statut === 'EN_ATTENTE'
     },
     {
       label: 'Refuser',
       action: 'reject',
       class: 'btn-reject',
       icon: 'ri-close-line',
-      condition: (item: DemandeCircuitPersonnalise) => item.statut === 'En attente'
+      condition: (item: CircuitPersonnaliseDTO) => item.statut === 'EN_ATTENTE'
     }
   ];
 
@@ -127,7 +127,7 @@ Téléphone : {telephone}`
       next: (data) => {
         this.demandes = data.map(d => ({
           ...d,
-          dateCreation: this.formatDate(d.dateCreation)
+          dateCreation: d.dateCreation ? this.formatDate(d.dateCreation) : undefined
         }));
         this.isLoading = false;
       },
@@ -138,47 +138,42 @@ Téléphone : {telephone}`
     });
   }
 
-  onActionClick(actionData: { action: string; item: DemandeCircuitPersonnalise }) {
+  onActionClick(actionData: { action: string; item: CircuitPersonnaliseDTO }) {
     const { action, item } = actionData;
 
     if (action === 'view') {
       this.router.navigate(['/admin/circuits-personnalises/detail', item.id]);
     } else if (action === 'approve') {
-      this.approveDemande(item.id);
+      this.approveDemande(item.id!);
     } else if (action === 'reject') {
-      this.rejectDemande(item.id);
+      this.rejectDemande(item.id!);
     }
   }
 
-  contactClient(demande: DemandeCircuitPersonnalise) {
-    const subject = `Demande de circuit personnalisé #${demande.id} - ${demande.client.nom}`;
-    
-    const body = `Bonjour ${demande.client.nom},
+  contactClient(demande: CircuitPersonnaliseDTO) {
+    const subject = `Demande de circuit personnalisé #${demande.id} - ${demande.nomClient}`;
 
+    const body = `Bonjour ${demande.prenomClient} ${demande.nomClient},
 Nous avons bien reçu votre demande de circuit personnalisé (référence #${demande.id}).
 
 Détails de votre demande :
 - Nombre de personnes : ${demande.nombrePersonnes}
 - Nombre de jours : ${demande.nombreJours}
-- Statut : ${demande.statut}
-- Date de création : ${new Date(demande.dateCreation).toLocaleDateString('fr-FR')}
+- Statut : ${demande.statut || 'EN_ATTENTE'}
+- Date de création : ${demande.dateCreation ? new Date(demande.dateCreation).toLocaleDateString('fr-FR') : 'N/A'}
 
-Zones sélectionnées : ${demande.zones.join(', ')}
-Activités : ${demande.activites.join(', ')}
+${demande.avecHebergement ? `Hébergement inclus (${demande.typeHebergement || ''})` : 'Sans hébergement'}
+${demande.avecTransport ? `Transport inclus (${demande.typeTransport || ''})` : 'Sans transport'}
 
-${demande.avecHebergement ? 'Hébergement inclus' : 'Sans hébergement'}
-${demande.avecTransport ? 'Transport inclus' : 'Sans transport'}
-${demande.extras && demande.extras.length > 0 ? `Extras : ${demande.extras.join(', ')}` : ''}
-
-Prix estimé : ${demande.prixEstime ? demande.prixEstime + '€' : 'À déterminer'}
+Prix estimé : ${demande.prixEstime ? demande.prixEstime + ' XOF' : 'À déterminer'}
 
 Nous vous contacterons prochainement pour finaliser les détails et vous proposer un devis personnalisé.
 
 Cordialement,
 L'équipe Benin Exlo
-Téléphone : ${demande.client.telephone}`;
+Téléphone : ${demande.telephoneClient}`;
 
-    const mailtoLink = `mailto:${demande.client.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoLink = `mailto:${demande.emailClient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.open(mailtoLink, '_blank');
   }
 
@@ -196,7 +191,7 @@ Téléphone : ${demande.client.telephone}`;
     }
   }
 
-  openEmailModal(action: 'approbation' | 'refus', demande: DemandeCircuitPersonnalise) {
+  openEmailModal(action: 'approbation' | 'refus', demande: CircuitPersonnaliseDTO) {
     this.currentEmailAction = action;
     this.currentDemande = demande;
     this.refusalReason = '';
@@ -225,13 +220,13 @@ Téléphone : ${demande.client.telephone}`;
     if (!confirmation) return;
 
     // Mettre à jour le statut selon l'action
-    const newStatus = this.currentEmailAction === 'approbation' ? 'Validé' : 'Refusé';
+    const newStatus = this.currentEmailAction === 'approbation' ? 'ACCEPTE' : 'REFUSE';
 
-    this.circuitsPersonnalisesService.updateStatut(this.currentDemande.id, newStatus).subscribe({
-      next: (demande: DemandeCircuitPersonnalise) => {
+    this.circuitsPersonnalisesService.updateStatut(this.currentDemande.id!, newStatus).subscribe({
+      next: (demande: CircuitPersonnaliseDTO) => {
         alert(`Demande ${this.currentEmailAction === 'approbation' ? 'approuvée' : 'refusée'} avec succès !`);
         this.loadDemandes();
-        this.sendCustomEmail(demande);
+        // TODO: Implémenter sendCustomEmail si nécessaire
         this.closeEmailModal();
       },
       error: (error: any) => {
@@ -248,38 +243,24 @@ Téléphone : ${demande.client.telephone}`;
     }
   }
 
-  sendCustomEmail(demande: DemandeCircuitPersonnalise) {
-    // Envoyer l'email via l'API backend au lieu d'ouvrir le client email
-    this.circuitsPersonnalisesService.envoyerEmail(demande.id, {
-      subject: this.emailSubject,
-      body: this.emailBody
-    }).subscribe({
-      next: () => {
-        alert('Email envoyé avec succès !');
-      },
-      error: (error: any) => {
-        console.error('Erreur envoi email', error);
-        alert('Erreur lors de l\'envoi de l\'email. Vérifiez la configuration du serveur.');
-        // Fallback: ouvrir le client email si l'API échoue
-        const mailtoLink = `mailto:${demande.client.email}?subject=${encodeURIComponent(this.emailSubject)}&body=${encodeURIComponent(this.emailBody)}`;
-        window.open(mailtoLink, '_blank');
-      }
-    });
-  }
+  // TODO: Réimplémenter sendCustomEmail si fonctionnalité email requise
 
-  replacePlaceholders(text: string, demande: DemandeCircuitPersonnalise): string {
+  replacePlaceholders(text: string, demande: CircuitPersonnaliseDTO): string {
+    const zonesStr = demande.jours.map(j => j.zoneNom).filter(z => z).join(', ') || 'N/A';
+    const activitesStr = demande.jours.flatMap(j => j.activiteNoms || []).join(', ') || 'N/A';
+    
     return text
-      .replace(/{id}/g, demande.id.toString())
-      .replace(/{nom}/g, demande.client.nom)
+      .replace(/{id}/g, (demande.id || 0).toString())
+      .replace(/{nom}/g, `${demande.prenomClient} ${demande.nomClient}`)
       .replace(/{nombrePersonnes}/g, demande.nombrePersonnes.toString())
       .replace(/{nombreJours}/g, demande.nombreJours.toString())
-      .replace(/{zones}/g, demande.zones.join(', '))
-      .replace(/{activites}/g, demande.activites.join(', '))
-      .replace(/{hebergement}/g, demande.avecHebergement ? 'Hébergement inclus' : 'Sans hébergement')
-      .replace(/{transport}/g, demande.avecTransport ? 'Transport inclus' : 'Sans transport')
-      .replace(/{extras}/g, demande.extras && demande.extras.length > 0 ? `Extras : ${demande.extras.join(', ')}` : '')
-      .replace(/{prix}/g, demande.prixEstime ? demande.prixEstime + '€' : 'À déterminer')
-      .replace(/{telephone}/g, demande.client.telephone)
+      .replace(/{zones}/g, zonesStr)
+      .replace(/{activites}/g, activitesStr)
+      .replace(/{hebergement}/g, demande.avecHebergement ? `Hébergement inclus (${demande.typeHebergement || ''})` : 'Sans hébergement')
+      .replace(/{transport}/g, demande.avecTransport ? `Transport inclus (${demande.typeTransport || ''})` : 'Sans transport')
+      .replace(/{extras}/g, '')
+      .replace(/{prix}/g, demande.prixEstime ? demande.prixEstime + ' XOF' : 'À déterminer')
+      .replace(/{telephone}/g, demande.telephoneClient)
       .replace(/{motif}/g, this.refusalReason);
   }
 
@@ -288,15 +269,15 @@ Téléphone : ${demande.client.telephone}`;
   }
 
   get demandesEnAttente(): number {
-    return this.demandes.filter(d => d.statut === 'En attente').length;
+    return this.demandes.filter(d => d.statut === 'EN_ATTENTE').length;
   }
 
   get demandesApprouvees(): number {
-    return this.demandes.filter(d => d.statut === 'Validé').length;
+    return this.demandes.filter(d => d.statut === 'ACCEPTE').length;
   }
 
   get demandesRefusees(): number {
-    return this.demandes.filter(d => d.statut === 'Refusé').length;
+    return this.demandes.filter(d => d.statut === 'REFUSE').length;
   }
 
   formatDate(date: string): string {

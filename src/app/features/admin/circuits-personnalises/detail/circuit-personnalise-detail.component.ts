@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HeaderComponent } from '../../../../shared/components/header/header.component';
-import { CircuitsPersonnalisesService, DemandeCircuitPersonnalise } from '../../../../services/circuits-personnalises.service';
+import { CircuitsPersonnalisesService, CircuitPersonnaliseDTO } from '../../../../services/circuits-personnalises.service';
 
 @Component({
   selector: 'app-circuit-personnalise-detail',
@@ -12,7 +12,7 @@ import { CircuitsPersonnalisesService, DemandeCircuitPersonnalise } from '../../
   styleUrls: ['./circuit-personnalise-detail.component.scss']
 })
 export class CircuitPersonnaliseDetailComponent implements OnInit {
-  demande: DemandeCircuitPersonnalise | null = null;
+  demande: CircuitPersonnaliseDTO | null = null;
   isLoading = true;
   demandeId: string | null = null;
 
@@ -34,7 +34,7 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
 
     this.isLoading = true;
     this.circuitsPersonnalisesService.getDemandeById(+this.demandeId).subscribe({
-      next: (demande: DemandeCircuitPersonnalise) => {
+      next: (demande: CircuitPersonnaliseDTO) => {
         this.demande = demande;
         this.isLoading = false;
       },
@@ -49,8 +49,8 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
   approveDemande() {
     if (!this.demande || !confirm('Êtes-vous sûr de vouloir approuver cette demande ?')) return;
 
-    this.circuitsPersonnalisesService.updateStatut(this.demande.id, 'Validé').subscribe({
-      next: (demande: DemandeCircuitPersonnalise) => {
+    this.circuitsPersonnalisesService.updateStatut(this.demande.id!, 'ACCEPTE').subscribe({
+      next: (demande: CircuitPersonnaliseDTO) => {
         this.demande = demande;
       },
       error: (error: any) => {
@@ -64,8 +64,8 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
 
     const motif = prompt('Motif du refus :');
     if (motif) {
-      this.circuitsPersonnalisesService.updateStatut(this.demande.id, 'Refusé').subscribe({
-        next: (demande: DemandeCircuitPersonnalise) => {
+      this.circuitsPersonnalisesService.updateStatut(this.demande.id!, 'REFUSE').subscribe({
+        next: (demande: CircuitPersonnaliseDTO) => {
           this.demande = demande;
         },
         error: (error: any) => {
@@ -75,19 +75,12 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
     }
   }
 
+  // TODO: Implémenter convertToCircuit si nécessaire
+  /*
   convertToCircuit() {
-    if (!this.demande || !confirm('Convertir cette demande en circuit du catalogue ?')) return;
-
-    this.circuitsPersonnalisesService.convertirEnCircuitCatalogue(this.demande.id).subscribe({
-      next: (result: any) => {
-        alert('Demande convertie en circuit du catalogue avec succès !');
-        this.router.navigate(['/admin/circuits']);
-      },
-      error: (error: any) => {
-        console.error('Erreur conversion demande', error);
-      }
-    });
+    // Fonctionnalité à implémenter coté backend
   }
+  */
 
   goBack() {
     this.router.navigate(['/admin/circuits-personnalises']);
@@ -95,12 +88,16 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
 
   getStatusBadgeClass(statut: string): string {
     switch (statut) {
-      case 'Validé':
+      case 'ACCEPTE':
         return 'status-approved';
-      case 'Refusé':
+      case 'REFUSE':
         return 'status-rejected';
-      case 'En attente':
+      case 'EN_ATTENTE':
         return 'status-pending';
+      case 'EN_TRAITEMENT':
+        return 'status-processing';
+      case 'TERMINE':
+        return 'status-completed';
       default:
         return 'status-default';
     }

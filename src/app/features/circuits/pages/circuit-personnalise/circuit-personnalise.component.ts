@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CircuitsPersonnalisesService, DemandeCircuitPersonnalise } from '../../../../services/circuits-personnalises.service';
+import { CircuitsPersonnalisesService, CircuitPersonnaliseDTO, JourDTO } from '../../../../services/circuits-personnalises.service';
 import { ZonesService, Zone as ApiZone } from '../../../../services/zones.service';
 import { ActivitesService, Activite as ApiActivite } from '../../../../services/activites.service';
 import { VillesService, VilleDTO } from '../../../../services/villes.service';
@@ -252,15 +252,9 @@ export class CircuitPersonnaliseComponent {
       disponibles = disponibles.filter(a => a.zoneId === jour.zoneId);
     }
 
-    // 2) Filtre par ville si sélectionnée (en utilisant le nom de la ville)
+    // 2) Filtre par ville si sélectionnée (CORRECTION: utiliser villeId au lieu de String)
     if (jour.villeId) {
-      const ville = this.villes.find(v => v.id === jour.villeId);
-      if (ville) {
-        const villeNom = ville.nom.toLowerCase().trim();
-        disponibles = disponibles.filter(a =>
-          a.ville != null && a.ville.toLowerCase().trim() === villeNom
-        );
-      }
+      disponibles = disponibles.filter(a => a.villeId === jour.villeId);
     }
 
     return disponibles;
@@ -338,27 +332,38 @@ export class CircuitPersonnaliseComponent {
     this.isSubmitting = true;
     this.submitError = false;
 
-    const payload: Omit<DemandeCircuitPersonnalise, 'id' | 'dateCreation' | 'statut'> = {
-      client: {
-        nom: `${this.demande.prenom} ${this.demande.nom}`.trim(),
-        email: this.demande.email,
-        telephone: this.demande.telephone
-      },
-      nombrePersonnes: this.demande.nombrePersonnes,
+    // Construction du payload au format CircuitPersonnaliseDTO
+    const joursDTO: JourDTO[] = this.jours.map(jour => ({
+      numeroJour: jour.numero,
+      zoneId: jour.zoneId ?? undefined,
+      villeId: jour.villeId ?? undefined,
+      activiteIds: jour.activites,
+      descriptionJour: '' // Optionnel
+    }));
+
+    const payload: CircuitPersonnaliseDTO = {
+      // Client
+      nomClient: this.demande.nom,
+      prenomClient: this.demande.prenom,
+      emailClient: this.demande.email,
+      telephoneClient: this.demande.telephone,
+      messageClient: this.demande.message,
+      
+      // Paramètres
       nombreJours: this.demande.nombreJours,
-      zones: this.jours
-        .map(j => j.zoneId)
-        .filter((id): id is number => id != null)
-        .map(id => this.zones.find(z => z.idZone === id)?.nom || '')
-        .filter(n => !!n),
-      activites: this.jours
-        .flatMap(j => j.activites)
-        .map(id => this.activites.find(a => a.id === id)?.nom || '')
-        .filter(n => !!n),
+      nombrePersonnes: this.demande.nombrePersonnes,
+      
+      // Options
       avecHebergement: !!this.options.hebergement,
+      typeHebergement: this.options.hebergement || undefined,
       avecTransport: !!this.options.transport,
-      extras: this.buildExtrasFromOptionsAndMessage(),
-      prixEstime: this.calculerPrixTotal()
+      typeTransport: this.options.transport || undefined,
+      avecGuide: this.options.guide,
+      avecChauffeur: this.options.chauffeur,
+      pensionComplete: this.options.pensionComplete,
+      
+      // Jours
+      jours: joursDTO
     };
 
     this.circuitsPersonnalisesService.createDemande(payload).subscribe({

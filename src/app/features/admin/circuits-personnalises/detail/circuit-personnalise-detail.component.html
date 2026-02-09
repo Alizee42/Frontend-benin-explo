@@ -5,8 +5,8 @@
     <div class="detail-header">
       <button class="btn-back" (click)="goBack()">← Retour à la liste</button>
       <h1>Demande de circuit personnalisé #{{ demande.id }}</h1>
-      <div class="status-badge" [ngClass]="getStatusBadgeClass(demande.statut)">
-        {{ demande.statut }}
+      <div class="status-badge" [ngClass]="getStatusBadgeClass(demande.statut || 'EN_ATTENTE')">
+        {{ demande.statut || 'EN_ATTENTE' }}
       </div>
     </div>
 
@@ -17,19 +17,19 @@
         <div class="info-grid">
           <div class="info-item">
             <label>Nom :</label>
-            <span>{{ demande.client.nom }}</span>
+            <span>{{ demande.prenomClient }} {{ demande.nomClient }}</span>
           </div>
           <div class="info-item">
             <label>Email :</label>
-            <span>{{ demande.client.email }}</span>
+            <span>{{ demande.emailClient }}</span>
           </div>
           <div class="info-item">
             <label>Téléphone :</label>
-            <span>{{ demande.client.telephone }}</span>
+            <span>{{ demande.telephoneClient }}</span>
           </div>
           <div class="info-item">
             <label>Date de soumission :</label>
-            <span>{{ formatDate(demande.dateCreation) }}</span>
+            <span>{{ demande.dateCreation ? formatDate(demande.dateCreation) : 'N/A' }}</span>
           </div>
         </div>
       </div>
@@ -63,31 +63,22 @@
 
       <!-- Zones et activités -->
       <div class="info-section">
-        <h2>Zones et activités souhaitées</h2>
+        <h2>Jours du circuit</h2>
         <div class="zones-activites">
-          <div class="zones-section">
-            <h3>Zones géographiques :</h3>
-            <div class="tags">
-              <span class="tag" *ngFor="let zone of demande.zones">{{ zone }}</span>
-            </div>
-          </div>
-          <div class="activites-section">
-            <h3>Activités souhaitées :</h3>
-            <div class="tags">
-              <span class="tag" *ngFor="let activite of demande.activites">{{ activite }}</span>
-            </div>
-          </div>
-          <div class="extras-section" *ngIf="demande.extras && demande.extras.length > 0">
-            <h3>Extras demandés :</h3>
-            <div class="tags">
-              <span class="tag" *ngFor="let extra of demande.extras">{{ extra }}</span>
+          <div *ngFor="let jour of demande.jours" class="jour-section">
+            <h3>Jour {{ jour.numeroJour }}</h3>
+            <div *ngIf="jour.zoneNom"><strong>Zone :</strong> {{ jour.zoneNom }}</div>
+            <div *ngIf="jour.villeNom"><strong>Ville :</strong> {{ jour.villeNom }}</div>
+            <div *ngIf="jour.activiteNoms && jour.activiteNoms.length > 0">
+              <strong>Activités :</strong> 
+              <span class="tag" *ngFor="let activite of jour.activiteNoms">{{ activite }}</span>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Actions -->
-      <div class="actions-section" *ngIf="demande.statut === 'En attente'">
+      <div class="actions-section" *ngIf="demande.statut === 'EN_ATTENTE'">
         <h2>Actions</h2>
         <div class="action-buttons">
           <button class="btn-approve" (click)="approveDemande()">
@@ -102,9 +93,7 @@
       <div class="actions-section" *ngIf="demande.statut === 'Validé'">
         <h2>Actions supplémentaires</h2>
         <div class="action-buttons">
-          <button class="btn-convert" (click)="convertToCircuit()">
-            🔄 Convertir en circuit catalogue
-          </button>
+          <!-- TODO: Implémenter la conversion en circuit catalogue -->
         </div>
       </div>
     </div>

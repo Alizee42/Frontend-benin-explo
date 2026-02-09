@@ -16,6 +16,8 @@ export interface Activite {
   zone?: string;
   images?: string[];
   ville?: string;
+  villeId: number;
+  villeNom: string;
   // resolved main image URL (absolute or relative to backend)
   image?: string | null;
   // preview url for UI (not persisted)
@@ -112,6 +114,8 @@ export class ActivitesService {
       zone: undefined,
       images: undefined,
       ville: dto.ville ?? undefined,
+      villeId: dto.villeId ?? 0,
+      villeNom: dto.ville ?? '',
       // if backend provides a resolved image URL, use it (prefix backend host if relative)
       imagePrincipaleId: dto.imagePrincipaleId ?? null,
       image: (dto as any).imagePrincipaleUrl
