@@ -14,11 +14,16 @@
     <form (ngSubmit)="onSubmit()" #f="ngForm">
       <div class="form-section" *ngIf="currentStep === 1">
         <h3>Infos générales</h3>
+        <p class="hint">Les champs marqués d'un astérisque (*) sont obligatoires</p>
+        
         <label>Titre *</label>
-        <input type="text" [(ngModel)]="form.titre" name="titre" required />
+        <input type="text" [(ngModel)]="form.titre" name="titre" required placeholder="Exemple : Circuit des Palais Royaux" />
+
+        <label>Résumé (chapeau)</label>
+        <textarea [(ngModel)]="form.resume" name="resume" rows="2" placeholder="Court résumé accrocheur (optionnel)"></textarea>
 
         <label>Description *</label>
-        <textarea [(ngModel)]="form.description" name="description" rows="4" required></textarea>
+        <textarea [(ngModel)]="form.description" name="description" rows="4" required placeholder="Description détaillée du circuit"></textarea>
 
         <label>Durée indicative *</label>
         <div class="duration-row">
@@ -79,10 +84,18 @@
               <select 
                 [(ngModel)]="form.programme[i].villeId" 
                 name="ville-{{i}}"
-                (ngModelChange)="onDayVilleChange(form.programme[i])">
-                <option [ngValue]="null">Toutes les villes</option>
+                (ngModelChange)="onDayVilleChange(form.programme[i])"
+                [disabled]="form.programme[i].zoneId ? getVillesForZone(form.programme[i].zoneId).length === 0 : false">
+                <option [ngValue]="null">
+                  {{ form.programme[i].zoneId && getVillesForZone(form.programme[i].zoneId).length === 0 
+                    ? 'Aucune ville disponible pour cette zone' 
+                    : 'Toutes les villes' }}
+                </option>
                 <option *ngFor="let v of getVillesForZone(form.programme[i].zoneId)" [ngValue]="v.id">{{ v.nom }}</option>
               </select>
+              <small class="form-hint" *ngIf="form.programme[i].zoneId && getVillesForZone(form.programme[i].zoneId).length === 0">
+                ⚠️ Aucune ville n'est associée à cette zone. Veuillez ajouter des villes dans la gestion des villes.
+              </small>
             </div>
           </div>
 
@@ -104,7 +117,7 @@
             </div>
 
             <div class="activities-list" *ngIf="activites && activites.length">
-              <label class="activity-item" *ngFor="let a of getActivitiesForVille(form.programme[i].villeId, activityFilterText[i])">
+              <label class="activity-item" *ngFor="let a of getActivitiesForDay(form.programme[i], activityFilterText[i])">
                 <input
                   type="checkbox"
                   [checked]="isActivitySelected(i, a.id)"

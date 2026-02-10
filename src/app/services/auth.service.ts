@@ -31,7 +31,7 @@ export class AuthService {
       const mockResponse = {
         token: 'mock-admin-token',
         email: 'admin@beninexplo.com',
-        role: 'ADMIN',
+        role: 'ROLE_ADMIN',
         nom: 'Admin',
         prenom: 'Bénin'
       };
@@ -70,7 +70,7 @@ export class AuthService {
           this.userSubject.next(user);
 
           // Redirect based on role
-          if (response.role === 'ADMIN') {
+          if (response.role === 'ROLE_ADMIN') {
             this.router.navigate(['/admin/dashboard']);
           } else {
             this.router.navigate(['/']);
@@ -93,11 +93,40 @@ export class AuthService {
 
   isAdmin(): boolean {
     const user = this.userSubject.value;
-    return user?.role === 'ADMIN';
+    return user?.role === 'ROLE_ADMIN';
   }
 
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  getUserRole(): string | null {
+    const user = this.userSubject.value;
+    return user?.role || null;
+  }
+
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (!token) return true;
+
+    // TEMPORARY: Mock token is always valid
+    if (token === 'mock-admin-token') {
+      return false;
+    }
+
+    try {
+      // Décoder le JWT (format: header.payload.signature)
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const expiry = payload.exp;
+      
+      if (!expiry) return false; // Si pas d'expiration, considérer comme valide
+      
+      // Vérifier si le token est expiré (exp est en secondes)
+      return Date.now() >= expiry * 1000;
+    } catch (e) {
+      // Si erreur de décodage, considérer comme expiré
+      return true;
+    }
   }
 
   getUser(): User | null {

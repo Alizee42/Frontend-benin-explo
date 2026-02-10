@@ -20,16 +20,8 @@
               placeholder="Ex: Ouidah Tour - Porte du retour des esclaves"
             >
           </div>
-          <!-- Ligne compacte: Ville | Durée -->
+          <!-- Ligne compacte: Durée -->
           <div class="form-group compact-row full-width">
-            <div class="compact-item">
-              <label for="villeId">Ville *</label>
-              <select id="villeId" name="villeId" [(ngModel)]="circuit.villeId" required>
-                <option value="">Sélectionner une ville</option>
-                <option *ngFor="let ville of villes" [value]="ville.id">{{ ville.nom }} ({{ ville.zoneNom }})</option>
-              </select>
-            </div>
-
             <div class="compact-item">
               <label for="dureeIndicative">Durée indicative *</label>
               <select id="dureeIndicative" name="dureeIndicative" [(ngModel)]="circuit.dureeIndicative" required>
@@ -159,6 +151,29 @@
                 placeholder="Ex: Arrivée et installation"
               />
             </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Zone (optionnel)</label>
+                <select 
+                  [(ngModel)]="programmeDays[i].zoneId" 
+                  [name]="'zone-' + i"
+                  (ngModelChange)="onDayZoneChange(i)">
+                  <option [ngValue]="null">Toutes les zones</option>
+                  <option *ngFor="let z of zones" [ngValue]="z.idZone">{{ z.nom }}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Ville (optionnel)</label>
+                <select 
+                  [(ngModel)]="programmeDays[i].villeId" 
+                  [name]="'ville-' + i"
+                  (ngModelChange)="onDayVilleChange(i)">
+                  <option [ngValue]="null">Toutes les villes</option>
+                  <option *ngFor="let v of getVillesForZone(programmeDays[i].zoneId)" [ngValue]="v.id">{{ v.nom }}</option>
+                </select>
+              </div>
+            </div>
             <div class="form-group">
               <label>Description</label>
               <textarea
@@ -189,7 +204,7 @@
                 <div class="activities-controls">
                   <select (change)="addActivityToDay(i, $any($event.target).value); $any($event.target).value = ''">
                     <option value="">+ Ajouter une activité</option>
-                    <option *ngFor="let act of activites" [value]="act.id">{{ act.nom }}</option>
+                    <option *ngFor="let act of getActivitiesForDay(i)" [value]="act.id">{{ act.nom }}</option>
                   </select>
                 </div>
               </div>

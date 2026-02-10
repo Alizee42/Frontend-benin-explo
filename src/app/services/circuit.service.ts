@@ -33,18 +33,13 @@ export class CircuitService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  // Upload an image file to the backend uploads folder.
-  // Returns the backend JSON response: { filename: string, url: string }
-  uploadImage(file: File, folder?: string): Observable<{ filename: string; url: string }> {
-    const uploadUrl = '/api/images/upload';
+  // Upload an image file to the backend and create a media entry.
+  // Returns the backend MediaDTO: { id: number, url: string, type: string, description: string }
+  uploadImage(file: File, folder?: string): Observable<{ id: number; url: string; type: string; description: string }> {
+    const uploadUrl = '/api/media/upload';
     const form = new FormData();
     form.append('file', file, file.name);
-    if (folder) {
-      form.append('folder', folder);
-    }
-    return this.http.post<{ filename: string; url: string }>(uploadUrl, form)
-      .pipe(
-        tap(res => console.log('[CircuitService] uploadImage response:', res))
-      );
+    // Note: /api/media/upload doesn't support folder parameter, stores in uploads/ root
+    return this.http.post<{ id: number; url: string; type: string; description: string }>(uploadUrl, form);
   }
 }

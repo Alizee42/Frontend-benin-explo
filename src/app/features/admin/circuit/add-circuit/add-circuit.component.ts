@@ -1201,11 +1201,11 @@ export class AddCircuitComponent {
         // 1) uploader l'image principale
         if (!this.heroImageFile) throw new Error('Image principale manquante');
         const heroResp = await lastValueFrom(this.circuitService.uploadImage(this.heroImageFile, 'circuits/hero'));
-        // backend retourne { filename, url }
+        // backend retourne { id, url, type, description }
         this.circuit.img = heroResp.url;
 
         // 2) uploader la galerie en parallèle
-        const galerieResults: Array<{ filename: string; url: string }> = [];
+        const galerieResults: Array<{ url: string }> = [];
         const failedFiles: Array<{ name: string; error: any }> = [];
         for (const file of this.galerieFiles) {
           try {

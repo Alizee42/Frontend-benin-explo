@@ -61,7 +61,7 @@ export class ActivitesService {
       nom: activite.nom,
       description: activite.description,
       // map frontend names to backend DTO names
-      ville: (activite as any).ville ?? null,
+      villeId: activite.villeId ?? null,
       dureeInterne: dureeInterne,
       poids: (activite as any).prix ?? null,
       difficulte: (activite as any).type ?? null,
@@ -80,7 +80,7 @@ export class ActivitesService {
     const payload: any = {
       nom: activite.nom,
       description: activite.description,
-      ville: (activite as any).ville ?? null,
+      villeId: activite.villeId ?? null,
       dureeInterne: dureeInterne,
       poids: (activite as any).prix ?? null,
       difficulte: (activite as any).type ?? null,
@@ -113,9 +113,9 @@ export class ActivitesService {
       zoneId: dto.zoneId ?? 0,
       zone: undefined,
       images: undefined,
-      ville: dto.ville ?? undefined,
+      ville: dto.villeNom ?? undefined,
       villeId: dto.villeId ?? 0,
-      villeNom: dto.ville ?? '',
+      villeNom: dto.villeNom ?? '',
       // if backend provides a resolved image URL, use it (prefix backend host if relative)
       imagePrincipaleId: dto.imagePrincipaleId ?? null,
       image: (dto as any).imagePrincipaleUrl

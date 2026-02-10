@@ -25,7 +25,7 @@ export class ActivitesAdminComponent implements OnInit {
   // modal / form state
   showModal = false;
   isEditing = false;
-  currentActivite: Partial<Activite> = { id: 0, nom: '', description: '', prix: 0, duree: 1, type: 'Culture', zoneId: 0, ville: '', imagePrincipaleId: null };
+  currentActivite: Partial<Activite> = { id: 0, nom: '', description: '', prix: 0, duree: 1, type: 'Culture', zoneId: 0, villeId: 0, imagePrincipaleId: null };
   zones: ZoneDTO[] = [];
   villes: VilleDTO[] = [];
 
@@ -77,15 +77,8 @@ export class ActivitesAdminComponent implements OnInit {
         const EUR_TO_XOF = 655.957; // rate for conversion (1 EUR = 655.957 XOF)
         this.activites = acts.map(a => {
           const zoneName = this.zones.find(z => z.id === (a as any).zoneId)?.nom || '';
-          const villeName = (() => {
-            if (a.ville === undefined || a.ville === null) return '';
-            // if ville is an id, try resolve from villes list
-            if (typeof a.ville === 'number') {
-              const villeId = a.ville as number;
-              return this.villes.find(v => v.id === villeId)?.nom || '';
-            }
-            return (a.ville as any) || '';
-          })();
+          // Backend already provides villeNom
+          const villeName = a.villeNom || a.ville || '';
 
           // format duration: prefer exact minutes if available, otherwise use decimal hours
           const minutes = ((a as any).dureeMinutes != null) ? Number((a as any).dureeMinutes) : Math.round((Number((a as any).duree ?? 0) || 0) * 60);
@@ -173,17 +166,9 @@ export class ActivitesAdminComponent implements OnInit {
           const zoneName = this.zones.find(z => z.id === (updated as any).zoneId)?.nom || '';
           updated.zone = zoneName;
 
-          // Résoudre le nom de la ville
-          let villeName = '';
-          const updatedVille = (updated as any).ville;
-          if (updatedVille !== undefined && updatedVille !== null) {
-            if (typeof updatedVille === 'number') {
-              villeName = this.villes.find(v => v.id === updatedVille)?.nom || '';
-            } else {
-              villeName = updatedVille as string;
-            }
-          }
-          updated.ville = villeName;
+          // Backend already provides villeNom
+          updated.ville = updated.villeNom || updated.ville || '';
+          
           const EUR_TO_XOF = 655.957;
           const minutes = ((updated as any).dureeMinutes != null) ? Number((updated as any).dureeMinutes) : Math.round((Number((updated as any).duree ?? 0) || 0) * 60);
           const hh = Math.floor(minutes / 60);
@@ -236,19 +221,8 @@ export class ActivitesAdminComponent implements OnInit {
         next: (created) => {
           // Insérer directement l'activité créée dans la liste pour mise à jour instantanée
             const zoneName = this.zones.find(z => z.id === (created as any).zoneId)?.nom || '';
-            // résoudre le nom de la ville : backend peut renvoyer `ville` comme string ou id, ou rien
-            let villeName = '';
-            const createdVille = (created as any).ville;
-            if (createdVille !== undefined && createdVille !== null) {
-              if (typeof createdVille === 'number') {
-                villeName = this.villes.find(v => v.id === createdVille)?.nom || '';
-              } else {
-                villeName = createdVille as string;
-              }
-            } else if (this.currentActivite && this.currentActivite.ville) {
-              // fallback: utiliser la valeur sélectionnée dans le formulaire
-              villeName = this.currentActivite.ville as any as string;
-            }
+            // Backend already provides villeNom
+            const villeName = created.villeNom || created.ville || '';
 
             const createdWithZone: Activite = { ...(created as Activite), zone: zoneName, ville: villeName };
 

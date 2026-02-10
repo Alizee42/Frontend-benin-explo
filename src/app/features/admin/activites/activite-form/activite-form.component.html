@@ -10,9 +10,9 @@
   <div class="form-row three-cols">
     <div class="form-group col">
       <label>Ville</label>
-      <select [(ngModel)]="activite!.ville" name="ville">
-        <option [ngValue]="''">-- sélectionner --</option>
-        <option *ngFor="let v of villes" [ngValue]="v.nom">{{ v.nom }}</option>
+      <select [(ngModel)]="activite!.villeId" name="villeId">
+        <option [ngValue]="0">-- sélectionner --</option>
+        <option *ngFor="let v of villes" [ngValue]="v.id">{{ v.nom }}</option>
       </select>
     </div>
     <div class="form-group col">

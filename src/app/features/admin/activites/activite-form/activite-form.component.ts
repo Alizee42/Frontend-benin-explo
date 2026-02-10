@@ -73,29 +73,23 @@ export class ActiviteFormComponent {
     const fd = new FormData();
     fd.append('file', file);
 
-    // Upload the file first, then create a media entry and store both id and preview URL
-    this.http.post<any>('/api/images/upload', fd).subscribe({
-      next: (res) => {
-        // res expected: { filename, url }
-        let uploadedUrl: string | null = res?.url || res?.filename || null;
-        if (uploadedUrl && !uploadedUrl.startsWith('http') && !uploadedUrl.startsWith('/')) {
-          uploadedUrl = '/images/' + uploadedUrl;
+    // Upload file and create media entry in one request
+    this.http.post<any>('/api/media/upload', fd).subscribe({
+      next: (media) => {
+        // media: { id, url, type, description }
+        if (this.activite) {
+          (this.activite as any).imagePrincipaleId = media.id;
+          // store a preview url on the activite object for immediate UI preview
+          (this.activite as any).imagePreview = media.url || null;
         }
-        const media = { url: uploadedUrl, type: 'image', description: '' };
-        this.http.post<any>('/api/media', media).subscribe({
-          next: (m) => {
-            if (this.activite) {
-              (this.activite as any).imagePrincipaleId = m.id;
-              // store a preview url on the activite object for immediate UI preview
-              let preview = m.url || uploadedUrl || null;
-              (this.activite as any).imagePreview = preview;
-            }
-            this.uploading = false;
-          },
-          error: (err) => { this.uploadError = 'Erreur création média'; console.error(err); this.uploading = false; }
-        });
+        console.log('[ActiviteForm] Image uploaded successfully:', media);
+        this.uploading = false;
       },
-      error: (err) => { this.uploadError = 'Erreur upload image'; console.error(err); this.uploading = false; }
+      error: (err) => {
+        this.uploadError = 'Erreur upload image';
+        console.error('[ActiviteForm] Upload error:', err);
+        this.uploading = false;
+      }
     });
   }
 }

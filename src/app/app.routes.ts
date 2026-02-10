@@ -1,5 +1,4 @@
-import { Routes } from '@angular/router';
-
+import { Routes } from '@angular/router';import { authGuard } from './guards/auth.guard';
 export const routes: Routes = [
 
   /* PAGE D’ACCUEIL */
@@ -68,84 +67,96 @@ export const routes: Routes = [
   {
     path: 'admin/dashboard',
     loadComponent: () =>
-      import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent)
+      import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [authGuard]
   },
 
   /* ADMIN CIRCUITS MANAGEMENT */
   {
     path: 'admin/circuits',
     loadComponent: () =>
-      import('./features/admin/circuit/circuits-admin.component').then(m => m.CircuitsAdminComponent)
+      import('./features/admin/circuit/circuits-admin.component').then(m => m.CircuitsAdminComponent),
+    canActivate: [authGuard]
   },
 
   /* ADMIN ZONES */
   {
     path: 'admin/zones',
     loadComponent: () =>
-      import('./features/admin/zones/zones.component').then(m => m.ZonesComponent)
+      import('./features/admin/zones/zones.component').then(m => m.ZonesComponent),
+    canActivate: [authGuard]
   },
 
   /* ADMIN ACTIVITES */
   {
     path: 'admin/activites',
     loadComponent: () =>
-      import('./features/admin/activites/activites-admin.component').then(m => m.ActivitesAdminComponent)
+      import('./features/admin/activites/activites-admin.component').then(m => m.ActivitesAdminComponent),
+    canActivate: [authGuard]
   },
 
   /* ADMIN VILLES */
   {
     path: 'admin/villes',
     loadComponent: () =>
-      import('./features/admin/villes/villes.component').then(m => m.VillesComponent)
+      import('./features/admin/villes/villes.component').then(m => m.VillesComponent),
+    canActivate: [authGuard]
   },
 
   /* ADMIN HEBERGEMENTS */
   {
     path: 'admin/hebergements',
     loadComponent: () =>
-      import('./features/admin/hebergements/hebergements-admin.component').then(m => m.HebergementsAdminComponent)
+      import('./features/admin/hebergements/hebergements-admin.component').then(m => m.HebergementsAdminComponent),
+    canActivate: [authGuard]
   },
 
   /* ADMIN RESERVATIONS HEBERGEMENTS */
   {
     path: 'admin/reservations-hebergement',
     loadComponent: () =>
-      import('./features/admin/reservations-hebergement/reservations-hebergement-admin.component').then(m => m.ReservationsHebergementAdminComponent)
+      import('./features/admin/reservations-hebergement/reservations-hebergement-admin.component').then(m => m.ReservationsHebergementAdminComponent),
+    canActivate: [authGuard]
   },
 
   /* ADMIN ADD CIRCUIT */
   {
     path: 'admin/circuits/add-circuit',
     loadComponent: () =>
-      import('./features/admin/circuit/add-circuit-v2/add-circuit-v2.component').then(m => m.AddCircuitV2Component)
+      import('./features/admin/circuit/add-circuit-v2/add-circuit-v2.component').then(m => m.AddCircuitV2Component),
+    canActivate: [authGuard]
   },
 
   /* ADMIN EDIT CIRCUIT */
   {
     path: 'admin/circuits/edit-circuit/:id',
     loadComponent: () =>
-      import('./features/admin/circuit/edit-circuit/edit-circuit.component').then(m => m.EditCircuitComponent)
+      import('./features/admin/circuit/edit-circuit/edit-circuit.component').then(m => m.EditCircuitComponent),
+    canActivate: [authGuard]
   },
 
   /* ADMIN DETAIL CIRCUIT */
   {
     path: 'admin/circuits/detail/:id',
     loadComponent: () =>
-      import('./features/admin/circuit/circuit-details/circuit-details.component').then(m => m.CircuitDetailsComponent)
+      import('./features/admin/circuit/circuit-details/circuit-details.component').then(m => m.CircuitDetailsComponent),
+    canActivate: [authGuard]
   },
 
   /* ADMIN CIRCUITS PERSONNALISES */
   {
     path: 'admin/circuits-personnalises',
     loadComponent: () =>
-      import('./features/admin/circuits-personnalises/circuits-personnalises-admin.component').then(m => m.CircuitsPersonnalisesAdminComponent)
+      import('./features/admin/circuits-personnalises/circuits-personnalises-admin.component').then(m => m.CircuitsPersonnalisesAdminComponent),
+    canActivate: [authGuard]
   },
 
   /* ADMIN DETAIL CIRCUIT PERSONNALISE */
   {
     path: 'admin/circuits-personnalises/detail/:id',
     loadComponent: () =>
-      import('./features/admin/circuits-personnalises/detail/circuit-personnalise-detail.component').then(m => m.CircuitPersonnaliseDetailComponent)
+      import('./features/admin/circuits-personnalises/detail/circuit-personnalise-detail.component').then(m => m.CircuitPersonnaliseDetailComponent),
+    canActivate: [authGuard]
   },
 
 

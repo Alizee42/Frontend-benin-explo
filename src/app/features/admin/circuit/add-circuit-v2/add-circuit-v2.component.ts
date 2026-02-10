@@ -229,14 +229,22 @@ export class AddCircuitV2Component {
   // chargement données de référence
   private loadZones() {
     this.zonesService.getAll().subscribe({
-      next: zones => this.zones = zones,
+      next: zones => {
+        this.zones = zones;
+        console.log('Zones chargées:', zones);
+      },
       error: err => console.error('Erreur chargement zones', err)
     });
   }
 
   private loadVilles() {
     this.villesService.getAll().subscribe({
-      next: villes => this.villes = villes,
+      next: villes => {
+        this.villes = villes;
+        console.log('Villes chargées:', villes);
+        console.log('Villes avec zoneId:', villes.filter(v => v.zoneId).length);
+        console.log('Villes sans zoneId:', villes.filter(v => !v.zoneId).length);
+      },
       error: err => console.error('Erreur chargement villes', err)
     });
   }
@@ -262,17 +270,30 @@ export class AddCircuitV2Component {
 
   getVillesForZone(zoneId: number | null | undefined): VilleDTO[] {
     if (!zoneId) return this.villes;
-    return this.villes.filter(v => v.zoneId === zoneId);
+    const filtered = this.villes.filter(v => v.zoneId === zoneId);
+    console.log(`Villes filtrées pour zone ${zoneId}:`, filtered);
+    return filtered;
   }
 
-  getActivitiesForVille(villeId: number | null | undefined, filterText: string): Activite[] {
+  onMainZoneChange() {
+    // Réinitialiser la ville quand la zone change
+    this.form.villeId = null;
+  }
+
+  getActivitiesForDay(day: CircuitProgrammeDayForm, filterText: string): Activite[] {
     let acts = this.activites;
     
-    // CORRECTION: Filtrer par villeId au lieu de comparaison de strings
-    if (villeId) {
-      acts = acts.filter(a => a.villeId === villeId);
+    // 1. Filtrer par zone si sélectionnée
+    if (day.zoneId) {
+      acts = acts.filter(a => a.zoneId === day.zoneId);
     }
     
+    // 2. Filtrer par ville si sélectionnée (plus précis que la zone)
+    if (day.villeId) {
+      acts = acts.filter(a => a.villeId === day.villeId);
+    }
+    
+    // 3. Filtrer par texte de recherche
     if (filterText && filterText.trim()) {
       const lowerFilter = filterText.toLowerCase();
       acts = acts.filter(a =>
@@ -400,6 +421,10 @@ export class AddCircuitV2Component {
   }
 
   nextStep() {
+    // Valider l'étape actuelle avant de passer à la suivante
+    if (this.currentStep === 1 && !this.validateStep1()) {
+      return;
+    }
     if (this.currentStep < 4) this.currentStep++;
   }
 
@@ -407,24 +432,42 @@ export class AddCircuitV2Component {
     if (this.currentStep > 1) this.currentStep--;
   }
 
-  private basicValidate(): boolean {
-    return !!this.form.titre && !!this.form.description && !!this.form.dureeIndicative && !!this.form.prixIndicatif;
+  private validateStep1(): boolean {
+    const errors: string[] = [];
+    
+    if (!this.form.titre?.trim()) errors.push('Titre');
+    if (!this.form.description?.trim()) errors.push('Description');
+    if (!this.form.dureeIndicative?.trim()) errors.push('Durée');
+    if (!this.form.prixIndicatif || this.form.prixIndicatif <= 0) errors.push('Prix');
+    
+    if (errors.length > 0) {
+      alert(`Veuillez remplir les champs obligatoires : ${errors.join(', ')}`);
+      return false;
+    }
+    return true;
   }
 
   async onSubmit() {
-    if (!this.basicValidate()) {
-      alert('Merci de remplir au minimum titre, description, durée et prix.');
+    // Validation finale complète
+    if (!this.validateStep1()) {
       this.currentStep = 1;
       return;
     }
+    
     if (!this.heroImageFile) {
-      alert('Veuillez sélectionner une image principale.');
+      alert('Veuillez sélectionner une image principale (Hero).');
       this.currentStep = 3;
       return;
     }
     if (this.galerieFiles.length < 3 || this.galerieFiles.length > 10) {
       alert('Veuillez sélectionner entre 3 et 10 images pour la galerie.');
       this.currentStep = 3;
+      return;
+    }
+    
+    if (this.form.programme.length === 0) {
+      alert('Veuillez ajouter au moins un jour de programme.');
+      this.currentStep = 2;
       return;
     }
 
@@ -437,7 +480,7 @@ export class AddCircuitV2Component {
       const heroRes = await lastValueFrom(this.circuitService.uploadImage(this.heroImageFile, 'circuits/hero'));
       this.form.img = heroRes.url;
 
-      const galerieResults: { filename: string; url: string }[] = [];
+      const galerieResults: Array<{ url: string }> = [];
       for (const f of this.galerieFiles) {
         const r = await lastValueFrom(this.circuitService.uploadImage(f, 'circuits/galerie'));
         galerieResults.push(r);

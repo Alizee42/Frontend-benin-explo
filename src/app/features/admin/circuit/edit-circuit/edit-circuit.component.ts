@@ -190,6 +190,19 @@ export class EditCircuitComponent implements OnInit {
     });
   }
 
+  // Filtrage géographique
+  onZoneChange() {
+    // Réinitialiser la ville quand la zone change
+    this.circuit.villeId = null;
+  }
+
+  getFilteredVilles(): VilleDTO[] {
+    if (!this.circuit.zoneId) {
+      return this.villes;
+    }
+    return this.villes.filter(v => v.zoneId === this.circuit.zoneId);
+  }
+
   // Gestion des images
   onHeroImageSelected(event: any) {
     const file = event.target.files[0];
@@ -250,6 +263,51 @@ export class EditCircuitComponent implements OnInit {
       // Renumber days
       this.programmeDays.forEach((day, i) => day.day = i + 1);
     }
+  }
+
+  /**
+   * Retourne les villes filtrées par zone
+   */
+  getVillesForZone(zoneId: number | null | undefined): VilleDTO[] {
+    if (!zoneId) return this.villes;
+    return this.villes.filter(v => v.zoneId === zoneId);
+  }
+
+  /**
+   * Retourne les activités filtrées par zone et/ou ville du jour
+   */
+  getActivitiesForDay(dayIndex: number): Activite[] {
+    const day = this.programmeDays[dayIndex];
+    if (!day) return this.activites;
+
+    let acts = this.activites;
+    
+    // 1. Filtrer par zone si sélectionnée
+    if (day.zoneId) {
+      acts = acts.filter(a => a.zoneId === day.zoneId);
+    }
+    
+    // 2. Filtrer par ville si sélectionnée (plus précis que la zone)
+    if (day.villeId) {
+      acts = acts.filter(a => a.villeId === day.villeId);
+    }
+    
+    return acts;
+  }
+
+  /**
+   * Quand la zone change, réinitialiser ville et activités
+   */
+  onDayZoneChange(dayIndex: number) {
+    this.programmeDays[dayIndex].villeId = null;
+    this.programmeDays[dayIndex].activities = [];
+  }
+
+  /**
+   * Quand la ville change, réinitialiser les activités
+   */
+  onDayVilleChange(dayIndex: number) {
+    this.programmeDays[dayIndex].activities = [];
   }
 
   getActiviteName(actId: number): string {
@@ -355,31 +413,39 @@ export class EditCircuitComponent implements OnInit {
       });
     }
 
-    if (!this.circuit.titre || !this.circuit.resume || !this.circuit.description ||
-        !this.circuit.dureeIndicative || this.circuit.prixIndicatif == null || isNaN(Number(this.circuit.prixIndicatif)) || !this.circuit.localisation) {
-      alert('Veuillez remplir tous les champs obligatoires.');
+    if (!this.circuit.titre || !this.circuit.description ||
+        !this.circuit.dureeIndicative || this.circuit.prixIndicatif == null || 
+        isNaN(Number(this.circuit.prixIndicatif))) {
+      alert('Veuillez remplir tous les champs obligatoires (titre, description, durée, prix).');
       return;
     }
 
 
-    if (this.circuit.programme.some((jour: any) => !jour.description || !jour.description.toString().trim())) {
-      alert('Veuillez remplir tous les jours du programme.');
-      return;
+    // Filtrer les jours de programme vides (rendre optionnel)
+    if (this.circuit.programme && this.circuit.programme.length > 0) {
+      this.circuit.programme = this.circuit.programme.filter((jour: any) => 
+        jour.description && jour.description.toString().trim()
+      );
     }
 
-    if (this.circuit.pointsForts.some(point => !point.icon.trim() || !point.title.trim() || !point.desc.trim())) {
-      alert('Veuillez remplir tous les champs des points forts.');
-      return;
+    // Filtrer les points forts incomplets (rendre moins strict)
+    if (this.circuit.pointsForts && this.circuit.pointsForts.length > 0) {
+      this.circuit.pointsForts = this.circuit.pointsForts.filter(point => {
+        const icon = (point.icon || '').toString().trim();
+        const title = (point.title || '').toString().trim();
+        const desc = (point.desc || '').toString().trim();
+        // Garder seulement si au moins le titre est rempli
+        return title !== '';
+      });
     }
 
-    if (this.circuit.inclus.some(item => !item.trim())) {
-      alert('Veuillez remplir tous les éléments inclus.');
-      return;
+    // Filtrer les éléments vides dans inclus/non inclus
+    if (this.circuit.inclus) {
+      this.circuit.inclus = this.circuit.inclus.filter((item: string) => item && item.trim());
     }
 
-    if (this.circuit.nonInclus.some(item => !item.trim())) {
-      alert('Veuillez remplir tous les éléments non inclus.');
-      return;
+    if (this.circuit.nonInclus) {
+      this.circuit.nonInclus = this.circuit.nonInclus.filter((item: string) => item && item.trim());
     }
 
     this.isLoading = true;
@@ -394,7 +460,7 @@ export class EditCircuitComponent implements OnInit {
 
         // If new gallery files selected, upload them (sequential, resilient)
         if (this.galerieFiles && this.galerieFiles.length > 0) {
-          const galerieResults: Array<{ filename: string; url: string }> = [];
+          const galerieResults: Array<{ url: string }> = [];
           const failedFiles: Array<{ name: string; error: any }> = [];
           for (const file of this.galerieFiles) {
             try {
