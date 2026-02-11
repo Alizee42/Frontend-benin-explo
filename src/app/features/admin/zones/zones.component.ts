@@ -21,7 +21,7 @@ export class ZonesComponent implements OnInit {
   isEditing = false;
 
   currentZone: ZoneDTO = {
-    id: 0,
+    idZone: 0,
     nom: '',
     description: ''
   };
@@ -80,7 +80,7 @@ export class ZonesComponent implements OnInit {
   openAddModal(): void {
     this.isEditing = false;
     this.currentZone = {
-      id: 0,
+      idZone: 0,
       nom: '',
       description: ''
     };
@@ -99,7 +99,7 @@ export class ZonesComponent implements OnInit {
 
   saveZone(): void {
     if (this.isEditing) {
-      this.zonesService.update(this.currentZone.id, this.currentZone).subscribe({
+      this.zonesService.update(this.currentZone.idZone, this.currentZone).subscribe({
         next: () => {
           this.loadZones();
           this.closeModal();

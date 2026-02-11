@@ -367,7 +367,7 @@ export class AddCircuitComponent {
     // 1) Vérifier le cache d'abord (peut être rempli par loadZones ou fetch à la demande)
     if (this.zoneNameCache && this.zoneNameCache[zoneId]) return this.zoneNameCache[zoneId];
     // 2) Puis la liste complète des zones si chargée
-    const z = this.zones.find(x => x.id === zoneId);
+    const z = this.zones.find(x => x.idZone === zoneId);
     if (z && z.nom) {
       this.zoneNameCache[zoneId] = z.nom;
       return z.nom;
@@ -1021,7 +1021,7 @@ export class AddCircuitComponent {
   }
 
   trackByZoneId(index: number, zone: Zone): number {
-    return zone.id;
+    return zone.idZone;
   }
 
   // Validation par étape

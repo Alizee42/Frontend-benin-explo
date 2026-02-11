@@ -26,6 +26,10 @@ export interface Activite {
   imagePrincipaleId?: number | null;
   // display price string (EUR / XOF)
   prixDisplay?: string;
+  difficulte?: string | null;
+  dureeInterne?: number | null;
+  poids?: number | null;
+  imagePrincipaleUrl?: string | null;
 }
 
 @Injectable({

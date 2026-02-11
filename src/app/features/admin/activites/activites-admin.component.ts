@@ -76,7 +76,7 @@ export class ActivitesAdminComponent implements OnInit {
         // resolve zone name for each activity if zones already loaded
         const EUR_TO_XOF = 655.957; // rate for conversion (1 EUR = 655.957 XOF)
         this.activites = acts.map(a => {
-          const zoneName = this.zones.find(z => z.id === (a as any).zoneId)?.nom || '';
+          const zoneName = this.zones.find(z => z.idZone === (a as any).zoneId)?.nom || '';
           // Backend already provides villeNom
           const villeName = a.villeNom || a.ville || '';
 
@@ -163,7 +163,7 @@ export class ActivitesAdminComponent implements OnInit {
         next: (resp) => {
           // Recalculer dureeDisplay et prixDisplay pour l'activité mise à jour sans reload complet
           const updated = resp as Activite;
-          const zoneName = this.zones.find(z => z.id === (updated as any).zoneId)?.nom || '';
+          const zoneName = this.zones.find(z => z.idZone === (updated as any).zoneId)?.nom || '';
           updated.zone = zoneName;
 
           // Backend already provides villeNom
@@ -220,7 +220,7 @@ export class ActivitesAdminComponent implements OnInit {
       this.activitesService.createActivite(payload).subscribe({
         next: (created) => {
           // Insérer directement l'activité créée dans la liste pour mise à jour instantanée
-            const zoneName = this.zones.find(z => z.id === (created as any).zoneId)?.nom || '';
+            const zoneName = this.zones.find(z => z.idZone === (created as any).zoneId)?.nom || '';
             // Backend already provides villeNom
             const villeName = created.villeNom || created.ville || '';
 

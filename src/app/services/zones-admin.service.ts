@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface ZoneDTO {
-  id: number;
+  idZone: number;
   nom: string;
   description: string;
 }

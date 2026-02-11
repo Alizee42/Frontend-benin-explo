@@ -6,9 +6,10 @@ import { HeaderComponent } from '../../../../shared/components/header/header.com
 import { BeButtonComponent } from '../../../../shared/components/be-button/be-button.component';
 import { CircuitService } from '../../../../services/circuit.service';
 import { ActivitesService, Activite } from '../../../../services/activites.service';
-import { ZonesAdminService, ZoneDTO as Zone } from '../../../../services/zones-admin.service';
-import { VillesService, VilleDTO } from '../../../../services/villes.service';
+import { ZoneDTO } from '../../../../services/zones-admin.service';
+import { VilleDTO } from '../../../../services/villes.service';
 import { CircuitForm, CircuitProgrammeDayForm, CircuitPointFortForm } from '../../../../models/circuit-form.model';
+import { CircuitFormCacheService } from '../../../../services/circuit-form-cache.service';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
@@ -85,28 +86,28 @@ export class AddCircuitV2Component {
     return Object.keys(this.durationToDays);
   }
 
-  zones: Zone[] = [];
+  zones: ZoneDTO[] = [];
   villes: VilleDTO[] = [];
   activites: Activite[] = [];
 
-  // filtres simples par jour
-  activityFilterText: string[] = [];
+  // États de chargement pour meilleure UX
+  loadingZones = false;
+  loadingVilles = false;
+  loadingActivites = false;
 
   constructor(
     private circuitService: CircuitService,
-    private zonesService: ZonesAdminService,
-    private villesService: VillesService,
+    private formCacheService: CircuitFormCacheService,
     private activitesService: ActivitesService,
     private router: Router
   ) {}
 
   ngOnInit() {
-    // initialiser un jour de programme par défaut
+    // Initialiser un jour de programme par défaut
     this.form.programme = [this.createEmptyDay(1)];
-    this.activityFilterText = [''];
+    
+    // Charger uniquement les zones au démarrage (lazy loading)
     this.loadZones();
-    this.loadVilles();
-    this.loadActivites();
   }
 
   private createEmptyDay(day: number): CircuitProgrammeDayForm {
@@ -134,17 +135,14 @@ export class AddCircuitV2Component {
     if (current < days) {
       for (let i = current + 1; i <= days; i++) {
         this.form.programme.push(this.createEmptyDay(i));
-        this.activityFilterText.push('');
       }
     } else if (current > days) {
       this.form.programme = this.form.programme.slice(0, days);
-      this.activityFilterText = this.activityFilterText.slice(0, days);
     }
 
     this.form.programme.forEach((d, i) => d.day = i + 1);
   }
 
-  // Optionnel : si on tape "3 jours" à la main, on peut recaler
   onDurationTextChange(value: string) {
     this.form.dureeIndicative = value;
 
@@ -162,11 +160,9 @@ export class AddCircuitV2Component {
     if (current < days) {
       for (let i = current + 1; i <= days; i++) {
         this.form.programme.push(this.createEmptyDay(i));
-        this.activityFilterText.push('');
       }
     } else if (current > days) {
       this.form.programme = this.form.programme.slice(0, days);
-      this.activityFilterText = this.activityFilterText.slice(0, days);
     }
 
     this.form.programme.forEach((d, i) => d.day = i + 1);
@@ -175,14 +171,12 @@ export class AddCircuitV2Component {
   addDay() {
     const next = this.form.programme.length + 1;
     this.form.programme.push(this.createEmptyDay(next));
-    this.activityFilterText.push('');
   }
 
   removeDay(index: number) {
     if (this.form.programme.length <= 1) return;
     this.form.programme.splice(index, 1);
     this.form.programme.forEach((d, i) => d.day = i + 1);
-    this.activityFilterText.splice(index, 1);
   }
 
   addPointFort() {
@@ -226,83 +220,120 @@ export class AddCircuitV2Component {
     this.form.nonInclus.splice(index, 1);
   }
 
-  // chargement données de référence
+  // ===============================================
+  // CHARGEMENT DES DONNÉES AVEC CACHE (OPTIMISÉ)
+  // ===============================================
+
+  /**
+   * Charge les zones (avec cache)
+   * Appelé une seule fois au démarrage
+   */
   private loadZones() {
-    this.zonesService.getAll().subscribe({
+    this.loadingZones = true;
+    this.formCacheService.getZones().subscribe({
       next: zones => {
         this.zones = zones;
-        console.log('Zones chargées:', zones);
+        this.loadingZones = false;
       },
-      error: err => console.error('Erreur chargement zones', err)
+      error: err => {
+        console.error('Erreur chargement zones', err);
+        this.loadingZones = false;
+      }
     });
   }
 
-  private loadVilles() {
-    this.villesService.getAll().subscribe({
-      next: villes => {
+  /**
+   * Charge les villes pour une zone spécifique (lazy loading + cache)
+   * Appelé uniquement quand l'utilisateur sélectionne une zone
+   */
+  onMainZoneChange() {
+    // Réinitialiser la ville principale quand la zone change
+    this.form.villeId = null;
+    
+    if (!this.form.zoneId) {
+      this.villes = [];
+      this.activites = [];
+      return;
+    }
+
+    // Lazy loading : charger villes et activités seulement maintenant
+    this.loadingVilles = true;
+    this.loadingActivites = true;
+
+    this.formCacheService.preloadZoneData(this.form.zoneId).subscribe({
+      next: ({ villes, activites }) => {
         this.villes = villes;
-        console.log('Villes chargées:', villes);
-        console.log('Villes avec zoneId:', villes.filter(v => v.zoneId).length);
-        console.log('Villes sans zoneId:', villes.filter(v => !v.zoneId).length);
+        this.activites = activites;
+        this.loadingVilles = false;
+        this.loadingActivites = false;
       },
-      error: err => console.error('Erreur chargement villes', err)
+      error: err => {
+        console.error('Erreur chargement données zone', err);
+        this.loadingVilles = false;
+        this.loadingActivites = false;
+      }
     });
   }
 
-  private loadActivites() {
-    this.activitesService.getAllActivites().subscribe({
-      next: acts => this.activites = acts,
-      error: err => console.error('Erreur chargement activités', err)
-    });
+  /**
+   * Retourne les villes filtrées pour la zone principale
+   */
+  getVillesForMainZone(): VilleDTO[] {
+    if (!this.form.zoneId) return [];
+    return this.villes.filter(v => v.zoneId === this.form.zoneId);
   }
 
-  onInclusChange(index: number, value: string) {
-    this.form.inclus[index] = value;
-  }
+  // ===============================================
+  // GESTION DES ACTIVITÉS (SIMPLIFIÉE)
+  // ===============================================
 
-  onNonInclusChange(index: number, value: string) {
-    this.form.nonInclus[index] = value;
-  }
-
-  trackByIndex(index: number, item: any): number {
-    return index;
-  }
-
+  /**
+   * Retourne les villes disponibles pour un jour donné
+   * Filtrées par la zone du jour si sélectionnée
+   */
   getVillesForZone(zoneId: number | null | undefined): VilleDTO[] {
     if (!zoneId) return this.villes;
-    const filtered = this.villes.filter(v => v.zoneId === zoneId);
-    console.log(`Villes filtrées pour zone ${zoneId}:`, filtered);
-    return filtered;
+    return this.villes.filter(v => v.zoneId === zoneId);
   }
 
-  onMainZoneChange() {
-    // Réinitialiser la ville quand la zone change
-    this.form.villeId = null;
-  }
+  /**
+   * Retourne les activités disponibles pour un jour
+   * Filtrées par zone puis ville, optimisé avec le cache
+   */
+  getActivitesDisponibles(day: CircuitProgrammeDayForm): Activite[] {
+    let disponibles = this.activites;
 
-  getActivitiesForDay(day: CircuitProgrammeDayForm, filterText: string): Activite[] {
-    let acts = this.activites;
-    
-    // 1. Filtrer par zone si sélectionnée
+    // Filtrer par zone du jour
     if (day.zoneId) {
-      acts = acts.filter(a => a.zoneId === day.zoneId);
+      disponibles = disponibles.filter(a => a.zoneId === day.zoneId);
     }
-    
-    // 2. Filtrer par ville si sélectionnée (plus précis que la zone)
+
+    // Filtrer par ville du jour (plus précis)
     if (day.villeId) {
-      acts = acts.filter(a => a.villeId === day.villeId);
+      disponibles = disponibles.filter(a => a.villeId === day.villeId);
     }
-    
-    // 3. Filtrer par texte de recherche
-    if (filterText && filterText.trim()) {
-      const lowerFilter = filterText.toLowerCase();
-      acts = acts.filter(a =>
-        a.nom.toLowerCase().includes(lowerFilter) ||
-        (a.description && a.description.toLowerCase().includes(lowerFilter))
-      );
-    }
-    return acts;
+
+    return disponibles;
   }
+
+  /**
+   * Quand la zone d'un jour change, réinitialiser ville et activités
+   */
+  onDayZoneChange(day: CircuitProgrammeDayForm) {
+    day.villeId = null;
+    day.activities = [];
+  }
+
+  /**
+   * Quand la ville d'un jour change, réinitialiser les activités
+   */
+  onDayVilleChange(day: CircuitProgrammeDayForm) {
+    day.activities = [];
+  }
+
+  // ===============================================
+  // GESTION DES IMAGES
+  // ===============================================
 
   onHeroImageSelected(event: any) {
     const file = event.target.files[0];
@@ -337,6 +368,10 @@ export class AddCircuitV2Component {
     });
   }
 
+  // ===============================================
+  // GESTION DES ACTIVITÉS DANS LE PROGRAMME
+  // ===============================================
+
   toggleActivity(dayIndex: number, activityId: number, checked: boolean) {
     const day = this.form.programme[dayIndex];
     if (!day) return;
@@ -353,59 +388,25 @@ export class AddCircuitV2Component {
     return !!day && !!day.activities && day.activities.includes(activityId);
   }
 
-  /**
-   * Filtre géographique intelligent pour les activités
-   * Empêche de sélectionner des activités trop éloignées
-   */
-  getActivitesDisponibles(day: CircuitProgrammeDayForm): Activite[] {
-    let disponibles = this.activites;
+  // ===============================================
+  // HELPERS
+  // ===============================================
 
-    // 1. Filtrer par zone du jour
-    if (day.zoneId) {
-      disponibles = disponibles.filter(a => a.zoneId === day.zoneId);
-    }
-
-    // 2. Filtrer par ville du jour (encore plus précis)
-    if (day.villeId) {
-      disponibles = disponibles.filter(a => a.villeId === day.villeId);
-    }
-
-    // 3. Filtrer par texte de recherche
-    const filter = this.activityFilterText[day.day - 1]?.toLowerCase().trim();
-    if (filter) {
-      disponibles = disponibles.filter(a =>
-        a.nom.toLowerCase().includes(filter) ||
-        (a.description && a.description.toLowerCase().includes(filter))
-      );
-    }
-
-    return disponibles;
+  onInclusChange(index: number, value: string) {
+    this.form.inclus[index] = value;
   }
 
-  /**
-   * Récupère les villes filtrées par zone pour un jour donné
-   */
-  getVillesForDay(day: CircuitProgrammeDayForm): VilleDTO[] {
-    if (!day.zoneId) {
-      return this.villes;
-    }
-    return this.villes.filter(v => v.zoneId === day.zoneId);
+  onNonInclusChange(index: number, value: string) {
+    this.form.nonInclus[index] = value;
   }
 
-  /**
-   * Quand la zone change, réinitialiser ville et activités
-   */
-  onDayZoneChange(day: CircuitProgrammeDayForm) {
-    day.villeId = null;
-    day.activities = [];
+  trackByIndex(index: number, item: any): number {
+    return index;
   }
 
-  /**
-   * Quand la ville change, réinitialiser les activités
-   */
-  onDayVilleChange(day: CircuitProgrammeDayForm) {
-    day.activities = [];
-  }
+  // ===============================================
+  // NAVIGATION ET VALIDATION
+  // ===============================================
 
   displayConvertedPrice(): string {
     if (this.form.prixIndicatif == null || isNaN(Number(this.form.prixIndicatif))) return '';
@@ -421,10 +422,6 @@ export class AddCircuitV2Component {
   }
 
   nextStep() {
-    // Valider l'étape actuelle avant de passer à la suivante
-    if (this.currentStep === 1 && !this.validateStep1()) {
-      return;
-    }
     if (this.currentStep < 4) this.currentStep++;
   }
 
@@ -432,30 +429,43 @@ export class AddCircuitV2Component {
     if (this.currentStep > 1) this.currentStep--;
   }
 
-  private validateStep1(): boolean {
-    const errors: string[] = [];
-    
-    if (!this.form.titre?.trim()) errors.push('Titre');
-    if (!this.form.description?.trim()) errors.push('Description');
-    if (!this.form.dureeIndicative?.trim()) errors.push('Durée');
-    if (!this.form.prixIndicatif || this.form.prixIndicatif <= 0) errors.push('Prix');
-    
-    if (errors.length > 0) {
-      alert(`Veuillez remplir les champs obligatoires : ${errors.join(', ')}`);
+  private basicValidate(): boolean {
+    if (!this.form.titre?.trim()) {
+      alert('Le titre est obligatoire');
+      return false;
+    }
+    if (!this.form.description?.trim()) {
+      alert('La description est obligatoire');
+      return false;
+    }
+    if (!this.form.dureeIndicative?.trim()) {
+      alert('La durée est obligatoire');
+      return false;
+    }
+    if (!this.form.prixIndicatif || this.form.prixIndicatif <= 0) {
+      alert('Le prix doit être supérieur à 0');
+      return false;
+    }
+    if (!this.form.zoneId) {
+      alert('La zone principale est obligatoire');
+      return false;
+    }
+    if (!this.form.villeId) {
+      alert('La ville principale est obligatoire');
       return false;
     }
     return true;
   }
 
   async onSubmit() {
-    // Validation finale complète
-    if (!this.validateStep1()) {
+    // Validation complète
+    if (!this.basicValidate()) {
       this.currentStep = 1;
       return;
     }
     
     if (!this.heroImageFile) {
-      alert('Veuillez sélectionner une image principale (Hero).');
+      alert('Veuillez sélectionner une image principale.');
       this.currentStep = 3;
       return;
     }
@@ -464,15 +474,10 @@ export class AddCircuitV2Component {
       this.currentStep = 3;
       return;
     }
-    
-    if (this.form.programme.length === 0) {
-      alert('Veuillez ajouter au moins un jour de programme.');
-      this.currentStep = 2;
-      return;
-    }
 
     this.isLoading = true;
     try {
+      // Conversion du prix si saisi en XOF
       if (this.saisirEnCFA) {
         this.form.prixIndicatif = Number(this.form.prixIndicatif) / this.RATE_XOF_PER_EUR;
       }
@@ -480,7 +485,7 @@ export class AddCircuitV2Component {
       const heroRes = await lastValueFrom(this.circuitService.uploadImage(this.heroImageFile, 'circuits/hero'));
       this.form.img = heroRes.url;
 
-      const galerieResults: Array<{ url: string }> = [];
+      const galerieResults: { id: number; url: string; type: string; description: string }[] = [];
       for (const f of this.galerieFiles) {
         const r = await lastValueFrom(this.circuitService.uploadImage(f, 'circuits/galerie'));
         galerieResults.push(r);
