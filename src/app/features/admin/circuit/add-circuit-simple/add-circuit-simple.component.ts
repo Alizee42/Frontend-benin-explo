@@ -90,6 +90,8 @@ export class AddCircuitSimpleComponent implements OnInit {
   
   currentStep = 1;
   totalSteps = 3;
+  activeDayIndex = 0;
+  step3Section: 'programme' | 'highlights' | 'inclusions' = 'programme';
   
   // Prévisualisations images
   previewHero: string | null = null;
@@ -239,6 +241,39 @@ export class AddCircuitSimpleComponent implements OnInit {
       // Retirer des jours
       this.circuit.programme = this.circuit.programme.slice(0, duree);
     }
+
+    // Garder un index valide pour la navigation jour par jour
+    if (this.activeDayIndex >= this.circuit.programme.length) {
+      this.activeDayIndex = Math.max(0, this.circuit.programme.length - 1);
+    }
+  }
+
+  selectDay(index: number) {
+    if (index >= 0 && index < this.circuit.programme.length) {
+      this.activeDayIndex = index;
+    }
+  }
+
+  goPrevDay() {
+    this.selectDay(this.activeDayIndex - 1);
+  }
+
+  goNextDay() {
+    this.selectDay(this.activeDayIndex + 1);
+  }
+
+  setStep3Section(section: 'programme' | 'highlights' | 'inclusions') {
+    this.step3Section = section;
+  }
+
+  getDayCompletion(index: number): number {
+    const jour = this.circuit.programme[index];
+    if (!jour) return 0;
+    let score = 0;
+    if (jour.zoneId) score++;
+    if (jour.villeId) score++;
+    if (jour.description.trim()) score++;
+    return score;
   }
 
   toggleActivite(jourIndex: number, activiteId: number) {

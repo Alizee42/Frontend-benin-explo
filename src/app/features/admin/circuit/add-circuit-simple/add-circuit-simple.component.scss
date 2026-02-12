@@ -785,7 +785,16 @@
       gap: 0.75rem;
 
       .inclusion-icon {
-        font-size: 1.5rem;
+        width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        font-weight: 700;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        background: rgba(255, 255, 255, 0.7);
         flex-shrink: 0;
       }
 
@@ -819,8 +828,10 @@
       }
 
       .item-bullet {
-        color: #666;
-        font-weight: bold;
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: #8a8a8a;
         flex-shrink: 0;
       }
 
@@ -915,6 +926,99 @@
   }
 }
 
+/* Stepper refresh */
+.steps-indicator {
+  margin-bottom: 2rem;
+  padding: 0.9rem;
+  border: 1px solid #dbe4ea;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fbfdff 0%, #f4f8fc 100%);
+}
+
+.steps-indicator::before {
+  display: none;
+}
+
+.steps-indicator .step-item {
+  gap: 0.5rem;
+  padding: 0.25rem;
+}
+
+.steps-indicator .step-item:hover {
+  transform: translateY(-1px);
+}
+
+.steps-indicator .step-item .step-circle {
+  width: 42px;
+  height: 42px;
+  border: 2px solid #cfd8e2;
+  background: #f8fafc;
+  color: #495564;
+  box-shadow: none;
+}
+
+.steps-indicator .step-item .step-circle::before {
+  display: none;
+}
+
+.steps-indicator .step-item .step-icon {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.steps-indicator .step-item .step-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #607082;
+}
+
+.steps-indicator .step-item.active .step-circle {
+  background: var(--be-green);
+  border-color: var(--be-green);
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(34, 139, 34, 0.2);
+  transform: none;
+}
+
+.steps-indicator .step-item.active .step-label {
+  color: #1f4d2a;
+  transform: none;
+}
+
+.steps-indicator .step-item.completed .step-circle {
+  background: #2f7a3f;
+  border-color: #2f7a3f;
+  color: #fff;
+}
+
+.steps-indicator .step-item.completed .step-label {
+  color: #22522e;
+}
+
+.steps-indicator .step-item.completed .step-icon::after {
+  display: none;
+}
+
+.steps-indicator .step-item.current .step-circle {
+  animation: none;
+}
+
+.steps-indicator .step-divider {
+  height: 3px;
+  margin: 0 0.85rem;
+  border-radius: 999px;
+  background: #dce3ea;
+  box-shadow: none;
+}
+
+.steps-indicator .step-divider.completed {
+  background: linear-gradient(90deg, #2f7a3f 0%, #4f9f5e 100%);
+  transform: none;
+  box-shadow: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .circuit-form-container {
@@ -967,18 +1071,365 @@
   }
 
   .steps-indicator {
+    padding: 0.65rem;
+
     .step-item .step-circle {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       font-size: 0.875rem;
     }
 
     .step-item .step-label {
-      display: none;
+      display: block;
+      font-size: 0.72rem;
     }
 
     .step-divider {
       max-width: 30px;
     }
   }
+}
+
+/* Visual refresh */
+.circuit-form-container {
+  position: relative;
+  max-width: 980px;
+  padding: 1.25rem 0.75rem 2rem;
+}
+
+.circuit-form-container .progress-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(12, 36, 31, 0.14);
+  box-shadow: inset 0 1px 2px rgba(12, 36, 31, 0.14);
+}
+
+.circuit-form-container .progress-bar .progress-fill {
+  background: linear-gradient(90deg, #157a57 0%, #2b9a6f 52%, #d6b170 100%);
+  box-shadow: 0 0 14px rgba(43, 154, 111, 0.35);
+}
+
+.circuit-form-container .form-card {
+  border: 1px solid #e6dac3;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(251, 247, 239, 0.96) 100%);
+  box-shadow:
+    0 22px 38px rgba(38, 33, 24, 0.12),
+    0 7px 12px rgba(38, 33, 24, 0.06);
+  backdrop-filter: blur(5px);
+}
+
+.circuit-form-container .form-title {
+  margin-bottom: 1.8rem;
+  letter-spacing: 0.01em;
+}
+
+.circuit-form-container .step-content {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(249, 244, 233, 0.86) 100%);
+  border: 1px solid #e5d9c2;
+  border-radius: 16px;
+  padding: 1.2rem 1.2rem 1rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.circuit-form-container .step-content h2 {
+  margin: 0 0 1.1rem;
+  padding-left: 0.7rem;
+  border-left: 4px solid var(--be-green);
+}
+
+.circuit-form-container .form-group label {
+  color: var(--be-brown);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.circuit-form-container .form-group input,
+.circuit-form-container .form-group select,
+.circuit-form-container .form-group textarea {
+  border: 1px solid #d8ccb8;
+  border-radius: 12px;
+  background: #fffdf9;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 1px 2px rgba(19, 44, 59, 0.03);
+}
+
+.circuit-form-container .form-group input:hover,
+.circuit-form-container .form-group select:hover,
+.circuit-form-container .form-group textarea:hover {
+  border-color: #c2ad8a;
+}
+
+.circuit-form-container .form-group input:focus,
+.circuit-form-container .form-group select:focus,
+.circuit-form-container .form-group textarea:focus {
+  border-color: var(--be-green);
+  box-shadow: 0 0 0 4px rgba(0, 77, 64, 0.12);
+}
+
+.circuit-form-container .file-upload-area {
+  border: 2px dashed #bda982;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fffaf0 0%, #f6efe3 100%);
+}
+
+.circuit-form-container .file-upload-area:hover {
+  border-color: var(--be-green);
+  background: linear-gradient(135deg, #fff5df 0%, #f3ebde 100%);
+}
+
+.circuit-form-container .preview-grid .preview-thumb {
+  border-radius: 10px;
+  border: 1px solid #c9dbe8;
+  box-shadow: 0 8px 18px rgba(24, 55, 79, 0.13);
+}
+
+.circuit-form-container .programme-section .jour-card,
+.circuit-form-container .highlight-card,
+.circuit-form-container .inclusion-card {
+  border-radius: 14px;
+  border: 1px solid #e6d9c4;
+  background: linear-gradient(180deg, #ffffff 0%, #fbf7ee 100%);
+  box-shadow: 0 10px 20px rgba(46, 35, 22, 0.08);
+}
+
+.circuit-form-container .programme-section .jour-card:hover,
+.circuit-form-container .highlight-card:hover,
+.circuit-form-container .inclusion-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(46, 35, 22, 0.11);
+}
+
+.circuit-form-container .activites-selection .activite-item {
+  border: 1px solid #e4d8c2;
+  border-radius: 10px;
+}
+
+.circuit-form-container .activites-selection .activite-item:hover {
+  border-color: var(--be-green);
+  background: linear-gradient(135deg, #fffaf0 0%, #f8f3e9 100%);
+}
+
+.circuit-form-container .form-actions {
+  border-top: none;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+}
+
+.step3-tabs {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+}
+
+.step3-tab {
+  border: 1px solid #d6c9b0;
+  background: #fff9ef;
+  color: var(--be-brown);
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.step3-tab.open {
+  background: var(--be-green);
+  border-color: var(--be-green);
+  color: #fff;
+}
+
+.step3-panel {
+  border: 1px solid #e3d7c0;
+  border-radius: 14px;
+  padding: 0.85rem;
+  background: #fffdf8;
+}
+
+.programme-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.day-nav-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.day-nav-btn {
+  border: 1px solid #ccb997;
+  background: #fff8ea;
+  color: var(--be-brown);
+  border-radius: 8px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.day-nav-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.day-nav-current {
+  font-size: 0.8rem;
+  color: var(--be-brown);
+  font-weight: 600;
+}
+
+.day-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.7rem;
+}
+
+.day-pill {
+  border: 1px solid #d6c9b0;
+  background: #fffaf2;
+  color: var(--be-brown);
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.day-pill.active {
+  background: var(--be-green);
+  border-color: var(--be-green);
+  color: #fff;
+}
+
+.day-pill.complete {
+  border-color: var(--be-gold);
+  box-shadow: inset 0 0 0 1px rgba(201, 168, 106, 0.2);
+}
+
+/* Zone/Ville sur la meme ligne dans l'etape 3 */
+.step3-panel .jour-location {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+  align-items: end;
+  margin-bottom: 0.7rem;
+}
+
+.circuit-form-container .form-actions be-button {
+  display: inline-flex;
+}
+
+@media (max-width: 768px) {
+  .circuit-form-container .step-content {
+    padding: 0.95rem 0.9rem 0.85rem;
+  }
+
+  .circuit-form-container .form-card {
+    border-radius: 16px;
+  }
+
+  .circuit-form-container .form-actions {
+    margin: 1rem 0 0;
+    padding: 0;
+  }
+
+  .step3-tabs {
+    gap: 0.45rem;
+  }
+
+  .step3-tab {
+    font-size: 0.78rem;
+    padding: 0.38rem 0.72rem;
+  }
+
+  .programme-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .step3-panel .jour-location {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .step3-panel .jour-location {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Flat theme requested */
+.circuit-form-container::before {
+  background: var(--be-sand);
+}
+
+.circuit-form-container .form-card {
+  background: var(--be-light);
+}
+
+.circuit-form-container .step-content {
+  background: #fbf8f2;
+}
+
+.circuit-form-container .step3-panel {
+  background: #fffaf1;
+}
+
+.circuit-form-container .file-upload-area {
+  background: #fffaf1;
+}
+
+.circuit-form-container .programme-section .jour-card,
+.circuit-form-container .highlight-card,
+.circuit-form-container .inclusion-card,
+.circuit-form-container .activites-selection .activite-item,
+.circuit-form-container .form-actions {
+  background: var(--be-light);
+}
+
+.circuit-form-container .progress-bar {
+  display: none;
+}
+
+/* Neutralize inclusions colors (no semantic green/orange blocks) */
+.inclusions-section .inclusion-card.included,
+.inclusions-section .inclusion-card.not-included {
+  border-color: #ddd6c8;
+  background: #fffdf9;
+}
+
+.inclusions-section .inclusion-card.included .inclusion-header,
+.inclusions-section .inclusion-card.not-included .inclusion-header {
+  background: #f4efe4;
+  color: var(--be-brown);
+  border-bottom: 1px solid #e2d8c5;
+}
+
+.inclusions-section .inclusion-card .inclusion-item {
+  background: #f8f4ea;
+}
+
+.inclusions-section .inclusion-card .inclusion-item:hover {
+  background: #f1eadb;
+}
+
+/* Boutons d'actions sans ombre */
+:host ::ng-deep .form-actions .be-btn,
+:host ::ng-deep .form-actions .be-btn:not(:disabled):hover {
+  box-shadow: none !important;
+}
+
+:host ::ng-deep .form-actions .be-btn-ghost {
+  background: #f3eee2 !important;
+  color: var(--be-brown) !important;
+  border: 1px solid #d7cab0 !important;
 }

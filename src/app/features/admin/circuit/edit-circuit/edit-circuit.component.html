@@ -1,4 +1,4 @@
-<app-header mode="compact"></app-header>
+﻿<app-header mode="compact"></app-header>
 
 <div class="edit-circuit-container">
   <div class="form-card" *ngIf="!isLoading; else loading">
@@ -20,12 +20,12 @@
               placeholder="Ex: Ouidah Tour - Porte du retour des esclaves"
             >
           </div>
-          <!-- Ligne compacte: Durée -->
+          <!-- Ligne compacte: DurÃ©e -->
           <div class="form-group compact-row full-width">
             <div class="compact-item">
-              <label for="dureeIndicative">Durée indicative *</label>
+              <label for="dureeIndicative">DurÃ©e indicative *</label>
               <select id="dureeIndicative" name="dureeIndicative" [(ngModel)]="circuit.dureeIndicative" required>
-                <option value="">Sélectionner une durée</option>
+                <option value="">SÃ©lectionner une durÃ©e</option>
                 <option value="1 jour">1 jour</option>
                 <option value="2 jours">2 jours</option>
                 <option value="3 jours">3 jours</option>
@@ -40,26 +40,26 @@
             </div>
           </div>
 
-          <!-- Prix et Formule côte à côte (chaque moitié) -->
+          <!-- Prix et Formule cÃ´te Ã  cÃ´te (chaque moitiÃ©) -->
           <div class="form-group compact-row full-width">
             <div class="compact-item">
               <label for="prixIndicatif">Prix indicatif *</label>
               <div class="price-row">
                 <input type="number" id="prixIndicatif" name="prixIndicatif" [(ngModel)]="circuit.prixIndicatif" required min="0" step="0.01" placeholder="Prix" />
-                <label class="checkbox-inline small-inline"><input type="checkbox" name="saisirEnCFA" [(ngModel)]="saisirEnCFA"> Saisir en XOF</label>
-                <span class="conversion small-inline">• {{ displayPriceFormatted() }}</span>
+                <label class="checkbox-inline small-inline"><input type="checkbox" name="saisirEnCFA" [(ngModel)]="saisirEnCFA" (ngModelChange)="onSaisirEnCFAToggle($event)"> Saisir en XOF</label>
+                <span class="conversion small-inline">&bull; {{ displayPriceFormatted() }}</span>
               </div>
             </div>
 
             <div class="compact-item">
-              <label for="formuleProposee">Formule proposée</label>
+              <label for="formuleProposee">Formule proposÃ©e</label>
               <select
                 id="formuleProposee"
                 name="formuleProposee"
                 [(ngModel)]="circuit.formuleProposee"
               >
-                <option value="">Sélectionner une formule</option>
-                <option value="Découverte">Découverte</option>
+                <option value="">SÃ©lectionner une formule</option>
+                <option value="DÃ©couverte">DÃ©couverte</option>
                 <option value="Aventure">Aventure</option>
                 <option value="Culturel">Culturel</option>
                 <option value="Nature">Nature</option>
@@ -68,13 +68,13 @@
             </div>
           </div>
 
-          <!-- Zone géographique supprimée : elle est désormais liée à la ville sélectionnée -->
+          <!-- Zone gÃ©ographique supprimÃ©e : elle est dÃ©sormais liÃ©e Ã  la ville sÃ©lectionnÃ©e -->
         </div>
       </div>
 
-      <!-- Médias -->
+      <!-- MÃ©dias -->
       <div class="form-section">
-        <h3>Médias</h3>
+        <h3>MÃ©dias</h3>
         <div class="form-grid">
           <div class="form-group full-width">
             <label for="heroImage">Image principale (Hero) *</label>
@@ -85,12 +85,12 @@
               accept="image/*"
               (change)="onHeroImageSelected($event)"
             >
-            <small class="form-hint">Format recommandé: JPG/PNG, taille optimale: 1920x1080px</small>
+            <small class="form-hint">Format recommandÃ©: JPG/PNG, taille optimale: 1920x1080px</small>
             <div *ngIf="circuit.img" class="current-image">
               <small>Image actuelle: {{ circuit.img }}</small>
             </div>
             <div class="image-previews" *ngIf="heroPreview">
-              <img [src]="heroPreview" alt="Aperçu image principale" />
+              <img [src]="heroPreview" alt="AperÃ§u image principale" />
             </div>
           </div>
 
@@ -104,29 +104,29 @@
               multiple
               (change)="onGalerieImagesSelected($event)"
             >
-            <small class="form-hint">Sélectionnez 3 à 10 images. Formats: JPG/PNG</small>
+            <small class="form-hint">SÃ©lectionnez 3 Ã  10 images. Formats: JPG/PNG</small>
             <div *ngIf="circuit.galerie && circuit.galerie.length > 0" class="current-gallery">
               <small>Images actuelles: {{ circuit.galerie.length }} image(s)</small>
             </div>
             <div class="image-previews" *ngIf="galeriePreviews && galeriePreviews.length > 0">
-              <img *ngFor="let p of galeriePreviews" [src]="p" alt="Aperçu galerie" />
+              <img *ngFor="let p of galeriePreviews" [src]="p" alt="AperÃ§u galerie" />
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Description détaillée -->
+      <!-- Description dÃ©taillÃ©e -->
       <div class="form-section">
-        <h3>Description détaillée</h3>
+        <h3>Description dÃ©taillÃ©e</h3>
         <div class="form-grid">
           <div class="form-group full-width">
-            <label for="description">Description complète *</label>
+            <label for="description">Description complÃ¨te *</label>
             <textarea
               id="description"
               name="description"
               [(ngModel)]="circuit.description"
               required
-              placeholder="Description détaillée du circuit"
+              placeholder="Description dÃ©taillÃ©e du circuit"
               rows="5"
             ></textarea>
           </div>
@@ -140,7 +140,7 @@
           <div class="programme-item" *ngFor="let jour of programmeDays; let i = index; trackBy: trackByIndex">
             <div class="jour-header">
               <span class="jour-number">Jour {{ jour.day }}</span>
-              <button type="button" class="btn-remove" (click)="removeJour(i)" *ngIf="programmeDays.length > 1">×</button>
+              <button type="button" class="btn-remove" (click)="removeJour(i)" *ngIf="programmeDays.length > 1">Ã—</button>
             </div>
             <div class="form-group">
               <label>Titre du jour (optionnel)</label>
@@ -148,7 +148,7 @@
                 type="text"
                 [name]="'jour-title-' + i"
                 [(ngModel)]="programmeDays[i].title"
-                placeholder="Ex: Arrivée et installation"
+                placeholder="Ex: ArrivÃ©e et installation"
               />
             </div>
             <div class="form-row">
@@ -179,31 +179,30 @@
               <textarea
                 [name]="'jour-notes-' + i"
                 [(ngModel)]="programmeDays[i].notes"
-                placeholder="Description des activités du jour {{ jour.day }}"
+                placeholder="Description des activitÃ©s du jour {{ jour.day }}"
                 rows="3"
-                required
               ></textarea>
             </div>
             <div class="form-group">
-              <label>Activités du jour</label>
+              <label>ActivitÃ©s du jour</label>
               <div class="activities-section">
                 <div class="activities-display">
                   <div class="activities-header">
-                    <span class="activities-count">{{ (programmeDays[i].activities || []).length }} activité{{ (programmeDays[i].activities || []).length > 1 ? 's' : '' }} sélectionnée{{ (programmeDays[i].activities || []).length > 1 ? 's' : '' }}</span>
+                    <span class="activities-count">{{ (programmeDays[i].activities || []).length }} activitÃ©{{ (programmeDays[i].activities || []).length > 1 ? 's' : '' }} sÃ©lectionnÃ©e{{ (programmeDays[i].activities || []).length > 1 ? 's' : '' }}</span>
                   </div>
                   <div class="selected-activities">
                     <div *ngFor="let actId of programmeDays[i].activities || []" class="activity-chip">
                       {{ getActiviteName(actId) }}
-                      <button type="button" class="btn-remove-activity" (click)="removeActivityFromDay(i, actId)">×</button>
+                      <button type="button" class="btn-remove-activity" (click)="removeActivityFromDay(i, actId)">Ã—</button>
                     </div>
                     <div *ngIf="(programmeDays[i].activities || []).length === 0" class="no-activities">
-                      Aucune activité sélectionnée
+                      Aucune activitÃ© sÃ©lectionnÃ©e
                     </div>
                   </div>
                 </div>
                 <div class="activities-controls">
                   <select (change)="addActivityToDay(i, $any($event.target).value); $any($event.target).value = ''">
-                    <option value="">+ Ajouter une activité</option>
+                    <option value="">+ Ajouter une activitÃ©</option>
                     <option *ngFor="let act of getActivitiesForDay(i)" [value]="act.id">{{ act.nom }}</option>
                   </select>
                 </div>
@@ -218,9 +217,9 @@
       <div class="form-section">
         <h3>Points forts</h3>
         <div class="points-forts-section">
-          <!-- Points forts prédéfinis -->
+          <!-- Points forts prÃ©dÃ©finis -->
           <div class="predefined-points">
-            <h4>Points forts prédéfinis</h4>
+            <h4>Points forts prÃ©dÃ©finis</h4>
             <p class="predefined-description">Cliquez sur un point fort pour l'ajouter rapidement :</p>
             <div class="predefined-grid">
               <button
@@ -236,54 +235,51 @@
             </div>
           </div>
 
-          <!-- Points forts personnalisés -->
+          <!-- Points forts personnalisÃ©s -->
           <div class="custom-points">
-            <h4>Points forts personnalisés</h4>
+            <h4>Points forts personnalisÃ©s</h4>
             <div class="point-fort-item" *ngFor="let point of circuit.pointsForts; let i = index; trackBy: trackByIndex">
               <div class="point-header">
                 <span class="point-number">Point fort {{ i + 1 }}</span>
-                <button type="button" class="btn-remove" (click)="removePointFort(i)" *ngIf="circuit.pointsForts.length > 1">×</button>
+                <button type="button" class="btn-remove" (click)="removePointFort(i)" *ngIf="circuit.pointsForts.length > 1">Ã—</button>
               </div>
               <div class="point-grid">
                 <select
                   [name]="'point-icon-' + i"
                   [(ngModel)]="circuit.pointsForts[i].icon"
-                  required
                 >
-                  <option value="">Choisir une icône</option>
-                  <option value="🏛️">🏛️ Histoire & Culture</option>
-                  <option value="🌿">🌿 Nature & Écologie</option>
-                  <option value="🍲">🍲 Gastronomie</option>
-                  <option value="🏖️">🏖️ Plages & Détente</option>
-                  <option value="🏞️">🏞️ Paysages</option>
-                  <option value="🎭">🎭 Traditions</option>
-                  <option value="🚶">🚶 Randonnée</option>
-                  <option value="🏊">🏊 Activités aquatiques</option>
-                  <option value="🎨">🎨 Art & Artisanat</option>
-                  <option value="🏰">🏰 Patrimoine</option>
-                  <option value="🌅">🌅 Couchers de soleil</option>
-                  <option value="🐘">🐘 Faune</option>
-                  <option value="🌺">🌺 Flore</option>
-                  <option value="🎶">🎶 Musique & Danse</option>
-                  <option value="🏺">🏺 Archéologie</option>
+                  <option value="">Choisir une icÃ´ne</option>
+                  <option value="ðŸ›ï¸">ðŸ›ï¸ Histoire & Culture</option>
+                  <option value="ðŸŒ¿">ðŸŒ¿ Nature & Ã‰cologie</option>
+                  <option value="ðŸ²">ðŸ² Gastronomie</option>
+                  <option value="ðŸ–ï¸">ðŸ–ï¸ Plages & DÃ©tente</option>
+                  <option value="ðŸžï¸">ðŸžï¸ Paysages</option>
+                  <option value="ðŸŽ­">ðŸŽ­ Traditions</option>
+                  <option value="ðŸš¶">ðŸš¶ RandonnÃ©e</option>
+                  <option value="ðŸŠ">ðŸŠ ActivitÃ©s aquatiques</option>
+                  <option value="ðŸŽ¨">ðŸŽ¨ Art & Artisanat</option>
+                  <option value="ðŸ°">ðŸ° Patrimoine</option>
+                  <option value="ðŸŒ…">ðŸŒ… Couchers de soleil</option>
+                  <option value="ðŸ˜">ðŸ˜ Faune</option>
+                  <option value="ðŸŒº">ðŸŒº Flore</option>
+                  <option value="ðŸŽ¶">ðŸŽ¶ Musique & Danse</option>
+                  <option value="ðŸº">ðŸº ArchÃ©ologie</option>
                 </select>
                 <input
                   type="text"
                   [name]="'point-title-' + i"
                   [(ngModel)]="circuit.pointsForts[i].title"
                   placeholder="Titre du point fort"
-                  required
                 >
                 <textarea
                   [name]="'point-desc-' + i"
                   [(ngModel)]="circuit.pointsForts[i].desc"
                   placeholder="Description du point fort"
                   rows="2"
-                  required
                 ></textarea>
               </div>
             </div>
-            <button type="button" class="btn-add-point" (click)="addPointFort()">+ Ajouter un point fort personnalisé</button>
+            <button type="button" class="btn-add-point" (click)="addPointFort()">+ Ajouter un point fort personnalisÃ©</button>
           </div>
         </div>
       </div>
@@ -301,11 +297,10 @@
                   [name]="'inclus-' + i"
                   [(ngModel)]="circuit.inclus[i]"
                   placeholder="Ex: Guide accompagnateur"
-                  required
                 >
-                <button type="button" class="btn-remove-item" (click)="removeInclus(i)" *ngIf="circuit.inclus.length > 1">×</button>
+                <button type="button" class="btn-remove-item" (click)="removeInclus(i)" *ngIf="circuit.inclus.length > 1">Ã—</button>
               </div>
-              <button type="button" class="btn-add-item" (click)="addInclus()">+ Ajouter un élément inclus</button>
+              <button type="button" class="btn-add-item" (click)="addInclus()">+ Ajouter un Ã©lÃ©ment inclus</button>
             </div>
           </div>
 
@@ -318,11 +313,10 @@
                   [name]="'nonInclus-' + i"
                   [(ngModel)]="circuit.nonInclus[i]"
                   placeholder="Ex: Vols internationaux"
-                  required
                 >
-                <button type="button" class="btn-remove-item" (click)="removeNonInclus(i)" *ngIf="circuit.nonInclus.length > 1">×</button>
+                <button type="button" class="btn-remove-item" (click)="removeNonInclus(i)" *ngIf="circuit.nonInclus.length > 1">Ã—</button>
               </div>
-              <button type="button" class="btn-add-item" (click)="addNonInclus()">+ Ajouter un élément non inclus</button>
+              <button type="button" class="btn-add-item" (click)="addNonInclus()">+ Ajouter un Ã©lÃ©ment non inclus</button>
             </div>
           </div>
         </div>
@@ -331,7 +325,7 @@
       <div class="form-actions">
         <button type="button" class="btn-cancel" (click)="cancel()">Annuler</button>
         <button type="submit" class="btn-submit" [disabled]="!circuitForm.form.valid || isLoading">
-          {{ isLoading ? 'Mise à jour...' : 'Mettre à jour' }}
+          {{ isLoading ? 'Mise Ã  jour...' : 'Mettre Ã  jour' }}
         </button>
       </div>
     </form>

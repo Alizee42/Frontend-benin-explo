@@ -110,95 +110,90 @@
   }
 }
 
-/* Stepper horizontal moderne */
+/* Stepper */
 .stepper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: #f9fafb;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin-bottom: 1.5rem;
+  padding: 0.9rem;
+  border: 1px solid #dbe4ea;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fbfdff 0%, #f5f8fb 100%);
 }
 
 .step {
-  flex: 1;
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1rem;
+  gap: 0.45rem;
+  min-height: 80px;
+  padding: 0.75rem 0.6rem;
+  border: 1px solid #dde4eb;
   border-radius: 12px;
   background: #ffffff;
-  color: #6b7280;
+  color: #5f6b77;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid #f3f4f6;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
 .step:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+  border-color: #c8d6e3;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
 }
 
 .step-number {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 3px solid #d1d5db;
-  display: flex;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 2px solid #cfd8e2;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 0.9rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
-  background: #ffffff;
-  transition: all 0.3s ease;
+  line-height: 1;
+  background: #f8fafc;
+  color: #495564;
+  transition: all 0.2s ease;
 }
 
 .step-label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-align: center;
   line-height: 1.2;
+  letter-spacing: 0.01em;
 }
 
 .step.active {
-  background: linear-gradient(135deg, var(--be-green) 0%, #2d5a2d 100%);
-  color: #ffffff;
   border-color: var(--be-green);
-  box-shadow: 0 4px 12px rgba(34, 139, 34, 0.3);
+  background: linear-gradient(180deg, #f7fff9 0%, #eefaf1 100%);
+  color: #1f4d2a;
+  box-shadow: 0 8px 18px rgba(34, 139, 34, 0.14);
 }
 
 .step.active .step-number {
-  border-color: #ffffff;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--be-green);
+  border-color: var(--be-green);
   color: #ffffff;
 }
 
 .step.completed {
-  background: var(--be-gold);
-  color: var(--be-brown);
-  border-color: var(--be-gold);
+  border-color: #a7c8ae;
+  background: #f2fbf4;
+  color: #22522e;
 }
 
 .step.completed .step-number {
-  border-color: var(--be-brown);
-  background: rgba(201, 168, 106, 0.2);
-  color: var(--be-brown);
-}
-
-.step.active {
-  background: var(--be-green);
-  color: #f9fafb;
-  border-color: var(--be-green);
-}
-
-.step.active .step-number {
-  border-color: #f9fafb;
+  background: #2f7a3f;
+  border-color: #2f7a3f;
+  color: #ffffff;
 }
 
 .form-section {
@@ -932,6 +927,21 @@
     gap: 0.75rem;
   }
 
+  .stepper {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    padding: 0.7rem;
+  }
+
+  .step {
+    min-height: 72px;
+    padding: 0.6rem 0.45rem;
+  }
+
+  .step-label {
+    font-size: 0.76rem;
+  }
+
   .form-section {
     margin-bottom: 1.5rem;
 
@@ -963,6 +973,23 @@
 
 /* Mobile: stack compact rows so inputs (prix) restent visibles */
 @media (max-width: 480px) {
+  .stepper {
+    grid-template-columns: 1fr;
+  }
+
+  .step {
+    min-height: 64px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.6rem;
+    text-align: left;
+  }
+
+  .step-label {
+    text-align: left;
+    font-size: 0.8rem;
+  }
+
   .compact-row {
     flex-direction: column;
     gap: 0.5rem;

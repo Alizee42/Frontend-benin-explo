@@ -6,15 +6,15 @@
 
     <!-- Stepper (réorganisé pour plus de clarté) -->
     <div class="stepper">
-      <div class="step" [class.active]="currentStep === 1" (click)="goToStep(1)">
+      <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1" (click)="goToStep(1)">
         <span class="step-number">1</span>
         <span class="step-label">Informations générales</span>
       </div>
-      <div class="step" [class.active]="currentStep === 2" (click)="goToStep(2)">
+      <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2" (click)="goToStep(2)">
         <span class="step-number">2</span>
         <span class="step-label">Programme</span>
       </div>
-      <div class="step" [class.active]="currentStep === 3" (click)="goToStep(3)">
+      <div class="step" [class.active]="currentStep === 3" [class.completed]="currentStep > 3" (click)="goToStep(3)">
         <span class="step-number">3</span>
         <span class="step-label">Médias</span>
       </div>

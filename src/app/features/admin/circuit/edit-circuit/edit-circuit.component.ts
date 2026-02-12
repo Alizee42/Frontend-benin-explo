@@ -23,6 +23,7 @@ export class EditCircuitComponent implements OnInit {
   // Si coché, l'administrateur saisit le prix en XOF (CFA) dans le champ prix;
   // à l'enregistrement on convertira en EUR (valeur envoyée au backend).
   saisirEnCFA = false;
+  private previousSaisirEnCFA = false;
   circuit: CircuitDTO = {
     id: 0,
     titre: '',
@@ -127,9 +128,9 @@ export class EditCircuitComponent implements OnInit {
             return {
               day: p.day ?? idx + 1,
               title: p.title,
-              zoneId: this.circuit.zoneId ?? null,
+              zoneId: p.zoneId ?? this.circuit.zoneId ?? null,
               villeId: p.villeId ?? null,
-              selectedZoneIds: this.circuit.zoneId != null ? [this.circuit.zoneId] : [],
+              selectedZoneIds: (p.zoneId ?? this.circuit.zoneId) != null ? [p.zoneId ?? this.circuit.zoneId] : [],
               selectedVilleIds: p.villeId != null ? [p.villeId] : [],
               activities: p.activities ?? [],
               notes: p.description ?? ''
@@ -217,7 +218,7 @@ export class EditCircuitComponent implements OnInit {
 
   onGalerieImagesSelected(event: any) {
     const files = Array.from(event.target.files) as File[];
-    if (files.length >= 3 && files.length <= 10) {
+    if (files.length >= 1 && files.length <= 10) {
       this.galerieFiles = files;
       // generate previews for selected files
       this.galeriePreviews = [];
@@ -226,9 +227,26 @@ export class EditCircuitComponent implements OnInit {
           this.galeriePreviews = previews.filter(Boolean) as string[];
         }).catch(() => { this.galeriePreviews = []; });
     } else {
-      alert('Veuillez sélectionner entre 3 et 10 images.');
+      alert('Veuillez sélectionner entre 1 et 10 images.');
       event.target.value = '';
     }
+  }
+
+  onSaisirEnCFAToggle(checked: boolean) {
+    const current = Number(this.circuit.prixIndicatif);
+    if (isNaN(current) || checked === this.previousSaisirEnCFA) {
+      this.previousSaisirEnCFA = checked;
+      return;
+    }
+
+    if (checked) {
+      // EUR -> XOF for input display
+      this.circuit.prixIndicatif = Math.round(current * this.RATE_XOF_PER_EUR);
+    } else {
+      // XOF -> EUR for input display
+      this.circuit.prixIndicatif = Number((current / this.RATE_XOF_PER_EUR).toFixed(2));
+    }
+    this.previousSaisirEnCFA = checked;
   }
 
   // Méthode utilitaire pour convertir un fichier en base64
@@ -458,8 +476,9 @@ export class EditCircuitComponent implements OnInit {
           this.circuit.img = heroResp.url;
         }
 
-        // If new gallery files selected, upload them (sequential, resilient)
+        // If new gallery files selected, upload and append to existing gallery.
         if (this.galerieFiles && this.galerieFiles.length > 0) {
+          const existingGalerie = Array.isArray(this.circuit.galerie) ? [...this.circuit.galerie] : [];
           const galerieResults: Array<{ url: string }> = [];
           const failedFiles: Array<{ name: string; error: any }> = [];
           for (const file of this.galerieFiles) {
@@ -475,21 +494,25 @@ export class EditCircuitComponent implements OnInit {
             const names = failedFiles.map(f => f.name).join(', ');
             alert('Certaines images de la galerie n\'ont pas pu être uploadées: ' + names + '. Le circuit sera mis à jour avec les images uploadées. Vous pouvez réessayer pour les fichiers manquants.');
           }
-          this.circuit.galerie = galerieResults.map(r => r.url);
+          this.circuit.galerie = Array.from(new Set([...existingGalerie, ...galerieResults.map(r => r.url)]));
         }
 
-        // Convertir le prix si l'admin a indiqué l'avoir saisi en XOF
-        const originalPrix = this.circuit.prixIndicatif;
-        if (this.saisirEnCFA && originalPrix != null && !isNaN(Number(originalPrix))) {
-          try {
-            this.circuit.prixIndicatif = Number(Number(originalPrix) / this.RATE_XOF_PER_EUR);
-          } catch (e) {
-            console.warn('Conversion prix XOF->EUR failed', e);
-          }
+        // Build payload without mutating bound form model.
+        const payload: CircuitDTO = {
+          ...this.circuit,
+          galerie: [...(this.circuit.galerie || [])],
+          programme: [...(this.circuit.programme as any[] || [])],
+          pointsForts: [...(this.circuit.pointsForts || [])],
+          inclus: [...(this.circuit.inclus || [])],
+          nonInclus: [...(this.circuit.nonInclus || [])]
+        };
+
+        if (this.saisirEnCFA && payload.prixIndicatif != null && !isNaN(Number(payload.prixIndicatif))) {
+          payload.prixIndicatif = Number((Number(payload.prixIndicatif) / this.RATE_XOF_PER_EUR).toFixed(2));
         }
 
         // then update the circuit
-        this.circuitService.updateCircuit(this.circuit.id, this.circuit).subscribe({
+        this.circuitService.updateCircuit(this.circuit.id, payload).subscribe({
           next: (updatedCircuit) => {
             this.router.navigate(['/admin/circuits']);
           },
