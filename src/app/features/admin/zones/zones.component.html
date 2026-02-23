@@ -7,26 +7,70 @@
         <i class="ri-map-pin-line"></i>
         Gestion des zones
       </h1>
-      <button class="btn-add" (click)="openAddModal()">
+      <div class="actions-right">
+        <div class="search-field">
+          <i class="ri-search-line"></i>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Rechercher une zone..."
+            aria-label="Rechercher une zone"
+          />
+        </div>
+        <div class="sort-field">
+          <i class="ri-filter-3-line"></i>
+          <select [(ngModel)]="sortOption" aria-label="Trier les zones">
+            <option value="nom-asc">Nom A → Z</option>
+            <option value="nom-desc">Nom Z → A</option>
+            <option value="id-desc">Plus récentes</option>
+            <option value="id-asc">Plus anciennes</option>
+          </select>
+        </div>
+        <button class="btn-add" (click)="openAddModal()">
+          <i class="ri-add-line"></i>
+          Ajouter une zone
+        </button>
+      </div>
+    </div>
+
+    <div class="table-meta" *ngIf="!loading">
+      {{ filteredZones.length }} zone{{ filteredZones.length > 1 ? 's' : '' }}
+    </div>
+
+    <div class="table-card">
+      <app-data-table
+        [columns]="tableColumns"
+        [data]="filteredZones"
+        [loading]="loading"
+        [actions]="tableActions"
+        (actionClick)="onTableAction($event)"
+        (rowClick)="onRowClick($event)">
+      </app-data-table>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && filteredZones.length === 0">
+      <div class="empty-icon">
+        <i class="ri-map-pin-line"></i>
+      </div>
+      <h2>Aucune zone trouvée</h2>
+      <p>
+        Essayez un autre mot-clé ou créez une nouvelle zone pour commencer.
+      </p>
+      <button class="btn-add ghost" (click)="openAddModal()">
         <i class="ri-add-line"></i>
         Ajouter une zone
       </button>
     </div>
-
-    <app-data-table
-      [columns]="tableColumns"
-      [data]="zones"
-      [loading]="loading"
-      [actions]="tableActions"
-      (actionClick)="onTableAction($event)"
-      (rowClick)="onRowClick($event)">
-    </app-data-table>
   </main>
 </div>
 
 <!-- Modal pour ajouter/modifier (réutilise app-modal) -->
 <app-modal [title]="isEditing ? 'Modifier la zone' : 'Ajouter une zone'" [open]="showModal" (close)="closeModal()">
   <form (ngSubmit)="saveZone()" #zoneForm="ngForm">
+    <div class="form-error" *ngIf="formError">
+      <i class="ri-error-warning-line"></i>
+      {{ formError }}
+    </div>
     <div class="form-group">
       <label for="nom">Nom *</label>
       <input
@@ -52,7 +96,9 @@
 
     <div class="modal-actions">
       <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
-      <button type="submit" class="btn-primary" [disabled]="!zoneForm.valid">{{ isEditing ? 'Modifier' : 'Ajouter' }}</button>
+      <button type="submit" class="btn-primary" [disabled]="!zoneForm.valid || saving">
+        {{ saving ? (isEditing ? 'Modification...' : 'Ajout...') : (isEditing ? 'Modifier' : 'Ajouter') }}
+      </button>
     </div>
   </form>
 </app-modal>

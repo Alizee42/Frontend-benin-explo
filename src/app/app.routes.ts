@@ -123,7 +123,7 @@ export const routes: Routes = [
   {
     path: 'admin/circuits/add-circuit',
     loadComponent: () =>
-      import('./features/admin/circuit/add-circuit-simple/add-circuit-simple.component').then(m => m.AddCircuitSimpleComponent),
+      import('./features/admin/circuit/add-circuit/add-circuit.component').then(m => m.AddCircuitComponent),
     canActivate: [authGuard]
   },
 

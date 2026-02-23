@@ -86,6 +86,7 @@ export class CircuitPersonnaliseComponent {
     chauffeur: false,
     pensionComplete: false
   };
+  hebergementMode: 'auto' | 'choisir' = 'auto';
 
   demande: DemandeCircuit = {
     nombreJours: 1,
@@ -384,6 +385,13 @@ export class CircuitPersonnaliseComponent {
 
   toggleJoursExpanded() {
     this.joursExpanded = !this.joursExpanded;
+  }
+
+  setHebergementMode(mode: 'auto' | 'choisir') {
+    this.hebergementMode = mode;
+    if (mode === 'auto') {
+      this.options.hebergement = '';
+    }
   }
 
   private buildExtrasFromOptionsAndMessage(): string[] {

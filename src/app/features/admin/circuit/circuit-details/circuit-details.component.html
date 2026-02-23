@@ -2,63 +2,58 @@
   <app-header mode="compact"></app-header>
 
   <main class="page-content">
-    <!-- Loading State -->
     <div *ngIf="loading" class="loading">
       <div class="loading-spinner"></div>
       <p>Chargement du circuit...</p>
     </div>
 
-    <!-- Circuit Details -->
     <div *ngIf="!loading && circuit" class="circuit-content">
-      <!-- Header with actions -->
-      <div class="circuit-header">
-        <div class="header-info">
-          <h1 class="circuit-title">{{ circuit.titre }}</h1>
-          <div class="circuit-meta">
-            <span class="meta-item" *ngIf="zone?.nom">
-              <i class="ri-map-pin-line"></i>
-              {{ zone?.nom }}
-            </span>
-            <span class="meta-item">
-              <i class="ri-time-line"></i>
-              {{ circuit.dureeIndicative }}
-            </span>
-            <span class="meta-item">
-              <i class="ri-money-euro-circle-line"></i>
-              {{ circuit.prixIndicatif }} €
-            </span>
-            <span class="meta-item status" [ngClass]="getStatutClass(circuit.actif)">
-              <i class="ri-circle-fill"></i>
-              {{ getStatutLabel(circuit.actif) }}
-            </span>
+      <section class="hero" [style.background-image]="circuit.img ? 'url(' + circuit.img + ')' : 'none'">
+        <div class="hero-overlay"></div>
+        <div class="hero-inner">
+          <div class="hero-actions">
+            <button class="ghost-back" (click)="goBack()">
+              <i class="ri-arrow-left-line"></i>
+              Retour
+            </button>
+            <button class="ghost-primary" (click)="editCircuit()">
+              <i class="ri-edit-line"></i>
+              Modifier
+            </button>
+          </div>
+
+          <div class="hero-card">
+            <div class="hero-top">
+              <span class="hero-pill">Admin</span>
+              <span class="hero-pill status" [ngClass]="getStatutClass(circuit.actif)">
+                <i class="ri-circle-fill"></i>
+                {{ getStatutLabel(circuit.actif) }}
+              </span>
+            </div>
+            <h1 class="hero-title">{{ circuit.titre }}</h1>
+            <p class="hero-subtitle">{{ circuit.resume || circuit.description }}</p>
+
+            <div class="hero-meta">
+              <span class="meta-chip" *ngIf="zone?.nom">
+                <i class="ri-map-pin-line"></i>
+                {{ zone?.nom }}
+              </span>
+              <span class="meta-chip">
+                <i class="ri-time-line"></i>
+                {{ circuit.dureeIndicative }}
+              </span>
+              <span class="meta-chip price">
+                <i class="ri-money-euro-circle-line"></i>
+                {{ circuit.prixIndicatif }} €
+              </span>
+            </div>
           </div>
         </div>
-        <div class="header-actions">
-          <button class="btn-secondary" (click)="goBack()">
-            <i class="ri-arrow-left-line"></i>
-            Retour
-          </button>
-          <button class="btn-primary" (click)="editCircuit()">
-            <i class="ri-edit-line"></i>
-            Modifier
-          </button>
-        </div>
-      </div>
+      </section>
 
-      <!-- Main Image -->
-      <div class="circuit-image" *ngIf="circuit.img">
-        <img [src]="circuit.img" [alt]="circuit.titre" class="main-image">
-      </div>
-
-      <!-- Content Sections -->
       <div class="content-grid">
-
-        <!-- Informations générales -->
         <section class="content-section">
-          <h2 class="section-title">
-            <i class="ri-information-line"></i>
-            Informations générales
-          </h2>
+          <h2 class="section-title">Informations générales</h2>
           <div class="section-content">
             <div class="info-grid">
               <div class="info-item">
@@ -81,49 +76,64 @@
           </div>
         </section>
 
-        <!-- Programme -->
         <section class="content-section" *ngIf="circuit.programme && circuit.programme.length > 0">
-          <h2 class="section-title">
-            <i class="ri-calendar-event-line"></i>
-            Programme jour par jour
-          </h2>
+          <h2 class="section-title">Programme jour par jour</h2>
           <div class="section-content">
-            <div class="program-list">
-              <div class="program-item" *ngFor="let jour of circuit.programme; let i = index">
-                <div class="program-day">
-                  <span class="day-number">Jour {{ i + 1 }}</span>
+            <div class="programme-grid">
+              <div class="day-list">
+                <button
+                  type="button"
+                  class="day-chip"
+                  *ngFor="let jour of circuit.programme; let i = index"
+                  [class.active]="isProgrammeOpen(i)"
+                  (click)="toggleProgramme(i)">
+                  J{{ i + 1 }}
+                </button>
+              </div>
+
+              <div class="day-panel" *ngFor="let jour of circuit.programme; let i = index" [class.active]="isProgrammeOpen(i)">
+                <div class="panel-header">
+                  <h3 class="panel-heading">Jour {{ i + 1 }}<span *ngIf="isProgrammeDay(jour) && jour.title"> – {{ jour.title }}</span></h3>
                 </div>
-                <div class="program-content">
-                  <!-- Cas legacy: simple string -->
-                  <ng-container *ngIf="!isProgrammeDay(jour)">
-                    <p class="program-description">{{ jour }}</p>
-                  </ng-container>
+                <div class="panel-body">
+                  <div class="panel-column">
+                    <span class="panel-label">Résumé</span>
+                    <ng-container *ngIf="!isProgrammeDay(jour)">
+                      <p class="program-description">{{ jour }}</p>
+                    </ng-container>
 
-                  <!-- Cas structuré: ProgrammeDay -->
-                  <ng-container *ngIf="isProgrammeDay(jour)">
-                    <p class="program-description" *ngIf="jour.description">
-                      {{ jour.description }}
-                    </p>
-
-                    <p class="program-activities" *ngIf="jour.activities && jour.activities.length">
-                      Activités :
-                      <span *ngFor="let actId of jour.activities; let last = last">
-                        {{ getActiviteName(actId) }}<span *ngIf="!last">, </span>
-                      </span>
-                    </p>
-                  </ng-container>
+                    <ng-container *ngIf="isProgrammeDay(jour)">
+                      <p class="program-description" *ngIf="jour.description">
+                        {{ jour.description }}
+                      </p>
+                    </ng-container>
+                  </div>
+                  <div class="panel-column">
+                    <span class="panel-label">Activités</span>
+                    <ng-container *ngIf="isProgrammeDay(jour)">
+                      <div class="activities-block" *ngIf="jour.activities && jour.activities.length; else noActs">
+                        <div class="activities-chips">
+                          <span class="activity-chip" *ngFor="let actId of jour.activities">
+                            {{ getActiviteName(actId) }}
+                          </span>
+                        </div>
+                      </div>
+                      <ng-template #noActs>
+                        <p class="empty-state">Aucune activité renseignée pour ce jour.</p>
+                      </ng-template>
+                    </ng-container>
+                    <ng-container *ngIf="!isProgrammeDay(jour)">
+                      <p class="empty-state">Aucune activité renseignée pour ce jour.</p>
+                    </ng-container>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- Points forts -->
         <section class="content-section" *ngIf="circuit.pointsForts && circuit.pointsForts.length > 0">
-          <h2 class="section-title">
-            <i class="ri-star-line"></i>
-            Points forts
-          </h2>
+          <h2 class="section-title">Points forts</h2>
           <div class="section-content">
             <div class="points-grid">
               <div class="point-card" *ngFor="let point of circuit.pointsForts">
@@ -137,12 +147,8 @@
           </div>
         </section>
 
-        <!-- Galerie d'images -->
         <section class="content-section" *ngIf="circuit.galerie && circuit.galerie.length > 0">
-          <h2 class="section-title">
-            <i class="ri-image-line"></i>
-            Galerie d'images
-          </h2>
+          <h2 class="section-title">Galerie d'images</h2>
           <div class="section-content">
             <div class="gallery-grid">
               <div class="gallery-item" *ngFor="let image of circuit.galerie">
@@ -152,13 +158,9 @@
           </div>
         </section>
 
-        <!-- Inclus / Non inclus -->
         <div class="content-row">
           <section class="content-section half" *ngIf="circuit.inclus && circuit.inclus.length > 0">
-            <h2 class="section-title">
-              <i class="ri-check-line"></i>
-              Inclus dans le circuit
-            </h2>
+            <h2 class="section-title">Inclus dans le circuit</h2>
             <div class="section-content">
               <ul class="list">
                 <li *ngFor="let item of circuit.inclus">{{ item }}</li>
@@ -167,10 +169,7 @@
           </section>
 
           <section class="content-section half" *ngIf="circuit.nonInclus && circuit.nonInclus.length > 0">
-            <h2 class="section-title">
-              <i class="ri-close-line"></i>
-              Non inclus
-            </h2>
+            <h2 class="section-title">Non inclus</h2>
             <div class="section-content">
               <ul class="list">
                 <li *ngFor="let item of circuit.nonInclus">{{ item }}</li>
@@ -179,12 +178,8 @@
           </section>
         </div>
 
-        <!-- Activités -->
         <section class="content-section" *ngIf="circuit.activiteIds && circuit.activiteIds.length > 0">
-          <h2 class="section-title">
-            <i class="ri-calendar-check-line"></i>
-            Activités associées
-          </h2>
+          <h2 class="section-title">Activités associées</h2>
           <div class="section-content">
             <div class="tags">
               <span class="tag" *ngFor="let activiteId of circuit.activiteIds">
@@ -193,7 +188,6 @@
             </div>
           </div>
         </section>
-
       </div>
     </div>
   </main>

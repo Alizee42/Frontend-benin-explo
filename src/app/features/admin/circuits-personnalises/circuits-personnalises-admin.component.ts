@@ -42,7 +42,7 @@ Notre équipe vous contactera dans les prochains jours pour finaliser les détai
 Nous sommes impatients de vous accueillir au Bénin !
 
 Cordialement,
-L'équipe Benin Exlo
+L'équipe Benin Explo
 Téléphone : {telephone}`
     },
     refus: {
@@ -66,7 +66,7 @@ N'hésitez pas à nous contacter pour modifier votre demande ou pour toute autre
 Nous restons à votre disposition pour vous proposer d'autres formules adaptées à vos besoins.
 
 Cordialement,
-L'équipe Benin Exlo
+L'équipe Benin Explo
 Téléphone : {telephone}`
     }
   };
@@ -84,7 +84,7 @@ Téléphone : {telephone}`
     { key: 'nomClient', label: 'Nom', sortable: true },
     { key: 'emailClient', label: 'Email', sortable: false },
     { key: 'telephoneClient', label: 'Téléphone', sortable: false },
-    { key: 'dateCreation', label: 'Date', sortable: true },
+    { key: 'dateCreationDisplay', label: 'Date', sortable: true },
     { key: 'statut', label: 'Statut', sortable: true },
     { key: 'actions', label: 'Actions', type: 'actions' as const }
   ];
@@ -127,7 +127,7 @@ Téléphone : {telephone}`
       next: (data) => {
         this.demandes = data.map(d => ({
           ...d,
-          dateCreation: d.dateCreation ? this.formatDate(d.dateCreation) : undefined
+          dateCreationDisplay: d.dateCreation ? this.formatDate(d.dateCreation) : undefined
         }));
         this.isLoading = false;
       },
@@ -170,7 +170,7 @@ Prix estimé : ${demande.prixEstime ? demande.prixEstime + ' XOF' : 'À détermi
 Nous vous contacterons prochainement pour finaliser les détails et vous proposer un devis personnalisé.
 
 Cordialement,
-L'équipe Benin Exlo
+L'équipe Benin Explo
 Téléphone : ${demande.telephoneClient}`;
 
     const mailtoLink = `mailto:${demande.emailClient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -218,6 +218,9 @@ Téléphone : ${demande.telephoneClient}`;
 
     const confirmation = confirm('Êtes-vous sûr de vouloir envoyer cet email ?');
     if (!confirmation) return;
+
+    const mailtoLink = `mailto:${this.currentDemande.emailClient}?subject=${encodeURIComponent(this.emailSubject)}&body=${encodeURIComponent(this.emailBody)}`;
+    window.open(mailtoLink, '_blank');
 
     // Mettre à jour le statut selon l'action
     const newStatus = this.currentEmailAction === 'approbation' ? 'ACCEPTE' : 'REFUSE';

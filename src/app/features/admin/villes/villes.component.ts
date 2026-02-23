@@ -65,6 +65,7 @@ export class VillesComponent implements OnInit {
         // Normaliser les zones (backend renvoie idZone)
         this.zones = zones.map((z: any) => ({
           id: z.id !== undefined ? z.id : z.idZone,
+          idZone: z.idZone ?? z.id,
           nom: z.nom,
           description: z.description,
           ...z

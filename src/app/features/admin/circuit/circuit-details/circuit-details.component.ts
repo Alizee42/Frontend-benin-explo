@@ -19,6 +19,7 @@ export class CircuitDetailsComponent implements OnInit {
   zone: Zone | null = null;
   loading = true;
   activitesMap = new Map<number, Activite>();
+  openProgrammeIndex = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -39,6 +40,7 @@ export class CircuitDetailsComponent implements OnInit {
     this.circuitService.getCircuitById(id).subscribe({
       next: (circuit: CircuitDTO) => {
         this.circuit = circuit;
+        this.openProgrammeIndex = 0;
         this.loadZone(circuit.zoneId);
         this.loadActivitesForCircuit(circuit);
         this.loading = false;
@@ -144,5 +146,13 @@ export class CircuitDetailsComponent implements OnInit {
 
   getStatutClass(actif: boolean): string {
     return actif ? 'status-active' : 'status-inactive';
+  }
+
+  toggleProgramme(index: number) {
+    this.openProgrammeIndex = index;
+  }
+
+  isProgrammeOpen(index: number): boolean {
+    return this.openProgrammeIndex === index;
   }
 }

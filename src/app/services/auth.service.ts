@@ -19,6 +19,7 @@ export class AuthService {
   private readonly USER_KEY = 'user_data';
   private userSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
   public user$ = this.userSubject.asObservable();
+  private readonly ADMIN_ROLES = new Set(['ADMIN', 'ROLE_ADMIN']);
 
   constructor(
     private http: HttpClient,
@@ -58,24 +59,24 @@ export class AuthService {
     // For other credentials, try real API call
     return this.http.post('/auth/login', credentials).pipe(
       tap((response: any) => {
-        if (response.token) {
-          localStorage.setItem(this.TOKEN_KEY, response.token);
-          const user: User = {
-            email: response.email,
-            role: response.role,
-            nom: response.nom,
-            prenom: response.prenom
-          };
-          localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-          this.userSubject.next(user);
+      if (response.token) {
+        localStorage.setItem(this.TOKEN_KEY, response.token);
+        const user: User = {
+          email: response.email,
+          role: response.role,
+          nom: response.nom,
+          prenom: response.prenom
+        };
+        localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+        this.userSubject.next(user);
 
-          // Redirect based on role
-          if (response.role === 'ROLE_ADMIN') {
-            this.router.navigate(['/admin/dashboard']);
-          } else {
-            this.router.navigate(['/']);
-          }
+        // Redirect based on role
+        if (this.isAdminRole(response.role)) {
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          this.router.navigate(['/']);
         }
+      }
       })
     );
   }
@@ -93,7 +94,7 @@ export class AuthService {
 
   isAdmin(): boolean {
     const user = this.userSubject.value;
-    return user?.role === 'ROLE_ADMIN';
+    return this.isAdminRole(user?.role || null);
   }
 
   getToken(): string | null {
@@ -103,6 +104,10 @@ export class AuthService {
   getUserRole(): string | null {
     const user = this.userSubject.value;
     return user?.role || null;
+  }
+
+  private isAdminRole(role: string | null): boolean {
+    return !!role && this.ADMIN_ROLES.has(role);
   }
 
   isTokenExpired(): boolean {

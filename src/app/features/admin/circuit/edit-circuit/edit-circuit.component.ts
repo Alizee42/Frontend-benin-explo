@@ -1,70 +1,117 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../../../shared/components/header/header.component';
-import { CircuitDTO, PointFort } from '../../../../models/circuit.dto';
+import { BeButtonComponent } from '../../../../shared/components/be-button/be-button.component';
+import { CircuitDTO } from '../../../../models/circuit.dto';
 import { CircuitService } from '../../../../services/circuit.service';
-import { ZonesService, Zone } from '../../../../services/zones.service';
-import { VillesService, VilleDTO } from '../../../../services/villes.service';
-import { ActivitesService, Activite } from '../../../../services/activites.service';
+import { CircuitFormCacheService } from '../../../../services/circuit-form-cache.service';
+import { ZoneDTO } from '../../../../services/zones-admin.service';
+import { VilleDTO } from '../../../../services/villes.service';
+import { Activite } from '../../../../services/activites.service';
 import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-edit-circuit',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, BeButtonComponent],
   templateUrl: './edit-circuit.component.html',
-  styleUrls: ['./edit-circuit.component.scss']
+  styleUrls: ['./edit-circuit.component.scss', '../add-circuit/add-circuit.component.scss']
 })
-export class EditCircuitComponent implements OnInit {
+export class EditCircuitComponent implements OnInit, OnDestroy {
   // Taux fixe approximatif EUR <-> XOF (1 EUR = 655.957 XOF)
   readonly RATE_XOF_PER_EUR = 655.957;
-  // Si coché, l'administrateur saisit le prix en XOF (CFA) dans le champ prix;
-  // à l'enregistrement on convertira en EUR (valeur envoyée au backend).
-  saisirEnCFA = false;
-  private previousSaisirEnCFA = false;
-  circuit: CircuitDTO = {
-    id: 0,
+  // ============================================
+  // MODÈLE DE DONNÉES (IDENTIQUE À ADD)
+  // ============================================
+
+  circuit = {
+    // Informations de base
     titre: '',
-    resume: '',
     description: '',
-    dureeIndicative: '',
-    prixIndicatif: 0,
-    formuleProposee: '',
-    localisation: '',
-    actif: true,
-    zoneId: null,
-    villeId: null,
-    villeNom: '',
-    activiteIds: [],
-    img: '',
-    galerie: [],
-    programme: [''],
-    pointsForts: [{ icon: '', title: '', desc: '' }],
+    dureeJours: 1,
+    prixEuros: 0,
+
+    // Images
+    imageHero: null as File | null,
+    imagesGalerie: [] as File[],
+
+    // Programme (structure enrichie avec ville/zone par jour)
+    programme: [] as Array<{
+      jour: number;
+      title?: string;
+      description: string;
+      zoneId: number | null;
+      villeId: number | null;
+      activiteIds: number[];
+    }>,
+
+    // Points forts
+    pointsForts: [{ icon: '🏛️', title: '', desc: '' }] as Array<{icon: string, title: string, desc: string}>,
+
+    // Inclus/Non inclus
     inclus: [''],
     nonInclus: ['']
   };
-  zones: Zone[] = [];
+
+  // ============================================
+  // DONNÉES DE RÉFÉRENCE
+  // ============================================
+
+  zones: ZoneDTO[] = [];
   villes: VilleDTO[] = [];
   activites: Activite[] = [];
-  programmeDays: Array<{
-    day: number;
-    title?: string;
-    zoneId?: number | null;
-    villeId?: number | null;
-    selectedZoneIds?: number[];
-    selectedVilleIds?: number[];
-    activities?: number[];
-    notes?: string;
-  }> = [];
-  isLoading = false;
+
+  activitesParJour: { [jourIndex: number]: Activite[] } = {};
+  villesParJour: { [jourIndex: number]: VilleDTO[] } = {};
+
+  loading = {
+    zones: false,
+    villes: false,
+    activites: false,
+    submit: false
+  };
+
+  // ============================================
+  // ÉTAT DE L'INTERFACE
+  // ============================================
+
+  currentStep = 1;
+  totalSteps = 4;
+  activeDayIndex = 0;
+  step4Section: 'highlights' | 'inclusions' = 'highlights';
+  priceCurrency: 'EUR' | 'XOF' = 'EUR';
+  private lastPriceCurrency: 'EUR' | 'XOF' = 'EUR';
+
+  previewHero: string | null = null;
+  previewsGalerie: string[] = [];
+
+  errors: { [key: string]: string } = {};
+  programmeMissingDetails: Array<{ jour: number; missing: string[] }> = [];
+
+  // ============================================
+  // BROUILLON (AUTO-SAVE)
+  // ============================================
+
+  private readonly DRAFT_KEY_PREFIX = 'be_circuit_edit_draft_';
+  private readonly AUTOSAVE_MS = 4000;
+  private autosaveTimer: number | null = null;
+  draftAvailable = false;
+  draftRestored = false;
+  lastAutoSaveAt: number | null = null;
+  draftSavedAt: number | null = null;
+  manualSaveNotice = false;
+
+  // ============================================
+  // ÉDITION
+  // ============================================
+
   circuitId: string | null = null;
-  heroImageFile: File | null = null;
-  galerieFiles: File[] = [];
-  // Previews
-  heroPreview: string | null = null;
-  galeriePreviews: string[] = [];
+  circuitDto: CircuitDTO | null = null;
+  isLoading = false;
+  existingHeroUrl: string | null = null;
+  existingGalerieUrls: string[] = [];
 
   // Points forts prédéfinis
   predefinedPointsForts = [
@@ -74,80 +121,78 @@ export class EditCircuitComponent implements OnInit {
     { icon: '🏖️', title: 'Plages & Détente', desc: 'Profitez des côtes magnifiques et des moments de relaxation' },
     { icon: '🏞️', title: 'Paysages exceptionnels', desc: 'Admirez des panoramas à couper le souffle' },
     { icon: '🎭', title: 'Traditions vivantes', desc: 'Immergez-vous dans les coutumes et rituels ancestraux' },
-    { icon: '🚶', title: 'Randonnées', desc: 'Parcourez des sentiers naturels et découvrez la faune' },
-    { icon: '🏊', title: 'Activités aquatiques', desc: 'Nagez dans les lagunes et rivières cristallines' },
-    { icon: '🎨', title: 'Art & Artisanat', desc: 'Rencontrez les artisans et leurs créations uniques' },
-    { icon: '🏰', title: 'Patrimoine architectural', desc: 'Visitez des sites historiques et monuments remarquables' },
-    { icon: '🌅', title: 'Couchers de soleil', desc: 'Assistez à des spectacles naturels inoubliables' },
-    { icon: '🐘', title: 'Faune sauvage', desc: 'Observez les animaux dans leur habitat naturel' },
-    { icon: '🌺', title: 'Flore tropicale', desc: 'Découvrez une végétation luxuriante et colorée' },
-    { icon: '🎶', title: 'Musique & Danse', desc: 'Vivez au rythme des percussions et danses traditionnelles' },
-    { icon: '🏺', title: 'Archéologie', desc: 'Explorez les vestiges du passé africain' }
+    { icon: '🎨', title: 'Artisanat local', desc: 'Découvrez l\'artisanat traditionnel et les savoir-faire ancestraux' },
+    { icon: '🏊‍♂️', title: 'Activités aquatiques', desc: 'Profitez des sports nautiques et activités aquatiques' },
+    { icon: '📸', title: 'Photographie', desc: 'Capturer des moments uniques dans des décors exceptionnels' },
+    { icon: '👥', title: 'Rencontres humaines', desc: 'Échangez avec les populations locales et partagez leur quotidien' }
   ];
 
   constructor(
     private circuitService: CircuitService,
+    private cacheService: CircuitFormCacheService,
     private router: Router,
-    private route: ActivatedRoute,
-    private zonesService: ZonesService,
-    private villesService: VillesService,
-    private activitesService: ActivitesService
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
     this.circuitId = this.route.snapshot.paramMap.get('id');
+    this.initProgramme();
+    this.loadZones();
+    this.checkDraft();
+    this.startAutoSave();
+
     if (this.circuitId) {
       this.loadCircuit();
     }
-    this.loadZones();
-    this.loadVilles();
-    this.loadActivites();
   }
 
-  loadCircuit() {
+  ngOnDestroy() {
+    if (this.autosaveTimer) {
+      window.clearInterval(this.autosaveTimer);
+      this.autosaveTimer = null;
+    }
+  }
+
+  // ============================================
+  // INITIALISATION
+  // ============================================
+
+  private initProgramme() {
+    this.circuit.programme = [{
+      jour: 1,
+      description: '',
+      zoneId: null,
+      villeId: null,
+      activiteIds: []
+    }];
+  }
+
+  // ============================================
+  // CHARGEMENT DES DONNÉES
+  // ============================================
+
+  private loadZones() {
+    this.loading.zones = true;
+    this.cacheService.getZones().subscribe({
+      next: (zones) => {
+        this.zones = zones;
+        this.loading.zones = false;
+      },
+      error: () => {
+        this.loading.zones = false;
+        this.errors['zones'] = 'Impossible de charger les zones';
+      }
+    });
+  }
+
+  private loadCircuit() {
     if (!this.circuitId) return;
 
     this.isLoading = true;
     this.circuitService.getCircuitById(+this.circuitId).subscribe({
-      next: (circuit) => {
-        this.circuit = circuit;
-        // Initialize programmeDays from circuit.programme
-        if (this.circuit.programme && this.circuit.programme.length > 0) {
-          this.programmeDays = this.circuit.programme.map((p: any, idx: number) => {
-            if (typeof p === 'string') {
-              return {
-                day: idx + 1,
-                zoneId: this.circuit.zoneId ?? null,
-                villeId: null,
-                selectedZoneIds: this.circuit.zoneId != null ? [this.circuit.zoneId] : [],
-                selectedVilleIds: [],
-                activities: [],
-                notes: p
-              };
-            }
-            return {
-              day: p.day ?? idx + 1,
-              title: p.title,
-              zoneId: p.zoneId ?? this.circuit.zoneId ?? null,
-              villeId: p.villeId ?? null,
-              selectedZoneIds: (p.zoneId ?? this.circuit.zoneId) != null ? [p.zoneId ?? this.circuit.zoneId] : [],
-              selectedVilleIds: p.villeId != null ? [p.villeId] : [],
-              activities: p.activities ?? [],
-              notes: p.description ?? ''
-            };
-          });
-        } else {
-          // Default empty day
-          this.programmeDays = [{
-            day: 1,
-            zoneId: null,
-            villeId: null,
-            selectedZoneIds: [],
-            selectedVilleIds: [],
-            activities: [],
-            notes: ''
-          }];
-        }
+      next: (dto) => {
+        this.circuitDto = dto;
+        this.populateFormFromDto(dto);
         this.isLoading = false;
       },
       error: (error) => {
@@ -158,205 +203,296 @@ export class EditCircuitComponent implements OnInit {
     });
   }
 
-  loadZones() {
-    this.zonesService.getAllZones().subscribe({
-      next: (zones) => {
-        this.zones = zones;
-      },
-      error: (error) => {
-        console.error('Erreur chargement zones', error);
+  private populateFormFromDto(dto: CircuitDTO) {
+    this.circuit.titre = dto.titre || '';
+    this.circuit.description = dto.description || '';
+    this.circuit.dureeJours = this.extractDureeJours(dto.dureeIndicative);
+    this.circuit.prixEuros = Number(dto.prixIndicatif || 0);
+
+    this.circuit.pointsForts = dto.pointsForts && dto.pointsForts.length > 0
+      ? dto.pointsForts.map(p => ({ icon: p.icon || '🏛️', title: p.title || '', desc: p.desc || '' }))
+      : [{ icon: '🏛️', title: '', desc: '' }];
+
+    this.circuit.inclus = dto.inclus && dto.inclus.length > 0 ? dto.inclus : [''];
+    this.circuit.nonInclus = dto.nonInclus && dto.nonInclus.length > 0 ? dto.nonInclus : [''];
+
+    this.circuit.programme = this.buildProgrammeFromDto(dto);
+    if (this.circuit.programme.length === 0) {
+      this.initProgramme();
+    }
+
+    this.circuit.dureeJours = this.circuit.programme.length || this.circuit.dureeJours || 1;
+    this.activeDayIndex = Math.min(this.activeDayIndex, this.circuit.programme.length - 1);
+
+    this.existingHeroUrl = dto.img || null;
+    this.existingGalerieUrls = Array.isArray(dto.galerie) ? dto.galerie : [];
+
+    this.hydrateProgrammeCaches();
+  }
+
+  private buildProgrammeFromDto(dto: CircuitDTO) {
+    if (!dto.programme || dto.programme.length === 0) return [] as Array<{jour: number; description: string; zoneId: number | null; villeId: number | null; activiteIds: number[]}>;
+
+    return dto.programme.map((p: any, idx: number) => {
+      if (typeof p === 'string') {
+        return {
+          jour: idx + 1,
+          title: '',
+          description: p,
+          zoneId: dto.zoneId ?? null,
+          villeId: dto.villeId ?? null,
+          activiteIds: []
+        };
       }
+      return {
+        jour: p.day ?? idx + 1,
+        title: p.title ?? '',
+        description: (p.description ?? p.notes ?? '').toString(),
+        zoneId: p.zoneId ?? dto.zoneId ?? null,
+        villeId: p.villeId ?? dto.villeId ?? null,
+        activiteIds: p.activities ?? p.activiteIds ?? []
+      };
     });
   }
 
-  loadVilles() {
-    this.villesService.getAll().subscribe({
-      next: (villes) => {
-        this.villes = villes;
-      },
-      error: (error) => {
-        console.error('Erreur chargement villes', error);
-      }
+  private hydrateProgrammeCaches() {
+    this.circuit.programme.forEach((jour, index) => {
+      if (!jour.zoneId) return;
+
+      this.cacheService.getVillesForZone(jour.zoneId).subscribe({
+        next: (villes) => {
+          this.villesParJour = { ...this.villesParJour, [index]: villes };
+        },
+        error: () => {
+          this.villesParJour = { ...this.villesParJour, [index]: [] };
+        }
+      });
+
+      this.cacheService.getActivitesForZone(jour.zoneId).subscribe({
+        next: (activites) => {
+          this.activitesParJour = { ...this.activitesParJour, [index]: activites };
+          jour.activiteIds = jour.activiteIds.filter(id => activites.some(act => act.id === id));
+        },
+        error: () => {
+          this.activitesParJour = { ...this.activitesParJour, [index]: [] };
+        }
+      });
     });
   }
 
-  loadActivites() {
-    this.activitesService.getAllActivites().subscribe({
-      next: (activites) => {
-        this.activites = activites;
-      },
-      error: (error) => {
-        console.error('Erreur chargement activités', error);
-      }
-    });
-  }
+  private extractDureeJours(dureeIndicative: string | null | undefined): number {
+    if (!dureeIndicative) return 1;
+    const normalized = dureeIndicative.toLowerCase();
+    const numMatch = normalized.match(/\d+/);
+    const number = numMatch ? Number(numMatch[0]) : 1;
 
-  // Filtrage géographique
-  onZoneChange() {
-    // Réinitialiser la ville quand la zone change
-    this.circuit.villeId = null;
-  }
-
-  getFilteredVilles(): VilleDTO[] {
-    if (!this.circuit.zoneId) {
-      return this.villes;
+    if (normalized.includes('semaine')) {
+      return number * 7;
     }
-    return this.villes.filter(v => v.zoneId === this.circuit.zoneId);
-  }
-
-  // Gestion des images
-  onHeroImageSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.heroImageFile = file;
-      // optional: preview only
-      this.convertFileToBase64(file).then(base64 => {
-        this.heroPreview = base64;
-      }).catch(() => { this.heroPreview = null; });
+    if (normalized.includes('mois')) {
+      return number * 30;
     }
+    return number;
   }
 
-  onGalerieImagesSelected(event: any) {
-    const files = Array.from(event.target.files) as File[];
-    if (files.length >= 1 && files.length <= 10) {
-      this.galerieFiles = files;
-      // generate previews for selected files
-      this.galeriePreviews = [];
-      Promise.all(files.slice(0, 10).map(f => this.convertFileToBase64(f).catch(() => null)))
-        .then(previews => {
-          this.galeriePreviews = previews.filter(Boolean) as string[];
-        }).catch(() => { this.galeriePreviews = []; });
-    } else {
-      alert('Veuillez sélectionner entre 1 et 10 images.');
-      event.target.value = '';
-    }
-  }
+  // ============================================
+  // GESTION DES DONNÉES DE RÉFÉRENCE
+  // ============================================
 
-  onSaisirEnCFAToggle(checked: boolean) {
-    const current = Number(this.circuit.prixIndicatif);
-    if (isNaN(current) || checked === this.previousSaisirEnCFA) {
-      this.previousSaisirEnCFA = checked;
+  onJourZoneChange(jourIndex: number) {
+    const jour = this.circuit.programme[jourIndex];
+    jour.villeId = null;
+
+    if (!jour.zoneId) {
+      this.villesParJour = { ...this.villesParJour };
+      delete this.villesParJour[jourIndex];
+      this.activitesParJour = { ...this.activitesParJour };
+      delete this.activitesParJour[jourIndex];
       return;
     }
 
-    if (checked) {
-      // EUR -> XOF for input display
-      this.circuit.prixIndicatif = Math.round(current * this.RATE_XOF_PER_EUR);
-    } else {
-      // XOF -> EUR for input display
-      this.circuit.prixIndicatif = Number((current / this.RATE_XOF_PER_EUR).toFixed(2));
-    }
-    this.previousSaisirEnCFA = checked;
+    this.cacheService.getVillesForZone(jour.zoneId).subscribe({
+      next: (villes) => {
+        this.villesParJour = { ...this.villesParJour, [jourIndex]: villes };
+      },
+      error: () => {
+        this.villesParJour = { ...this.villesParJour, [jourIndex]: [] };
+      }
+    });
+
+    this.cacheService.getActivitesForZone(jour.zoneId).subscribe({
+      next: (activites) => {
+        this.activitesParJour = { ...this.activitesParJour, [jourIndex]: activites };
+        jour.activiteIds = jour.activiteIds.filter(id => activites.some(act => act.id === id));
+      },
+      error: () => {
+        this.activitesParJour = { ...this.activitesParJour, [jourIndex]: [] };
+      }
+    });
   }
 
-  // Méthode utilitaire pour convertir un fichier en base64
-  private convertFileToBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
+  onJourVilleChange(jourIndex: number) {
+    const jour = this.circuit.programme[jourIndex];
+    const activitesDisponibles = this.getActivitesForJour(jourIndex);
+    jour.activiteIds = jour.activiteIds.filter(id =>
+      activitesDisponibles.some(act => act.id === id)
+    );
+  }
+
+  getVillesForJour(jourIndex: number): VilleDTO[] {
+    return this.villesParJour[jourIndex] || [];
+  }
+
+  getActivitesForJour(jourIndex: number): Activite[] {
+    const jour = this.circuit.programme[jourIndex];
+    let activites = this.activitesParJour[jourIndex] || [];
+
+    if (jour.villeId) {
+      activites = activites.filter(act => act.villeId === jour.villeId);
+    }
+
+    activites.forEach(act => {
+      if (act.dureeInterne && !act.dureeDisplay) {
+        act.dureeDisplay = this.formatDuree(act.dureeInterne);
+      }
+    });
+
+    return activites;
+  }
+
+  private formatDuree(minutes: number): string {
+    const heures = Math.floor(minutes / 60);
+    const minutesRestantes = minutes % 60;
+
+    if (heures === 0) {
+      return `${minutesRestantes}min`;
+    } else if (minutesRestantes === 0) {
+      return `${heures}h`;
+    } else {
+      return `${heures}h${minutesRestantes.toString().padStart(2, '0')}`;
+    }
+  }
+
+  isLoadingVillesForJour(jourIndex: number): boolean {
+    const jour = this.circuit.programme[jourIndex];
+    return jour.zoneId !== null && !this.villesParJour[jourIndex];
+  }
+
+  isLoadingActivitesForJour(jourIndex: number): boolean {
+    const jour = this.circuit.programme[jourIndex];
+    return jour.zoneId !== null && !this.activitesParJour[jourIndex];
+  }
+
+  // ============================================
+  // GESTION DU PROGRAMME
+  // ============================================
+
+  onDureeChange() {
+    const duree = this.circuit.dureeJours;
+    const current = this.circuit.programme.length;
+
+    if (duree > current) {
+      for (let i = current; i < duree; i++) {
+        this.circuit.programme.push({
+          jour: i + 1,
+          description: '',
+          zoneId: null,
+          villeId: null,
+          activiteIds: []
+        });
+      }
+    } else if (duree < current) {
+      this.circuit.programme = this.circuit.programme.slice(0, duree);
+    }
+
+    if (this.activeDayIndex >= this.circuit.programme.length) {
+      this.activeDayIndex = Math.max(0, this.circuit.programme.length - 1);
+    }
+  }
+
+  selectDay(index: number) {
+    if (index >= 0 && index < this.circuit.programme.length) {
+      this.activeDayIndex = index;
+    }
+  }
+
+  goPrevDay() {
+    this.selectDay(this.activeDayIndex - 1);
+  }
+
+  goNextDay() {
+    this.selectDay(this.activeDayIndex + 1);
+  }
+
+  setStep4Section(section: 'highlights' | 'inclusions') {
+    this.step4Section = section;
+  }
+
+  toggleActivite(jourIndex: number, activiteId: number) {
+    const jour = this.circuit.programme[jourIndex];
+    const index = jour.activiteIds.indexOf(activiteId);
+
+    if (index > -1) {
+      jour.activiteIds.splice(index, 1);
+    } else {
+      jour.activiteIds.push(activiteId);
+    }
+  }
+
+  isActiviteSelected(jourIndex: number, activiteId: number): boolean {
+    return this.circuit.programme[jourIndex].activiteIds.includes(activiteId);
+  }
+
+  // ============================================
+  // GESTION DES IMAGES
+  // ============================================
+
+  onHeroSelect(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    this.circuit.imageHero = file;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.previewHero = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  onGalerieSelect(event: any) {
+    const files = Array.from(event.target.files) as File[];
+
+    if (files.length < 3) {
+      this.errors['galerie'] = 'Minimum 3 images requises';
+      return;
+    }
+    if (files.length > 10) {
+      this.errors['galerie'] = 'Maximum 10 images';
+      return;
+    }
+
+    this.circuit.imagesGalerie = files;
+    delete this.errors['galerie'];
+
+    this.previewsGalerie = [];
+    files.forEach(file => {
       const reader = new FileReader();
       reader.onload = () => {
-        resolve(reader.result as string);
+        this.previewsGalerie.push(reader.result as string);
       };
-      reader.onerror = reject;
       reader.readAsDataURL(file);
     });
   }
 
-  // Gestion du programme jour par jour
-  addJour() {
-    const newDay = this.programmeDays.length + 1;
-    this.programmeDays.push({
-      day: newDay,
-      zoneId: null,
-      villeId: null,
-      selectedZoneIds: [],
-      selectedVilleIds: [],
-      activities: [],
-      notes: ''
-    });
-  }
+  // ============================================
+  // LISTES DYNAMIQUES
+  // ============================================
 
-  removeJour(index: number) {
-    if (this.programmeDays.length > 1) {
-      this.programmeDays.splice(index, 1);
-      // Renumber days
-      this.programmeDays.forEach((day, i) => day.day = i + 1);
-    }
-  }
-
-  /**
-   * Retourne les villes filtrées par zone
-   */
-  getVillesForZone(zoneId: number | null | undefined): VilleDTO[] {
-    if (!zoneId) return this.villes;
-    return this.villes.filter(v => v.zoneId === zoneId);
-  }
-
-  /**
-   * Retourne les activités filtrées par zone et/ou ville du jour
-   */
-  getActivitiesForDay(dayIndex: number): Activite[] {
-    const day = this.programmeDays[dayIndex];
-    if (!day) return this.activites;
-
-    let acts = this.activites;
-    
-    // 1. Filtrer par zone si sélectionnée
-    if (day.zoneId) {
-      acts = acts.filter(a => a.zoneId === day.zoneId);
-    }
-    
-    // 2. Filtrer par ville si sélectionnée (plus précis que la zone)
-    if (day.villeId) {
-      acts = acts.filter(a => a.villeId === day.villeId);
-    }
-    
-    return acts;
-  }
-
-  /**
-   * Quand la zone change, réinitialiser ville et activités
-   */
-  onDayZoneChange(dayIndex: number) {
-    this.programmeDays[dayIndex].villeId = null;
-    this.programmeDays[dayIndex].activities = [];
-  }
-
-  /**
-   * Quand la ville change, réinitialiser les activités
-   */
-  onDayVilleChange(dayIndex: number) {
-    this.programmeDays[dayIndex].activities = [];
-  }
-
-  getActiviteName(actId: number): string {
-    const act = this.activites.find(a => a.id === actId);
-    return act ? act.nom : 'Activité inconnue';
-  }
-
-  addActivityToDay(dayIndex: number, actId: string) {
-    if (!actId) return;
-    const id = +actId;
-    if (!this.programmeDays[dayIndex].activities) {
-      this.programmeDays[dayIndex].activities = [];
-    }
-    if (!this.programmeDays[dayIndex].activities!.includes(id)) {
-      this.programmeDays[dayIndex].activities!.push(id);
-    }
-  }
-
-  removeActivityFromDay(dayIndex: number, actId: number) {
-    if (this.programmeDays[dayIndex].activities) {
-      this.programmeDays[dayIndex].activities = this.programmeDays[dayIndex].activities!.filter(id => id !== actId);
-    }
-  }
-
-  // Gestion des points forts
   addPointFort() {
-    this.circuit.pointsForts.push({ icon: '', title: '', desc: '' });
-  }
-
-  addPredefinedPointFort(point: { icon: string, title: string, desc: string }) {
-    this.circuit.pointsForts.push({ ...point });
+    if (this.circuit.pointsForts.length < 5) {
+      this.circuit.pointsForts.push({ icon: '🏛️', title: '', desc: '' });
+    }
   }
 
   removePointFort(index: number) {
@@ -365,7 +501,12 @@ export class EditCircuitComponent implements OnInit {
     }
   }
 
-  // Gestion des éléments inclus
+  addPredefinedPointFort(point: { icon: string, title: string, desc: string }) {
+    if (this.circuit.pointsForts.length < 5) {
+      this.circuit.pointsForts.unshift({ ...point });
+    }
+  }
+
   addInclus() {
     this.circuit.inclus.push('');
   }
@@ -376,7 +517,6 @@ export class EditCircuitComponent implements OnInit {
     }
   }
 
-  // Gestion des éléments non inclus
   addNonInclus() {
     this.circuit.nonInclus.push('');
   }
@@ -387,151 +527,499 @@ export class EditCircuitComponent implements OnInit {
     }
   }
 
-  // Utilitaire pour le tracking des arrays
-  trackByIndex(index: number): number {
-    return index;
+  // ============================================
+  // NAVIGATION ENTRE ÉTAPES
+  // ============================================
+
+  canGoNext(): boolean {
+    if (this.currentStep === 1) {
+      return this.isStep1Valid();
+    }
+    if (this.currentStep === 2) {
+      return this.isStep2Valid();
+    }
+    if (this.currentStep === 3) {
+      return this.isStep3Valid();
+    }
+    return true;
   }
 
-  // Retourne le prix affiché (converti selon le mode de saisie)
-  displayPrice(): number {
-    if (!this.circuit || this.circuit.prixIndicatif == null || isNaN(Number(this.circuit.prixIndicatif))) {
-      return 0;
+  nextStep() {
+    if (this.canGoNext()) {
+      this.currentStep++;
+    } else {
+      this.showStepErrors();
     }
-    return this.saisirEnCFA
-      ? Number(this.circuit.prixIndicatif) / this.RATE_XOF_PER_EUR
-      : Number(this.circuit.prixIndicatif) * this.RATE_XOF_PER_EUR;
   }
 
-  // Retourne le prix formaté avec unité (évite les expressions complexes dans le template)
-  displayPriceFormatted(): string {
-    const value = this.displayPrice();
-    if (this.saisirEnCFA) {
-      // lorsqu'on saisit en XOF, on affiche la conversion en EUR avec deux décimales
-      return value.toFixed(2) + ' €';
+  prevStep() {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+      this.errors = {};
     }
-    // sinon on affiche en XOF arrondi
-    return Math.round(value).toString() + ' XOF';
   }
 
-  onSubmit() {
-    this.circuit.programme = this.programmeDays.map(d => ({
-      day: d.day,
-      description: (d.notes || '').toString().trim(),
-      approxTime: undefined,
-      mealsIncluded: [],
-      activities: d.activities || []
-    }));
+  goToStep(step: number) {
+    if (step <= this.currentStep || this.canGoNext()) {
+      this.currentStep = step;
+      this.errors = {};
+    }
+  }
 
-    if (this.circuit.pointsForts && this.circuit.pointsForts.length > 0) {
-      this.circuit.pointsForts = this.circuit.pointsForts.filter(p => {
-        const icon = (p.icon || '').toString().trim();
-        const title = (p.title || '').toString().trim();
-        const desc = (p.desc || '').toString().trim();
-        return icon !== '' || title !== '' || desc !== '';
-      });
+  // ============================================
+  // VALIDATION
+  // ============================================
+
+  private isStep1Valid(): boolean {
+    return !!(this.circuit.titre.trim() &&
+              this.circuit.description.trim() &&
+              this.circuit.dureeJours >= 1 &&
+              this.circuit.prixEuros > 0);
+  }
+
+  private isStep2Valid(): boolean {
+    const hasHero = !!this.circuit.imageHero || !!this.existingHeroUrl;
+    const hasGalerie = this.circuit.imagesGalerie.length >= 3 || this.existingGalerieUrls.length >= 3;
+    return hasHero && hasGalerie;
+  }
+
+  private isStep3Valid(): boolean {
+    return this.getProgrammeMissingDetails().length === 0;
+  }
+
+  private isStep4Valid(): boolean {
+    const hasInclusions = this.circuit.inclus.some(item => item.trim());
+    const hasNonInclusions = this.circuit.nonInclus.some(item => item.trim());
+    return hasInclusions && hasNonInclusions;
+  }
+
+  private showStepErrors() {
+    if (this.currentStep === 1) {
+      this.validateStep1();
+    } else if (this.currentStep === 2) {
+      this.validateStep2();
+    } else if (this.currentStep === 3) {
+      this.validateStep3();
+    } else if (this.currentStep === 4) {
+      this.validateStep4();
+    }
+  }
+
+  private validateStep1(): boolean {
+    this.errors = {};
+
+    if (!this.circuit.titre.trim()) {
+      this.errors['titre'] = 'Le titre est obligatoire';
+      return false;
+    }
+    if (!this.circuit.description.trim()) {
+      this.errors['description'] = 'La description est obligatoire';
+      return false;
+    }
+    if (this.circuit.dureeJours < 1) {
+      this.errors['duree'] = 'La durée doit être d\'au moins 1 jour';
+      return false;
+    }
+    if (this.circuit.prixEuros <= 0) {
+      this.errors['prix'] = 'Le prix doit être supérieur à 0';
+      return false;
     }
 
-    if (!this.circuit.titre || !this.circuit.description ||
-        !this.circuit.dureeIndicative || this.circuit.prixIndicatif == null || 
-        isNaN(Number(this.circuit.prixIndicatif))) {
-      alert('Veuillez remplir tous les champs obligatoires (titre, description, durée, prix).');
+    return true;
+  }
+
+  private validateStep2(): boolean {
+    this.errors = {};
+
+    if (!this.circuit.imageHero && !this.existingHeroUrl) {
+      this.errors['hero'] = 'L\'image principale est obligatoire';
+      return false;
+    }
+    if (this.circuit.imagesGalerie.length > 0 && this.circuit.imagesGalerie.length < 3) {
+      this.errors['galerie'] = 'Minimum 3 images de galerie requises';
+      return false;
+    }
+    if (this.circuit.imagesGalerie.length > 10) {
+      this.errors['galerie'] = 'Maximum 10 images';
+      return false;
+    }
+    if (this.circuit.imagesGalerie.length === 0 && this.existingGalerieUrls.length < 3) {
+      this.errors['galerie'] = 'Minimum 3 images de galerie requises';
+      return false;
+    }
+
+    return true;
+  }
+
+  private validateStep3(): boolean {
+    this.errors = {};
+    this.programmeMissingDetails = [];
+
+    const invalidDays = this.getProgrammeMissingDetails();
+    if (invalidDays.length > 0) {
+      this.programmeMissingDetails = invalidDays;
+      this.errors['programme'] = 'Certains jours sont incomplets. Merci de compléter les informations manquantes.';
+      return false;
+    }
+
+    return true;
+  }
+
+  private validateStep4(): boolean {
+    this.errors = {};
+
+    const hasInclusions = this.circuit.inclus.some(item => item.trim());
+    const hasNonInclusions = this.circuit.nonInclus.some(item => item.trim());
+
+    if (!hasInclusions) {
+      this.errors['inclus'] = 'Au moins une inclusion doit être définie';
+      return false;
+    }
+
+    if (!hasNonInclusions) {
+      this.errors['nonInclus'] = 'Au moins une non-inclusion doit être définie';
+      return false;
+    }
+
+    return true;
+  }
+
+  // ============================================
+  // SOUMISSION
+  // ============================================
+
+  async onSubmit() {
+    if (!this.isStep1Valid() || !this.isStep2Valid() || !this.isStep3Valid() || !this.isStep4Valid()) {
+      if (!this.isStep1Valid()) {
+        this.currentStep = 1;
+        this.validateStep1();
+      } else if (!this.isStep2Valid()) {
+        this.currentStep = 2;
+        this.validateStep2();
+      } else if (!this.isStep3Valid()) {
+        this.currentStep = 3;
+        this.validateStep3();
+      } else if (!this.isStep4Valid()) {
+        this.currentStep = 4;
+        this.validateStep4();
+      }
       return;
     }
 
+    this.loading.submit = true;
 
-    // Filtrer les jours de programme vides (rendre optionnel)
-    if (this.circuit.programme && this.circuit.programme.length > 0) {
-      this.circuit.programme = this.circuit.programme.filter((jour: any) => 
-        jour.description && jour.description.toString().trim()
-      );
-    }
+    try {
+      const heroUrl = await this.resolveHeroUrl();
+      const galerieUrls = await this.resolveGalerieUrls();
 
-    // Filtrer les points forts incomplets (rendre moins strict)
-    if (this.circuit.pointsForts && this.circuit.pointsForts.length > 0) {
-      this.circuit.pointsForts = this.circuit.pointsForts.filter(point => {
-        const icon = (point.icon || '').toString().trim();
-        const title = (point.title || '').toString().trim();
-        const desc = (point.desc || '').toString().trim();
-        // Garder seulement si au moins le titre est rempli
-        return title !== '';
-      });
-    }
+      const premierJourAvecVille = this.circuit.programme.find(j => j.villeId && j.zoneId);
+      const villeNom = premierJourAvecVille
+        ? (this.getVilleNomById(premierJourAvecVille.villeId || null) || this.circuitDto?.villeNom || '')
+        : (this.circuitDto?.villeNom || '');
 
-    // Filtrer les éléments vides dans inclus/non inclus
-    if (this.circuit.inclus) {
-      this.circuit.inclus = this.circuit.inclus.filter((item: string) => item && item.trim());
-    }
-
-    if (this.circuit.nonInclus) {
-      this.circuit.nonInclus = this.circuit.nonInclus.filter((item: string) => item && item.trim());
-    }
-
-    this.isLoading = true;
-
-    (async () => {
-      try {
-        // If a new hero file was selected, upload it
-        if (this.heroImageFile) {
-          const heroResp = await lastValueFrom(this.circuitService.uploadImage(this.heroImageFile, 'circuits/hero'));
-          this.circuit.img = heroResp.url;
-        }
-
-        // If new gallery files selected, upload and append to existing gallery.
-        if (this.galerieFiles && this.galerieFiles.length > 0) {
-          const existingGalerie = Array.isArray(this.circuit.galerie) ? [...this.circuit.galerie] : [];
-          const galerieResults: Array<{ url: string }> = [];
-          const failedFiles: Array<{ name: string; error: any }> = [];
-          for (const file of this.galerieFiles) {
-            try {
-              const r = await lastValueFrom(this.circuitService.uploadImage(file, 'circuits/galerie'));
-              galerieResults.push(r);
-            } catch (uploadErr) {
-              console.error('[EditCircuit] gallery upload failed for', file.name, uploadErr);
-              failedFiles.push({ name: file.name, error: uploadErr });
-            }
-          }
-          if (failedFiles.length > 0) {
-            const names = failedFiles.map(f => f.name).join(', ');
-            alert('Certaines images de la galerie n\'ont pas pu être uploadées: ' + names + '. Le circuit sera mis à jour avec les images uploadées. Vous pouvez réessayer pour les fichiers manquants.');
-          }
-          this.circuit.galerie = Array.from(new Set([...existingGalerie, ...galerieResults.map(r => r.url)]));
-        }
-
-        // Build payload without mutating bound form model.
-        const payload: CircuitDTO = {
-          ...this.circuit,
-          galerie: [...(this.circuit.galerie || [])],
-          programme: [...(this.circuit.programme as any[] || [])],
-          pointsForts: [...(this.circuit.pointsForts || [])],
-          inclus: [...(this.circuit.inclus || [])],
-          nonInclus: [...(this.circuit.nonInclus || [])]
-        };
-
-        if (this.saisirEnCFA && payload.prixIndicatif != null && !isNaN(Number(payload.prixIndicatif))) {
-          payload.prixIndicatif = Number((Number(payload.prixIndicatif) / this.RATE_XOF_PER_EUR).toFixed(2));
-        }
-
-        // then update the circuit
-        this.circuitService.updateCircuit(this.circuit.id, payload).subscribe({
-          next: (updatedCircuit) => {
-            this.router.navigate(['/admin/circuits']);
-          },
-          error: (error) => {
-            console.error('Erreur mise à jour circuit', error);
-            alert('Erreur lors de la mise à jour du circuit. Veuillez réessayer.');
-            this.isLoading = false;
-          }
-        });
-
-      } catch (err: any) {
-        console.error('Erreur upload images:', err);
-        alert('Erreur lors de l\'upload des images: ' + (err.message || err));
-        this.isLoading = false;
+      if (!this.circuitDto) {
+        throw new Error('Circuit introuvable');
       }
-    })();
+
+      const prixIndicatif = this.getPrixIndicatifEnEur();
+      const payload: CircuitDTO = {
+        ...(this.circuitDto || {}),
+        id: this.circuitDto.id,
+        titre: this.circuit.titre.trim(),
+        resume: this.circuit.description.substring(0, 150).trim() + '...',
+        description: this.circuit.description.trim(),
+        dureeIndicative: `${this.circuit.dureeJours} jour${this.circuit.dureeJours > 1 ? 's' : ''}`,
+        prixIndicatif,
+        formuleProposee: this.circuitDto?.formuleProposee || 'Standard',
+        localisation: villeNom,
+        villeNom: villeNom,
+        villeId: premierJourAvecVille?.villeId || null,
+        zoneId: premierJourAvecVille?.zoneId || null,
+        img: heroUrl,
+        galerie: galerieUrls,
+        programme: this.circuit.programme.map(p => ({
+          day: p.jour,
+          title: p.title || '',
+          description: p.description.trim(),
+          activities: p.activiteIds,
+          zoneId: p.zoneId,
+          villeId: p.villeId
+        })),
+        pointsForts: this.circuit.pointsForts.filter(p =>
+          p.icon.trim() && p.title.trim() && p.desc.trim()
+        ),
+        inclus: this.circuit.inclus.map(s => s.trim()).filter(s => s),
+        nonInclus: this.circuit.nonInclus.map(s => s.trim()).filter(s => s),
+        activiteIds: Array.from(new Set(
+          this.circuit.programme.flatMap(p => p.activiteIds)
+        )),
+        actif: this.circuitDto?.actif ?? true
+      };
+
+      await lastValueFrom(this.circuitService.updateCircuit(this.circuitDto.id, payload));
+      this.clearDraft();
+      this.router.navigate(['/admin/circuits']);
+
+    } catch (error) {
+      console.error('Erreur mise à jour circuit:', error);
+      this.errors['submit'] = 'Erreur lors de la mise à jour du circuit';
+      this.loading.submit = false;
+    }
+  }
+
+  private async resolveHeroUrl(): Promise<string> {
+    if (this.circuit.imageHero) {
+      const heroRes = await lastValueFrom(
+        this.circuitService.uploadImage(this.circuit.imageHero, 'circuits/hero')
+      );
+      return heroRes.url;
+    }
+    return this.existingHeroUrl || '';
+  }
+
+  private async resolveGalerieUrls(): Promise<string[]> {
+    if (this.circuit.imagesGalerie.length > 0) {
+      const uploads = this.circuit.imagesGalerie.map(file =>
+        lastValueFrom(this.circuitService.uploadImage(file, 'circuits/galerie'))
+      );
+      const results = await Promise.all(uploads);
+      return results.map(r => r.url);
+    }
+    return this.existingGalerieUrls || [];
   }
 
   cancel() {
     this.router.navigate(['/admin/circuits']);
+  }
+
+  // ============================================
+  // HELPERS
+  // ============================================
+
+  getProgressPercent(): number {
+    return (this.currentStep / this.totalSteps) * 100;
+  }
+
+  trackByIndex(index: number): number {
+    return index;
+  }
+
+  getProgrammeMissingDetails(): Array<{ jour: number; missing: string[] }> {
+    return this.circuit.programme
+      .map(jour => {
+        const missing: string[] = [];
+        if (!jour.zoneId) missing.push('zone');
+        if (!jour.villeId) missing.push('ville');
+        if (!jour.description.trim()) missing.push('description');
+        if (missing.length === 0) return null;
+        return { jour: jour.jour, missing };
+      })
+      .filter((item): item is { jour: number; missing: string[] } => item !== null);
+  }
+
+  getStep3MissingSummary(): string[] {
+    const summary: string[] = [];
+
+    const programmeMissing = this.getProgrammeMissingDetails();
+    if (programmeMissing.length > 0) {
+      programmeMissing.forEach(item => {
+        summary.push(`Jour ${item.jour} : ${item.missing.join(', ')}`);
+      });
+    }
+
+    return summary;
+  }
+
+  getStep4MissingSummary(): string[] {
+    const summary: string[] = [];
+    if (!this.circuit.inclus.some(item => item.trim())) {
+      summary.push('Inclus : au moins un élément');
+    }
+    if (!this.circuit.nonInclus.some(item => item.trim())) {
+      summary.push('Non inclus : au moins un élément');
+    }
+    return summary;
+  }
+
+  getDayMissingFields(index: number): string[] {
+    const jour = this.circuit.programme[index];
+    if (!jour) return [];
+    const missing: string[] = [];
+    if (!jour.zoneId) missing.push('zone');
+    if (!jour.villeId) missing.push('ville');
+    if (!jour.description.trim()) missing.push('description');
+    return missing;
+  }
+
+  private getVilleNomById(villeId: number | null): string {
+    if (!villeId) return '';
+    const allVilles = Object.values(this.villesParJour).flat();
+    return allVilles.find(v => v.id === villeId)?.nom || '';
+  }
+
+  onPriceCurrencyChange(newCurrency: 'EUR' | 'XOF') {
+    if (newCurrency === this.lastPriceCurrency) {
+      return;
+    }
+
+    const current = Number(this.circuit.prixEuros);
+    if (!isNaN(current) && current > 0) {
+      if (newCurrency === 'XOF') {
+        this.circuit.prixEuros = Math.round(current * this.RATE_XOF_PER_EUR);
+      } else {
+        this.circuit.prixEuros = Number((current / this.RATE_XOF_PER_EUR).toFixed(2));
+      }
+    }
+    this.lastPriceCurrency = newCurrency;
+  }
+
+  getPriceConversionLabel(): string {
+    const value = Number(this.circuit.prixEuros);
+    if (!value || isNaN(value)) return '';
+    if (this.priceCurrency === 'EUR') {
+      const xof = Math.round(value * this.RATE_XOF_PER_EUR);
+      return `≈ ${xof.toLocaleString()} XOF`;
+    }
+    const eur = Number((value / this.RATE_XOF_PER_EUR).toFixed(2));
+    return `≈ ${eur.toLocaleString()} EUR`;
+  }
+
+  private getPrixIndicatifEnEur(): number {
+    const value = Number(this.circuit.prixEuros);
+    if (this.priceCurrency === 'XOF') {
+      return Number((value / this.RATE_XOF_PER_EUR).toFixed(2));
+    }
+    return value;
+  }
+
+  // ============================================
+  // BROUILLON (AUTO-SAVE)
+  // ============================================
+
+  private getDraftKey(): string {
+    return `${this.DRAFT_KEY_PREFIX}${this.circuitId || 'unknown'}`;
+  }
+
+  private startAutoSave() {
+    if (this.autosaveTimer) {
+      window.clearInterval(this.autosaveTimer);
+    }
+    this.autosaveTimer = window.setInterval(() => {
+      this.saveDraft();
+    }, this.AUTOSAVE_MS);
+  }
+
+  private saveDraft() {
+    if (this.isLoading || !this.circuitId) {
+      return;
+    }
+    const draft = {
+      version: 1,
+      savedAt: Date.now(),
+      currentStep: this.currentStep,
+      activeDayIndex: this.activeDayIndex,
+      step4Section: this.step4Section,
+      circuit: {
+        ...this.circuit,
+        imageHero: null,
+        imagesGalerie: []
+      }
+    };
+
+    localStorage.setItem(this.getDraftKey(), JSON.stringify(draft));
+    this.lastAutoSaveAt = draft.savedAt;
+    this.draftSavedAt = draft.savedAt;
+  }
+
+  private checkDraft() {
+    if (!this.circuitId) {
+      this.draftAvailable = false;
+      return;
+    }
+    const raw = localStorage.getItem(this.getDraftKey());
+    if (!raw) {
+      this.draftAvailable = false;
+      return;
+    }
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.circuit) {
+        this.draftAvailable = true;
+        this.draftSavedAt = parsed.savedAt || null;
+      }
+    } catch {
+      this.draftAvailable = false;
+    }
+  }
+
+  restoreDraft() {
+    const raw = localStorage.getItem(this.getDraftKey());
+    if (!raw) return;
+    try {
+      const parsed = JSON.parse(raw);
+      if (!parsed?.circuit) return;
+
+      this.circuit = {
+        ...this.circuit,
+        ...parsed.circuit,
+        imageHero: null,
+        imagesGalerie: []
+      };
+
+      if (!this.circuit.programme || this.circuit.programme.length === 0) {
+        this.initProgramme();
+      } else {
+      this.circuit.programme = this.circuit.programme.map((p, idx) => ({
+        ...p,
+        jour: idx + 1,
+        title: p.title || ''
+      }));
+        this.circuit.dureeJours = this.circuit.programme.length;
+      }
+
+      this.currentStep = parsed.currentStep || 1;
+      this.activeDayIndex = Math.min(parsed.activeDayIndex || 0, this.circuit.programme.length - 1);
+      this.step4Section = parsed.step4Section || 'highlights';
+      this.previewHero = null;
+      this.previewsGalerie = [];
+      this.errors = {};
+      this.programmeMissingDetails = [];
+
+      this.hydrateProgrammeCaches();
+
+      this.draftAvailable = false;
+      this.draftRestored = true;
+    } catch {
+      // ignore parse errors
+    }
+  }
+
+  discardDraft() {
+    this.clearDraft();
+    this.draftAvailable = false;
+  }
+
+  saveDraftManual() {
+    this.saveDraft();
+    this.manualSaveNotice = true;
+    window.setTimeout(() => {
+      this.manualSaveNotice = false;
+    }, 2500);
+  }
+
+  private clearDraft() {
+    localStorage.removeItem(this.getDraftKey());
+    this.lastAutoSaveAt = null;
+    this.draftSavedAt = null;
+    this.manualSaveNotice = false;
+  }
+
+  formatDraftDate(timestamp: number | null): string {
+    if (!timestamp) return '';
+    try {
+      return new Date(timestamp).toLocaleString();
+    } catch {
+      return '';
+    }
   }
 }

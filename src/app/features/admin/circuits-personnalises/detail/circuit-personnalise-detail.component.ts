@@ -90,6 +90,8 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
     switch (statut) {
       case 'ACCEPTE':
         return 'status-approved';
+      case 'Validé':
+        return 'status-approved';
       case 'REFUSE':
         return 'status-rejected';
       case 'EN_ATTENTE':

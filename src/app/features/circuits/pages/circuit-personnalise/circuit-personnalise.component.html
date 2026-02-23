@@ -38,7 +38,13 @@
   <!-- Étape 1: Choix de la durée -->
   <div class="step-container" *ngIf="etape === 1">
     <div class="step-content">
-      <h2>Combien de jours dure votre voyage ?</h2>
+      <div class="step-heading">
+        <div>
+          <h2>Combien de jours dure votre voyage ?</h2>
+          <p class="step-subtitle">Indiquez la durée et le nombre de voyageurs.</p>
+        </div>
+        <span class="step-badge">Étape 1/5</span>
+      </div>
       <div class="duree-selector">
         <label for="nombreJours">Nombre de jours :</label>
         <select id="nombreJours" [(ngModel)]="nombreJours" (change)="changerNombreJours()">
@@ -60,69 +66,104 @@
   <!-- Étape 2: Configuration des jours -->
   <div class="step-container" *ngIf="etape === 2">
     <div class="step-content">
-      <h2>Planifiez vos journées</h2>
-      <div class="jours-container">
-        <div class="jour-card" *ngFor="let jour of jours; let i = index">
-          <h3 class="jour-header" (click)="toggleJour(i)">
-            Jour {{ jour.numero }}
-            <span class="toggle-icon">{{ expanded[i] ? '−' : '+' }}</span>
-          </h3>
+      <div class="step-heading">
+        <div>
+          <h2>Planifiez vos journées</h2>
+          <p class="step-subtitle">Choisissez une zone, une ville et jusqu'à 5 activités par jour.</p>
+        </div>
+        <span class="step-badge">Étape 2/5</span>
+      </div>
 
-          <div class="jour-content" *ngIf="expanded[i]">
-            <!-- Sélection zone/ville -->
-            <div class="zones-section">
-              <h4>Zone et ville</h4>
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Zone</label>
-                  <select [(ngModel)]="jour.zoneId" (ngModelChange)="jour.villeId = null; jour.activites = []" [name]="'zone-' + i">
-                    <option [ngValue]="null">Toutes les zones</option>
-                    <option *ngFor="let z of zones" [ngValue]="z.idZone">{{ z.nom }}</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Ville</label>
-                  <select [(ngModel)]="jour.villeId" (ngModelChange)="jour.activites = []" [name]="'ville-' + i">
-                    <option [ngValue]="null">Toutes les villes</option>
-                    <option *ngFor="let v of getVillesForZone(jour.zoneId)" [ngValue]="v.id">{{ v.nom }}</option>
-                  </select>
-                </div>
-              </div>
-              <p class="hint" *ngIf="jour.zoneId">
-                Zone sélectionnée : {{ getZoneNames(jour) }}
-              </p>
-            </div>
+      <div class="step-grid">
+        <div class="step-main">
+          <div class="jours-container">
+            <div class="jour-card" *ngFor="let jour of jours; let i = index">
+              <h3 class="jour-header" (click)="toggleJour(i)">
+                <span>Jour {{ jour.numero }}</span>
+                <span class="toggle-icon">{{ expanded[i] ? '−' : '+' }}</span>
+              </h3>
 
-            <!-- Sélection des activités -->
-            <div class="activites-section">
-              <h4>Activités (jusqu'à 5 activités)</h4>
-              <p class="hint">Vous pouvez choisir au maximum 5 activités par jour, sans dépasser environ 12&nbsp;heures d'activités au total.</p>
-              <div class="activites-list">
-                <div class="activite-option" *ngFor="let activite of getActivitesDisponibles(i)"
-                     [class.selected]="isActiviteSelected(i, activite)"
-                     (click)="toggleActivite(i, activite)">
-                  <div class="activite-header">
-                    <h5>{{ activite.nom }}</h5>
-                    <div class="activite-actions">
-                      <button *ngIf="activite.image" class="btn-view-image" (click)="openImageModal(activite.image, $event)" title="Voir l'image">
-                        <i class="ri-eye-line"></i>
-                      </button>
-                      <span class="prix" *ngIf="activite.prix != null">{{ activite.prix }}€</span>
+              <div class="jour-content" *ngIf="expanded[i]">
+                <!-- Sélection zone/ville -->
+                <div class="zones-section">
+                  <div class="section-title">
+                    <h4>Zone et ville</h4>
+                    <span class="section-hint">Affinez le périmètre de la journée.</span>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Zone</label>
+                      <select [(ngModel)]="jour.zoneId" (ngModelChange)="onZoneChange(jour, $event)" [name]="'zone-' + i">
+                        <option [ngValue]="null">Toutes les zones</option>
+                        <option *ngFor="let z of zones" [ngValue]="z.idZone">{{ z.nom }}</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label>Ville</label>
+                      <select [(ngModel)]="jour.villeId" (ngModelChange)="onVilleChange(jour, $event)" [name]="'ville-' + i">
+                        <option [ngValue]="null">Toutes les villes</option>
+                        <option *ngFor="let v of getVillesForZone(jour.zoneId)" [ngValue]="v.id">{{ v.nom }}</option>
+                      </select>
                     </div>
                   </div>
-                  <p>{{ activite.description }}</p>
-                  <small>
-                    <span *ngIf="activite.dureeDisplay; else dureeMinutes">{{ activite.dureeDisplay }}</span>
-                    <ng-template #dureeMinutes>
-                      <span *ngIf="activite.dureeMinutes">{{ activite.dureeMinutes }} min</span>
-                    </ng-template>
-                    <span *ngIf="activite.ville"> • {{ activite.ville }}</span>
-                  </small>
+                  <p class="hint" *ngIf="jour.zoneId">
+                    Zone sélectionnée : {{ getZoneNames(jour) }}
+                  </p>
+                </div>
+
+                <!-- Sélection des activités -->
+                <div class="activites-section">
+                  <div class="section-title">
+                    <h4>Activités du jour</h4>
+                    <span class="section-hint">Maximum 5 activités, ~12h au total.</span>
+                  </div>
+                  <div class="activites-list">
+                    <div class="activite-option" *ngFor="let activite of getActivitesDisponibles(i)"
+                         [class.selected]="isActiviteSelected(i, activite)"
+                         (click)="toggleActivite(i, activite)">
+                      <div class="activite-header">
+                        <h5>{{ activite.nom }}</h5>
+                        <div class="activite-actions">
+                          <button *ngIf="activite.image" class="btn-view-image" (click)="openImageModal(activite.image, $event)" title="Voir l'image">
+                            <i class="ri-eye-line"></i>
+                          </button>
+                          <span class="prix" *ngIf="activite.prix != null">{{ activite.prix }}€</span>
+                        </div>
+                      </div>
+                      <p>{{ activite.description }}</p>
+                      <small>
+                        <span *ngIf="activite.dureeDisplay; else dureeMinutes">{{ activite.dureeDisplay }}</span>
+                        <ng-template #dureeMinutes>
+                          <span *ngIf="activite.dureeMinutes">{{ activite.dureeMinutes }} min</span>
+                        </ng-template>
+                        <span *ngIf="activite.ville"> • {{ activite.ville }}</span>
+                      </small>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        <aside class="step-aside">
+          <div class="summary-card">
+            <h3>Votre circuit</h3>
+            <div class="summary-row">
+              <span>{{ nombreJours }} jour{{ nombreJours > 1 ? 's' : '' }}</span>
+              <span>• {{ nombrePersonnes }} pers.</span>
+            </div>
+            <div class="summary-days">
+              <div class="summary-day" *ngFor="let jour of jours">
+                <div class="summary-day-title">Jour {{ jour.numero }}</div>
+                <div class="summary-day-meta">{{ getZoneNames(jour) || 'Zone à définir' }}</div>
+                <div class="summary-day-acts">
+                  {{ getActiviteNames(jour) || 'Activités à définir' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
       </div>
       <div class="step-actions">
         <button class="btn-prev" (click)="etapePrecedente()">Précédent</button>
@@ -134,47 +175,115 @@
   <!-- Étape 3: Options générales -->
   <div class="step-container" *ngIf="etape === 3">
     <div class="step-content">
-      <h2>Options pour votre circuit</h2>
-      <div class="options-form">
-        <div class="option-group">
-          <label for="hebergement">Hébergement (Airbnb)</label>
-          <select id="hebergement" [(ngModel)]="options.hebergement">
-            <option value="">Choisir un Airbnb...</option>
-            <option *ngFor="let h of hebergements" [value]="h.nom">
-              {{ h.nom }} - {{ h.localisation }} ({{ h.prixParNuit | number:'1.0-2' }} €/nuit)
-            </option>
-          </select>
-          <small><a href="#" (click)="voirHebergements()">Voir tous les hébergements</a></small>
+      <div class="step-heading">
+        <div>
+          <h2>Options pour votre circuit</h2>
+          <p class="step-subtitle">Personnalisez le confort et les services souhaités.</p>
+        </div>
+        <span class="step-badge">Étape 3/5</span>
+      </div>
+
+      <div class="step-grid">
+        <div class="step-main">
+          <div class="option-block">
+            <div class="block-header">
+              <h3>Hébergement</h3>
+              <p>Choisissez si vous voulez sélectionner un hébergement ou laisser l'équipe proposer.</p>
+            </div>
+            <div class="choice-cards">
+              <button type="button" class="choice-card" [class.selected]="hebergementMode === 'auto'" (click)="setHebergementMode('auto')">
+                <span class="choice-title">Laisser proposer</span>
+                <span class="choice-desc">Nous vous proposerons la meilleure option.</span>
+              </button>
+              <button type="button" class="choice-card" [class.selected]="hebergementMode === 'choisir'" (click)="setHebergementMode('choisir')">
+                <span class="choice-title">Je choisis</span>
+                <span class="choice-desc">Sélectionnez un hébergement précis.</span>
+              </button>
+            </div>
+            <div class="hebergement-select" *ngIf="hebergementMode === 'choisir'">
+              <label for="hebergement">Choix de l'hébergement</label>
+              <select id="hebergement" [(ngModel)]="options.hebergement" (ngModelChange)="hebergementMode = 'choisir'">
+                <option value="">Choisir un hébergement...</option>
+                <option *ngFor="let h of hebergements" [value]="h.nom">
+                  {{ h.nom }} - {{ h.localisation }} ({{ h.prixParNuit | number:'1.0-2' }} €/nuit)
+                </option>
+              </select>
+              <button class="link-button" type="button" (click)="voirHebergements()">Voir tous les hébergements</button>
+            </div>
+          </div>
+
+          <div class="option-block">
+            <div class="block-header">
+              <h3>Transport</h3>
+              <p>Choisissez l'option la plus adaptée au nombre de personnes.</p>
+            </div>
+            <div class="transport-grid">
+              <button
+                type="button"
+                class="transport-card"
+                *ngFor="let t of getTransportsDisponibles()"
+                [class.selected]="options.transport === t"
+                (click)="options.transport = t">
+                <span class="transport-title">{{ t }}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="option-block">
+            <div class="block-header">
+              <h3>Services complémentaires</h3>
+              <p>Activez les services dont vous avez besoin.</p>
+            </div>
+            <div class="services-grid">
+              <label class="service-card" [class.selected]="options.guide">
+                <input type="checkbox" [(ngModel)]="options.guide">
+                <div>
+                  <span class="service-title">Guide touristique</span>
+                  <span class="service-desc">Accompagnement local et culturel.</span>
+                </div>
+              </label>
+              <label class="service-card" [class.selected]="options.chauffeur">
+                <input type="checkbox" [(ngModel)]="options.chauffeur">
+                <div>
+                  <span class="service-title">Chauffeur privé</span>
+                  <span class="service-desc">Déplacements fluides et confort.</span>
+                </div>
+              </label>
+              <label class="service-card" [class.selected]="options.pensionComplete">
+                <input type="checkbox" [(ngModel)]="options.pensionComplete">
+                <div>
+                  <span class="service-title">Pension complète</span>
+                  <span class="service-desc">Repas inclus pendant le séjour.</span>
+                </div>
+              </label>
+            </div>
+          </div>
         </div>
 
-        <div class="option-group">
-          <label for="transport">Transport (dépend du nombre de personnes)</label>
-          <select id="transport" [(ngModel)]="options.transport">
-            <option value="">Choisir...</option>
-            <option *ngFor="let t of getTransportsDisponibles()" [value]="t">{{ t }}</option>
-          </select>
-        </div>
-
-        <div class="option-group">
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="options.guide">
-            Guide touristique
-          </label>
-        </div>
-
-        <div class="option-group">
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="options.chauffeur">
-            Chauffeur privé
-          </label>
-        </div>
-
-        <div class="option-group">
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="options.pensionComplete">
-            Pension complète
-          </label>
-        </div>
+        <aside class="step-aside">
+          <div class="summary-card">
+            <h3>Résumé des options</h3>
+            <div class="summary-row">
+              <span>Hébergement</span>
+              <span>{{ options.hebergement || (hebergementMode === 'auto' ? 'Laisser proposer' : 'À définir') }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Transport</span>
+              <span>{{ options.transport || 'À définir' }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Services</span>
+              <span>
+                <ng-container *ngIf="options.guide || options.chauffeur || options.pensionComplete; else aucunService">
+                  <span *ngIf="options.guide">Guide</span>
+                  <span *ngIf="options.chauffeur"> {{ options.guide ? '•' : '' }} Chauffeur</span>
+                  <span *ngIf="options.pensionComplete"> {{ options.guide || options.chauffeur ? '•' : '' }} Pension</span>
+                </ng-container>
+                <ng-template #aucunService>Aucun</ng-template>
+              </span>
+            </div>
+          </div>
+        </aside>
       </div>
       <div class="step-actions">
         <button class="btn-prev" (click)="etapePrecedente()">Précédent</button>
@@ -186,20 +295,63 @@
   <!-- Étape 4: Résumé -->
   <div class="step-container" *ngIf="etape === 4">
     <div class="step-content">
-      <h2>Résumé de votre circuit personnalisé</h2>
-      <div class="resume-container">
-        <div class="resume-section">
-          <h3>Durée et Participants</h3>
-          <p><strong>Durée :</strong> {{ nombreJours }} jour{{ nombreJours > 1 ? 's' : '' }}</p>
-          <p><strong>Nombre de personnes :</strong> {{ nombrePersonnes }}</p>
+      <div class="step-heading">
+        <div>
+          <h2>Résumé de votre circuit personnalisé</h2>
+          <p class="step-subtitle">Vérifiez vos choix avant de nous envoyer la demande.</p>
+        </div>
+        <span class="step-badge">Étape 4/5</span>
+      </div>
 
-          <h3>Journées <button class="btn-toggle" (click)="toggleJoursExpanded()">{{ joursExpanded ? 'Réduire' : 'Voir détails' }}</button></h3>
-          <div *ngIf="joursExpanded">
+      <div class="resume-grid">
+        <div class="resume-card">
+          <h3>Informations clés</h3>
+          <div class="resume-row">
+            <span>Durée</span>
+            <strong>{{ nombreJours }} jour{{ nombreJours > 1 ? 's' : '' }}</strong>
+          </div>
+          <div class="resume-row">
+            <span>Participants</span>
+            <strong>{{ nombrePersonnes }} personne{{ nombrePersonnes > 1 ? 's' : '' }}</strong>
+          </div>
+          <div class="resume-row">
+            <span>Hébergement</span>
+            <strong>{{ options.hebergement || (hebergementMode === 'auto' ? 'Laisser proposer' : 'À définir') }}</strong>
+          </div>
+          <div class="resume-row">
+            <span>Transport</span>
+            <strong>{{ options.transport || 'À définir' }}</strong>
+          </div>
+          <div class="resume-row">
+            <span>Services</span>
+            <strong>
+              <ng-container *ngIf="options.guide || options.chauffeur || options.pensionComplete; else aucunServiceResume">
+                <span *ngIf="options.guide">Guide</span>
+                <span *ngIf="options.chauffeur"> {{ options.guide ? '•' : '' }} Chauffeur</span>
+                <span *ngIf="options.pensionComplete"> {{ options.guide || options.chauffeur ? '•' : '' }} Pension</span>
+              </ng-container>
+              <ng-template #aucunServiceResume>Aucun</ng-template>
+            </strong>
+          </div>
+          <div class="resume-highlight">
+            <span>Prix estimé (activités)</span>
+            <strong>{{ calculerPrixTotal() }}€</strong>
+          </div>
+          <p class="resume-note">Le prix total incluant hébergement et transport sera calculé par notre équipe.</p>
+        </div>
+
+        <div class="resume-card">
+          <div class="resume-card-header">
+            <h3>Journées</h3>
+            <button class="btn-toggle" (click)="toggleJoursExpanded()">{{ joursExpanded ? 'Réduire' : 'Voir détails' }}</button>
+          </div>
+          <div class="resume-days" *ngIf="joursExpanded">
             <div class="jour-resume" *ngFor="let jour of jours">
-              <h4>Jour {{ jour.numero }}</h4>
-              <p><strong>Zones :</strong> {{ getZoneNames(jour) }}</p>
-              <div class="activites-resume" *ngIf="jour.activites.length > 0">
-                <strong>Activités :</strong>
+              <div class="jour-resume-header">
+                <h4>Jour {{ jour.numero }}</h4>
+                <span class="jour-zone">{{ getZoneNames(jour) || 'Zone à définir' }}</span>
+              </div>
+              <div class="activites-resume" *ngIf="jour.activites.length > 0; else noActs">
                 <div class="activite-item" *ngFor="let actId of jour.activites">
                   <ng-container *ngIf="getActiviteById(actId) as act">
                     <img *ngIf="act.image" [src]="act.image" alt="{{ act.nom }}" class="activite-image" />
@@ -207,22 +359,14 @@
                   </ng-container>
                 </div>
               </div>
+              <ng-template #noActs>
+                <p class="empty-activities">Activités à définir</p>
+              </ng-template>
             </div>
           </div>
-
-          <h3>Options</h3>
-          <p><strong>Hébergement :</strong> <span class="hebergement-text">{{ options.hebergement || 'Non spécifié' }}</span></p>
-          <p><strong>Transport :</strong> {{ options.transport || 'Non spécifié' }} <small>(dépenses dépendent du nombre de personnes)</small></p>
-          <p><strong>Services :</strong>
-            <span *ngIf="options.guide">Guide, </span>
-            <span *ngIf="options.chauffeur">Chauffeur, </span>
-            <span *ngIf="options.pensionComplete">Pension complète</span>
-            <span *ngIf="!options.guide && !options.chauffeur && !options.pensionComplete">Aucun</span>
-          </p>
-
-          <h3>Prix estimé</h3>
-          <p class="prix-total">{{ calculerPrixTotal() }}€ (activités uniquement)</p>
-          <small>Le prix total incluant hébergement et transport sera calculé par notre équipe.</small>
+          <div class="resume-days" *ngIf="!joursExpanded">
+            <p class="collapsed-hint">Cliquez sur “Voir détails” pour afficher chaque journée.</p>
+          </div>
         </div>
       </div>
       <div class="step-actions">
@@ -235,7 +379,13 @@
   <!-- Étape 5: Formulaire de contact -->
   <div class="step-container" *ngIf="etape === 5">
     <div class="step-content">
-      <h2>Informations de contact</h2>
+      <div class="step-heading">
+        <div>
+          <h2>Informations de contact</h2>
+          <p class="step-subtitle">Nous vous recontactons rapidement avec un devis personnalisé.</p>
+        </div>
+        <span class="step-badge">Étape 5/5</span>
+      </div>
       <form class="contact-form" (ngSubmit)="onSubmit()">
         <div class="form-row">
           <div class="form-group">
@@ -275,9 +425,14 @@
       </form>
 
       <div class="success-message" *ngIf="submitSuccess">
-        <h3>Demande envoyée !</h3>
-        <p>Nous avons bien reçu votre demande de circuit personnalisé. Notre équipe vous contactera dans les plus brefs délais pour vous proposer un devis adapté.</p>
-        <button class="btn-home" routerLink="/">Retour à l'accueil</button>
+        <div class="success-modal">
+          <div class="success-modal-icon">
+            <i class="ri-check-line"></i>
+          </div>
+          <h3>Demande envoyée !</h3>
+          <p>Nous avons bien reçu votre demande de circuit personnalisé. Notre équipe vous contactera dans les plus brefs délais pour vous proposer un devis adapté.</p>
+          <button class="btn-home" routerLink="/">Retour à l'accueil</button>
+        </div>
       </div>
 
       <div class="error-message" *ngIf="submitError">

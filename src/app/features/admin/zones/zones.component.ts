@@ -19,6 +19,10 @@ export class ZonesComponent implements OnInit {
   loading = true;
   showModal = false;
   isEditing = false;
+  saving = false;
+  searchTerm = '';
+  formError = '';
+  sortOption = 'nom-asc';
 
   currentZone: ZoneDTO = {
     idZone: 0,
@@ -69,7 +73,8 @@ export class ZonesComponent implements OnInit {
     if (action === 'edit') {
       this.openEditModal(item);
     } else if (action === 'delete') {
-      this.deleteZone(item?.id);
+      const id = item?.idZone ?? item?.id;
+      this.deleteZone(id);
     }
   }
 
@@ -84,12 +89,14 @@ export class ZonesComponent implements OnInit {
       nom: '',
       description: ''
     };
+    this.formError = '';
     this.showModal = true;
   }
 
   openEditModal(zone: ZoneDTO): void {
     this.isEditing = true;
-    this.currentZone = { ...zone };
+    this.currentZone = { ...zone, idZone: (zone as any).idZone ?? (zone as any).id ?? zone.idZone };
+    this.formError = '';
     this.showModal = true;
   }
 
@@ -98,24 +105,48 @@ export class ZonesComponent implements OnInit {
   }
 
   saveZone(): void {
+    const nom = (this.currentZone.nom || '').trim();
+    const description = (this.currentZone.description || '').trim();
+
+    if (!nom) {
+      this.formError = 'Le nom est obligatoire';
+      return;
+    }
+
+    this.formError = '';
+    this.saving = true;
+
+    const payload: ZoneDTO = {
+      ...this.currentZone,
+      nom,
+      description
+    };
+
     if (this.isEditing) {
-      this.zonesService.update(this.currentZone.idZone, this.currentZone).subscribe({
+      const id = this.currentZone.idZone || (this.currentZone as any).id;
+      this.zonesService.update(id, payload).subscribe({
         next: () => {
           this.loadZones();
           this.closeModal();
+          this.saving = false;
         },
         error: (error) => {
           console.error('Erreur modification zone', error);
+          this.formError = 'Erreur lors de la modification de la zone';
+          this.saving = false;
         }
       });
     } else {
-      this.zonesService.create(this.currentZone).subscribe({
+      this.zonesService.create(payload).subscribe({
         next: () => {
           this.loadZones();
           this.closeModal();
+          this.saving = false;
         },
         error: (error) => {
           console.error('Erreur création zone', error);
+          this.formError = 'Erreur lors de la création de la zone';
+          this.saving = false;
         }
       });
     }
@@ -138,5 +169,27 @@ export class ZonesComponent implements OnInit {
         }
       });
     }
+  }
+
+  get filteredZones(): ZoneDTO[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    const filtered = !term
+      ? [...this.zones]
+      : this.zones.filter(z =>
+      (z.nom || '').toLowerCase().includes(term) ||
+      (z.description || '').toLowerCase().includes(term)
+    );
+
+    const [key, dir] = this.sortOption.split('-');
+    filtered.sort((a: any, b: any) => {
+      const av = key === 'nom' ? (a.nom || '').toLowerCase() : (a.id ?? a.idZone ?? 0);
+      const bv = key === 'nom' ? (b.nom || '').toLowerCase() : (b.id ?? b.idZone ?? 0);
+
+      if (av < bv) return dir === 'asc' ? -1 : 1;
+      if (av > bv) return dir === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return filtered;
   }
 }

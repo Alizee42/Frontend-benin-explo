@@ -11,15 +11,22 @@
 
 	input, select, textarea {
 		width: 100%;
-		padding: 10px;
+		padding: 12px 12px;
 		border: 1px solid #ddd;
-		border-radius: 4px;
-		font-size: 14px;
+		border-radius: 8px;
+		font-size: 15px;
+		min-height: 44px;
+		height: 46px;
 
 		&:focus {
 			outline: none;
 			border-color: var(--be-green);
 		}
+	}
+
+	textarea {
+		min-height: 96px;
+		height: auto;
 	}
 }
 
@@ -48,12 +55,12 @@
 
 .duration-split select,
 .duration-split input[type="number"] {
-	padding: 10px;
+	padding: 12px 12px;
 	border: 1px solid #ddd;
-	border-radius: 4px;
-	font-size: 14px;
+	border-radius: 8px;
+	font-size: 15px;
 	box-sizing: border-box;
-	height: auto;
+	height: 46px;
 }
 
 /* give reasonable proportions while staying aligned with other form controls */

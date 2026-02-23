@@ -59,7 +59,14 @@ export class ActivitesAdminComponent implements OnInit {
         this.zones = z.map((zz: any) => ({ id: zz.id !== undefined ? zz.id : zz.idZone, nom: zz.nom, description: zz.description, ...zz }));
         this.villesService.getAll().subscribe({
           next: (vs: VilleDTO[]) => {
-            this.villes = vs;
+            // Normaliser l'identifiant (fallback si backend renvoie idVille)
+            this.villes = vs.map((v: any) => ({
+              id: v.id !== undefined ? v.id : v.idVille,
+              nom: v.nom,
+              zoneId: v.zoneId ?? v.zone?.id ?? null,
+              zoneNom: v.zoneNom ?? (v.zone ? v.zone.nom : ''),
+              ...v
+            }));
             this.loadActivites();
           },
           error: (err: any) => { console.error('Erreur chargement villes', err); this.loadActivites(); }
@@ -76,7 +83,7 @@ export class ActivitesAdminComponent implements OnInit {
         // resolve zone name for each activity if zones already loaded
         const EUR_TO_XOF = 655.957; // rate for conversion (1 EUR = 655.957 XOF)
         this.activites = acts.map(a => {
-          const zoneName = this.zones.find(z => z.idZone === (a as any).zoneId)?.nom || '';
+          const zoneName = this.zones.find(z => (z as any).idZone === (a as any).zoneId || (z as any).id === (a as any).zoneId)?.nom || '';
           // Backend already provides villeNom
           const villeName = a.villeNom || a.ville || '';
 
@@ -139,7 +146,7 @@ export class ActivitesAdminComponent implements OnInit {
 
   openAddModal(): void {
     this.isEditing = false;
-    this.currentActivite = { id: 0, nom: '', description: '', prix: 0, duree: 1, type: 'Culture', zoneId: 0, ville: '', imagePrincipaleId: null };
+    this.currentActivite = { id: 0, nom: '', description: '', prix: 0, duree: 1, type: 'Culture', zoneId: 0, villeId: 0, imagePrincipaleId: null };
     this.showModal = true;
   }
 
@@ -213,8 +220,7 @@ export class ActivitesAdminComponent implements OnInit {
         duree: this.currentActivite.duree ?? 1,
         type: (this.currentActivite.type as any) || 'Culture',
         zoneId: this.currentActivite.zoneId || 0,
-        // include ville (form binds ville as the name string)
-        ville: (this.currentActivite as any).ville ?? null,
+        villeId: this.currentActivite.villeId || 0,
         imagePrincipaleId: (this.currentActivite as any).imagePrincipaleId ?? null
       };
       this.activitesService.createActivite(payload).subscribe({

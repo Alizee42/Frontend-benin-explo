@@ -23,6 +23,7 @@ export class CircuitDetailComponent implements OnInit {
   circuitProgramme: Array<{ day: number; title?: string; approxTime?: string; description: string; mealsIncluded?: string[]; activities?: number[]; villeId?: number; incompatibleActivities?: number[]; isLegacy?: boolean }> = [];
   // indices des jours étendus (pour "lire la suite")
   expandedDays = new Set<number>();
+  openProgrammeIndex = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -49,6 +50,7 @@ export class CircuitDetailComponent implements OnInit {
             if (typeof p === 'string') return { day: idx + 1, description: p, activities: [], isLegacy: true } as any;
             return { day: p.day ?? idx + 1, title: p.title, approxTime: p.approxTime, description: p.description ?? '', activities: p.activities ?? [], villeId: p.villeId, isLegacy: false } as any;
           });
+          this.openProgrammeIndex = 0;
           // load activities and villes for display + compatibility checks
           this.activitesService.getAllActivites().subscribe({ next: acts => { this.availableActivites = acts.map(a => ({ id: a.id, nom: a.nom, zoneId: a.zoneId })); this.checkCompatibility(); }, error: () => { this.checkCompatibility(); } });
           this.villesService.getAll().subscribe({ next: (vs: VilleDTO[]) => { this.availableVilles = vs.map((v: VilleDTO) => ({ id: v.id, nom: v.nom, zoneId: v.zoneId ?? undefined })); this.checkCompatibility(); }, error: () => { this.checkCompatibility(); } });
@@ -124,12 +126,11 @@ export class CircuitDetailComponent implements OnInit {
   }
 
   toggleExpand(index: number) {
-    if (this.expandedDays.has(index)) this.expandedDays.delete(index);
-    else this.expandedDays.add(index);
+    this.openProgrammeIndex = index;
   }
 
   isExpanded(index: number): boolean {
-    return this.expandedDays.has(index);
+    return this.openProgrammeIndex === index;
   }
 
   getImageUrl(path: string | undefined | null): string {
