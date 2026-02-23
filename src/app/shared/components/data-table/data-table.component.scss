@@ -195,29 +195,38 @@
 
 // Action Buttons
 .btn-action {
-  padding: 0.4rem 0.6rem;
-  border: none;
-  border-radius: 6px;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
+  gap: 0.4rem;
   transition: all 0.2s ease;
   text-decoration: none;
-  min-width: 32px;
-  height: 32px;
+  min-width: 86px;
+  height: 34px;
   margin-right: 0.3rem;
 
   i {
     font-size: 1rem;
     flex-shrink: 0;
   }
-    span {
-      display: none; // hide text, show icons only
-    }
+  span {
+    display: inline;
+  }
+
+  &.icon-only {
+    min-width: 34px;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 9px;
+    margin-right: 0.25rem;
+  }
   
 
 
@@ -260,6 +269,28 @@
 
     &:hover:not(:disabled) {
       background: #138496;
+      transform: translateY(-1px);
+    }
+  }
+
+  &.btn-warning {
+    background: #f3c74d;
+    color: #2c2c2c;
+    border-color: #e7b939;
+
+    &:hover:not(:disabled) {
+      background: #ddb340;
+      transform: translateY(-1px);
+    }
+  }
+
+  &.btn-danger {
+    background: #d64545;
+    color: #fff;
+    border-color: #c23b3b;
+
+    &:hover:not(:disabled) {
+      background: #bd3434;
       transform: translateY(-1px);
     }
   }

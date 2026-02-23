@@ -3,9 +3,14 @@
     <div class="hero-bg" aria-hidden="true"></div>
     <div class="hero-overlay" aria-hidden="true"></div>
     <div class="container hero-inner">
-      <p class="hero-kicker">Hébergements</p>
-      <h1 class="hero-title">Trouvez votre séjour idéal au Bénin</h1>
-      <p class="hero-subtitle">Recherche rapide, filtres utiles, réservation en 1 clic.</p>
+      <p class="hero-kicker">Hebergements</p>
+      <h1 class="hero-title">Trouvez votre sejour ideal au Benin</h1>
+      <p class="hero-subtitle">Recherche rapide, filtres utiles, reservation en 1 clic.</p>
+      <div class="hero-pills" *ngIf="!loading">
+        <span class="hero-pill"><i class="ri-hotel-bed-line"></i>{{ hebergements.length }} adresses</span>
+        <span class="hero-pill"><i class="ri-map-pin-line"></i>Multi-zones</span>
+        <span class="hero-pill"><i class="ri-shield-check-line"></i>Confirmation rapide</span>
+      </div>
     </div>
   </header>
 
@@ -13,13 +18,13 @@
     <div class="container">
       <div class="page-head">
         <div class="page-head-text">
-          <h2>Nos hébergements</h2>
+          <h2>Nos hebergements</h2>
           <p>Choisissez selon votre budget, votre localisation et votre style.</p>
         </div>
 
         <div class="results" *ngIf="!loading">
           <span class="count">{{ filteredHebergements.length }}</span>
-          <span class="label">résultat(s)</span>
+          <span class="label">resultat(s)</span>
         </div>
       </div>
 
@@ -30,7 +35,7 @@
             type="text"
             [(ngModel)]="searchTerm"
             placeholder="Rechercher (nom, ville, quartier, description...)"
-            aria-label="Rechercher un hébergement" />
+            aria-label="Rechercher un hebergement" />
         </div>
 
         <div class="filters">
@@ -44,22 +49,21 @@
 
           <label class="field">
             <span class="field-label">Trier</span>
-            <select [(ngModel)]="sortBy" aria-label="Trier les hébergements">
-              <option value="recommandes">Recommandés</option>
+            <select [(ngModel)]="sortBy" aria-label="Trier les hebergements">
+              <option value="recommandes">Recommandes</option>
               <option value="prixAsc">Prix (croissant)</option>
-              <option value="prixDesc">Prix (décroissant)</option>
-              <option value="alpha">Nom (A → Z)</option>
+              <option value="prixDesc">Prix (decroissant)</option>
+              <option value="alpha">Nom (A -> Z)</option>
             </select>
           </label>
 
           <button type="button" class="btn-ghost" (click)="clearFilters()" [disabled]="!searchTerm && !typeFilter && sortBy === 'recommandes'">
             <i class="ri-refresh-line" aria-hidden="true"></i>
-            Réinitialiser
+            Reinitialiser
           </button>
         </div>
       </section>
 
-      <!-- Loading skeletons -->
       <div class="grid" *ngIf="loading" aria-busy="true" aria-label="Chargement">
         <article class="card skeleton" *ngFor="let _ of [1,2,3,4,5,6]">
           <div class="media"></div>
@@ -73,19 +77,17 @@
         </article>
       </div>
 
-      <!-- Empty state -->
       <div class="empty" *ngIf="!loading && filteredHebergements.length === 0">
         <div class="empty-icon">
           <i class="ri-hotel-line" aria-hidden="true"></i>
         </div>
-        <h3>Aucun hébergement trouvé</h3>
-        <p>Essayez un autre mot-clé ou réinitialisez les filtres.</p>
+        <h3>Aucun hebergement trouve</h3>
+        <p>Essayez un autre mot-cle ou reinitialisez les filtres.</p>
         <button type="button" class="btn-primary" (click)="clearFilters()">
-          Réinitialiser les filtres
+          Reinitialiser les filtres
         </button>
       </div>
 
-      <!-- Cards -->
       <div class="grid" *ngIf="!loading && filteredHebergements.length > 0">
         <article class="card" *ngFor="let heb of filteredHebergements; trackBy: trackById">
           <div class="media">
@@ -113,7 +115,7 @@
             <div class="title-row">
               <h3 class="title">{{ heb.nom }}</h3>
               <div class="price">
-                <span class="amount">{{ heb.prixParNuit | number:'1.0-2' }} €</span>
+                <span class="amount">{{ heb.prixParNuit | number:'1.0-2' }} EUR</span>
                 <span class="unit">/ nuit</span>
               </div>
             </div>
@@ -130,8 +132,12 @@
             <div class="actions">
               <button type="button" class="btn-primary" (click)="reserver(heb)">
                 <i class="ri-calendar-check-line" aria-hidden="true"></i>
-                Réserver
+                Reserver
               </button>
+            </div>
+
+            <div class="card-footer">
+              <span><i class="ri-time-line"></i>Disponible toute l'annee</span>
             </div>
           </div>
         </article>

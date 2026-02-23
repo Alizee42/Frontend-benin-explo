@@ -65,6 +65,27 @@
   opacity: 0.92;
 }
 
+.hero-pills {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.38rem 0.72rem;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  backdrop-filter: blur(6px);
+}
+
 /* Content */
 .content {
   padding: 2rem 0 3rem;
@@ -338,6 +359,21 @@
 
 .actions {
   margin-top: 1rem;
+}
+
+.card-footer {
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed rgba(25, 35, 40, 0.16);
+  color: rgba(25, 35, 40, 0.65);
+  font-size: 0.84rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.card-footer i {
+  color: var(--be-green);
 }
 
 .btn-primary {

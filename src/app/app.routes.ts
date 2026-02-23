@@ -1,4 +1,6 @@
-import { Routes } from '@angular/router';import { authGuard } from './guards/auth.guard';
+import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
+import { HebergementsListComponent } from './features/hebergements/pages/hebergements-list/hebergements-list.component';
 export const routes: Routes = [
 
   /* PAGE D’ACCUEIL */
@@ -35,16 +37,7 @@ export const routes: Routes = [
   /* HEBERGEMENTS */
   {
     path: 'hebergements',
-    loadComponent: () =>
-      import('./features/hebergements/pages/hebergements-list/hebergements-list.component').then(m => m.HebergementsListComponent),
-    data: { headerLight: true }
-  },
-
-  /* RESERVATION HEBERGEMENT */
-  {
-    path: 'reservation-hebergement/:id',
-    loadComponent: () =>
-      import('./features/utilisateur/pages/reservation-hebergement/reservation-hebergement.component').then(m => m.ReservationHebergementComponent),
+    component: HebergementsListComponent,
     data: { headerLight: true }
   },
 

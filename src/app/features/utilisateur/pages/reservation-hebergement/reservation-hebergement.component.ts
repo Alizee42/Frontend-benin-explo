@@ -14,7 +14,6 @@ import { ReservationHebergementDTO } from '../../../../models/reservation-heberg
   styleUrls: ['./reservation-hebergement.component.v2.scss']
 })
 export class ReservationHebergementComponent implements OnInit {
-
   hebergement: HebergementDTO | null = null;
   currentImageIndex = 0;
   currentStep = 1;
@@ -36,6 +35,7 @@ export class ReservationHebergementComponent implements OnInit {
   isSubmitting = false;
   errorMessage = '';
   successMessage = '';
+  confirmationModalOpen = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -45,10 +45,12 @@ export class ReservationHebergementComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const hebergementId = this.route.snapshot.params['id'];
-    if (hebergementId) {
-      this.loadHebergement(+hebergementId);
-      this.reservation.hebergementId = +hebergementId;
+    const hebergementId = Number(this.route.snapshot.params['id']);
+    if (Number.isFinite(hebergementId) && hebergementId > 0) {
+      this.loadHebergement(hebergementId);
+      this.reservation.hebergementId = hebergementId;
+    } else {
+      this.errorMessage = 'Hebergement invalide.';
     }
   }
 
@@ -60,9 +62,8 @@ export class ReservationHebergementComponent implements OnInit {
         this.currentImageIndex = 0;
         this.isLoading = false;
       },
-      error: (error: any) => {
-        console.error('Erreur lors du chargement de l\'hébergement:', error);
-        this.errorMessage = 'Erreur lors du chargement de l\'hébergement';
+      error: () => {
+        this.errorMessage = "Erreur lors du chargement de l'hebergement";
         this.isLoading = false;
       }
     });
@@ -73,23 +74,23 @@ export class ReservationHebergementComponent implements OnInit {
       this.errorMessage = 'Veuillez remplir tous les champs obligatoires';
       return;
     }
+    if (!this.hasValidStayDates()) {
+      this.errorMessage = "La date de depart doit etre apres la date d'arrivee.";
+      return;
+    }
 
     this.isSubmitting = true;
     this.errorMessage = '';
     this.successMessage = '';
 
     this.reservationService.create(this.reservation).subscribe({
-      next: (result: ReservationHebergementDTO) => {
-        this.successMessage = 'Votre réservation a été créée avec succès !';
+      next: () => {
+        this.successMessage = 'Votre reservation a ete creee avec succes.';
+        this.confirmationModalOpen = true;
         this.isSubmitting = false;
-        // Rediriger vers la page de confirmation ou liste des réservations
-        setTimeout(() => {
-          this.router.navigate(['/hebergements']);
-        }, 2000);
       },
       error: (error: any) => {
-        console.error('Erreur lors de la création de la réservation:', error);
-        this.errorMessage = error.error || 'Erreur lors de la création de la réservation';
+        this.errorMessage = error?.error || 'Erreur lors de la creation de la reservation';
         this.isSubmitting = false;
       }
     });
@@ -97,27 +98,22 @@ export class ReservationHebergementComponent implements OnInit {
 
   isFormValid(): boolean {
     return !!(
+      this.reservation.hebergementId > 0 &&
       this.reservation.nomClient &&
       this.reservation.prenomClient &&
       this.reservation.emailClient &&
       this.reservation.telephoneClient &&
       this.reservation.dateArrivee &&
       this.reservation.dateDepart &&
-      this.reservation.nombrePersonnes > 0
+      this.reservation.nombrePersonnes > 0 &&
+      this.hasValidStayDates()
     );
   }
 
   getTotalPrice(): number {
-    if (!this.hebergement || !this.reservation.dateArrivee || !this.reservation.dateDepart) {
-      return 0;
-    }
-
-    const dateArrivee = new Date(this.reservation.dateArrivee);
-    const dateDepart = new Date(this.reservation.dateDepart);
-    const diffTime = Math.abs(dateDepart.getTime() - dateArrivee.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    return diffDays * this.hebergement.prixParNuit;
+    const nights = this.getNombreNuits();
+    if (!this.hebergement || nights <= 0) return 0;
+    return nights * this.hebergement.prixParNuit;
   }
 
   getMinDateArrivee(): string {
@@ -126,66 +122,40 @@ export class ReservationHebergementComponent implements OnInit {
   }
 
   getNombreNuits(): number {
-    if (!this.reservation.dateArrivee || !this.reservation.dateDepart) {
-      return 0;
-    }
-
-    const dateArrivee = new Date(this.reservation.dateArrivee);
-    const dateDepart = new Date(this.reservation.dateDepart);
-    const diffTime = Math.abs(dateDepart.getTime() - dateArrivee.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    return diffDays;
+    const arrival = this.parseDate(this.reservation.dateArrivee);
+    const departure = this.parseDate(this.reservation.dateDepart);
+    if (!arrival || !departure) return 0;
+    const diffMs = departure.getTime() - arrival.getTime();
+    if (diffMs <= 0) return 0;
+    return Math.floor(diffMs / (1000 * 60 * 60 * 24));
   }
 
   getMinDateDepart(): string {
-    if (!this.reservation.dateArrivee) {
-      return this.getMinDateArrivee();
-    }
+    if (!this.reservation.dateArrivee) return this.getMinDateArrivee();
     const dateArrivee = new Date(this.reservation.dateArrivee);
     dateArrivee.setDate(dateArrivee.getDate() + 1);
     return dateArrivee.toISOString().split('T')[0];
   }
 
-  get hasMedias(): boolean {
-    return this.imageUrls.length > 0;
-  }
-
-  get currentMediaUrl(): string | null {
-    if (!this.hasMedias) {
-      return null;
-    }
-    return this.imageUrls[this.currentImageIndex] ?? null;
-  }
-
-  get imageUrls(): string[] {
-    return this.hebergement ? this.hebergement.imageUrls || [] : [];
-  }
+  get hasMedias(): boolean { return this.imageUrls.length > 0; }
+  get currentMediaUrl(): string | null { return this.hasMedias ? (this.imageUrls[this.currentImageIndex] ?? null) : null; }
+  get imageUrls(): string[] { return this.hebergement ? this.hebergement.imageUrls || [] : []; }
 
   previousImage(): void {
-    if (!this.hasMedias) {
-      return;
-    }
+    if (!this.hasMedias) return;
     this.currentImageIndex = (this.currentImageIndex - 1 + this.imageUrls.length) % this.imageUrls.length;
   }
 
   nextImage(): void {
-    if (!this.hasMedias) {
-      return;
-    }
+    if (!this.hasMedias) return;
     this.currentImageIndex = (this.currentImageIndex + 1) % this.imageUrls.length;
   }
 
   setCurrentImage(index: number): void {
-    if (!this.hasMedias) {
-      return;
-    }
-    if (index >= 0 && index < this.imageUrls.length) {
-      this.currentImageIndex = index;
-    }
+    if (!this.hasMedias) return;
+    if (index >= 0 && index < this.imageUrls.length) this.currentImageIndex = index;
   }
 
-  // Stepper methods
   nextStep(): void {
     if (this.currentStep < this.totalSteps) {
       this.currentStep++;
@@ -208,18 +178,16 @@ export class ReservationHebergementComponent implements OnInit {
   }
 
   isStepValid(step: number): boolean {
-    switch (step) {
-      case 1:
-        return !!(this.reservation.nomClient && this.reservation.prenomClient &&
-                 this.reservation.emailClient && this.reservation.telephoneClient);
-      case 2:
-        return !!(this.reservation.dateArrivee && this.reservation.dateDepart &&
-                 this.reservation.nombrePersonnes > 0);
-      case 3:
-        return this.isFormValid();
-      default:
-        return false;
+    if (step === 1) {
+      return !!(this.reservation.nomClient && this.reservation.prenomClient && this.reservation.emailClient && this.reservation.telephoneClient);
     }
+    if (step === 2) {
+      return !!(this.reservation.dateArrivee && this.reservation.dateDepart && this.reservation.nombrePersonnes > 0 && this.hasValidStayDates());
+    }
+    if (step === 3) {
+      return this.isFormValid();
+    }
+    return false;
   }
 
   canProceedToNext(): boolean {
@@ -227,17 +195,26 @@ export class ReservationHebergementComponent implements OnInit {
   }
 
   canOpenStep(step: number): boolean {
-    if (step <= 1) {
-      return true;
-    }
-    if (step <= this.currentStep) {
-      return true;
-    }
+    if (step <= 1) return true;
+    if (step <= this.currentStep) return true;
     for (let i = 1; i < step; i++) {
-      if (!this.isStepValid(i)) {
-        return false;
-      }
+      if (!this.isStepValid(i)) return false;
     }
     return true;
+  }
+
+  hasValidStayDates(): boolean {
+    return this.getNombreNuits() > 0;
+  }
+
+  closeConfirmationModal(goToList = false): void {
+    this.confirmationModalOpen = false;
+    if (goToList) this.router.navigate(['/hebergements']);
+  }
+
+  private parseDate(value?: string): Date | null {
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
   }
 }

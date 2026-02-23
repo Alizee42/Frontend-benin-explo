@@ -120,6 +120,25 @@
   overflow: hidden;
 }
 
+.alert {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.alert.success {
+  background: #e8f7ee;
+  color: #116530;
+  border: 1px solid #bde7cb;
+}
+
+.alert.error {
+  background: #fff0f0;
+  color: #9b1c1c;
+  border: 1px solid #f1c0c0;
+}
+
 .reservation-details {
   .detail-grid {
     display: grid;
@@ -229,6 +248,33 @@
 
         &:hover {
           background: #5a6268;
+        }
+      }
+
+      &.btn-success {
+        background: #15745e;
+        color: #fff;
+
+        &:hover {
+          background: #0f5e4b;
+        }
+      }
+
+      &.btn-warning {
+        background: #f3c74d;
+        color: #2c2c2c;
+
+        &:hover {
+          background: #ddb340;
+        }
+      }
+
+      &.btn-danger {
+        background: #d64545;
+        color: #fff;
+
+        &:hover {
+          background: #bd3434;
         }
       }
     }

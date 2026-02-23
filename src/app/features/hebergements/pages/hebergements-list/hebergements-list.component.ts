@@ -32,15 +32,19 @@ export class HebergementsListComponent implements OnInit {
         this.loading = false;
       },
       error: (err: any) => {
-        console.error('Erreur chargement hébergements', err);
+        console.error('Erreur chargement hebergements', err);
         this.loading = false;
       }
     });
   }
 
   reserver(hebergement: HebergementDTO): void {
-    // Rediriger vers la page de réservation avec l'ID de l'hébergement
-    this.router.navigate(['/reservation-hebergement', hebergement.id]);
+    const id = Number((hebergement as any)?.id);
+    if (!Number.isFinite(id) || id <= 0) {
+      console.error('ID hebergement invalide pour la reservation:', hebergement);
+      return;
+    }
+    this.router.navigate(['/reservation-hebergement', id]);
   }
 
   trackById(_: number, item: HebergementDTO): number {
@@ -63,13 +67,10 @@ export class HebergementsListComponent implements OnInit {
 
       if (!term) return true;
 
-      const haystack = [
-        h.nom,
-        h.localisation,
-        h.quartier,
-        h.type,
-        h.description
-      ].filter(Boolean).join(' ').toLowerCase();
+      const haystack = [h.nom, h.localisation, h.quartier, h.type, h.description]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
 
       return haystack.includes(term);
     });
@@ -85,7 +86,6 @@ export class HebergementsListComponent implements OnInit {
         result = result.slice().sort((a, b) => (a.nom || '').localeCompare(b.nom || ''));
         break;
       default:
-        // 'recommandes' -> ordre backend
         break;
     }
 

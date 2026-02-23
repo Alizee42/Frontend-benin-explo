@@ -36,11 +36,12 @@
               <button
                 *ngFor="let action of actions"
                 [class]="'btn-action ' + (action.class || 'btn-default')"
+                [class.icon-only]="iconOnlyActions"
                 [class.visible]="isActionVisible(action, item)"
                 (click)="onActionClick(action.action, item, $event)"
                 [title]="action.label">
                 <i *ngIf="action.icon" [class]="action.icon"></i>
-                <span>{{ action.label }}</span>
+                <span *ngIf="!iconOnlyActions">{{ action.label }}</span>
               </button>
             </div>
 

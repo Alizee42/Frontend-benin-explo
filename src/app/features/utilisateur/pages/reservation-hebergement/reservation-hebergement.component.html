@@ -1,20 +1,13 @@
 <div class="reservation-page">
   <header class="reservation-hero">
-    <div
-      class="hero-bg"
-      [style.backgroundImage]="'url(' + (currentMediaUrl || '/assets/images/coucherSoleil.avif') + ')'">
-    </div>
+    <div class="hero-bg" [style.backgroundImage]="'url(' + (currentMediaUrl || '/assets/images/coucherSoleil.avif') + ')'"></div>
     <div class="hero-overlay"></div>
     <div class="hero-inner">
       <div class="hero-title-block">
-        <p class="hero-kicker">Réservation</p>
-        <h1 class="hero-title">Finalisez votre séjour</h1>
-        <p class="hero-subtitle" *ngIf="hebergement">
-          {{ hebergement.nom }} • {{ hebergement.localisation }}
-        </p>
-        <p class="hero-subtitle" *ngIf="!hebergement">
-          Finalisez votre réservation en 3 étapes simples.
-        </p>
+        <p class="hero-kicker">Reservation</p>
+        <h1 class="hero-title">Finalisez votre sejour</h1>
+        <p class="hero-subtitle" *ngIf="hebergement">{{ hebergement.nom }} • {{ hebergement.localisation }}</p>
+        <p class="hero-subtitle" *ngIf="!hebergement">Finalisez votre reservation en 3 etapes simples.</p>
       </div>
     </div>
   </header>
@@ -22,7 +15,7 @@
   <main class="reservation-shell">
     <div class="loading-card" *ngIf="isLoading">
       <div class="spinner"></div>
-      <p>Chargement de l'hébergement...</p>
+      <p>Chargement de l'hebergement...</p>
     </div>
 
     <div class="layout" *ngIf="!isLoading">
@@ -30,30 +23,15 @@
         <div class="stay-media">
           <img [src]="currentMediaUrl || '/assets/images/coucherSoleil.avif'" [alt]="hebergement.nom">
 
-          <button
-            type="button"
-            class="media-nav prev"
-            *ngIf="hasMedias && imageUrls.length > 1"
-            (click)="previousImage()">
+          <button type="button" class="media-nav prev" *ngIf="hasMedias && imageUrls.length > 1" (click)="previousImage()">
             <i class="ri-arrow-left-s-line"></i>
           </button>
-
-          <button
-            type="button"
-            class="media-nav next"
-            *ngIf="hasMedias && imageUrls.length > 1"
-            (click)="nextImage()">
+          <button type="button" class="media-nav next" *ngIf="hasMedias && imageUrls.length > 1" (click)="nextImage()">
             <i class="ri-arrow-right-s-line"></i>
           </button>
 
           <div class="media-dots" *ngIf="hasMedias && imageUrls.length > 1">
-            <button
-              type="button"
-              class="dot"
-              *ngFor="let url of imageUrls; let i = index"
-              [class.active]="i === currentImageIndex"
-              (click)="setCurrentImage(i)">
-            </button>
+            <button type="button" class="dot" *ngFor="let url of imageUrls; let i = index" [class.active]="i === currentImageIndex" (click)="setCurrentImage(i)"></button>
           </div>
         </div>
 
@@ -61,7 +39,7 @@
           <div class="stay-title-row">
             <h2 class="stay-title">{{ hebergement.nom }}</h2>
             <div class="stay-price">
-              <span class="price">{{ hebergement.prixParNuit }}€</span>
+              <span class="price">{{ hebergement.prixParNuit }} EUR</span>
               <span class="period">/ nuit</span>
             </div>
           </div>
@@ -72,261 +50,144 @@
           </div>
 
           <div class="stay-hints">
-            <div class="hint"><i class="ri-shield-check-line"></i> Paiement sécurisé</div>
-            <div class="hint"><i class="ri-time-line"></i> Confirmation rapide</div>
+            <div class="hint"><i class="ri-shield-check-line"></i>Paiement securise</div>
+            <div class="hint"><i class="ri-time-line"></i>Confirmation rapide</div>
           </div>
         </div>
       </aside>
 
       <section class="form-card">
-        <div class="step-tabs" role="tablist" aria-label="Étapes de réservation">
-          <button
-            type="button"
-            class="tab"
-            [class.active]="currentStep === 1"
-            [class.done]="currentStep > 1"
-            (click)="goToStep(1)">
+        <div class="step-tabs" role="tablist" aria-label="Etapes de reservation">
+          <button type="button" class="tab" [class.active]="currentStep === 1" [class.done]="currentStep > 1" (click)="goToStep(1)">
             <span class="num">1</span>
             <span class="label">Infos</span>
           </button>
-
-          <button
-            type="button"
-            class="tab"
-            [class.active]="currentStep === 2"
-            [class.done]="currentStep > 2"
-            [disabled]="!canOpenStep(2)"
-            (click)="goToStep(2)">
+          <button type="button" class="tab" [class.active]="currentStep === 2" [class.done]="currentStep > 2" [disabled]="!canOpenStep(2)" (click)="goToStep(2)">
             <span class="num">2</span>
-            <span class="label">Séjour</span>
+            <span class="label">Sejour</span>
           </button>
-
-          <button
-            type="button"
-            class="tab"
-            [class.active]="currentStep === 3"
-            [disabled]="!canOpenStep(3)"
-            (click)="goToStep(3)">
+          <button type="button" class="tab" [class.active]="currentStep === 3" [disabled]="!canOpenStep(3)" (click)="goToStep(3)">
             <span class="num">3</span>
             <span class="label">Confirmer</span>
           </button>
         </div>
 
         <div class="step-body">
-          <!-- Step 1: Personal Information -->
           <div class="step-content" *ngIf="currentStep === 1">
             <div class="step-header">
               <h3><i class="ri-user-line"></i> Informations personnelles</h3>
-              <p>Renseignez vos coordonnées pour la réservation</p>
+              <p>Renseignez vos coordonnees pour la reservation</p>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="nomClient">
-                  <i class="ri-user-line"></i> Nom *
-                </label>
-                <input
-                  type="text"
-                  id="nomClient"
-                  name="nomClient"
-                  [(ngModel)]="reservation.nomClient"
-                  required
-                  #nomClient="ngModel"
-                  placeholder="Votre nom">
-                <div class="error" *ngIf="nomClient.invalid && nomClient.touched">
-                  <i class="ri-error-warning-line"></i> Le nom est requis
-                </div>
+                <label for="nomClient"><i class="ri-user-line"></i> Nom *</label>
+                <input type="text" id="nomClient" name="nomClient" [(ngModel)]="reservation.nomClient" required #nomClient="ngModel" placeholder="Votre nom">
+                <div class="error" *ngIf="nomClient.invalid && nomClient.touched"><i class="ri-error-warning-line"></i>Le nom est requis</div>
               </div>
 
               <div class="form-group">
-                <label for="prenomClient">
-                  <i class="ri-user-line"></i> Prénom *
-                </label>
-                <input
-                  type="text"
-                  id="prenomClient"
-                  name="prenomClient"
-                  [(ngModel)]="reservation.prenomClient"
-                  required
-                  #prenomClient="ngModel"
-                  placeholder="Votre prénom">
-                <div class="error" *ngIf="prenomClient.invalid && prenomClient.touched">
-                  <i class="ri-error-warning-line"></i> Le prénom est requis
-                </div>
+                <label for="prenomClient"><i class="ri-user-line"></i> Prenom *</label>
+                <input type="text" id="prenomClient" name="prenomClient" [(ngModel)]="reservation.prenomClient" required #prenomClient="ngModel" placeholder="Votre prenom">
+                <div class="error" *ngIf="prenomClient.invalid && prenomClient.touched"><i class="ri-error-warning-line"></i>Le prenom est requis</div>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="emailClient">
-                  <i class="ri-mail-line"></i> Email *
-                </label>
-                <input
-                  type="email"
-                  id="emailClient"
-                  name="emailClient"
-                  [(ngModel)]="reservation.emailClient"
-                  required
-                  email
-                  #emailClient="ngModel"
-                  placeholder="votre.email@example.com">
-                <div class="error" *ngIf="emailClient.invalid && emailClient.touched">
-                  <i class="ri-error-warning-line"></i> Un email valide est requis
-                </div>
+                <label for="emailClient"><i class="ri-mail-line"></i> Email *</label>
+                <input type="email" id="emailClient" name="emailClient" [(ngModel)]="reservation.emailClient" required email #emailClient="ngModel" placeholder="votre.email@example.com">
+                <div class="error" *ngIf="emailClient.invalid && emailClient.touched"><i class="ri-error-warning-line"></i>Un email valide est requis</div>
               </div>
 
               <div class="form-group">
-                <label for="telephoneClient">
-                  <i class="ri-phone-line"></i> Téléphone *
-                </label>
-                <input
-                  type="tel"
-                  id="telephoneClient"
-                  name="telephoneClient"
-                  [(ngModel)]="reservation.telephoneClient"
-                  required
-                  #telephoneClient="ngModel"
-                  placeholder="+229 XX XX XX XX">
-                <div class="error" *ngIf="telephoneClient.invalid && telephoneClient.touched">
-                  <i class="ri-error-warning-line"></i> Le téléphone est requis
-                </div>
+                <label for="telephoneClient"><i class="ri-phone-line"></i> Telephone *</label>
+                <input type="tel" id="telephoneClient" name="telephoneClient" [(ngModel)]="reservation.telephoneClient" required #telephoneClient="ngModel" placeholder="+229 XX XX XX XX">
+                <div class="error" *ngIf="telephoneClient.invalid && telephoneClient.touched"><i class="ri-error-warning-line"></i>Le telephone est requis</div>
               </div>
             </div>
           </div>
 
-          <!-- Step 2: Stay Details -->
           <div class="step-content" *ngIf="currentStep === 2">
             <div class="step-header">
-              <h3><i class="ri-calendar-line"></i> Détails du séjour</h3>
-              <p>Choisissez vos dates et précisez vos besoins</p>
+              <h3><i class="ri-calendar-line"></i> Details du sejour</h3>
+              <p>Choisissez vos dates et precisez vos besoins</p>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="dateArrivee">
-                  <i class="ri-calendar-check-line"></i> Date d'arrivée *
-                </label>
-                <input
-                  type="date"
-                  id="dateArrivee"
-                  name="dateArrivee"
-                  [(ngModel)]="reservation.dateArrivee"
-                  [min]="getMinDateArrivee()"
-                  required
-                  #dateArrivee="ngModel">
-                <div class="error" *ngIf="dateArrivee.invalid && dateArrivee.touched">
-                  <i class="ri-error-warning-line"></i> La date d'arrivée est requise
-                </div>
+                <label for="dateArrivee"><i class="ri-calendar-check-line"></i> Date d'arrivee *</label>
+                <input type="date" id="dateArrivee" name="dateArrivee" [(ngModel)]="reservation.dateArrivee" [min]="getMinDateArrivee()" required #dateArrivee="ngModel">
+                <div class="error" *ngIf="dateArrivee.invalid && dateArrivee.touched"><i class="ri-error-warning-line"></i>La date d'arrivee est requise</div>
               </div>
 
               <div class="form-group">
-                <label for="dateDepart">
-                  <i class="ri-calendar-check-line"></i> Date de départ *
-                </label>
-                <input
-                  type="date"
-                  id="dateDepart"
-                  name="dateDepart"
-                  [(ngModel)]="reservation.dateDepart"
-                  [min]="getMinDateDepart()"
-                  required
-                  #dateDepart="ngModel">
-                <div class="error" *ngIf="dateDepart.invalid && dateDepart.touched">
-                  <i class="ri-error-warning-line"></i> La date de départ est requise
-                </div>
+                <label for="dateDepart"><i class="ri-calendar-check-line"></i> Date de depart *</label>
+                <input type="date" id="dateDepart" name="dateDepart" [(ngModel)]="reservation.dateDepart" [min]="getMinDateDepart()" required #dateDepart="ngModel">
+                <div class="error" *ngIf="dateDepart.invalid && dateDepart.touched"><i class="ri-error-warning-line"></i>La date de depart est requise</div>
               </div>
             </div>
 
             <div class="form-group">
-              <label for="nombrePersonnes">
-                <i class="ri-group-line"></i> Nombre de personnes *
-              </label>
-              <input
-                type="number"
-                id="nombrePersonnes"
-                name="nombrePersonnes"
-                [(ngModel)]="reservation.nombrePersonnes"
-                min="1"
-                max="10"
-                required
-                #nombrePersonnes="ngModel">
-              <div class="error" *ngIf="nombrePersonnes.invalid && nombrePersonnes.touched">
-                <i class="ri-error-warning-line"></i> Le nombre de personnes doit être entre 1 et 10
-              </div>
+              <label for="nombrePersonnes"><i class="ri-group-line"></i> Nombre de personnes *</label>
+              <input type="number" id="nombrePersonnes" name="nombrePersonnes" [(ngModel)]="reservation.nombrePersonnes" min="1" max="10" required #nombrePersonnes="ngModel">
+              <div class="error" *ngIf="nombrePersonnes.invalid && nombrePersonnes.touched"><i class="ri-error-warning-line"></i>Le nombre de personnes doit etre entre 1 et 10</div>
             </div>
 
             <div class="form-group">
-              <label for="commentaires">
-                <i class="ri-edit-line"></i> Commentaires (optionnel)
-              </label>
-              <textarea
-                id="commentaires"
-                name="commentaires"
-                [(ngModel)]="reservation.commentaires"
-                rows="4"
-                placeholder="Vos demandes spéciales, allergies, préférences alimentaires, etc.">
-              </textarea>
+              <label for="commentaires"><i class="ri-edit-line"></i> Commentaires (optionnel)</label>
+              <textarea id="commentaires" name="commentaires" [(ngModel)]="reservation.commentaires" rows="4" placeholder="Vos demandes speciales, allergies, preferences alimentaires, etc."></textarea>
+            </div>
+
+            <div class="stay-breakdown" *ngIf="hebergement">
+              <div class="breakdown-item">
+                <span>Nuits</span>
+                <strong>{{ getNombreNuits() }}</strong>
+              </div>
+              <div class="breakdown-item">
+                <span>Prix / nuit</span>
+                <strong>{{ hebergement.prixParNuit }} EUR</strong>
+              </div>
+              <div class="breakdown-item total">
+                <span>Total estime</span>
+                <strong>{{ getTotalPrice() }} EUR</strong>
+              </div>
+            </div>
+
+            <div class="date-warning" *ngIf="reservation.dateArrivee && reservation.dateDepart && !hasValidStayDates()">
+              <i class="ri-error-warning-line"></i>
+              La date de depart doit etre apres la date d'arrivee.
             </div>
           </div>
 
-          <!-- Step 3: Summary and Confirmation -->
           <div class="step-content" *ngIf="currentStep === 3">
             <div class="step-header">
-              <h3><i class="ri-file-list-line"></i> Confirmation de réservation</h3>
-              <p>Vérifiez vos informations et confirmez votre réservation</p>
+              <h3><i class="ri-file-list-line"></i> Confirmation de reservation</h3>
+              <p>Verifiez vos informations et confirmez votre reservation</p>
             </div>
 
             <div class="summary-card">
               <div class="summary-section">
                 <h4><i class="ri-user-line"></i> Informations personnelles</h4>
-                <div class="summary-item">
-                  <span>Nom complet:</span>
-                  <span>{{ reservation.prenomClient }} {{ reservation.nomClient }}</span>
-                </div>
-                <div class="summary-item">
-                  <span>Email:</span>
-                  <span>{{ reservation.emailClient }}</span>
-                </div>
-                <div class="summary-item">
-                  <span>Téléphone:</span>
-                  <span>{{ reservation.telephoneClient }}</span>
-                </div>
+                <div class="summary-item"><span>Nom complet:</span><span>{{ reservation.prenomClient }} {{ reservation.nomClient }}</span></div>
+                <div class="summary-item"><span>Email:</span><span>{{ reservation.emailClient }}</span></div>
+                <div class="summary-item"><span>Telephone:</span><span>{{ reservation.telephoneClient }}</span></div>
               </div>
 
               <div class="summary-section">
-                <h4><i class="ri-calendar-line"></i> Détails du séjour</h4>
-                <div class="summary-item">
-                  <span>Arrivée:</span>
-                  <span>{{ reservation.dateArrivee | date:'dd/MM/yyyy' }}</span>
-                </div>
-                <div class="summary-item">
-                  <span>Départ:</span>
-                  <span>{{ reservation.dateDepart | date:'dd/MM/yyyy' }}</span>
-                </div>
-                <div class="summary-item">
-                  <span>Nombre de nuits:</span>
-                  <span>{{ getNombreNuits() }}</span>
-                </div>
-                <div class="summary-item">
-                  <span>Personnes:</span>
-                  <span>{{ reservation.nombrePersonnes }}</span>
-                </div>
-                <div class="summary-item" *ngIf="reservation.commentaires">
-                  <span>Commentaires:</span>
-                  <span>{{ reservation.commentaires }}</span>
-                </div>
+                <h4><i class="ri-calendar-line"></i> Details du sejour</h4>
+                <div class="summary-item"><span>Arrivee:</span><span>{{ reservation.dateArrivee | date:'dd/MM/yyyy' }}</span></div>
+                <div class="summary-item"><span>Depart:</span><span>{{ reservation.dateDepart | date:'dd/MM/yyyy' }}</span></div>
+                <div class="summary-item"><span>Nombre de nuits:</span><span>{{ getNombreNuits() }}</span></div>
+                <div class="summary-item"><span>Personnes:</span><span>{{ reservation.nombrePersonnes }}</span></div>
+                <div class="summary-item" *ngIf="reservation.commentaires"><span>Commentaires:</span><span>{{ reservation.commentaires }}</span></div>
               </div>
 
               <div class="summary-section total-section">
-                <div class="summary-item total">
-                  <span><i class="ri-calculator-line"></i> Total:</span>
-                  <span>{{ getTotalPrice() }}€</span>
-                </div>
+                <div class="summary-item total"><span><i class="ri-calculator-line"></i> Total:</span><span>{{ getTotalPrice() }} EUR</span></div>
               </div>
             </div>
-
           </div>
-
         </div>
 
         <div class="toast error" *ngIf="errorMessage">
@@ -340,41 +201,35 @@
         </div>
 
         <div class="actions">
-          <button
-            type="button"
-            class="btn secondary"
-            (click)="currentStep === 1 ? router.navigate(['/hebergements']) : previousStep()"
-            [disabled]="isSubmitting">
+          <button type="button" class="btn secondary" (click)="currentStep === 1 ? router.navigate(['/hebergements']) : previousStep()" [disabled]="isSubmitting">
             <i class="ri-arrow-left-line" *ngIf="currentStep > 1"></i>
-            {{ currentStep === 1 ? 'Annuler' : 'Précédent' }}
+            {{ currentStep === 1 ? 'Annuler' : 'Precedent' }}
           </button>
 
-          <div class="step-indicator">Étape {{ currentStep }} / {{ totalSteps }}</div>
+          <div class="step-indicator">Etape {{ currentStep }} / {{ totalSteps }}</div>
 
-          <button
-            type="button"
-            class="btn primary"
-            *ngIf="currentStep < totalSteps"
-            (click)="nextStep()"
-            [disabled]="!canProceedToNext() || isSubmitting">
+          <button type="button" class="btn primary" *ngIf="currentStep < totalSteps" (click)="nextStep()" [disabled]="!canProceedToNext() || isSubmitting">
             Suivant <i class="ri-arrow-right-line"></i>
           </button>
 
-          <button
-            type="submit"
-            class="btn primary"
-            *ngIf="currentStep === totalSteps"
-            (click)="onSubmit()"
-            [disabled]="isSubmitting || !isFormValid()">
-            <span *ngIf="isSubmitting">
-              <i class="ri-loader-4-line spinning"></i> Réservation en cours...
-            </span>
-            <span *ngIf="!isSubmitting">
-              <i class="ri-check-line"></i> Confirmer la réservation
-            </span>
+          <button type="submit" class="btn primary" *ngIf="currentStep === totalSteps" (click)="onSubmit()" [disabled]="isSubmitting || !isFormValid()">
+            <span *ngIf="isSubmitting"><i class="ri-loader-4-line spinning"></i> Reservation en cours...</span>
+            <span *ngIf="!isSubmitting"><i class="ri-check-line"></i> Confirmer la reservation</span>
           </button>
         </div>
       </section>
     </div>
   </main>
+
+  <div class="confirm-modal-backdrop" *ngIf="confirmationModalOpen">
+    <div class="confirm-modal" role="dialog" aria-modal="true" aria-label="Confirmation reservation">
+      <div class="confirm-icon"><i class="ri-checkbox-circle-line"></i></div>
+      <h3>Reservation enregistree</h3>
+      <p>Votre demande est bien prise en compte. Un email est envoye si la messagerie est configuree.</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn secondary" (click)="closeConfirmationModal(false)">Rester ici</button>
+        <button type="button" class="btn primary" (click)="closeConfirmationModal(true)">Retour aux hebergements</button>
+      </div>
+    </div>
+  </div>
 </div>

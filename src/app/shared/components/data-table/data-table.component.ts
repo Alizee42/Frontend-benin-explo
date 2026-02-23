@@ -32,6 +32,7 @@ export class DataTableComponent {
   @Input() loading = false;
   @Input() emptyMessage = 'Aucune donnée disponible';
   @Input() actions: TableAction[] = [];
+  @Input() iconOnlyActions = false;
   @Input() rowClickable = false;
   // Pagination (client-side). If `pageable` is true, the table slices the provided `data`.
   @Input() pageable = false;
