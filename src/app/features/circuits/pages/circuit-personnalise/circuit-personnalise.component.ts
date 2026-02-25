@@ -78,6 +78,7 @@ export class CircuitPersonnaliseComponent {
   nombreJours = 1;
   nombrePersonnes = 1;
   jours: Jour[] = [];
+  activeJourIndex = 0;
   expanded: boolean[] = [];
   options: OptionsGenerales = {
     hebergement: '',
@@ -170,10 +171,15 @@ export class CircuitPersonnaliseComponent {
     if (this.nombreJours > 0) {
       this.expanded[0] = true;
     }
+    this.activeJourIndex = 0;
   }
 
   changerNombreJours() {
     this.initialiserJours();
+  }
+
+  selectJour(index: number) {
+    this.activeJourIndex = index;
   }
 
   toggleJour(index: number) {
@@ -272,6 +278,14 @@ export class CircuitPersonnaliseComponent {
       });
     });
     return total;
+  }
+
+  formatPrixBadge(prix?: number): string {
+    if (prix == null || Number.isNaN(prix)) {
+      return '';
+    }
+    const rounded = Math.max(0, Math.round(prix));
+    return rounded > 999 ? '999+' : String(rounded);
   }
 
   getZoneNames(jour: Jour): string {
@@ -381,6 +395,10 @@ export class CircuitPersonnaliseComponent {
 
   voirHebergements() {
     this.router.navigate(['/hebergements']);
+  }
+
+  goHome() {
+    this.router.navigate(['/']);
   }
 
   toggleJoursExpanded() {

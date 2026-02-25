@@ -45,6 +45,9 @@ export interface CircuitPersonnaliseDTO {
   
   // Statut
   statut?: string;
+  dateTraitement?: string;
+  commentaireAdmin?: string;
+  motifRefus?: string;
   
   // Jours
   jours: JourDTO[];
@@ -98,10 +101,30 @@ export class CircuitsPersonnalisesService {
     return this.http.post<CircuitPersonnaliseDTO>(this.apiUrl, demande);
   }
 
-  updateStatut(id: number, statut: string, prixFinal?: number): Observable<CircuitPersonnaliseDTO> {
+  updateStatut(
+    id: number,
+    statut: string,
+    prixFinal?: number,
+    commentaireAdmin?: string,
+    motifRefus?: string,
+    emailSubject?: string,
+    emailBody?: string
+  ): Observable<CircuitPersonnaliseDTO> {
     const body: any = { statut };
     if (prixFinal !== undefined) {
       body.prixFinal = prixFinal;
+    }
+    if (commentaireAdmin !== undefined) {
+      body.commentaireAdmin = commentaireAdmin;
+    }
+    if (motifRefus !== undefined) {
+      body.motifRefus = motifRefus;
+    }
+    if (emailSubject !== undefined) {
+      body.emailSubject = emailSubject;
+    }
+    if (emailBody !== undefined) {
+      body.emailBody = emailBody;
     }
     return this.http.patch<CircuitPersonnaliseDTO>(`${this.apiUrl}/${id}/statut`, body);
   }

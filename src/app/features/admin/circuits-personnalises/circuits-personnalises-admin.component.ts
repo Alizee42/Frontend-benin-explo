@@ -21,78 +21,80 @@ export class CircuitsPersonnalisesAdminComponent implements OnInit {
   // Templates d'emails personnalisables
   emailTemplates = {
     approbation: {
-      subject: 'Votre demande de circuit personnalisé #{id} a été approuvée',
+      subject: 'Votre demande de circuit personnalisee a ete approuvee',
       body: `Bonjour {nom},
 
-Félicitations ! Votre demande de circuit personnalisé (référence #{id}) a été approuvée.
+Felicitations ! Votre demande de circuit personnalisee a ete approuvee.
 
-Détails de votre circuit :
+Details de votre circuit :
 - Nombre de personnes : {nombrePersonnes}
 - Nombre de jours : {nombreJours}
 - Zones : {zones}
-- Activités : {activites}
+- Activites : {activites}
 
 {hebergement}
 {transport}
 {extras}
 
-Prix estimé : {prix}
+Prix estime : {prix}
 
-Notre équipe vous contactera dans les prochains jours pour finaliser les détails pratiques, confirmer les dates et établir un devis définitif.
+Notre equipe vous contactera dans les prochains jours pour finaliser les details pratiques, confirmer les dates et etablir un devis definitif.
 
-Nous sommes impatients de vous accueillir au Bénin !
+Nous sommes impatients de vous accueillir au Benin !
 
 Cordialement,
-L'équipe Benin Explo
-Téléphone : {telephone}`
+L'equipe Benin Explo
+Telephone : {telephone}`
     },
     refus: {
-      subject: 'Votre demande de circuit personnalisé #{id}',
+      subject: 'Votre demande de circuit personnalisee',
       body: `Bonjour {nom},
 
-Nous vous remercions d'avoir soumis votre demande de circuit personnalisé (référence #{id}).
+Nous vous remercions d'avoir soumis votre demande de circuit personnalisee.
 
-Après étude de votre demande, nous ne sommes malheureusement pas en mesure de la satisfaire pour le moment.
+Apres etude de votre demande, nous ne sommes malheureusement pas en mesure de la satisfaire pour le moment.
 
 Motif : {motif}
 
-Détails de votre demande initiale :
+Details de votre demande initiale :
 - Nombre de personnes : {nombrePersonnes}
 - Nombre de jours : {nombreJours}
 - Zones : {zones}
-- Activités : {activites}
+- Activites : {activites}
 
-N'hésitez pas à nous contacter pour modifier votre demande ou pour toute autre question.
+N'hesitez pas a nous contacter pour modifier votre demande ou pour toute autre question.
 
-Nous restons à votre disposition pour vous proposer d'autres formules adaptées à vos besoins.
+Nous restons a votre disposition pour vous proposer d'autres formules adaptees a vos besoins.
 
 Cordialement,
-L'équipe Benin Explo
-Téléphone : {telephone}`
+L'equipe Benin Explo
+Telephone : {telephone}`
     }
   };
 
-  // État de la modale d'email
+  // Etat de la modale d'email
   showEmailModal = false;
   currentEmailAction: 'approbation' | 'refus' | null = null;
   currentDemande: CircuitPersonnaliseDTO | null = null;
   emailSubject = '';
   emailBody = '';
   refusalReason = '';
+  isSendingDecision = false;
+  modalError = '';
+  modalSuccess = '';
 
   tableColumns = [
-    { key: 'id', label: 'ID', sortable: true },
-    { key: 'nomClient', label: 'Nom', sortable: true },
+        { key: 'nomClient', label: 'Nom', sortable: true },
     { key: 'emailClient', label: 'Email', sortable: false },
-    { key: 'telephoneClient', label: 'Téléphone', sortable: false },
+    { key: 'telephoneClient', label: 'Telephone', sortable: false },
     { key: 'dateCreationDisplay', label: 'Date', sortable: true },
-    { key: 'statut', label: 'Statut', sortable: true },
+    { key: 'statut', label: 'Statut', sortable: true, type: 'status' as const, formatter: (value: string) => this.getStatusLabel(value) },
     { key: 'actions', label: 'Actions', type: 'actions' as const }
   ];
 
   tableActions = [
     {
-      label: 'Voir détails',
+      label: 'Voir details',
       action: 'view',
       class: 'btn-view',
       icon: 'ri-eye-line'
@@ -152,27 +154,27 @@ Téléphone : {telephone}`
   }
 
   contactClient(demande: CircuitPersonnaliseDTO) {
-    const subject = `Demande de circuit personnalisé #${demande.id} - ${demande.nomClient}`;
+    const subject = `Demande de circuit personnalisee - ${demande.nomClient}`;
 
     const body = `Bonjour ${demande.prenomClient} ${demande.nomClient},
-Nous avons bien reçu votre demande de circuit personnalisé (référence #${demande.id}).
+Nous avons bien recu votre demande de circuit personnalisee.
 
-Détails de votre demande :
+Details de votre demande :
 - Nombre de personnes : ${demande.nombrePersonnes}
 - Nombre de jours : ${demande.nombreJours}
 - Statut : ${demande.statut || 'EN_ATTENTE'}
-- Date de création : ${demande.dateCreation ? new Date(demande.dateCreation).toLocaleDateString('fr-FR') : 'N/A'}
+- Date de creation : ${demande.dateCreation ? new Date(demande.dateCreation).toLocaleDateString('fr-FR') : 'N/A'}
 
-${demande.avecHebergement ? `Hébergement inclus (${demande.typeHebergement || ''})` : 'Sans hébergement'}
+${demande.avecHebergement ? `Hebergement inclus (${demande.typeHebergement || ''})` : 'Sans hebergement'}
 ${demande.avecTransport ? `Transport inclus (${demande.typeTransport || ''})` : 'Sans transport'}
 
-Prix estimé : ${demande.prixEstime ? demande.prixEstime + ' XOF' : 'À déterminer'}
+Prix estime : ${demande.prixEstime ? demande.prixEstime + ' XOF' : 'A determiner'}
 
-Nous vous contacterons prochainement pour finaliser les détails et vous proposer un devis personnalisé.
+Nous vous contacterons prochainement pour finaliser les details et vous proposer un devis personnalisee.
 
 Cordialement,
-L'équipe Benin Explo
-Téléphone : ${demande.telephoneClient}`;
+L'equipe Benin Explo
+Telephone : ${demande.telephoneClient}`;
 
     const mailtoLink = `mailto:${demande.emailClient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.open(mailtoLink, '_blank');
@@ -196,8 +198,11 @@ Téléphone : ${demande.telephoneClient}`;
     this.currentEmailAction = action;
     this.currentDemande = demande;
     this.refusalReason = '';
+    this.modalError = '';
+    this.modalSuccess = '';
+    this.isSendingDecision = false;
 
-    // Préparer le template d'email
+    // Preparer le template d'email
     const template = this.emailTemplates[action];
     this.emailSubject = this.replacePlaceholders(template.subject, demande);
     this.emailBody = this.replacePlaceholders(template.body, demande);
@@ -212,30 +217,44 @@ Téléphone : ${demande.telephoneClient}`;
     this.emailSubject = '';
     this.emailBody = '';
     this.refusalReason = '';
+    this.modalError = '';
+    this.modalSuccess = '';
+    this.isSendingDecision = false;
   }
 
   sendEmail() {
     if (!this.currentDemande || !this.currentEmailAction) return;
+    if (this.isSendingDecision) return;
+    this.modalError = '';
+    this.modalSuccess = '';
+    this.isSendingDecision = true;
 
-    const confirmation = confirm('Êtes-vous sûr de vouloir envoyer cet email ?');
-    if (!confirmation) return;
-
-    const mailtoLink = `mailto:${this.currentDemande.emailClient}?subject=${encodeURIComponent(this.emailSubject)}&body=${encodeURIComponent(this.emailBody)}`;
-    window.open(mailtoLink, '_blank');
-
-    // Mettre à jour le statut selon l'action
+    // Mise a jour du statut: le backend envoie l'email automatiquement.
     const newStatus = this.currentEmailAction === 'approbation' ? 'ACCEPTE' : 'REFUSE';
 
-    this.circuitsPersonnalisesService.updateStatut(this.currentDemande.id!, newStatus).subscribe({
+    const commentaireAdmin = this.currentEmailAction === 'approbation'
+      ? 'Validation envoyee depuis le module admin.'
+      : 'Refus envoye depuis le module admin.';
+
+    this.circuitsPersonnalisesService.updateStatut(
+      this.currentDemande.id!,
+      newStatus,
+      undefined,
+      commentaireAdmin,
+      this.currentEmailAction === 'refus' ? this.refusalReason.trim() : undefined,
+      this.emailSubject,
+      this.emailBody
+    ).subscribe({
       next: (demande: CircuitPersonnaliseDTO) => {
-        alert(`Demande ${this.currentEmailAction === 'approbation' ? 'approuvée' : 'refusée'} avec succès !`);
+        this.isSendingDecision = false;
+        this.modalSuccess = `Demande ${this.currentEmailAction === 'approbation' ? 'approuvee' : 'refusee'} et email envoye automatiquement.`;
         this.loadDemandes();
-        // TODO: Implémenter sendCustomEmail si nécessaire
-        this.closeEmailModal();
+        setTimeout(() => this.closeEmailModal(), 900);
       },
       error: (error: any) => {
-        console.error('Erreur mise à jour statut', error);
-        alert('Erreur lors de la mise à jour. Veuillez réessayer.');
+        this.isSendingDecision = false;
+        console.error('Erreur mise a jour statut', error);
+        this.modalError = 'Erreur lors de la mise a jour ou de l envoi email. Verifie le backend et reessaye.';
       }
     });
   }
@@ -247,7 +266,7 @@ Téléphone : ${demande.telephoneClient}`;
     }
   }
 
-  // TODO: Réimplémenter sendCustomEmail si fonctionnalité email requise
+  // TODO: Reimplementer sendCustomEmail si fonctionnalite email requise
 
   replacePlaceholders(text: string, demande: CircuitPersonnaliseDTO): string {
     const zonesStr = demande.jours.map(j => j.zoneNom).filter(z => z).join(', ') || 'N/A';
@@ -260,12 +279,21 @@ Téléphone : ${demande.telephoneClient}`;
       .replace(/{nombreJours}/g, demande.nombreJours.toString())
       .replace(/{zones}/g, zonesStr)
       .replace(/{activites}/g, activitesStr)
-      .replace(/{hebergement}/g, demande.avecHebergement ? `Hébergement inclus (${demande.typeHebergement || ''})` : 'Sans hébergement')
+      .replace(/{hebergement}/g, demande.avecHebergement ? `Hebergement inclus (${demande.typeHebergement || ''})` : 'Sans hebergement')
       .replace(/{transport}/g, demande.avecTransport ? `Transport inclus (${demande.typeTransport || ''})` : 'Sans transport')
       .replace(/{extras}/g, '')
-      .replace(/{prix}/g, demande.prixEstime ? demande.prixEstime + ' XOF' : 'À déterminer')
+      .replace(/{prix}/g, this.formatPriceXofEur(demande.prixEstime))
       .replace(/{telephone}/g, demande.telephoneClient)
       .replace(/{motif}/g, this.refusalReason);
+  }
+  private formatPriceXofEur(amount?: number): string {
+    if (amount === undefined || amount === null || Number.isNaN(amount)) {
+      return 'A determiner';
+    }
+    const eur = amount / 655.957;
+    const xofFormatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount);
+    const eurFormatted = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(eur);
+    return `${xofFormatted} FCFA (≈ ${eurFormatted} EUR)`;
   }
 
   get totalDemandes(): number {
@@ -287,4 +315,19 @@ Téléphone : ${demande.telephoneClient}`;
   formatDate(date: string): string {
     return new Date(date).toLocaleDateString('fr-FR');
   }
+
+  getStatusLabel(statut?: string): string {
+    const normalized = String(statut || '').trim().toUpperCase();
+    if (normalized === 'EN_ATTENTE') return 'En attente';
+    if (normalized === 'EN_TRAITEMENT') return 'En traitement';
+    if (normalized === 'ACCEPTE') return 'Acceptee';
+    if (normalized === 'REFUSE') return 'Refusee';
+    return normalized || '-';
+  }
 }
+
+
+
+
+
+

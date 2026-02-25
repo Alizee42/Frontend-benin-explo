@@ -1,108 +1,144 @@
-<app-header mode="compact"></app-header>
-
-<div class="circuit-detail-container">
-  <div class="detail-card" *ngIf="demande; else loading">
-    <div class="detail-header">
-      <button class="btn-back" (click)="goBack()">← Retour à la liste</button>
-      <h1>Demande de circuit personnalisé #{{ demande.id }}</h1>
-      <div class="status-badge" [ngClass]="getStatusBadgeClass(demande.statut || 'EN_ATTENTE')">
-        {{ demande.statut || 'EN_ATTENTE' }}
-      </div>
-    </div>
-
-    <div class="detail-content">
-      <!-- Informations client -->
-      <div class="info-section">
-        <h2>Informations client</h2>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>Nom :</label>
-            <span>{{ demande.prenomClient }} {{ demande.nomClient }}</span>
+<div class="page-modal-backdrop">
+  <div class="page-modal-shell">
+    <div class="shell-content" *ngIf="demande; else loading">
+      <div class="detail-header">
+        <div class="title-wrap">
+          <h2>Details de la demande</h2>
+          <p *ngIf="demande">Verifie les informations puis choisis une decision.</p>
+        </div>
+        <div class="detail-header-right">
+          <div class="status-badge" [ngClass]="getStatusBadgeClass(demande.statut || 'EN_ATTENTE')">
+            {{ getStatusLabel(demande.statut || 'EN_ATTENTE') }}
           </div>
-          <div class="info-item">
-            <label>Email :</label>
-            <span>{{ demande.emailClient }}</span>
-          </div>
-          <div class="info-item">
-            <label>Téléphone :</label>
-            <span>{{ demande.telephoneClient }}</span>
-          </div>
-          <div class="info-item">
-            <label>Date de soumission :</label>
-            <span>{{ demande.dateCreation ? formatDate(demande.dateCreation) : 'N/A' }}</span>
-          </div>
+          <button class="shell-close" (click)="goBack()">x</button>
         </div>
       </div>
 
-      <!-- Détails du circuit -->
-      <div class="info-section">
-        <h2>Détails du circuit demandé</h2>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>Nombre de personnes :</label>
-            <span>{{ demande.nombrePersonnes }}</span>
+      <div class="detail-content">
+        <section class="info-section">
+          <h3>Informations client</h3>
+          <div class="info-grid">
+            <div class="info-item"><label>Nom</label><span>{{ demande.prenomClient }} {{ demande.nomClient }}</span></div>
+            <div class="info-item"><label>Email</label><span>{{ demande.emailClient }}</span></div>
+            <div class="info-item"><label>Telephone</label><span>{{ demande.telephoneClient }}</span></div>
+            <div class="info-item"><label>Date de soumission</label><span>{{ demande.dateCreation ? formatDate(demande.dateCreation) : 'N/A' }}</span></div>
           </div>
-          <div class="info-item">
-            <label>Nombre de jours :</label>
-            <span>{{ demande.nombreJours }}</span>
-          </div>
-          <div class="info-item">
-            <label>Hébergement inclus :</label>
-            <span>{{ demande.avecHebergement ? 'Oui' : 'Non' }}</span>
-          </div>
-          <div class="info-item">
-            <label>Transport inclus :</label>
-            <span>{{ demande.avecTransport ? 'Oui' : 'Non' }}</span>
-          </div>
-          <div class="info-item" *ngIf="demande.prixEstime">
-            <label>Prix estimé :</label>
-            <span class="prix">{{ formatPrix(demande.prixEstime) }}</span>
-          </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- Zones et activités -->
-      <div class="info-section">
-        <h2>Jours du circuit</h2>
-        <div class="zones-activites">
-          <div *ngFor="let jour of demande.jours" class="jour-section">
-            <h3>Jour {{ jour.numeroJour }}</h3>
-            <div *ngIf="jour.zoneNom"><strong>Zone :</strong> {{ jour.zoneNom }}</div>
-            <div *ngIf="jour.villeNom"><strong>Ville :</strong> {{ jour.villeNom }}</div>
-            <div *ngIf="jour.activiteNoms && jour.activiteNoms.length > 0">
-              <strong>Activités :</strong> 
-              <span class="tag" *ngFor="let activite of jour.activiteNoms">{{ activite }}</span>
+        <section class="info-section">
+          <h3>Details du circuit</h3>
+          <div class="info-grid">
+            <div class="info-item"><label>Nombre de personnes</label><span>{{ demande.nombrePersonnes }}</span></div>
+            <div class="info-item"><label>Nombre de jours</label><span>{{ demande.nombreJours }}</span></div>
+            <div class="info-item"><label>Hebergement</label><span>{{ demande.avecHebergement ? 'Oui' : 'Non' }}</span></div>
+            <div class="info-item"><label>Transport</label><span>{{ demande.avecTransport ? 'Oui' : 'Non' }}</span></div>
+            <div class="info-item" *ngIf="demande.prixEstime"><label>Prix estime</label><span class="prix">{{ formatPrix(demande.prixEstime) }}</span></div>
+          </div>
+        </section>
+
+        <section class="info-section">
+          <h3>Programme par jour</h3>
+          <div class="days-layout" *ngIf="demande.jours?.length">
+            <div class="days-row">
+              <button
+                type="button"
+                class="day-tab"
+                *ngFor="let jour of demande.jours; let i = index"
+                [class.active]="i === selectedDayIndex"
+                (click)="selectDay(i)"
+              >
+                Jour {{ jour.numeroJour }}
+              </button>
+            </div>
+            <article class="day-panel" *ngIf="selectedDay as jour">
+              <div class="day-line">
+                <span class="day-label">Zone</span>
+                <span class="day-value">{{ jour.zoneNom || 'Non renseignee' }}</span>
+              </div>
+              <div class="day-line">
+                <span class="day-label">Ville</span>
+                <span class="day-value">{{ jour.villeNom || 'Non renseignee' }}</span>
+              </div>
+              <div class="day-line">
+                <span class="day-label">Activites</span>
+                <div class="day-tags" *ngIf="jour.activiteNoms && jour.activiteNoms.length > 0; else noActivities">
+                  <span class="tag" *ngFor="let activite of jour.activiteNoms">{{ activite }}</span>
+                </div>
+                <ng-template #noActivities>
+                  <span class="day-value">Aucune activite</span>
+                </ng-template>
+              </div>
+            </article>
+          </div>
+
+          <div class="no-day" *ngIf="!demande.jours?.length">
+            Aucun jour enregistre pour cette demande.
+          </div>
+        </section>
+
+        <section class="actions-section" *ngIf="demande.statut === 'EN_ATTENTE'">
+          <div class="action-buttons">
+            <button class="btn-approve" (click)="openDecisionModal('approve')">Approuver</button>
+            <button class="btn-reject" (click)="openDecisionModal('reject')">Refuser</button>
+          </div>
+        </section>
+
+        <section class="decision-inline" *ngIf="showDecisionModal">
+          <div class="decision-modal-header">
+            <h3>{{ decisionType === 'approve' ? 'Valider la demande et envoyer l email' : 'Refuser la demande et envoyer l email' }}</h3>
+            <button type="button" class="btn-close" (click)="closeDecisionModal()">x</button>
+          </div>
+          <div class="decision-modal-body">
+            <p class="decision-hint">Cette fenetre confirme la decision et l envoi du message au client.</p>
+            <label for="emailSubject">Sujet de l'email</label>
+            <input id="emailSubject" type="text" [(ngModel)]="emailSubject" />
+
+            <label for="emailBody">Corps de l'email</label>
+            <textarea id="emailBody" rows="6" [(ngModel)]="emailBody"></textarea>
+
+            <label for="refusalReason" *ngIf="decisionType === 'reject'">Motif du refus</label>
+            <textarea
+              *ngIf="decisionType === 'reject'"
+              id="refusalReason"
+              rows="4"
+              [(ngModel)]="refusalReason"
+              placeholder="Explique pourquoi la demande est refusee..."
+            ></textarea>
+            <small *ngIf="decisionType === 'reject' && !refusalReason.trim()">Le motif est obligatoire.</small>
+          </div>
+          <div class="decision-modal-footer">
+            <button type="button" class="btn-secondary" (click)="closeDecisionModal()">Annuler</button>
+            <button type="button" class="btn-primary" [disabled]="isSubmittingDecision || !emailSubject.trim() || !emailBody.trim() || (decisionType === 'reject' && !refusalReason.trim())" (click)="submitDecision()">
+              {{ isSubmittingDecision ? 'Traitement...' : 'Confirmer et envoyer' }}
+            </button>
+          </div>
+        </section>
+
+        <section class="info-section" *ngIf="demande.motifRefus || demande.commentaireAdmin || demande.dateTraitement">
+          <h3>Suivi administratif</h3>
+          <div class="info-grid">
+            <div class="info-item" *ngIf="demande.dateTraitement">
+              <label>Date de traitement</label>
+              <span>{{ formatDate(demande.dateTraitement) }}</span>
+            </div>
+            <div class="info-item" *ngIf="demande.commentaireAdmin">
+              <label>Commentaire admin</label>
+              <span>{{ demande.commentaireAdmin }}</span>
+            </div>
+            <div class="info-item" *ngIf="demande.motifRefus">
+              <label>Motif du refus</label>
+              <span>{{ demande.motifRefus }}</span>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="actions-section" *ngIf="demande.statut === 'EN_ATTENTE'">
-        <h2>Actions</h2>
-        <div class="action-buttons">
-          <button class="btn-approve" (click)="approveDemande()">
-            ✅ Approuver la demande
-          </button>
-          <button class="btn-reject" (click)="rejectDemande()">
-            ❌ Refuser la demande
-          </button>
-        </div>
-      </div>
-
-      <div class="actions-section" *ngIf="demande.statut === 'ACCEPTE'">
-        <h2>Actions supplémentaires</h2>
-        <div class="action-buttons">
-          <!-- TODO: Implémenter la conversion en circuit catalogue -->
-        </div>
+        </section>
       </div>
     </div>
+
+    <ng-template #loading>
+      <div class="loading-container">
+        <div class="spinner"></div>
+        <p>Chargement des details de la demande...</p>
+      </div>
+    </ng-template>
   </div>
-
-  <ng-template #loading>
-    <div class="loading-container">
-      <div class="spinner"></div>
-      <p>Chargement des détails de la demande...</p>
-    </div>
-  </ng-template>
 </div>

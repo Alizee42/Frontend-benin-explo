@@ -527,6 +527,9 @@
 // Status badges
 .cell-content {
   &.status-EN_ATTENTE,
+  &.status-EN_TRAITEMENT,
+  &.status-ACCEPTE,
+  &.status-REFUSE,
   &.status-CONFIRMEE,
   &.status-ANNULEE,
   &.status-TERMINEE {
@@ -548,16 +551,34 @@
     border-color: rgba(133, 100, 4, 0.25);
   }
 
+  &.status-EN_TRAITEMENT {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: rgba(30, 64, 175, 0.2);
+  }
+
   &.status-CONFIRMEE {
     background: #d1ecf1;
     color: #0c5460;
     border-color: rgba(12, 84, 96, 0.22);
   }
 
+  &.status-ACCEPTE {
+    background: #d9f3e5;
+    color: #145a39;
+    border-color: rgba(20, 90, 57, 0.22);
+  }
+
   &.status-ANNULEE {
     background: #f8d7da;
     color: #721c24;
     border-color: rgba(114, 28, 36, 0.22);
+  }
+
+  &.status-REFUSE {
+    background: #f9d9dd;
+    color: #7f1d2a;
+    border-color: rgba(127, 29, 42, 0.24);
   }
 
   &.status-TERMINEE {

@@ -4,60 +4,77 @@
   <main class="page-content">
     <app-admin-actions-bar title="Circuits personnalises" icon="ri-route-line"></app-admin-actions-bar>
 
-    <div class="content-card">
-      <div class="stats-section">
-        <div class="stat-card">
-          <div class="stat-number">{{ totalDemandes }}</div>
-          <div class="stat-label">Total demandes</div>
+    <section class="kpi-grid">
+      <article class="kpi-card total">
+        <div class="kpi-icon"><i class="ri-file-list-3-line"></i></div>
+        <div class="kpi-content">
+          <span class="kpi-label">Demandes totales</span>
+          <p class="kpi-value">{{ totalDemandes }}</p>
         </div>
-        <div class="stat-card">
-          <div class="stat-number">{{ demandesEnAttente }}</div>
-          <div class="stat-label">En attente</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">{{ demandesApprouvees }}</div>
-          <div class="stat-label">Approuvées</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">{{ demandesRefusees }}</div>
-          <div class="stat-label">Refusées</div>
-        </div>
-      </div>
+      </article>
 
-      <div class="table-section">
+      <article class="kpi-card pending">
+        <div class="kpi-icon"><i class="ri-time-line"></i></div>
+        <div class="kpi-content">
+          <span class="kpi-label">En attente</span>
+          <p class="kpi-value">{{ demandesEnAttente }}</p>
+        </div>
+      </article>
+
+      <article class="kpi-card approved">
+        <div class="kpi-icon"><i class="ri-checkbox-circle-line"></i></div>
+        <div class="kpi-content">
+          <span class="kpi-label">Demandes acceptees</span>
+          <p class="kpi-value">{{ demandesApprouvees }}</p>
+        </div>
+      </article>
+
+      <article class="kpi-card rejected">
+        <div class="kpi-icon"><i class="ri-close-circle-line"></i></div>
+        <div class="kpi-content">
+          <span class="kpi-label">Demandes refusees</span>
+          <p class="kpi-value">{{ demandesRefusees }}</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="table-panel">
+      <header class="table-panel-head">
         <h2>Liste des demandes</h2>
+        <p>Suivi des demandes client et decisions administrateur.</p>
+      </header>
 
-        <div *ngIf="isLoading" class="loading-container">
-          <div class="spinner"></div>
-          <p>Chargement des demandes...</p>
-        </div>
-
-        <div *ngIf="!isLoading && demandes.length === 0" class="empty-state">
-          <p>Aucune demande de circuit personnalisé pour le moment.</p>
-        </div>
-
-        <div *ngIf="!isLoading && demandes.length > 0" class="data-table-container">
-          <app-data-table
-            [data]="demandes"
-            [columns]="tableColumns"
-            [actions]="tableActions"
-            (actionClick)="onActionClick($event)">
-          </app-data-table>
-        </div>
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Chargement des demandes...</p>
       </div>
-    </div>
+
+      <div *ngIf="!isLoading && demandes.length === 0" class="empty-state">
+        <p>Aucune demande de circuit personnalise pour le moment.</p>
+      </div>
+
+      <div *ngIf="!isLoading && demandes.length > 0" class="data-table-container">
+        <app-data-table
+          [data]="demandes"
+          [columns]="tableColumns"
+          [actions]="tableActions"
+          (actionClick)="onActionClick($event)">
+        </app-data-table>
+      </div>
+    </section>
   </main>
 </div>
 
-<!-- Modale de personnalisation d'email -->
 <div class="email-modal-overlay" *ngIf="showEmailModal" (click)="closeEmailModal()">
   <div class="email-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h3>{{ currentEmailAction === 'approbation' ? 'Email d\'approbation' : 'Email de refus' }}</h3>
-      <button type="button" class="close-btn" (click)="closeEmailModal()">×</button>
+      <h3>{{ currentEmailAction === 'approbation' ? 'Valider la demande et envoyer l email' : 'Refuser la demande et envoyer l email' }}</h3>
+      <button type="button" class="close-btn" (click)="closeEmailModal()">x</button>
     </div>
 
     <div class="modal-body">
+      <p class="form-hint">Cette fenetre permet de confirmer la decision et de verifier le message envoye au client.</p>
+
       <div class="form-group">
         <label for="email-subject">Sujet de l'email</label>
         <input
@@ -88,13 +105,13 @@
           id="email-body"
           [(ngModel)]="emailBody"
           class="form-control email-body"
-          rows="15"
+          rows="10"
           placeholder="Contenu de l'email"
         ></textarea>
-        <small class="form-hint">
-          Les variables suivantes sont automatiquement remplacées : &#123;nom&#125;, &#123;id&#125;, &#123;zones&#125;, &#123;activites&#125;, etc.
-        </small>
       </div>
+
+      <p class="modal-success" *ngIf="modalSuccess">{{ modalSuccess }}</p>
+      <p class="modal-error" *ngIf="modalError">{{ modalError }}</p>
     </div>
 
     <div class="modal-footer">
@@ -103,9 +120,9 @@
         type="button"
         class="btn-send"
         (click)="sendEmail()"
-        [disabled]="currentEmailAction === 'refus' && !refusalReason.trim()"
+        [disabled]="isSendingDecision || !emailSubject.trim() || !emailBody.trim() || (currentEmailAction === 'refus' && !refusalReason.trim())"
       >
-        Envoyer l'email
+        {{ isSendingDecision ? 'Envoi...' : 'Confirmer et envoyer' }}
       </button>
     </div>
   </div>
