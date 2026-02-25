@@ -1,4 +1,4 @@
-<div class="modal-overlay" *ngIf="open" (click)="onBackdropClick($event)">
+<div class="modal-overlay" *ngIf="open" (click)="onBackdropClick()">
   <div class="modal-content" [ngClass]="size" role="dialog" aria-modal="true" (click)="onContentClick($event)">
     <div class="modal-header">
       <h3 class="modal-title">{{ title }}</h3>

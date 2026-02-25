@@ -32,11 +32,15 @@ export class DataTableComponent {
   @Input() loading = false;
   @Input() emptyMessage = 'Aucune donnée disponible';
   @Input() actions: TableAction[] = [];
-  @Input() iconOnlyActions = false;
+  @Input() iconOnlyActions = true;
   @Input() rowClickable = false;
-  // Pagination (client-side). If `pageable` is true, the table slices the provided `data`.
+  // Pagination (client-side)
+  // - `pageable = true`: force pagination
+  // - `autoPaginate = true`: paginate automatically only if rows > autoPaginateThreshold
   @Input() pageable = false;
-  @Input() pageSize = 10;
+  @Input() autoPaginate = true;
+  @Input() autoPaginateThreshold = 8;
+  @Input() pageSize = 8;
 
   @Output() actionClick = new EventEmitter<{action: string, item: any}>();
   @Output() rowClick = new EventEmitter<any>();
@@ -51,6 +55,11 @@ export class DataTableComponent {
     if (changes['data'] && !changes['data'].firstChange) {
       this.currentPage = 1;
     }
+  }
+
+  get isPaginationEnabled(): boolean {
+    if (this.pageable) return true;
+    return this.autoPaginate && (this.data?.length || 0) > this.autoPaginateThreshold;
   }
 
   onActionClick(action: string, item: any, event: Event) {
@@ -191,13 +200,13 @@ export class DataTableComponent {
   }
 
   get totalPages(): number {
-    if (!this.pageable) return 1;
-    return Math.max(1, Math.ceil((this.data || []).length / (this.pageSize || 10)));
+    if (!this.isPaginationEnabled) return 1;
+    return Math.max(1, Math.ceil((this.data || []).length / (this.pageSize || 8)));
   }
 
   // returns the array of items to render for the current page
   get pagedData(): any[] {
-    if (!this.pageable) return this.data || [];
+    if (!this.isPaginationEnabled) return this.data || [];
     const start = (this.currentPage - 1) * this.pageSize;
     return (this.data || []).slice(start, start + this.pageSize);
   }

@@ -6,11 +6,13 @@ import { ZonesAdminService, ZoneDTO } from '../../../services/zones-admin.servic
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { DataTableComponent, TableColumn, TableAction } from '../../../shared/components/data-table/data-table.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { AdminActionsBarComponent } from '../../../shared/components/admin-actions-bar/admin-actions-bar.component';
+import { BeButtonComponent } from '../../../shared/components/be-button/be-button.component';
 
 @Component({
   selector: 'app-villes',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, DataTableComponent, ModalComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, DataTableComponent, ModalComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './villes.component.html',
   styleUrls: ['./villes.component.scss']
 })

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { DataTableComponent, TableColumn, TableAction } from '../../../shared/components/data-table/data-table.component';
+import { AdminActionsBarComponent } from '../../../shared/components/admin-actions-bar/admin-actions-bar.component';
+import { BeButtonComponent } from '../../../shared/components/be-button/be-button.component';
 import { AuthService } from '../../../services/auth.service';
 import { CircuitService } from '../../../services/circuit.service';
 import { ZonesService, Zone } from '../../../services/zones.service';
@@ -12,7 +14,7 @@ import { CircuitDTO } from '../../../models/circuit.dto';
 @Component({
   selector: 'app-circuits-admin',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, DataTableComponent],
+  imports: [CommonModule, HeaderComponent, DataTableComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './circuits-admin.component.html',
   styleUrls: ['./circuits-admin.component.scss']
 })

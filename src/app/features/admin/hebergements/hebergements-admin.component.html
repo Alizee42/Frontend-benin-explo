@@ -3,13 +3,15 @@
 
   <main class="page-content">
     <div class="admin-container">
-      <div class="admin-header">
-        <h1>Gestion des Hébergements</h1>
-        <button class="btn-add" (click)="openAddModal()">
-          <i class="ri-add-line"></i>
-          Ajouter un hébergement
-        </button>
-      </div>
+      <app-admin-actions-bar title="Gestion des hebergements" icon="ri-hotel-bed-line">
+        <be-button
+          bar-right
+          variant="primary"
+          iconLeft="ri-add-line"
+          label="Ajouter un hebergement"
+          (click)="openAddModal()">
+        </be-button>
+      </app-admin-actions-bar>
 
       <div class="admin-content">
         <app-data-table

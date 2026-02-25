@@ -71,7 +71,7 @@
       </tbody>
     </table>
     <!-- Pagination controls (client-side) -->
-    <div *ngIf="pageable && totalPages > 1" class="table-pagination">
+    <div *ngIf="isPaginationEnabled && totalPages > 1" class="table-pagination">
       <div class="pagination-info">Affichage {{ ((currentPage-1)*pageSize)+1 }} - {{ Math.min(currentPage*pageSize, data.length) }} sur {{ data.length }}</div>
       <div class="pagination-controls">
         <button class="page-btn" [disabled]="currentPage===1" (click)="prevPage()">Préc</button>

@@ -10,11 +10,13 @@ import { DataTableComponent, TableColumn, TableAction } from '../../../shared/co
 import { ActiviteFormComponent } from './activite-form/activite-form.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { MediaService } from '../../../services/media.service';
+import { AdminActionsBarComponent } from '../../../shared/components/admin-actions-bar/admin-actions-bar.component';
+import { BeButtonComponent } from '../../../shared/components/be-button/be-button.component';
 
 @Component({
   standalone: true,
   selector: 'app-activites-admin',
-  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, DataTableComponent, ActiviteFormComponent, ModalComponent],
+  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, DataTableComponent, ActiviteFormComponent, ModalComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './activites-admin.component.html',
   styleUrls: ['./activites-admin.component.scss']
 })

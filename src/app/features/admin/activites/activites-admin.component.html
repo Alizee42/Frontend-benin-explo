@@ -2,31 +2,28 @@
   <app-header mode="compact"></app-header>
 
   <main class="page-content">
-  <div class="actions-bar">
-    <h1 class="page-title">
-      <i class="ri-calendar-event-line"></i>
-      Gestion des activités
-    </h1>
-    <button class="btn-add" (click)="openAddModal()">
-      <i class="ri-add-line"></i>
-      Ajouter une activité
-    </button>
-  </div>
+    <app-admin-actions-bar title="Gestion des activites" icon="ri-calendar-event-line">
+      <be-button
+        bar-right
+        variant="primary"
+        size="md"
+        iconLeft="ri-add-line"
+        label="Ajouter une activite"
+        (click)="openAddModal()">
+      </be-button>
+    </app-admin-actions-bar>
 
-  <app-data-table
-    [columns]="tableColumns"
-    [data]="activites"
-    [pageable]="true"
-    [pageSize]="5"
-    [loading]="loading"
-    [actions]="tableActions"
-    (actionClick)="onTableAction($event)"
-    >
-  </app-data-table>
+    <app-data-table
+      [columns]="tableColumns"
+      [data]="activites"
+      [pageSize]="8"
+      [loading]="loading"
+      [actions]="tableActions"
+      (actionClick)="onTableAction($event)">
+    </app-data-table>
   </main>
 
-  <!-- Modal add/edit activite (réutilise app-modal) -->
-  <app-modal [title]="isEditing ? 'Modifier l\'activité' : 'Ajouter une activité'" [open]="showModal" [size]="'xlarge'" (close)="closeModal()">
+  <app-modal [title]="isEditing ? 'Modifier activite' : 'Ajouter une activite'" [open]="showModal" [size]="'xlarge'" (close)="closeModal()">
     <app-activite-form
       [activite]="currentActivite"
       [zones]="zones"

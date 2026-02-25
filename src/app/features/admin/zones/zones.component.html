@@ -2,12 +2,8 @@
   <app-header mode="compact"></app-header>
 
   <main class="page-content">
-    <div class="actions-bar">
-      <h1 class="page-title">
-        <i class="ri-map-pin-line"></i>
-        Gestion des zones
-      </h1>
-      <div class="actions-right">
+    <app-admin-actions-bar title="Gestion des zones" icon="ri-map-pin-line">
+      <div bar-right class="actions-right">
         <div class="search-field">
           <i class="ri-search-line"></i>
           <input
@@ -26,12 +22,14 @@
             <option value="id-asc">Plus anciennes</option>
           </select>
         </div>
-        <button class="btn-add" (click)="openAddModal()">
-          <i class="ri-add-line"></i>
-          Ajouter une zone
-        </button>
+        <be-button
+          variant="primary"
+          iconLeft="ri-add-line"
+          label="Ajouter une zone"
+          (click)="openAddModal()">
+        </be-button>
       </div>
-    </div>
+    </app-admin-actions-bar>
 
     <div class="table-meta" *ngIf="!loading">
       {{ filteredZones.length }} zone{{ filteredZones.length > 1 ? 's' : '' }}

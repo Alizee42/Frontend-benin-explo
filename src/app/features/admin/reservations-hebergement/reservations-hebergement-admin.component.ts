@@ -6,11 +6,12 @@ import { ReservationHebergementDTO } from '../../../models/reservation-hebergeme
 import { DataTableComponent, TableAction, TableColumn } from '../../../shared/components/data-table/data-table.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
+import { AdminActionsBarComponent } from '../../../shared/components/admin-actions-bar/admin-actions-bar.component';
 
 @Component({
   selector: 'app-reservations-hebergement-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, DataTableComponent, ModalComponent, HeaderComponent],
+  imports: [CommonModule, FormsModule, DataTableComponent, ModalComponent, HeaderComponent, AdminActionsBarComponent],
   templateUrl: './reservations-hebergement-admin.component.html',
   styleUrls: ['./reservations-hebergement-admin.component.scss']
 })

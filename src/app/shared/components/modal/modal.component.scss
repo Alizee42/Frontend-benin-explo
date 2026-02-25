@@ -1,8 +1,3 @@
-.modal { }
-.modal-content { }
-.modal-header { display:flex; align-items:center; justify-content:space-between; }
-.modal-header h3 { margin:0; font-size:1.05rem; }
-.close-btn { background:transparent; border:none; cursor:pointer; padding:6px; border-radius:6px; }
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -66,7 +61,7 @@
   border-bottom: 2px solid var(--be-sand);
   background: linear-gradient(135deg, var(--be-green), #00695c);
 
-  h2 {
+  .modal-title, h2 {
     margin: 0;
     color: var(--be-light);
     font-size: 1.4rem;
@@ -304,7 +299,7 @@
   .modal-header {
     position: static;
 
-    h2 {
+    .modal-title, h2 {
       margin-right: 0;
       text-align: left;
     }

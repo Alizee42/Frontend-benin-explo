@@ -8,11 +8,13 @@ import { MediaService, MediaDTO } from '../../../services/media.service';
 import { DataTableComponent, TableColumn, TableAction } from '../../../shared/components/data-table/data-table.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
+import { AdminActionsBarComponent } from '../../../shared/components/admin-actions-bar/admin-actions-bar.component';
+import { BeButtonComponent } from '../../../shared/components/be-button/be-button.component';
 
 @Component({
   standalone: true,
   selector: 'app-hebergements-admin',
-  imports: [CommonModule, RouterModule, FormsModule, DataTableComponent, ModalComponent, HeaderComponent],
+  imports: [CommonModule, RouterModule, FormsModule, DataTableComponent, ModalComponent, HeaderComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './hebergements-admin.component.html',
   styleUrls: ['./hebergements-admin.component.scss']
 })

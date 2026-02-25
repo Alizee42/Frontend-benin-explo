@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
+import { AdminActionsBarComponent } from '../../../shared/components/admin-actions-bar/admin-actions-bar.component';
 import { CircuitsPersonnalisesService, CircuitPersonnaliseDTO } from '../../../services/circuits-personnalises.service';
 
 @Component({
   selector: 'app-circuits-personnalises-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, DataTableComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, DataTableComponent, AdminActionsBarComponent],
   templateUrl: './circuits-personnalises-admin.component.html',
   styleUrls: ['./circuits-personnalises-admin.component.scss']
 })

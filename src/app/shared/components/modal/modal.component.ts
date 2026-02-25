@@ -28,8 +28,7 @@ export class ModalComponent {
     this.close.emit();
   }
 
-  onBackdropClick(event: Event): void {
-    // Backdrop was clicked. We receive the native event but don't use it.
+  onBackdropClick(): void {
     // The click on the backdrop should close the modal when allowed.
     if (this.closeOnBackdrop) this.closeModal();
   }

@@ -2,16 +2,15 @@
   <app-header mode="compact"></app-header>
 
   <main class="page-content">
-    <div class="actions-bar">
-      <h1 class="page-title">
-        <i class="ri-building-4-line"></i>
-        Gestion des villes
-      </h1>
-      <button class="btn-add" (click)="openAddModal()">
-        <i class="ri-add-line"></i>
-        Ajouter une ville
-      </button>
-    </div>
+    <app-admin-actions-bar title="Gestion des villes" icon="ri-building-4-line">
+      <be-button
+        bar-right
+        variant="primary"
+        iconLeft="ri-add-line"
+        label="Ajouter une ville"
+        (click)="openAddModal()">
+      </be-button>
+    </app-admin-actions-bar>
 
     <app-data-table
       [columns]="tableColumns"

@@ -2,16 +2,16 @@
   <app-header mode="compact"></app-header>
 
   <main class="page-content">
-    <div class="actions-bar">
-      <h1 class="page-title">
-        <i class="ri-route-line"></i>
-        Gestion des circuits
-      </h1>
-      <button class="btn-add" (click)="addCircuit()">
-        <i class="ri-add-line"></i>
-        Ajouter un circuit
-      </button>
-    </div>
+    <app-admin-actions-bar title="Gestion des circuits" icon="ri-route-line">
+      <be-button
+        bar-right
+        variant="primary"
+        size="md"
+        iconLeft="ri-add-line"
+        label="Ajouter un circuit"
+        (click)="addCircuit()">
+      </be-button>
+    </app-admin-actions-bar>
 
     <app-data-table
       [columns]="tableColumns"

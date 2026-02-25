@@ -1,0 +1,15 @@
+<section class="admin-actions-bar">
+  <div class="admin-actions-main">
+    <h1 class="admin-actions-title" *ngIf="title">
+      <i *ngIf="icon" [class]="icon" aria-hidden="true"></i>
+      <span>{{ title }}</span>
+    </h1>
+    <p class="admin-actions-subtitle" *ngIf="subtitle">{{ subtitle }}</p>
+    <ng-content select="[bar-left]"></ng-content>
+  </div>
+
+  <div class="admin-actions-controls">
+    <ng-content select="[bar-right]"></ng-content>
+  </div>
+</section>
+

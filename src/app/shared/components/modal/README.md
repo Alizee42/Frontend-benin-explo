@@ -55,22 +55,23 @@ Utilisez `<ng-content>` pour injecter du contenu :
 ```typescript
 // Dans votre composant
 export class MyComponent {
-  modal!: ModalComponent;
+  showModal = false;
 
   openModal() {
-    this.modal.open();
+    this.showModal = true;
   }
 
   onModalClose() {
+    this.showModal = false;
   }
 }
 ```
 
 ```html
 <app-modal
-  #modal
   title="Ajouter un élément"
   size="large"
+  [open]="showModal"
   (close)="onModalClose()">
 
   <form>
@@ -78,7 +79,7 @@ export class MyComponent {
   </form>
 
   <div modal-footer>
-    <button (click)="modal.closeModal()">Annuler</button>
+    <button (click)="showModal = false">Annuler</button>
     <button (click)="save()">Enregistrer</button>
   </div>
 </app-modal>

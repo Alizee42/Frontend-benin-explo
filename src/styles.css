@@ -13,6 +13,9 @@
 	--be-light: #FFFFFF;
 	/* Blanc */
 	--be-brown: #3B2F1C;
+	--admin-content-max: 1760px;
+	--admin-content-pad-x: 0.8rem;
+	--admin-content-pad-y: 2rem;
 }
 
 html,
@@ -39,6 +42,37 @@ main {
 main.main {
 	padding-top: 64px;
 	/* header height */
+}
+
+/* Admin content width system (single source of truth) */
+:where(
+	.admin-dashboard .admin-layout,
+	.zones-admin .page-content,
+	.activites-admin .page-content,
+	.reservations-hebergement-admin .page-content,
+	.circuits-admin .page-content,
+	.villes-admin .page-content,
+	.circuits-admin.circuits-personnalises-admin .page-content,
+	.hebergements-admin .admin-container,
+	.circuit-details .page-content,
+	.circuit-form-container,
+	.edit-circuit-container .form-card,
+	.circuit-detail-container .detail-card
+) {
+	width: min(98vw, var(--admin-content-max));
+	margin-left: auto;
+	margin-right: auto;
+	padding-top: var(--admin-content-pad-y);
+	padding-bottom: var(--admin-content-pad-y);
+	padding-left: var(--admin-content-pad-x);
+	padding-right: var(--admin-content-pad-x);
+}
+
+/* Legacy add buttons fallback across admin pages */
+.btn-add {
+	background: var(--be-green) !important;
+	color: var(--be-light) !important;
+	border-radius: 10px !important;
 }
 
 /* Small helpers */
