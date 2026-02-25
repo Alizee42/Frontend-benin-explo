@@ -2,147 +2,139 @@
   <app-header mode="compact"></app-header>
 
   <main class="admin-layout">
-    <!-- HERO / BIENVENUE -->
     <section class="admin-hero">
       <div class="admin-hero-main">
         <p class="admin-hero-kicker">Tableau de bord</p>
-        <h1 class="admin-hero-title">Bonjour, {{ userFirstName }} 👋</h1>
+        <h1 class="admin-hero-title">Bonjour, {{ userFirstName }}</h1>
         <p class="admin-hero-subtitle">
-          Vue d'ensemble de l'activité et accès rapide à tous les outils de gestion Bénin Explo.
+          Vue d'ensemble de l'activite et acces rapide aux outils d'administration.
         </p>
       </div>
       <div class="admin-hero-meta">
         <span class="admin-role-chip">Administrateur</span>
-        <span class="admin-hero-context">Dernière connexion : 01/12/2025 • 10:24</span>
+        <span class="admin-hero-context">Derniere mise a jour : {{ lastUpdateLabel }}</span>
       </div>
     </section>
 
-    <!-- BLOC KPIs / VUE D'ENSEMBLE -->
-    <section class="admin-section kpi-section">
+    <section class="admin-section">
       <header class="section-header">
         <div class="section-header-main">
-          <h2>Vue d'ensemble</h2>
-          <p>Quelques indicateurs clés pour suivre rapidement l'activité.</p>
+          <h2>Indicateurs cles</h2>
+          <p>Suivi rapide des donnees principales de la plateforme.</p>
         </div>
       </header>
 
       <div class="kpi-grid">
         <article class="kpi-card">
-          <div class="kpi-icon">
-            <i class="ri-map-pin-line"></i>
-          </div>
+          <div class="kpi-icon"><i class="ri-route-line"></i></div>
           <div class="kpi-content">
-            <p class="kpi-label">Circuits en ligne</p>
-            <p class="kpi-value">24</p>
-            <p class="kpi-hint">Circuits actuellement visibles côté public.</p>
+            <p class="kpi-label">Circuits publies</p>
+            <p class="kpi-value">{{ circuitsPublishedCount }}</p>
+            <p class="kpi-hint">Nombre total de circuits dans la plateforme.</p>
           </div>
         </article>
 
         <article class="kpi-card">
-          <div class="kpi-icon">
-            <i class="ri-calendar-check-line"></i>
-          </div>
+          <div class="kpi-icon"><i class="ri-hotel-bed-line"></i></div>
           <div class="kpi-content">
-            <p class="kpi-label">Réservations (30 derniers jours)</p>
-            <p class="kpi-value">12</p>
-            <p class="kpi-hint">Total toutes plateformes confondues.</p>
+            <p class="kpi-label">Reservations hebergement</p>
+            <p class="kpi-value">{{ reservationsCount }}</p>
+            <p class="kpi-hint">Volume global des reservations hebergement.</p>
           </div>
         </article>
 
         <article class="kpi-card">
-          <div class="kpi-icon">
-            <i class="ri-emotion-happy-line"></i>
-          </div>
+          <div class="kpi-icon"><i class="ri-time-line"></i></div>
           <div class="kpi-content">
-            <p class="kpi-label">Satisfaction estimée</p>
-            <p class="kpi-value">4,8 / 5</p>
-            <p class="kpi-hint">Basé sur les retours clients.</p>
+            <p class="kpi-label">Demandes en attente</p>
+            <p class="kpi-value">{{ pendingRequestsCount }}</p>
+            <p class="kpi-hint">Demandes client en cours de validation.</p>
+          </div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-icon"><i class="ri-layout-grid-line"></i></div>
+          <div class="kpi-content">
+            <p class="kpi-label">Catalogue actif</p>
+            <p class="kpi-value">{{ catalogueActifCount }}</p>
+            <p class="kpi-hint">Elements actuellement actifs dans le catalogue.</p>
           </div>
         </article>
       </div>
     </section>
 
-    <!-- MODULES DE GESTION -->
-    <section class="admin-section modules-section">
+    <section class="admin-section">
       <header class="section-header">
         <div class="section-header-main">
           <h2>Modules de gestion</h2>
-          <p>Accédez aux principaux espaces d'administration de la plateforme.</p>
+          <p>Accedez rapidement aux espaces d'administration.</p>
         </div>
       </header>
 
       <div class="modules-grid">
         <a routerLink="/admin/circuits" class="module-card">
-          <div class="module-icon">
-            <i class="ri-map-pin-line"></i>
-          </div>
+          <span class="module-icon"><i class="ri-route-line"></i></span>
           <div class="module-content">
             <p class="module-title">Circuits</p>
-            <p class="module-subtitle">Créer, modifier et publier les circuits officiels.</p>
+            <p class="module-subtitle">Creer, modifier et publier les circuits.</p>
           </div>
+          <span class="module-count">{{ circuitsPublishedCount }}</span>
         </a>
 
         <a routerLink="/admin/zones" class="module-card">
-          <div class="module-icon">
-            <i class="ri-earth-line"></i>
-          </div>
+          <span class="module-icon"><i class="ri-earth-line"></i></span>
           <div class="module-content">
             <p class="module-title">Zones</p>
-            <p class="module-subtitle">Définir les grandes zones géographiques et thématiques.</p>
+            <p class="module-subtitle">Definir les zones geographiques.</p>
           </div>
+          <span class="module-count">{{ zonesCount }}</span>
         </a>
 
         <a routerLink="/admin/villes" class="module-card">
-          <div class="module-icon">
-            <i class="ri-building-line"></i>
-          </div>
+          <span class="module-icon"><i class="ri-building-line"></i></span>
           <div class="module-content">
             <p class="module-title">Villes</p>
-            <p class="module-subtitle">Gérer les villes et points d'intérêt touristiques.</p>
+            <p class="module-subtitle">Gerer les villes et points d'interet.</p>
           </div>
+          <span class="module-count">{{ villesCount }}</span>
         </a>
 
         <a routerLink="/admin/activites" class="module-card">
-          <div class="module-icon">
-            <i class="ri-calendar-event-line"></i>
-          </div>
+          <span class="module-icon"><i class="ri-calendar-event-line"></i></span>
           <div class="module-content">
-            <p class="module-title">Activités</p>
-            <p class="module-subtitle">Programmer les activités par zone et par ville.</p>
+            <p class="module-title">Activites</p>
+            <p class="module-subtitle">Programmer les activites par zone.</p>
           </div>
+          <span class="module-count">{{ activitesCount }}</span>
         </a>
 
         <a routerLink="/admin/circuits-personnalises" class="module-card">
-          <div class="module-icon">
-            <i class="ri-user-star-line"></i>
-          </div>
+          <span class="module-icon"><i class="ri-user-star-line"></i></span>
           <div class="module-content">
-            <p class="module-title">Circuits personnalisés</p>
-            <p class="module-subtitle">Suivre et traiter les demandes sur mesure.</p>
+            <p class="module-title">Circuits personnalises</p>
+            <p class="module-subtitle">Traiter les demandes sur mesure.</p>
           </div>
+          <span class="module-count">{{ demandesCount }}</span>
         </a>
 
         <a routerLink="/admin/hebergements" class="module-card">
-          <div class="module-icon">
-            <i class="ri-hotel-bed-line"></i>
-          </div>
+          <span class="module-icon"><i class="ri-hotel-bed-line"></i></span>
           <div class="module-content">
-            <p class="module-title">Hébergements</p>
-            <p class="module-subtitle">Gérer les hébergements proposés aux voyageurs.</p>
+            <p class="module-title">Hebergements</p>
+            <p class="module-subtitle">Mettre a jour les offres hebergement.</p>
           </div>
+          <span class="module-count">{{ hebergementsCount }}</span>
         </a>
 
         <a routerLink="/admin/reservations-hebergement" class="module-card">
-          <div class="module-icon">
-            <i class="ri-calendar-todo-line"></i>
-          </div>
+          <span class="module-icon"><i class="ri-calendar-todo-line"></i></span>
           <div class="module-content">
-            <p class="module-title">Réservations hébergement</p>
-            <p class="module-subtitle">Suivre et mettre à jour les réservations d'hébergements.</p>
+            <p class="module-title">Reservations hebergement</p>
+            <p class="module-subtitle">Suivre et confirmer les reservations.</p>
           </div>
+          <span class="module-count">{{ reservationsCount }}</span>
         </a>
       </div>
     </section>
-
   </main>
 </div>
