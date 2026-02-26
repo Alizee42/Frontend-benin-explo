@@ -16,51 +16,46 @@
 
   <main class="content">
     <div class="container">
-      <div class="page-head">
-        <div class="page-head-text">
-          <h2>Nos hebergements</h2>
-          <p>Choisissez selon votre budget, votre localisation et votre style.</p>
+      <section class="filters-panel" *ngIf="!loading" aria-label="Filtres hebergements">
+        <div class="filters-top">
+          <div class="filters-title">
+            <i class="ri-equalizer-3-line"></i>
+            <span>Filtrer les hebergements</span>
+          </div>
+          <div class="filters-count">{{ filteredHebergements.length }} resultat(s)</div>
         </div>
 
-        <div class="results" *ngIf="!loading">
-          <span class="count">{{ filteredHebergements.length }}</span>
-          <span class="label">resultat(s)</span>
-        </div>
-      </div>
-
-      <section class="toolbar" aria-label="Filtres et tri">
         <div class="search">
           <i class="ri-search-line" aria-hidden="true"></i>
           <input
             type="text"
             [(ngModel)]="searchTerm"
+            (ngModelChange)="onFiltersChange()"
             placeholder="Rechercher (nom, ville, quartier, description...)"
             aria-label="Rechercher un hebergement" />
         </div>
 
-        <div class="filters">
-          <label class="field">
-            <span class="field-label">Type</span>
-            <select [(ngModel)]="typeFilter" aria-label="Filtrer par type">
-              <option value="">Tous</option>
-              <option *ngFor="let t of availableTypes" [value]="t">{{ t }}</option>
-            </select>
-          </label>
-
-          <label class="field">
-            <span class="field-label">Trier</span>
-            <select [(ngModel)]="sortBy" aria-label="Trier les hebergements">
-              <option value="recommandes">Recommandes</option>
-              <option value="prixAsc">Prix (croissant)</option>
-              <option value="prixDesc">Prix (decroissant)</option>
-              <option value="alpha">Nom (A -> Z)</option>
-            </select>
-          </label>
-
-          <button type="button" class="btn-ghost" (click)="clearFilters()" [disabled]="!searchTerm && !typeFilter && sortBy === 'recommandes'">
-            <i class="ri-refresh-line" aria-hidden="true"></i>
-            Reinitialiser
+        <div class="type-chips" *ngIf="availableTypes.length > 0" aria-label="Filtres rapides type">
+          <button
+            type="button"
+            class="type-chip"
+            [class.active]="!typeFilter"
+            (click)="setTypeFilter('')">
+            Tous
+            <span>{{ hebergements.length }}</span>
           </button>
+          <button
+            type="button"
+            class="type-chip"
+            *ngFor="let t of availableTypes"
+            [class.active]="typeFilter === t"
+            (click)="setTypeFilter(t)">
+            {{ t }}
+            <span>{{ getTypeCount(t) }}</span>
+          </button>
+        </div>
+
+        <div class="filters-row">
         </div>
       </section>
 
@@ -89,18 +84,13 @@
       </div>
 
       <div class="grid" *ngIf="!loading && filteredHebergements.length > 0">
-        <article class="card" *ngFor="let heb of filteredHebergements; trackBy: trackById">
+        <article class="card" *ngFor="let heb of paginatedHebergements; trackBy: trackById">
           <div class="media">
             <img
-              *ngIf="getCoverUrl(heb)"
               [src]="getCoverUrl(heb)!"
               [alt]="heb.nom"
               loading="lazy"
               (error)="onImageError($event)" />
-
-            <div class="media-fallback" *ngIf="!getCoverUrl(heb)">
-              <i class="ri-image-line" aria-hidden="true"></i>
-            </div>
 
             <div class="chips">
               <span class="chip type">{{ heb.type }}</span>
@@ -108,6 +98,34 @@
                 <i class="ri-image-2-line" aria-hidden="true"></i>
                 {{ getGalleryCount(heb) }}
               </span>
+            </div>
+
+            <button
+              *ngIf="hasMultipleImages(heb)"
+              type="button"
+              class="media-nav prev"
+              (click)="prevImage(heb, $event)"
+              aria-label="Image precedente">
+              <i class="ri-arrow-left-s-line" aria-hidden="true"></i>
+            </button>
+            <button
+              *ngIf="hasMultipleImages(heb)"
+              type="button"
+              class="media-nav next"
+              (click)="nextImage(heb, $event)"
+              aria-label="Image suivante">
+              <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+            </button>
+
+            <div class="media-dots" *ngIf="hasMultipleImages(heb)">
+              <button
+                type="button"
+                class="dot"
+                *ngFor="let _ of getImages(heb); let i = index"
+                [class.active]="i === getCurrentImageIndex(heb)"
+                (click)="setImage(heb, i, $event)"
+                [attr.aria-label]="'Afficher image ' + (i + 1)">
+              </button>
             </div>
           </div>
 
@@ -141,6 +159,22 @@
             </div>
           </div>
         </article>
+      </div>
+
+      <div class="pagination" *ngIf="!loading && filteredHebergements.length > 0">
+        <button type="button" class="page-btn" (click)="prevPage()" [disabled]="currentPage === 1">Precedent</button>
+        <div class="page-numbers" *ngIf="totalPages > 1">
+          <button
+            type="button"
+            class="page-dot"
+            *ngFor="let p of pageNumbers"
+            [class.active]="p === currentPage"
+            (click)="goToPage(p)">
+            {{ p }}
+          </button>
+        </div>
+        <span class="page-info">Page {{ currentPage }} / {{ totalPages }}</span>
+        <button type="button" class="page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
       </div>
     </div>
   </main>

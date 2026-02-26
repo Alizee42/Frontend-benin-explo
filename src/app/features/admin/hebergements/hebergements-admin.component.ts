@@ -160,8 +160,10 @@ export class HebergementsAdminComponent implements OnInit {
         this.saveHebergementWithMedias();
       });
     } else {
-      this.currentHebergement.imageUrls = [];
-      console.log('[HebergementsAdminComponent] Création/édition sans images, payload avant saveHebergementWithMedias =', this.currentHebergement);
+      if (!this.isEditing) {
+        this.currentHebergement.imageUrls = [];
+      }
+      console.log('[HebergementsAdminComponent] Creation/edition sans nouvelles images, payload avant saveHebergementWithMedias =', this.currentHebergement);
       this.saveHebergementWithMedias();
     }
   }
