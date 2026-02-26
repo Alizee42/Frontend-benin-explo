@@ -641,3 +641,98 @@
   color: var(--be-light);
   transform: translateY(-3px);
 }
+
+/* ==========================================
+   V2 CARD CIRCUITS - LISIBILITE FORTE
+   ========================================== */
+.circuits .circuit-card {
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: #0f1f1d;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+}
+
+.circuits .circuit-card .card-img-top {
+  height: 260px;
+  object-fit: cover;
+}
+
+.circuits .circuit-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.58) 60%, rgba(0, 0, 0, 0.72) 100%),
+    linear-gradient(120deg, rgba(0, 77, 64, 0.28) 10%, rgba(201, 168, 106, 0.12) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.circuits .circuit-card .circuit-card-body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  padding: 1rem 1rem 1.1rem;
+  text-align: center;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.circuits .circuit-card .card-title {
+  margin: 0 0 0.65rem;
+  font-size: 1.05rem;
+  line-height: 1.28;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+  max-width: 95%;
+}
+
+.circuits .circuit-card .card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+  justify-content: center;
+}
+
+.circuits .circuit-card .meta-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.46);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  backdrop-filter: blur(2px);
+}
+
+.circuits .circuit-card .meta-badge.price {
+  background: rgba(201, 168, 106, 0.92);
+  border-color: rgba(201, 168, 106, 0.92);
+  color: #1a1a1a;
+}
+
+.circuits .circuit-card .btn-circuit-cta {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.5rem 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #004d40 0%, #006b5b 100%);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28);
+  min-width: 140px;
+}
+
+.circuits .circuit-card .btn-circuit-cta:hover {
+  background: linear-gradient(135deg, #006b5b 0%, #00806e 100%);
+  color: #fff;
+}

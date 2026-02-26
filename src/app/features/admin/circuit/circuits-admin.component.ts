@@ -32,6 +32,7 @@ export class CircuitsAdminComponent implements OnInit {
     { key: 'dureeIndicative', label: 'Durée', type: 'text', width: '120px' },
     { key: 'prixIndicatif', label: 'Prix indicatif', type: 'number', width: '120px' },
     { key: 'statut', label: 'Statut', type: 'text', width: '120px' },
+    { key: 'aLaUneLabel', label: 'A la une', type: 'text', width: '120px' },
     { key: 'actions', label: 'Actions', type: 'actions', width: '300px' }
   ];
 
@@ -53,6 +54,20 @@ export class CircuitsAdminComponent implements OnInit {
       icon: 'ri-toggle-line',
       class: 'btn-toggle',
       action: 'toggle-status'
+    },
+    {
+      label: 'Mettre a la une',
+      icon: 'ri-star-line',
+      class: 'btn-info',
+      action: 'toggle-feature-on',
+      condition: (item: CircuitDTO) => !item.aLaUne
+    },
+    {
+      label: 'Retirer de la une',
+      icon: 'ri-star-off-line',
+      class: 'btn-toggle',
+      action: 'toggle-feature-off',
+      condition: (item: CircuitDTO) => item.aLaUne === true
     },
     {
       label: 'Supprimer',
@@ -134,7 +149,8 @@ export class CircuitsAdminComponent implements OnInit {
           return {
             ...circuit,
             villeEtZone,
-            statut: circuit.actif ? 'Actif' : 'Inactif'
+            statut: circuit.actif ? 'Actif' : 'Inactif',
+            aLaUneLabel: circuit.aLaUne ? 'Oui' : 'Non'
           };
         });
         this.loading = false;
@@ -166,6 +182,12 @@ export class CircuitsAdminComponent implements OnInit {
         break;
       case 'toggle-status':
         this.toggleStatus(item);
+        break;
+      case 'toggle-feature-on':
+        this.toggleFeatured(item, true);
+        break;
+      case 'toggle-feature-off':
+        this.toggleFeatured(item, false);
         break;
       case 'delete':
         this.deleteCircuit(item.id);
@@ -203,6 +225,7 @@ export class CircuitsAdminComponent implements OnInit {
       formuleProposee: circuit.formuleProposee,
       localisation: circuit.localisation,
       actif: nouveauStatut,
+      aLaUne: nouveauStatut ? (circuit.aLaUne === true) : false,
       zoneId: circuit.zoneId,
       activiteIds: circuit.activiteIds,
       img: circuit.img,
@@ -220,10 +243,59 @@ export class CircuitsAdminComponent implements OnInit {
         if (index !== -1) {
           (this.circuits[index] as any).actif = nouveauStatut;
           (this.circuits[index] as any).statut = nouveauStatut ? 'Actif' : 'Inactif';
+          if (!nouveauStatut) {
+            (this.circuits[index] as any).aLaUne = false;
+            (this.circuits[index] as any).aLaUneLabel = 'Non';
+          }
         }
       },
       error: (error) => {
         console.error('Erreur changement de statut circuit', error);
+      }
+    });
+  }
+
+  toggleFeatured(circuit: any, targetValue: boolean) {
+    const countFeatured = this.circuits.filter(c => c.aLaUne === true).length;
+    if (targetValue && countFeatured >= 4) {
+      alert('Maximum 4 circuits a la une sur la page d accueil.');
+      return;
+    }
+    if (targetValue && !circuit.actif) {
+      alert('Un circuit inactif ne peut pas etre mis a la une.');
+      return;
+    }
+
+    const payload = {
+      titre: circuit.titre,
+      resume: circuit.resume,
+      description: circuit.description,
+      dureeIndicative: circuit.dureeIndicative,
+      prixIndicatif: circuit.prixIndicatif,
+      formuleProposee: circuit.formuleProposee,
+      localisation: circuit.localisation,
+      actif: circuit.actif,
+      aLaUne: targetValue,
+      zoneId: circuit.zoneId,
+      activiteIds: circuit.activiteIds,
+      img: circuit.img,
+      galerie: circuit.galerie,
+      programme: circuit.programme,
+      pointsForts: circuit.pointsForts,
+      inclus: circuit.inclus,
+      nonInclus: circuit.nonInclus
+    };
+
+    this.circuitService.updateCircuit(circuit.id, payload).subscribe({
+      next: () => {
+        const index = this.circuits.findIndex(c => c.id === circuit.id);
+        if (index !== -1) {
+          (this.circuits[index] as any).aLaUne = targetValue;
+          (this.circuits[index] as any).aLaUneLabel = targetValue ? 'Oui' : 'Non';
+        }
+      },
+      error: (error) => {
+        console.error('Erreur mise a jour a la une', error);
       }
     });
   }

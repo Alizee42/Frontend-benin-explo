@@ -11,43 +11,36 @@
   </div>
   <div class="hero-overlay"></div>
   <div class="container hero-content">
-<p class="hero-kicker"> <span class="text-gold">Voyages authentiques</span></p>
+    <p class="hero-kicker"><span class="text-gold">Voyages authentiques</span></p>
     <h1>Explorez le <span class="text-gold">Bénin</span> autrement</h1>
     <p class="lead">
       Lac Nokoué, Ganvié, nature et traditions <br> partez vivre une expérience unique,
       accompagnée par des experts locaux.
     </p>
     <div class="hero-actions">
-  <a routerLink="/circuit" class="btn-main">Découvrir les circuits</a>
-  <a routerLink="/circuit-personnalise" class="btn-secondary">
-    Créer mon circuit sur mesure
-  </a>
-</div>
-
+      <a routerLink="/circuit" class="btn-main">Découvrir les circuits</a>
+      <a routerLink="/circuit-personnalise" class="btn-secondary">
+        Créer mon circuit sur mesure
+      </a>
+    </div>
   </div>
 </section>
 
 <section class="about" id="about">
   <div class="container">
     <div class="row gy-4 align-items-center">
-
-      <!-- TEXTE À GAUCHE -->
       <div class="col-12 col-md-6">
-
-        <!-- KICKER -->
         <span class="section-kicker">
           <span class="section-kicker">À propos de nous</span>
         </span>
 
-        <!-- TITRE -->
         <h2 class="section-title about-title">
           Bénin Explo, <br>explorez le Bénin autrement
         </h2>
 
-        <!-- PARAGRAPHES (sans couleur) -->
         <p class="about-text">
           Bénin Explo est une agence de tourisme basée à Cotonou,
-          spécialisée dans les circuits culturels, l’écotourisme
+          spécialisée dans les circuits culturels, l'écotourisme
           et les immersions communautaires.
         </p>
 
@@ -62,23 +55,18 @@
         </p>
       </div>
 
-      <!-- IMAGE À DROITE -->
       <div class="col-12 col-md-6">
         <div class="about-illu">
           <img src="/assets/images/roy.jpg" alt="Voyage au Bénin" class="about-img" />
-
-          <!-- BADGE CITATION -->
           <div class="about-quote-badge">
             « Vivez le Bénin comme si vous y habitiez. »
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </section>
 
-<!-- 3. CIRCUITS PHARES -->
 <section class="circuits">
   <div class="container">
     <div class="section-header">
@@ -89,16 +77,16 @@
       </p>
     </div>
     <div class="row">
-      <div class="col-12 col-md-4" *ngFor="let c of circuits">
+      <div class="col-12 col-md-6 col-lg-3" *ngFor="let c of circuits">
         <div class="card circuit-card mb-4">
           <img [src]="c.img" class="card-img-top" [alt]="c.title">
-          <div class="card-body">
+          <div class="card-body circuit-card-body">
             <h5 class="card-title">{{ c.title }}</h5>
-            <p class="card-meta">
-              {{ c.duration }}
-              <span *ngIf="c.price">• {{ c.price }}</span>
-            </p>
-            <a routerLink="/circuit" class="btn btn-primary btn-sm">
+            <div class="card-meta">
+              <span class="meta-badge">{{ c.duration }}</span>
+              <span *ngIf="c.price" class="meta-badge price">{{ c.price }}</span>
+            </div>
+            <a [routerLink]="['/circuit', c.id]" class="btn btn-sm btn-circuit-cta">
               Voir le circuit
             </a>
           </div>
@@ -108,7 +96,6 @@
   </div>
 </section>
 
-<!-- 4. CRÉER SON CIRCUIT PERSONNALISÉ -->
 <section class="custom-circuit">
   <div class="container text-center">
     <span class="section-kicker">Voyage sur mesure</span>
@@ -123,7 +110,6 @@
   </div>
 </section>
 
-<!-- 5. POURQUOI VOYAGER AVEC BÉNIN EXPLO ? -->
 <section class="benefits">
   <div class="container">
     <div class="section-header text-center">
@@ -140,7 +126,6 @@
   </div>
 </section>
 
-<!-- 6. ACTUALITÉS / INSPIRATIONS -->
 <section class="news">
   <div class="container">
     <div class="section-header">
@@ -160,3 +145,4 @@
     </div>
   </div>
 </section>
+

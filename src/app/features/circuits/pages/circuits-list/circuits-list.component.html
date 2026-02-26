@@ -1,79 +1,98 @@
-<section class="circuits-hero">
-  <div class="container">
-    <h1 class="hero-title">Nos circuits</h1>
-    <p class="hero-subtitle">
-      Découvrez le Bénin avec nos circuits authentiques, conçus pour vous offrir une expérience inoubliable.
-    </p>
+<section class="circuits-hero hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-overlay" aria-hidden="true"></div>
+  <div class="circuits-container hero-inner">
+    <p class="hero-kicker">Circuits</p>
+    <h1 class="hero-title">Trouvez votre circuit ideal</h1>
+    <p class="hero-subtitle">Choisissez un circuit et partez selon votre rythme.</p>
+    <div class="hero-actions">
+      <button type="button" class="hero-btn primary" (click)="filterByZone(null)">Voir tout</button>
+      <a routerLink="/circuit-personnalise" class="hero-btn secondary">Circuit sur mesure</a>
+    </div>
   </div>
 </section>
 
 <section class="circuits-section">
-  <div class="container">
+  <div class="circuits-container">
 
-    <!-- Loader -->
-    <div *ngIf="loading" class="loading">
-      Chargement des circuits...
+    <div *ngIf="loading" class="loading-wrap">
+      <div class="loading-spinner"></div>
+      <p>Chargement des circuits...</p>
     </div>
 
-    <!-- Filters -->
-    <div class="filters" *ngIf="!loading">
-      <button
-        class="filter-btn"
-        [class.active]="selectedZoneId === null"
-        (click)="filterByZone(null)">
-        Tous ({{ allCircuits.length }})
-      </button>
-      <button
-        *ngFor="let zone of zones"
-        class="filter-btn"
-        [class.active]="selectedZoneId === zone.idZone"
-        (click)="filterByZone(zone.idZone)">
-        {{ zone.nom }} ({{ getCircuitsCountForZone(zone.idZone) }})
-      </button>
-    </div>
+    <ng-container *ngIf="!loading">
+      <div class="filters-panel">
+        <div class="filters-top">
+          <div class="filters-title">
+            <i class="ri-equalizer-3-line"></i>
+            <span>Filtrer par zone</span>
+          </div>
+          <div class="filters-count">{{ circuits.length }} resultat(s)</div>
+        </div>
 
-    <!-- Cards -->
-    <div class="circuits-grid" *ngIf="!loading">
-      <div *ngIf="circuits.length === 0" class="no-circuits">
-        <p>Aucun circuit trouvé pour cette zone.</p>
-        <button class="btn-secondary" (click)="filterByZone(null)">Voir tous les circuits</button>
+        <div class="filters" aria-label="Filtres zones">
+          <button
+            class="filter-btn"
+            [class.active]="selectedZoneId === null"
+            (click)="filterByZone(null)">
+            Tous
+            <span>{{ allCircuits.length }}</span>
+          </button>
+          <button
+            *ngFor="let zone of zones"
+            class="filter-btn"
+            [class.active]="selectedZoneId === zone.idZone"
+            (click)="filterByZone(zone.idZone)">
+            {{ zone.nom }}
+            <span>{{ getCircuitsCountForZone(zone.idZone) }}</span>
+          </button>
+        </div>
       </div>
 
-      <article class="circuit-card" *ngFor="let c of circuits">
-
-        <div class="card-image">
-          <img [src]="getImageForCircuit(c)" alt="{{ c.titre }}">
-          <div class="card-badge">{{ c.dureeIndicative }}</div>
+      <div class="circuits-grid">
+        <div *ngIf="circuits.length === 0" class="no-circuits">
+          <p>Aucun circuit trouve pour cette zone.</p>
+          <button class="btn-reset" (click)="filterByZone(null)">Voir tous les circuits</button>
         </div>
 
-        <div class="card-body">
-          <h3 class="card-title">{{ c.titre }}</h3>
-          <p class="card-desc">
-            {{ getShortDescription(c) }}
-          </p>
+        <article class="circuit-card" *ngFor="let c of pagedCircuits">
+          <a class="card-image" [routerLink]="['/circuit', c.id]" [attr.aria-label]="'Voir ' + c.titre">
+            <img [src]="getImageForCircuit(c)" [alt]="c.titre">
+            <div class="image-overlay"></div>
+            <div class="card-badges">
+              <span class="badge duration"><i class="ri-time-line"></i> {{ c.dureeIndicative }}</span>
+              <span class="badge price" *ngIf="c.prixIndicatif != null">{{ c.prixIndicatif }} EUR</span>
+            </div>
+          </a>
 
-          <div class="card-footer">
-            <span class="card-price">{{ c.prixIndicatif }} €</span>
-            <a [routerLink]="['/circuit', c.id]" class="btn-primary">
-              Voir le circuit
-            </a>
+          <div class="card-body">
+            <h3 class="card-title">{{ c.titre }}</h3>
+            <p class="card-desc">{{ getShortDescription(c) }}</p>
+            <div class="card-footer">
+              <span class="location"><i class="ri-map-pin-line"></i> {{ c.villeNom || c.localisation || 'Benin' }}</span>
+              <a [routerLink]="['/circuit', c.id]" class="btn-view">Voir le circuit</a>
+            </div>
           </div>
-        </div>
+        </article>
+      </div>
 
-      </article>
-    </div>
+      <div class="pagination" *ngIf="circuits.length > pageSize">
+        <button type="button" class="page-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+          Precedent
+        </button>
+        <span class="page-info">Page {{ currentPage }} / {{ totalPages }}</span>
+        <button type="button" class="page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+          Suivant
+        </button>
+      </div>
+    </ng-container>
   </div>
 </section>
 
 <section class="cta-personnalise">
-  <div class="container">
-    <h2>Créer un circuit personnalisé</h2>
-    <p>
-      Vous souhaitez un circuit sur mesure adapté à vos envies ? Nous le concevons pour vous.
-    </p>
-
-    <a routerLink="/circuit-personnalise" class="btn-secondary">
-      Créer mon circuit
-    </a>
+  <div class="circuits-container">
+    <h2>Besoin d'un circuit sur mesure ?</h2>
+    <p>Composez votre voyage selon vos dates, votre rythme et vos envies.</p>
+    <a routerLink="/circuit-personnalise" class="btn-secondary">Creer mon circuit personnalise</a>
   </div>
 </section>

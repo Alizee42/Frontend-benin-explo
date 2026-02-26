@@ -695,7 +695,8 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
         activiteIds: Array.from(new Set(
           this.circuit.programme.flatMap(p => p.activiteIds)
         )),
-        actif: true
+        actif: true,
+        aLaUne: false
       };
 
       console.log('Payload préparé:', payload);

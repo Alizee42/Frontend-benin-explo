@@ -8,6 +8,7 @@ export interface CircuitDTO {
   formuleProposee: string;
   localisation: string;
   actif: boolean;
+  aLaUne?: boolean;
   zoneId: number | null;
   villeId: number | null;
   villeNom: string;

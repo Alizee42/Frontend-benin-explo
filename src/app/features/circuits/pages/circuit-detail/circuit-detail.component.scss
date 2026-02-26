@@ -9,13 +9,15 @@
 
 .circuit-details {
   min-height: 100vh;
-  background: radial-gradient(circle at 10% 0%, #fff8ec 0%, #f3efe7 35%, #eef2ea 100%);
+  background:
+    linear-gradient(180deg, #e9f0ea 0 88px, transparent 88px),
+    #f7f4ed;
 }
 
 .page-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: 3.25rem 1.5rem 4rem;
 }
 
 .loading {
@@ -52,6 +54,7 @@
   background-size: cover;
   background-position: center;
   box-shadow: 0 30px 80px rgba(19, 26, 22, 0.25);
+  border: 1px solid rgba(31, 63, 45, 0.22);
 }
 
 .hero-overlay {
@@ -68,6 +71,12 @@
   gap: 2rem;
 }
 
+.hero-nav-actions {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
 .ghost-back {
   align-self: flex-start;
   background: rgba(255, 255, 255, 0.12);
@@ -81,6 +90,12 @@
   gap: 0.5rem;
   cursor: pointer;
   backdrop-filter: blur(6px);
+  text-decoration: none;
+}
+
+.ghost-back.home {
+  background: rgba(201, 168, 106, 0.24);
+  border-color: rgba(201, 168, 106, 0.55);
 }
 
 .hero-card {

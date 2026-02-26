@@ -11,10 +11,16 @@
       <section class="hero" [style.background-image]="circuit.img ? 'url(' + circuit.img + ')' : 'none'">
         <div class="hero-overlay"></div>
         <div class="hero-inner">
-          <button class="ghost-back" (click)="goBack()">
-            <i class="ri-arrow-left-line"></i>
-            Retour
-          </button>
+          <div class="hero-nav-actions">
+            <a class="ghost-back" routerLink="/circuit">
+              <i class="ri-arrow-left-line"></i>
+              Circuits
+            </a>
+            <a class="ghost-back home" routerLink="/">
+              <i class="ri-home-4-line"></i>
+              Accueil
+            </a>
+          </div>
 
           <div class="hero-card">
             <div class="hero-top">

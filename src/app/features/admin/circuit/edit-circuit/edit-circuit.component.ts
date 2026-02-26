@@ -753,7 +753,8 @@ export class EditCircuitComponent implements OnInit, OnDestroy {
         activiteIds: Array.from(new Set(
           this.circuit.programme.flatMap(p => p.activiteIds)
         )),
-        actif: this.circuitDto?.actif ?? true
+        actif: this.circuitDto?.actif ?? true,
+        aLaUne: this.circuitDto?.aLaUne ?? false
       };
 
       await lastValueFrom(this.circuitService.updateCircuit(this.circuitDto.id, payload));

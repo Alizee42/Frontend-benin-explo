@@ -58,6 +58,7 @@
           [data]="demandes"
           [columns]="tableColumns"
           [actions]="tableActions"
+          [pageSize]="6"
           (actionClick)="onActionClick($event)">
         </app-data-table>
       </div>
@@ -127,3 +128,4 @@
     </div>
   </div>
 </div>
+
