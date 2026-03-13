@@ -18,7 +18,6 @@ export class CircuitsPersonnalisesAdminComponent implements OnInit {
   demandes: CircuitPersonnaliseDTO[] = [];
   isLoading = true;
 
-  // Templates d'emails personnalisables
   emailTemplates = {
     approbation: {
       subject: 'Votre demande de circuit personnalisee a ete approuvee',
@@ -72,7 +71,6 @@ Telephone : {telephone}`
     }
   };
 
-  // Etat de la modale d'email
   showEmailModal = false;
   currentEmailAction: 'approbation' | 'refus' | null = null;
   currentDemande: CircuitPersonnaliseDTO | null = null;
@@ -84,7 +82,7 @@ Telephone : {telephone}`
   modalSuccess = '';
 
   tableColumns = [
-        { key: 'nomClient', label: 'Nom', sortable: true },
+    { key: 'nomClient', label: 'Nom', sortable: true },
     { key: 'emailClient', label: 'Email', sortable: false },
     { key: 'telephoneClient', label: 'Telephone', sortable: false },
     { key: 'dateCreationDisplay', label: 'Date', sortable: true },
@@ -165,10 +163,10 @@ Details de votre demande :
 - Statut : ${demande.statut || 'EN_ATTENTE'}
 - Date de creation : ${demande.dateCreation ? new Date(demande.dateCreation).toLocaleDateString('fr-FR') : 'N/A'}
 
-${demande.avecHebergement ? `Hebergement inclus (${demande.typeHebergement || ''})` : 'Sans hebergement'}
+${this.getHebergementSummary(demande)}
 ${demande.avecTransport ? `Transport inclus (${demande.typeTransport || ''})` : 'Sans transport'}
 
-Prix estime : ${demande.prixEstime ? demande.prixEstime + ' XOF' : 'A determiner'}
+Prix estime : ${this.formatEstimatedPrice(demande)}
 
 Nous vous contacterons prochainement pour finaliser les details et vous proposer un devis personnalisee.
 
@@ -202,7 +200,6 @@ Telephone : ${demande.telephoneClient}`;
     this.modalSuccess = '';
     this.isSendingDecision = false;
 
-    // Preparer le template d'email
     const template = this.emailTemplates[action];
     this.emailSubject = this.replacePlaceholders(template.subject, demande);
     this.emailBody = this.replacePlaceholders(template.body, demande);
@@ -229,7 +226,6 @@ Telephone : ${demande.telephoneClient}`;
     this.modalSuccess = '';
     this.isSendingDecision = true;
 
-    // Mise a jour du statut: le backend envoie l'email automatiquement.
     const newStatus = this.currentEmailAction === 'approbation' ? 'ACCEPTE' : 'REFUSE';
 
     const commentaireAdmin = this.currentEmailAction === 'approbation'
@@ -245,7 +241,7 @@ Telephone : ${demande.telephoneClient}`;
       this.emailSubject,
       this.emailBody
     ).subscribe({
-      next: (demande: CircuitPersonnaliseDTO) => {
+      next: () => {
         this.isSendingDecision = false;
         this.modalSuccess = `Demande ${this.currentEmailAction === 'approbation' ? 'approuvee' : 'refusee'} et email envoye automatiquement.`;
         this.loadDemandes();
@@ -266,12 +262,10 @@ Telephone : ${demande.telephoneClient}`;
     }
   }
 
-  // TODO: Reimplementer sendCustomEmail si fonctionnalite email requise
-
   replacePlaceholders(text: string, demande: CircuitPersonnaliseDTO): string {
     const zonesStr = demande.jours.map(j => j.zoneNom).filter(z => z).join(', ') || 'N/A';
     const activitesStr = demande.jours.flatMap(j => j.activiteNoms || []).join(', ') || 'N/A';
-    
+
     return text
       .replace(/{id}/g, (demande.id || 0).toString())
       .replace(/{nom}/g, `${demande.prenomClient} ${demande.nomClient}`)
@@ -279,21 +273,45 @@ Telephone : ${demande.telephoneClient}`;
       .replace(/{nombreJours}/g, demande.nombreJours.toString())
       .replace(/{zones}/g, zonesStr)
       .replace(/{activites}/g, activitesStr)
-      .replace(/{hebergement}/g, demande.avecHebergement ? `Hebergement inclus (${demande.typeHebergement || ''})` : 'Sans hebergement')
+      .replace(/{hebergement}/g, this.getHebergementSummary(demande))
       .replace(/{transport}/g, demande.avecTransport ? `Transport inclus (${demande.typeTransport || ''})` : 'Sans transport')
       .replace(/{extras}/g, '')
-      .replace(/{prix}/g, this.formatPriceXofEur(demande.prixEstime))
+      .replace(/{prix}/g, this.formatEstimatedPrice(demande))
       .replace(/{telephone}/g, demande.telephoneClient)
       .replace(/{motif}/g, this.refusalReason);
   }
-  private formatPriceXofEur(amount?: number): string {
+
+  private formatEstimatedPrice(demande: CircuitPersonnaliseDTO): string {
+    const amount = demande.prixEstime;
     if (amount === undefined || amount === null || Number.isNaN(amount)) {
       return 'A determiner';
     }
-    const eur = amount / 655.957;
+
+    const currency = (demande.devisePrixEstime || 'EUR').toUpperCase();
+    if (currency === 'EUR') {
+      const eurFormatted = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount);
+      const xofFormatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount * 655.957);
+      return `${eurFormatted} EUR (≈ ${xofFormatted} FCFA)`;
+    }
+
     const xofFormatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount);
-    const eurFormatted = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(eur);
+    const eurFormatted = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount / 655.957);
     return `${xofFormatted} FCFA (≈ ${eurFormatted} EUR)`;
+  }
+
+  private getHebergementSummary(demande: CircuitPersonnaliseDTO): string {
+    if (!demande.avecHebergement) {
+      return 'Sans hebergement';
+    }
+
+    if (demande.hebergementNom) {
+      const dates = demande.dateArriveeHebergement && demande.dateDepartHebergement
+        ? ` du ${this.formatDate(demande.dateArriveeHebergement)} au ${this.formatDate(demande.dateDepartHebergement)}`
+        : '';
+      return `Hebergement choisi (${demande.hebergementNom}${dates})`;
+    }
+
+    return `Hebergement inclus (${demande.typeHebergement || 'A proposer'})`;
   }
 
   get totalDemandes(): number {
@@ -325,9 +343,3 @@ Telephone : ${demande.telephoneClient}`;
     return normalized || '-';
   }
 }
-
-
-
-
-
-

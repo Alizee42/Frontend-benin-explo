@@ -144,6 +144,14 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
+  /* ADMIN TARIFS CIRCUIT PERSONNALISE */
+  {
+    path: 'admin/tarifs-circuit-personnalise',
+    loadComponent: () =>
+      import('./features/admin/tarifs-circuit-personnalise/tarifs-circuit-personnalise-admin.component').then(m => m.TarifsCircuitPersonnaliseAdminComponent),
+    canActivate: [authGuard]
+  },
+
   /* ADMIN DETAIL CIRCUIT PERSONNALISE */
   {
     path: 'admin/circuits-personnalises/detail/:id',

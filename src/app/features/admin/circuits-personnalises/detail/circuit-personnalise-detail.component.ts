@@ -85,7 +85,7 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
       : 'Votre demande de circuit personnalise ne peut pas etre validee pour le moment.';
     const reasonLine = type === 'reject' ? '\nMotif: {motif}' : '';
 
-    return `Bonjour ${this.demande.prenomClient} ${this.demande.nomClient},\n\n${statusLine}${reasonLine}\n\nDetails:\n- Nombre de personnes: ${this.demande.nombrePersonnes}\n- Nombre de jours: ${this.demande.nombreJours}\n- Prix estime: ${this.demande.prixEstime ? this.formatPrix(this.demande.prixEstime) : 'A determiner'}\n\nL'equipe Benin Explo`;
+    return `Bonjour ${this.demande.prenomClient} ${this.demande.nomClient},\n\n${statusLine}${reasonLine}\n\nDetails:\n- Nombre de personnes: ${this.demande.nombrePersonnes}\n- Nombre de jours: ${this.demande.nombreJours}\n- Hebergement: ${this.getHebergementSummary(this.demande)}\n- Prix estime: ${this.demande.prixEstime ? this.formatPrix(this.demande.prixEstime, this.demande.devisePrixEstime) : 'A determiner'}\n\nL'equipe Benin Explo`;
   }
 
   submitDecision(): void {
@@ -179,14 +179,28 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
         });
   }
 
-  formatPrix(prix?: number): string {
-    if (!prix) return 'Non estime';
+  formatPrix(prix?: number, devise?: string): string {
+    if (prix === undefined || prix === null || Number.isNaN(prix)) return 'Non estime';
+    const currency = (devise || 'EUR').toUpperCase();
+    if (currency === 'EUR') {
+      const eur = new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'EUR'
+      }).format(prix);
+
+      const xof = new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'XOF'
+      }).format(prix * 655.957);
+
+      return `${eur} / ${xof}`;
+    }
+
     const xof = new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'XOF'
     }).format(prix);
 
-    // XOF is pegged to EUR at 655.957.
     const eurValue = prix / 655.957;
     const eur = new Intl.NumberFormat('fr-FR', {
       style: 'currency',
@@ -194,6 +208,21 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
     }).format(eurValue);
 
     return `${eur} / ${xof}`;
+  }
+
+  getHebergementSummary(demande: CircuitPersonnaliseDTO): string {
+    if (!demande.avecHebergement) {
+      return 'Sans hebergement';
+    }
+
+    if (demande.hebergementNom) {
+      const dates = demande.dateArriveeHebergement && demande.dateDepartHebergement
+        ? ` du ${this.formatDate(demande.dateArriveeHebergement)} au ${this.formatDate(demande.dateDepartHebergement)}`
+        : '';
+      return `${demande.hebergementNom}${dates}`;
+    }
+
+    return demande.typeHebergement || 'A proposer';
   }
 
   selectDay(index: number): void {

@@ -30,9 +30,29 @@
           <div class="info-grid">
             <div class="info-item"><label>Nombre de personnes</label><span>{{ demande.nombrePersonnes }}</span></div>
             <div class="info-item"><label>Nombre de jours</label><span>{{ demande.nombreJours }}</span></div>
-            <div class="info-item"><label>Hebergement</label><span>{{ demande.avecHebergement ? 'Oui' : 'Non' }}</span></div>
+            <div class="info-item"><label>Hebergement</label><span>{{ getHebergementSummary(demande) }}</span></div>
+            <div class="info-item" *ngIf="demande.hebergementLocalisation"><label>Localisation hebergement</label><span>{{ demande.hebergementLocalisation }}</span></div>
+            <div class="info-item" *ngIf="demande.dateArriveeHebergement && demande.dateDepartHebergement"><label>Sejour</label><span>{{ formatDate(demande.dateArriveeHebergement) }} au {{ formatDate(demande.dateDepartHebergement) }}</span></div>
+            <div class="info-item" *ngIf="demande.nombreNuitsHebergement"><label>Nombre de nuits</label><span>{{ demande.nombreNuitsHebergement }}</span></div>
             <div class="info-item"><label>Transport</label><span>{{ demande.avecTransport ? 'Oui' : 'Non' }}</span></div>
-            <div class="info-item" *ngIf="demande.prixEstime"><label>Prix estime</label><span class="prix">{{ formatPrix(demande.prixEstime) }}</span></div>
+            <div class="info-item" *ngIf="demande.avecTransport"><label>Type transport</label><span>{{ demande.typeTransport || 'A definir' }}</span></div>
+            <div class="info-item"><label>Guide</label><span>{{ demande.avecGuide ? 'Oui' : 'Non' }}</span></div>
+            <div class="info-item"><label>Chauffeur</label><span>{{ demande.avecChauffeur ? 'Oui' : 'Non' }}</span></div>
+            <div class="info-item"><label>Pension complete</label><span>{{ demande.pensionComplete ? 'Oui' : 'Non' }}</span></div>
+            <div class="info-item"><label>Prix estime</label><span class="prix">{{ formatPrix(demande.prixEstime, demande.devisePrixEstime) }}</span></div>
+          </div>
+        </section>
+
+        <section class="info-section">
+          <h3>Devis estime</h3>
+          <div class="info-grid">
+            <div class="info-item"><label>Activites</label><span class="prix">{{ formatPrix(demande.prixActivitesEstime, demande.devisePrixEstime) }}</span></div>
+            <div class="info-item"><label>Hebergement</label><span class="prix">{{ formatPrix(demande.prixHebergementEstime, demande.devisePrixEstime) }}</span></div>
+            <div class="info-item"><label>Transport</label><span class="prix">{{ formatPrix(demande.prixTransportEstime, demande.devisePrixEstime) }}</span></div>
+            <div class="info-item"><label>Guide</label><span class="prix">{{ formatPrix(demande.prixGuideEstime, demande.devisePrixEstime) }}</span></div>
+            <div class="info-item"><label>Chauffeur</label><span class="prix">{{ formatPrix(demande.prixChauffeurEstime, demande.devisePrixEstime) }}</span></div>
+            <div class="info-item"><label>Pension complete</label><span class="prix">{{ formatPrix(demande.prixPensionCompleteEstime, demande.devisePrixEstime) }}</span></div>
+            <div class="info-item"><label>Total estime</label><span class="prix">{{ formatPrix(demande.prixEstime, demande.devisePrixEstime) }}</span></div>
           </div>
         </section>
 

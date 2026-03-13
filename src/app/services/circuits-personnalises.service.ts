@@ -29,10 +29,17 @@ export interface CircuitPersonnaliseDTO {
   nombrePersonnes: number;
   dateCreation?: string;
   dateVoyageSouhaitee?: string;
-  
+
   // Options
   avecHebergement: boolean;
   typeHebergement?: string;
+  hebergementId?: number;
+  hebergementNom?: string;
+  hebergementLocalisation?: string;
+  hebergementPrixParNuit?: number;
+  dateArriveeHebergement?: string;
+  dateDepartHebergement?: string;
+  nombreNuitsHebergement?: number;
   avecTransport: boolean;
   typeTransport?: string;
   avecGuide: boolean;
@@ -40,7 +47,14 @@ export interface CircuitPersonnaliseDTO {
   pensionComplete: boolean;
   
   // Prix
+  prixActivitesEstime?: number;
+  prixHebergementEstime?: number;
+  prixTransportEstime?: number;
+  prixGuideEstime?: number;
+  prixChauffeurEstime?: number;
+  prixPensionCompleteEstime?: number;
   prixEstime?: number;
+  devisePrixEstime?: string;
   prixFinal?: number;
   
   // Statut
