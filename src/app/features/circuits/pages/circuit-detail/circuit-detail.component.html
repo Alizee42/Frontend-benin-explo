@@ -1,14 +1,22 @@
 <div class="circuit-details">
   <main class="page-content">
-    <!-- Loading State -->
     <div *ngIf="loading" class="loading">
       <div class="loading-spinner"></div>
       <p>Chargement du circuit...</p>
     </div>
 
-    <!-- Circuit Details -->
+    <section *ngIf="!loading && !circuit" class="state-panel">
+      <span class="state-kicker">Catalogue</span>
+      <h1>{{ errorTitle || 'Circuit indisponible' }}</h1>
+      <p>{{ errorMessage || 'Ce circuit ne peut pas etre affiche pour le moment.' }}</p>
+      <div class="state-actions">
+        <a routerLink="/circuit" class="primary-action">Retour aux circuits</a>
+        <a routerLink="/circuit-personnalise" class="secondary-action">Demander un circuit sur mesure</a>
+      </div>
+    </section>
+
     <div *ngIf="!loading && circuit" class="circuit-content">
-      <section class="hero" [style.background-image]="circuit.img ? 'url(' + circuit.img + ')' : 'none'">
+      <section class="hero" [style.background-image]="getHeroBackgroundImage(circuit.img)">
         <div class="hero-overlay"></div>
         <div class="hero-inner">
           <div class="hero-nav-actions">
@@ -30,41 +38,47 @@
                 {{ getStatutLabel(circuit.actif) }}
               </span>
             </div>
+
             <h1 class="hero-title">{{ circuit.titre }}</h1>
             <p class="hero-subtitle">{{ circuit.resume || circuit.description }}</p>
 
             <div class="hero-meta">
               <span class="meta-chip">
                 <i class="ri-map-pin-line"></i>
-                {{ zone?.nom || circuit.localisation || 'Zone non définie' }}
+                {{ zone?.nom || circuit.villeNom || circuit.localisation || 'Benin Explo' }}
               </span>
               <span class="meta-chip" *ngIf="getFeaturedCities().length > 0">
                 <i class="ri-community-line"></i>
                 {{ getFeaturedCities().join(', ') }}
               </span>
-              <span class="meta-chip">
+              <span class="meta-chip" *ngIf="circuit.dureeIndicative">
                 <i class="ri-time-line"></i>
                 {{ circuit.dureeIndicative }}
               </span>
-              <span class="meta-chip price">
+              <span class="meta-chip price" *ngIf="circuit.prixIndicatif != null">
                 <i class="ri-money-euro-circle-line"></i>
-                {{ circuit.prixIndicatif }} €
+                {{ circuit.prixIndicatif }} EUR
               </span>
             </div>
           </div>
         </div>
       </section>
 
+      <div *ngIf="supportingDataNotice" class="section-note">
+        <i class="ri-information-line" aria-hidden="true"></i>
+        <span>{{ supportingDataNotice }}</span>
+      </div>
+
       <div class="content-grid">
         <section class="content-section">
-          <h2 class="section-title">Aperçu du circuit</h2>
+          <h2 class="section-title">Apercu du circuit</h2>
           <div class="section-content">
             <div class="info-grid">
               <div class="info-item">
-                <label>Résumé</label>
-                <p>{{ circuit.resume || 'Résumé non disponible' }}</p>
+                <label>Resume</label>
+                <p>{{ circuit.resume || 'Resume non disponible' }}</p>
               </div>
-              <div class="info-item">
+              <div class="info-item" *ngIf="circuit.description">
                 <label>Description</label>
                 <p>{{ circuit.description }}</p>
               </div>
@@ -72,7 +86,7 @@
                 <label>Formule</label>
                 <p>{{ circuit.formuleProposee }}</p>
               </div>
-              <div class="info-item">
+              <div class="info-item" *ngIf="circuit.villeNom || circuit.localisation">
                 <label>Localisation</label>
                 <p>{{ circuit.villeNom || circuit.localisation }}</p>
               </div>
@@ -84,7 +98,7 @@
           </div>
         </section>
 
-        <section class="content-section" *ngIf="circuitProgramme && circuitProgramme.length > 0">
+        <section class="content-section" *ngIf="circuitProgramme.length > 0">
           <h2 class="section-title">Programme jour par jour</h2>
           <div class="section-content">
             <div class="programme-grid">
@@ -100,37 +114,39 @@
                 </button>
               </div>
 
-              <div class="day-panel" *ngFor="let jour of circuitProgramme; let i = index" [class.active]="isExpanded(i)">
+              <div
+                class="day-panel"
+                *ngFor="let jour of circuitProgramme; let i = index"
+                [class.active]="isExpanded(i)">
                 <div class="panel-header">
-                  <h3 class="panel-heading">Jour {{ jour.day }}<span *ngIf="jour.title"> – {{ jour.title }}</span></h3>
+                  <h3 class="panel-heading">Jour {{ jour.day }}<span *ngIf="jour.title"> - {{ jour.title }}</span></h3>
                 </div>
+
                 <div class="panel-body">
                   <div class="panel-column">
-                    <span class="panel-label">Résumé</span>
-                    <p class="description">
-                      {{ jour.description }}
-                    </p>
+                    <span class="panel-label">Resume</span>
+                    <p class="description">{{ jour.description }}</p>
                     <div
                       class="day-meta"
-                      *ngIf="jour.approxTime || (jour.mealsIncluded && jour.mealsIncluded.length)"
-                    >
+                      *ngIf="jour.approxTime || (jour.mealsIncluded && jour.mealsIncluded.length)">
                       <span class="meta-chip" *ngIf="jour.approxTime">{{ jour.approxTime }}</span>
-                      <span class="meta-chip" *ngFor="let m of (jour.mealsIncluded || [])">
-                        Repas : {{ m }}
+                      <span class="meta-chip" *ngFor="let meal of (jour.mealsIncluded || [])">
+                        Repas : {{ meal }}
                       </span>
                     </div>
                   </div>
+
                   <div class="panel-column">
-                    <span class="panel-label">Activités</span>
+                    <span class="panel-label">Activites</span>
                     <div class="activities-block" *ngIf="jour.activities && jour.activities.length; else noActs">
                       <div class="activities-chips">
-                        <span class="activity-chip" *ngFor="let aid of jour.activities">
-                          {{ getActivityName(aid) }}
+                        <span class="activity-chip" *ngFor="let activiteId of jour.activities">
+                          {{ getActivityName(activiteId) }}
                         </span>
                       </div>
                     </div>
                     <ng-template #noActs>
-                      <p class="empty-state">Aucune activité renseignée pour ce jour.</p>
+                      <p class="empty-state">Aucune activite renseignee pour ce jour.</p>
                     </ng-template>
                   </div>
                 </div>
@@ -186,7 +202,7 @@
         </div>
 
         <section class="content-section" *ngIf="circuit.activiteIds && circuit.activiteIds.length > 0">
-          <h2 class="section-title">Activités associées</h2>
+          <h2 class="section-title">Activites associees</h2>
           <div class="section-content">
             <div class="tags">
               <span class="tag" *ngFor="let activiteId of circuit.activiteIds">

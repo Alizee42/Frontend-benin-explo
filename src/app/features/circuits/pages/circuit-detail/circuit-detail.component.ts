@@ -1,12 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { CircuitService } from '../../../../services/circuit.service';
-import { ActivitesService } from '../../../../services/activites.service';
+import { ActivitesService, Activite } from '../../../../services/activites.service';
 import { VillesService, VilleDTO } from '../../../../services/villes.service';
 import { ZonesService, Zone } from '../../../../services/zones.service';
 import { CircuitDTO } from '../../../../models/circuit.dto';
+
+type CircuitProgrammeItem = {
+  day: number;
+  title?: string;
+  approxTime?: string;
+  description: string;
+  mealsIncluded?: string[];
+  activities?: number[];
+  villeId?: number;
+  isLegacy?: boolean;
+};
 
 @Component({
   standalone: true,
@@ -19,74 +31,155 @@ export class CircuitDetailComponent implements OnInit {
   circuit: CircuitDTO | null = null;
   zone: Zone | null = null;
   loading = true;
-  // structured programme for display: normalize backend format (string[] or structured)
-  circuitProgramme: Array<{ day: number; title?: string; approxTime?: string; description: string; mealsIncluded?: string[]; activities?: number[]; villeId?: number; incompatibleActivities?: number[]; isLegacy?: boolean }> = [];
-  // indices des jours étendus (pour "lire la suite")
-  expandedDays = new Set<number>();
+  errorTitle = '';
+  errorMessage = '';
+  supportingDataNotice = '';
+  circuitProgramme: CircuitProgrammeItem[] = [];
   openProgrammeIndex = 0;
+  availableActivites: Array<{ id: number; nom: string; zoneId?: number }> = [];
+  availableVilles: Array<{ id: number; nom: string; zoneId?: number }> = [];
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private circuitService: CircuitService,
     private activitesService: ActivitesService,
     private villesService: VillesService,
     private zonesService: ZonesService
   ) {}
 
-  availableActivites: Array<{ id: number; nom: string; zoneId?: number }> = [];
-  availableVilles: Array<{ id: number; nom: string; zoneId?: number }> = [];
-
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
-    const id = idParam ? +idParam : null;
-    if (id) {
-      this.circuitService.getCircuitById(id).subscribe({
-        next: (c) => {
-          this.circuit = c;
-          this.loadZone(c.zoneId);
-          // normalize programme
-          const prog = (c.programme || []);
-          this.circuitProgramme = prog.map((p: any, idx: number) => {
-            if (typeof p === 'string') return { day: idx + 1, description: p, activities: [], isLegacy: true } as any;
-            return { day: p.day ?? idx + 1, title: p.title, approxTime: p.approxTime, description: p.description ?? '', activities: p.activities ?? [], villeId: p.villeId, isLegacy: false } as any;
-          });
-          this.openProgrammeIndex = 0;
-          // load activities and villes for display + compatibility checks
-          this.activitesService.getAllActivites().subscribe({ next: acts => { this.availableActivites = acts.map(a => ({ id: a.id, nom: a.nom, zoneId: a.zoneId })); this.checkCompatibility(); }, error: () => { this.checkCompatibility(); } });
-          this.villesService.getAll().subscribe({ next: (vs: VilleDTO[]) => { this.availableVilles = vs.map((v: VilleDTO) => ({ id: v.id, nom: v.nom, zoneId: v.zoneId ?? undefined })); this.checkCompatibility(); }, error: () => { this.checkCompatibility(); } });
-          this.loading = false;
-        },
-        error: (err) => {
-          console.error('[CircuitDetail] erreur fetch circuit', err);
-          this.loading = false;
-        }
-      });
-    } else {
-      this.loading = false;
+    const id = idParam ? Number(idParam) : NaN;
+
+    if (!Number.isFinite(id) || id <= 0) {
+      this.setErrorState(
+        'Circuit introuvable',
+        'Le circuit demande est invalide ou indisponible.'
+      );
+      return;
     }
+
+    this.loadCircuit(id);
   }
 
-  loadZone(zoneId: number | null) {
-    if (!zoneId) return;
-    this.zonesService.getAllZones().subscribe({
-      next: (zones) => {
-        this.zone = zones.find(z => z.idZone === zoneId) || null;
+  private loadCircuit(id: number): void {
+    this.loading = true;
+    this.errorTitle = '';
+    this.errorMessage = '';
+    this.supportingDataNotice = '';
+
+    this.circuitService.getCircuitById(id).subscribe({
+      next: (circuit) => {
+        if (!circuit) {
+          this.setErrorState(
+            'Circuit introuvable',
+            'Le circuit demande ne peut pas etre affiche pour le moment.'
+          );
+          return;
+        }
+
+        if (!circuit.actif) {
+          this.setErrorState(
+            'Circuit indisponible',
+            'Ce circuit nest pas disponible en consultation publique pour le moment.'
+          );
+          return;
+        }
+
+        this.circuit = circuit;
+        this.zone = null;
+        this.circuitProgramme = this.normalizeProgramme(circuit.programme || []);
+        this.openProgrammeIndex = 0;
+        this.loading = false;
+        this.loadSupportingData(circuit);
       },
       error: (err) => {
-        console.error('[CircuitDetail] erreur loadZone', err);
+        console.error('[CircuitDetail] erreur fetch circuit', err);
+        this.setErrorState(
+          err?.status === 404 ? 'Circuit introuvable' : 'Circuit indisponible',
+          err?.status === 404
+            ? 'Le circuit demande nexiste pas ou a ete retire du catalogue.'
+            : 'Impossible de charger ce circuit pour le moment. Merci de reessayer plus tard.'
+        );
       }
     });
   }
 
-  editCircuit() {
-    if (this.circuit) {
-      this.router.navigate(['/admin/circuits/edit-circuit', this.circuit.id]);
-    }
+  private loadSupportingData(circuit: CircuitDTO): void {
+    const notices: string[] = [];
+
+    forkJoin({
+      zones: this.zonesService.getAllZones().pipe(
+        catchError((err) => {
+          console.error('[CircuitDetail] erreur zones', err);
+          notices.push('La zone du circuit ne peut pas etre affichee pour le moment.');
+          return of([] as Zone[]);
+        })
+      ),
+      activites: this.activitesService.getAllActivites().pipe(
+        catchError((err) => {
+          console.error('[CircuitDetail] erreur activites', err);
+          notices.push('Les activites associees sont partiellement indisponibles.');
+          return of([] as Activite[]);
+        })
+      ),
+      villes: this.villesService.getAll().pipe(
+        catchError((err) => {
+          console.error('[CircuitDetail] erreur villes', err);
+          notices.push('Les villes du programme ne peuvent pas etre resolues.');
+          return of([] as VilleDTO[]);
+        })
+      )
+    }).subscribe(({ zones, activites, villes }) => {
+      this.zone = (zones || []).find((item) => item.idZone === circuit.zoneId) || null;
+      this.availableActivites = (activites || []).map((item) => ({
+        id: item.id,
+        nom: item.nom,
+        zoneId: item.zoneId
+      }));
+      this.availableVilles = (villes || []).map((item) => ({
+        id: item.id,
+        nom: item.nom,
+        zoneId: item.zoneId ?? undefined
+      }));
+      this.supportingDataNotice = notices.join(' ');
+    });
   }
 
-  goBack() {
-    this.router.navigate(['/circuit']);
+  private normalizeProgramme(programme: Array<string | any>): CircuitProgrammeItem[] {
+    return programme.map((item: any, index: number) => {
+      if (typeof item === 'string') {
+        return {
+          day: index + 1,
+          description: item,
+          activities: [],
+          isLegacy: true
+        };
+      }
+
+      return {
+        day: item.day ?? index + 1,
+        title: item.title,
+        approxTime: item.approxTime,
+        description: item.description ?? '',
+        mealsIncluded: item.mealsIncluded ?? [],
+        activities: item.activities ?? [],
+        villeId: item.villeId,
+        isLegacy: false
+      };
+    });
+  }
+
+  private setErrorState(title: string, message: string): void {
+    this.loading = false;
+    this.circuit = null;
+    this.zone = null;
+    this.circuitProgramme = [];
+    this.availableActivites = [];
+    this.availableVilles = [];
+    this.supportingDataNotice = '';
+    this.errorTitle = title;
+    this.errorMessage = message;
   }
 
   getStatutLabel(actif: boolean): string {
@@ -97,36 +190,7 @@ export class CircuitDetailComponent implements OnInit {
     return actif ? 'status-active' : 'status-inactive';
   }
 
-  /**
-   * Vérifie pour chaque jour si des activités sélectionnées proviennent d'une zone différente
-   * que la ville indiquée pour ce jour (ou la ville principale du circuit si absente).
-   */
-  checkCompatibility(): void {
-    if (!this.circuitProgramme || !this.availableActivites) return;
-    for (const p of this.circuitProgramme) {
-      p.incompatibleActivities = [];
-      const jourVilleId = (p as any).villeId ?? (this.circuit && ((this.circuit as any).villeId || (this.circuit as any).ville?.id));
-      let jourZoneId: number | undefined = undefined;
-      if (jourVilleId) {
-        const v = this.availableVilles.find(x => x.id === jourVilleId);
-        jourZoneId = v ? v.zoneId : undefined;
-      }
-      if (!p.activities || !p.activities.length) continue;
-      for (const aid of p.activities) {
-        const a = this.availableActivites.find(x => x.id === aid);
-        if (!a) continue;
-        if (jourZoneId !== undefined && a.zoneId !== undefined && a.zoneId !== jourZoneId) {
-          p.incompatibleActivities!.push(aid);
-        }
-      }
-    }
-  }
-
-  isActivityIncompatible(p: any, aid: number): boolean {
-    return !!(p.incompatibleActivities && p.incompatibleActivities.indexOf(aid) !== -1);
-  }
-
-  toggleExpand(index: number) {
+  toggleExpand(index: number): void {
     this.openProgrammeIndex = index;
   }
 
@@ -135,22 +199,30 @@ export class CircuitDetailComponent implements OnInit {
   }
 
   getImageUrl(path: string | undefined | null): string {
-    if (!path) return '/assets/images/circuit-default.jpg';
+    if (!path) {
+      return '/assets/images/circuit-default.jpg';
+    }
+
     const raw = path.trim();
-    // If already an absolute URL, return as-is
     if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('//')) {
       return raw;
     }
-    const img = raw.startsWith('/') ? raw : '/' + raw;
-    if (img.startsWith('/images') || img.startsWith('/api/images')) {
-      return img;
+
+    const imagePath = raw.startsWith('/') ? raw : `/${raw}`;
+    if (imagePath.startsWith('/images') || imagePath.startsWith('/api/images')) {
+      return imagePath;
     }
-    return img;
+
+    return imagePath;
+  }
+
+  getHeroBackgroundImage(path: string | undefined | null): string {
+    return `url('${this.getImageUrl(path)}')`;
   }
 
   getActivityName(id: number): string {
-    const a = this.availableActivites.find(x => x.id === id);
-    return a ? a.nom : 'Activité ' + id;
+    const activite = this.availableActivites.find((item) => item.id === id);
+    return activite ? activite.nom : `Activite ${id}`;
   }
 
   getFeaturedCities(): string[] {
@@ -160,11 +232,12 @@ export class CircuitDetailComponent implements OnInit {
       cities.add(this.circuit.villeNom);
     }
 
-    for (const jour of this.circuitProgramme) {
-      if (!jour.villeId) {
+    for (const programmeItem of this.circuitProgramme) {
+      if (!programmeItem.villeId) {
         continue;
       }
-      const ville = this.availableVilles.find(x => x.id === jour.villeId);
+
+      const ville = this.availableVilles.find((item) => item.id === programmeItem.villeId);
       if (ville?.nom) {
         cities.add(ville.nom);
       }
