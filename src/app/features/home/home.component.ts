@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CircuitService } from '../../services/circuit.service';
 import { CircuitDTO } from '../../models/circuit.dto';
+import { ParametresSiteDTO, ParametresSiteService } from '../../services/parametres-site.service';
 
 export interface Circuit {
   id: number;
@@ -17,6 +18,9 @@ export interface Article {
   img: string;
   excerpt?: string;
 }
+
+type FeaturedState = 'loading' | 'ready' | 'fallback' | 'empty';
+type ContactState = 'loading' | 'ready' | 'unavailable';
 
 @Component({
   selector: 'app-home',
@@ -35,11 +39,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   currentHero = 0;
   private _timer: any;
 
-  circuits: Circuit[] = [
+  private readonly fallbackCircuits: Circuit[] = [
     { id: 1, title: 'Circuit Decouverte', duration: '3 jours', price: '120 EUR', img: 'assets/images/pendjari-national-park.jpg' },
     { id: 2, title: 'Safari Culturel', duration: '5 jours', price: '240 EUR', img: 'assets/images/royal-palaces-of-abomey.jpg' },
     { id: 3, title: 'Cote et Plages', duration: '4 jours', price: '180 EUR', img: 'assets/images/grandPopo.png' }
   ];
+  circuits: Circuit[] = [...this.fallbackCircuits];
+  featuredState: FeaturedState = 'loading';
+  featuredNotice = '';
 
   benefits = [
     { icon: 'assets/icons/guide.svg', title: 'Guides locaux experts', text: 'Guides natifs et passionnes.' },
@@ -48,16 +55,35 @@ export class HomeComponent implements OnInit, OnDestroy {
   ];
 
   news: Article[] = [
-    { title: 'Ouverture nouvelle route', img: 'assets/images/village.jpg' },
-    { title: 'Festival culturel 2026', img: 'assets/images/culture.jpg' },
-    { title: 'Expeditions nature 2026', img: 'assets/images/elephant.jpg' }
+    {
+      title: 'Ouidah, entre memoire et littoral',
+      img: 'assets/images/village.jpg',
+      excerpt: 'Idees de parcours pour meler culture, artisanat et respiration oceanique.'
+    },
+    {
+      title: 'Festivals et saisons culturelles',
+      img: 'assets/images/culture.jpg',
+      excerpt: 'Quelques temps forts pour organiser un voyage plus vivant et plus local.'
+    },
+    {
+      title: 'Pendjari, nature et rythme juste',
+      img: 'assets/images/elephant.jpg',
+      excerpt: 'Quand partir, combien de jours prevoir et comment equilibrer safari et decouverte.'
+    }
   ];
 
-  constructor(private circuitService: CircuitService) {}
+  contactState: ContactState = 'loading';
+  contactDetails: ParametresSiteDTO | null = null;
+
+  constructor(
+    private circuitService: CircuitService,
+    private parametresSiteService: ParametresSiteService
+  ) {}
 
   ngOnInit(): void {
     this._timer = setInterval(() => this.nextHero(), 5000);
     this.loadFeaturedCircuits();
+    this.loadContactDetails();
   }
 
   ngOnDestroy(): void {
@@ -81,6 +107,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private loadFeaturedCircuits(): void {
+    this.featuredState = 'loading';
+    this.featuredNotice = '';
+
     this.circuitService.getAllCircuits().subscribe({
       next: (data: CircuitDTO[]) => {
         const source = data || [];
@@ -98,10 +127,39 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         if (featured.length > 0) {
           this.circuits = featured;
+          this.featuredState = 'ready';
+          return;
         }
+
+        this.circuits = [];
+        this.featuredState = 'empty';
+        this.featuredNotice = 'Aucun circuit n est publie pour le moment.';
       },
       error: () => {
-        // fallback: keep local default cards
+        this.circuits = [...this.fallbackCircuits];
+        this.featuredState = 'fallback';
+        this.featuredNotice = 'Connexion au catalogue indisponible. Une selection temporaire est affichee.';
+      }
+    });
+  }
+
+  private loadContactDetails(): void {
+    this.contactState = 'loading';
+
+    this.parametresSiteService.getPrimary().subscribe({
+      next: (details) => {
+        const hasContactData = !!(
+          details?.emailContact?.trim() ||
+          details?.telephoneContact?.trim() ||
+          details?.adresseAgence?.trim()
+        );
+
+        this.contactDetails = hasContactData ? details : null;
+        this.contactState = hasContactData ? 'ready' : 'unavailable';
+      },
+      error: () => {
+        this.contactDetails = null;
+        this.contactState = 'unavailable';
       }
     });
   }
@@ -115,5 +173,20 @@ export class HomeComponent implements OnInit, OnDestroy {
       return value;
     }
     return value.startsWith('/') ? value : `/${value}`;
+  }
+
+  get contactEmailHref(): string | null {
+    const email = this.contactDetails?.emailContact?.trim();
+    return email ? `mailto:${email}` : null;
+  }
+
+  get contactPhoneHref(): string | null {
+    const phone = this.contactDetails?.telephoneContact?.trim();
+    if (!phone) {
+      return null;
+    }
+
+    const normalized = phone.replace(/\s+/g, '');
+    return `tel:${normalized}`;
   }
 }

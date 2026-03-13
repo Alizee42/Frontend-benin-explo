@@ -832,3 +832,175 @@
   background: linear-gradient(135deg, #006b5b 0%, #00806e 100%);
   color: #fff;
 }
+
+.section-note {
+  max-width: 640px;
+  margin: 0.9rem auto 0;
+  padding: 0.75rem 0.95rem;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.section-note-warning {
+  background: rgba(201, 168, 106, 0.16);
+  border: 1px solid rgba(201, 168, 106, 0.38);
+  color: #4f3d16;
+}
+
+.section-status,
+.contact-status,
+.section-empty,
+.contact-fallback {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.35rem 1.2rem;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0 12px 28px rgba(11, 33, 29, 0.08);
+}
+
+.section-status,
+.contact-status {
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--be-dark);
+}
+
+.section-empty,
+.contact-fallback {
+  background: linear-gradient(160deg, #f8f4ea 0%, #ffffff 100%);
+  border: 1px solid rgba(0, 77, 64, 0.1);
+  color: var(--be-dark);
+}
+
+.section-empty-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.status-spinner {
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 0.8rem;
+  border-radius: 50%;
+  border: 4px solid rgba(0, 77, 64, 0.16);
+  border-top-color: var(--be-green);
+  animation: spin 0.8s linear infinite;
+}
+
+.btn-secondary-pro-light {
+  color: var(--be-dark);
+  border-color: rgba(0, 77, 64, 0.18);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.btn-secondary-pro-light:hover {
+  color: var(--be-dark);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.news-excerpt {
+  margin: 0 0 0.9rem;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.contact-home {
+  padding: 5rem 0 5.5rem;
+  background:
+    radial-gradient(circle at top right, rgba(201, 168, 106, 0.16), transparent 32%),
+    linear-gradient(180deg, #f3efe5 0%, #fcfaf6 100%);
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.contact-card {
+  background: #fff;
+  border-radius: 22px;
+  padding: 1.5rem;
+  border: 1px solid rgba(0, 77, 64, 0.08);
+  box-shadow: 0 14px 34px rgba(10, 29, 25, 0.08);
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.contact-icon {
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: rgba(0, 77, 64, 0.08);
+  color: var(--be-green);
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.contact-label {
+  margin: 0 0 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: rgba(16, 33, 28, 0.62);
+}
+
+.contact-card h3 {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+  line-height: 1.35;
+  color: var(--be-dark);
+}
+
+.contact-card a,
+.contact-fallback a {
+  margin-top: auto;
+  text-decoration: none;
+}
+
+.contact-card a {
+  font-weight: 700;
+  color: var(--be-green);
+}
+
+.contact-card a:hover {
+  color: #006b5b;
+}
+
+@media (max-width: 992px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-status,
+  .contact-status,
+  .section-empty,
+  .contact-fallback {
+    padding: 1.1rem 1rem;
+  }
+
+  .section-empty-actions {
+    flex-direction: column;
+  }
+
+  .section-empty-actions .btn-main,
+  .section-empty-actions .btn-secondary-pro {
+    width: 100%;
+  }
+
+  .contact-card {
+    padding: 1.2rem;
+  }
+}

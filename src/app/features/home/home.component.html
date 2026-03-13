@@ -6,7 +6,7 @@
       [class.active]="i === currentHero"
       [style.backgroundImage]="'url(' + img + ')'"
       role="img"
-      [attr.aria-hidden]="i===currentHero? 'false':'true'">
+      [attr.aria-hidden]="i === currentHero ? 'false' : 'true'">
     </div>
   </div>
   <div class="hero-overlay"></div>
@@ -37,36 +37,34 @@
   <div class="container">
     <div class="row gy-4 align-items-center">
       <div class="col-12 col-md-6">
-        <span class="section-kicker">
-          <span class="section-kicker">À propos de nous</span>
-        </span>
+        <span class="section-kicker">A propos de nous</span>
 
         <h2 class="section-title about-title">
-          Bénin Explo, <br>explorez le Bénin autrement
+          Benin Explo, <br>explorez le Benin autrement
         </h2>
 
         <p class="about-text">
-          Bénin Explo est une agence de tourisme basée à Cotonou,
-          spécialisée dans les circuits culturels, l'écotourisme
+          Benin Explo est une agence de tourisme basee a Cotonou,
+          specialisee dans les circuits culturels, l'ecotourisme
           et les immersions communautaires.
         </p>
 
         <p class="about-text">
           Nous travaillons avec des acteurs locaux pour proposer
-          des expériences authentiques, responsables et enrichissantes.
+          des experiences authentiques, responsables et enrichissantes.
         </p>
 
         <p class="about-text">
-          Notre mission : vous faire découvrir les richesses du Bénin
-          à travers un tourisme respectueux, durable et profondément humain.
+          Notre mission : vous faire decouvrir les richesses du Benin
+          a travers un tourisme respectueux, durable et profondement humain.
         </p>
       </div>
 
       <div class="col-12 col-md-6">
         <div class="about-illu">
-          <img src="/assets/images/roy.jpg" alt="Voyage au Bénin" class="about-img" />
+          <img src="/assets/images/roy.jpg" alt="Voyage au Benin" class="about-img" />
           <div class="about-quote-badge">
-            « Vivez le Bénin comme si vous y habitiez. »
+            "Vivez le Benin comme si vous y habitiez."
           </div>
         </div>
       </div>
@@ -80,10 +78,27 @@
       <span class="section-kicker">Nos suggestions</span>
       <h2 class="section-title">Nos circuits phares</h2>
       <p class="section-subtitle">
-        Une sélection de circuits prêts à partir, imaginés par nos partenaires locaux.
+        Une selection de circuits prets a partir, imagines par nos partenaires locaux.
+      </p>
+      <p class="section-note section-note-warning" *ngIf="featuredState === 'fallback'">
+        {{ featuredNotice }}
       </p>
     </div>
-    <div class="row">
+
+    <div class="section-status" *ngIf="featuredState === 'loading'">
+      <div class="status-spinner" aria-hidden="true"></div>
+      <p>Chargement des circuits phares...</p>
+    </div>
+
+    <div class="section-empty" *ngIf="featuredState === 'empty'">
+      <p>{{ featuredNotice }}</p>
+      <div class="section-empty-actions">
+        <a routerLink="/circuit" class="btn-main">Voir le catalogue</a>
+        <a routerLink="/circuit-personnalise" class="btn-secondary-pro btn-secondary-pro-light">Creer un voyage sur mesure</a>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="featuredState === 'ready' || featuredState === 'fallback'">
       <div class="col-12 col-md-6 col-lg-3" *ngFor="let c of circuits">
         <div class="card circuit-card mb-4">
           <img [src]="c.img" class="card-img-top" [alt]="c.title">
@@ -106,13 +121,13 @@
 <section class="custom-circuit">
   <div class="container text-center">
     <span class="section-kicker">Voyage sur mesure</span>
-    <h2 class="section-title">Créez votre circuit personnalisé</h2>
+    <h2 class="section-title">Creez votre circuit personnalise</h2>
     <p class="section-subtitle">
-      Choisissez vos activités, vos étapes, votre rythme.
-      Bénin Explo vous accompagne pour construire le circuit qui vous ressemble.
+      Choisissez vos activites, vos etapes, votre rythme.
+      Benin Explo vous accompagne pour construire le circuit qui vous ressemble.
     </p>
     <a routerLink="/circuit-personnalise" class="btn btn-outline-light btn-lg btn-custom-circuit">
-      Créer mon circuit
+      Creer mon circuit
     </a>
   </div>
 </section>
@@ -121,7 +136,7 @@
   <div class="container">
     <div class="section-header text-center">
       <span class="section-kicker">Notre approche</span>
-      <h2 class="section-title">Pourquoi voyager avec Bénin Explo ?</h2>
+      <h2 class="section-title">Pourquoi voyager avec Benin Explo ?</h2>
     </div>
     <div class="row text-center mt-4">
       <div class="col-12 col-md-4" *ngFor="let b of benefits">
@@ -133,11 +148,11 @@
   </div>
 </section>
 
-<section class="news">
+<section class="news" id="news">
   <div class="container">
     <div class="section-header">
       <span class="section-kicker">Inspiration & conseils</span>
-      <h2 class="section-title">Actualités / Inspirez-vous</h2>
+      <h2 class="section-title">Actualites & inspirations</h2>
     </div>
     <div class="row mt-3">
       <div class="col-12 col-md-4" *ngFor="let a of news">
@@ -145,7 +160,8 @@
           <img [src]="a.img" class="card-img-top" [alt]="a.title">
           <div class="card-body">
             <h5 class="card-title">{{ a.title }}</h5>
-            <a routerLink="/actualite" class="btn btn-link">Voir plus</a>
+            <p class="news-excerpt" *ngIf="a.excerpt">{{ a.excerpt }}</p>
+            <a routerLink="/circuit" class="btn btn-link">Explorer les circuits</a>
           </div>
         </div>
       </div>
@@ -153,3 +169,49 @@
   </div>
 </section>
 
+<section class="contact-home" id="contact">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-kicker">Parlons de votre voyage</span>
+      <h2 class="section-title">Contact & accompagnement</h2>
+      <p class="section-subtitle">
+        Une question sur un circuit, un budget ou un rythme de voyage ? Nous vous aidons a cadrer le bon parcours.
+      </p>
+    </div>
+
+    <div class="contact-status" *ngIf="contactState === 'loading'">
+      <div class="status-spinner" aria-hidden="true"></div>
+      <p>Chargement des coordonnees de l agence...</p>
+    </div>
+
+    <div class="contact-grid" *ngIf="contactState === 'ready' && contactDetails">
+      <article class="contact-card" *ngIf="contactDetails.emailContact">
+        <span class="contact-icon"><i class="ri-mail-line"></i></span>
+        <p class="contact-label">Email</p>
+        <h3>{{ contactDetails.emailContact }}</h3>
+        <a *ngIf="contactEmailHref" [href]="contactEmailHref">Envoyer un message</a>
+      </article>
+
+      <article class="contact-card" *ngIf="contactDetails.telephoneContact">
+        <span class="contact-icon"><i class="ri-phone-line"></i></span>
+        <p class="contact-label">Telephone</p>
+        <h3>{{ contactDetails.telephoneContact }}</h3>
+        <a *ngIf="contactPhoneHref" [href]="contactPhoneHref">Appeler maintenant</a>
+      </article>
+
+      <article class="contact-card" *ngIf="contactDetails.adresseAgence">
+        <span class="contact-icon"><i class="ri-map-pin-line"></i></span>
+        <p class="contact-label">Agence</p>
+        <h3>{{ contactDetails.adresseAgence }}</h3>
+        <a routerLink="/circuit-personnalise">Preparer un voyage sur mesure</a>
+      </article>
+    </div>
+
+    <div class="contact-fallback" *ngIf="contactState === 'unavailable'">
+      <p>
+        Les coordonnees publiques de l agence ne sont pas encore renseignees. Vous pouvez deja nous envoyer votre besoin via le parcours sur mesure.
+      </p>
+      <a routerLink="/circuit-personnalise" class="btn-main">Creer mon circuit</a>
+    </div>
+  </div>
+</section>

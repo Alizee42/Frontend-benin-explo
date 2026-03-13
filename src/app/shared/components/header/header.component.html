@@ -1,17 +1,13 @@
 <header class="site-header" [class.open]="menuOpen" [class.compact]="mode === 'compact'">
   <div class="header-inner">
 
-    <!-- LOGO -->
     <div class="logo" *ngIf="mode === 'normal' || mode === 'compact'">
-      <a routerLink="/" aria-label="Bénin Explo home" class="brand">
-        <img src="assets/logos/BeninExplo.png" alt="Logo Bénin Explo" class="brand-image" />
+      <a routerLink="/" aria-label="Benin Explo home" class="brand">
+        <img src="assets/logos/BeninExplo.png" alt="Logo Benin Explo" class="brand-image" />
       </a>
     </div>
 
-    <!-- NAV + USER CONTAINER -->
     <div class="nav-container">
-
-      <!-- NAVIGATION (DESKTOP) -->
       <nav class="nav" *ngIf="mode === 'normal'">
         <a class="nav-link"
            routerLink="/"
@@ -19,7 +15,6 @@
            [routerLinkActiveOptions]="{ exact: true }"
            (click)="closeMenu()">Accueil</a>
 
-        <!-- CIRCUITS DROPDOWN -->
         <div class="dropdown" [class.open]="isCircuitsDropdownOpen">
           <div class="nav-link dropdown-toggle" (click)="toggleCircuitsDropdown()">Circuits</div>
 
@@ -32,83 +27,59 @@
             <li>
               <a class="dropdown-item"
                  routerLink="/circuit-personnalise"
-                 (click)="closeMenu(); closeCircuitsDropdown()">Circuit personnalisé</a>
+                 (click)="closeMenu(); closeCircuitsDropdown()">Circuit personnalise</a>
             </li>
           </ul>
         </div>
 
-        <a class="nav-link" routerLink="/hebergements" (click)="closeMenu()">Hébergements</a>
+        <a class="nav-link" routerLink="/hebergements" (click)="closeMenu()">Hebergements</a>
+        <a class="nav-link" routerLink="/" fragment="news" (click)="closeMenu()">Actualite</a>
+        <a class="nav-link" routerLink="/" fragment="contact" (click)="closeMenu()">Contact</a>
 
-        <a class="nav-link" routerLink="/actualite" (click)="closeMenu()">Actualité</a>
-        <a class="nav-link" routerLink="/contact" (click)="closeMenu()">Contact</a>
-
-        <!-- NON CONNECTÉ -->
         <a class="nav-link" *ngIf="!isLoggedIn" routerLink="/login" (click)="closeMenu()">Connexion</a>
       </nav>
 
-      <!-- NAVIGATION COMPACT (ADMIN) -->
       <nav class="nav compact-nav" *ngIf="mode === 'compact'">
         <a class="nav-link" routerLink="/" (click)="closeMenu()">Accueil</a>
-        <!-- Dashboard link visible en mode admin -->
         <a *ngIf="isAdmin" class="nav-link" routerLink="/admin/dashboard" (click)="closeMenu()">Tableau de bord</a>
-        <!-- Profil / Notifications / Paramètres sont accessibles via le menu utilisateur -->
       </nav>
 
-      <!-- USER (DESKTOP) : visible en public & admin -->
       <div class="user-actions desktop-only" *ngIf="isLoggedIn">
-
-        <!-- Icône notifications pour l'admin -->
         <button *ngIf="isAdmin" class="notification-btn" type="button" aria-label="Notifications">
           <i class="ri-notification-3-line"></i>
         </button>
 
         <div class="dropdown user-dropdown" [class.open]="isUserDropdownOpen">
-
-          <!-- USER BUTTON (avatar + nom) -->
           <button class="user-avatar-btn" (click)="toggleUserDropdown()">
             <div class="user-avatar">
               <span class="user-initials">{{ getUserInitials() }}</span>
             </div>
           </button>
 
-          <!-- MENU -->
           <ul class="dropdown-menu user-menu" [class.show]="isUserDropdownOpen">
-
-            <!-- MENU PUBLIC (ACCUEIL) -->
             <ng-container *ngIf="mode === 'normal'; else adminUserMenuDesktop">
-
               <li><hr class="dropdown-divider"></li>
 
               <li>
                 <a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a>
               </li>
 
-              <!-- Lien Tableau de bord visible seulement pour un admin depuis l'accueil -->
               <li *ngIf="isAdmin">
                 <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">Tableau de bord</a>
               </li>
 
-              <!-- Paramètres disponibles côté accueil pour l'utilisateur connecté -->
               <li>
-                <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Paramètres</a>
+                <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Parametres</a>
               </li>
-
-              <!-- Placeholder Mes réservations (à brancher plus tard si besoin) -->
-              <!-- <li>
-                <a class="dropdown-item" (click)="closeUserDropdown()">Mes réservations</a>
-              </li> -->
 
               <li><hr class="dropdown-divider"></li>
 
               <li>
-                <a class="dropdown-item" (click)="logout(); closeUserDropdown()">Déconnexion</a>
+                <a class="dropdown-item" (click)="logout(); closeUserDropdown()">Deconnexion</a>
               </li>
-
             </ng-container>
 
-            <!-- MENU ADMIN (COMPACT) -->
             <ng-template #adminUserMenuDesktop>
-
               <li><hr class="dropdown-divider"></li>
 
               <li>
@@ -116,28 +87,21 @@
               </li>
 
               <li *ngIf="isAdmin">
-                <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Paramètres</a>
+                <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Parametres</a>
               </li>
 
               <li><hr class="dropdown-divider"></li>
 
               <li>
-                <a class="dropdown-item" (click)="logout(); closeUserDropdown()">Déconnexion</a>
+                <a class="dropdown-item" (click)="logout(); closeUserDropdown()">Deconnexion</a>
               </li>
-
             </ng-template>
-
           </ul>
-
         </div>
       </div>
+    </div>
 
-    </div><!-- END nav-container -->
-
-    <!-- MOBILE -->
     <div class="mobile-controls" *ngIf="mode === 'normal' || mode === 'compact'">
-
-      <!-- HAMBURGER -->
       <button class="hamburger"
               aria-label="Toggle menu"
               [attr.aria-expanded]="menuOpen"
@@ -147,10 +111,8 @@
         <span class="bar"></span>
       </button>
 
-      <!-- USER MOBILE -->
       <div class="user-actions mobile-only" *ngIf="isLoggedIn">
         <div class="dropdown user-dropdown" [class.open]="isUserDropdownOpen">
-
           <button class="user-avatar-btn" (click)="toggleUserDropdown()">
             <div class="user-avatar">
               <span class="user-initials">{{ getUserInitials() }}</span>
@@ -158,35 +120,27 @@
           </button>
 
           <ul class="dropdown-menu user-menu" [class.show]="isUserDropdownOpen">
-
-            <!-- MOBILE - MENU PUBLIC (ACCUEIL) -->
             <ng-container *ngIf="mode === 'normal'; else adminUserMenuMobile">
-
               <li><hr class="dropdown-divider"></li>
 
               <li>
                 <a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a>
               </li>
 
-              <!-- Lien Tableau de bord pour admin depuis l'accueil -->
               <li *ngIf="isAdmin">
                 <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">Tableau de bord</a>
               </li>
 
-              <!-- Paramètres côté accueil (mobile) -->
               <li>
-                <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Paramètres</a>
+                <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Parametres</a>
               </li>
 
               <li><hr class="dropdown-divider"></li>
 
-              <li><a class="dropdown-item" (click)="logout()">Déconnexion</a></li>
-
+              <li><a class="dropdown-item" (click)="logout()">Deconnexion</a></li>
             </ng-container>
 
-            <!-- MOBILE - MENU ADMIN (COMPACT) -->
             <ng-template #adminUserMenuMobile>
-
               <li><hr class="dropdown-divider"></li>
 
               <li>
@@ -194,20 +148,16 @@
               </li>
 
               <li *ngIf="isAdmin">
-                <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Paramètres</a>
+                <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Parametres</a>
               </li>
 
               <li><hr class="dropdown-divider"></li>
 
-              <li><a class="dropdown-item" (click)="logout()">Déconnexion</a></li>
-
+              <li><a class="dropdown-item" (click)="logout()">Deconnexion</a></li>
             </ng-template>
-
           </ul>
         </div>
       </div>
-
-    </div><!-- END mobile-controls -->
-
+    </div>
   </div>
 </header>
