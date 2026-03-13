@@ -23,6 +23,11 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
 export class ActivitesAdminComponent implements OnInit {
   activites: Activite[] = [];
   loading = true;
+  loadError = '';
+  saving = false;
+  formError = '';
+  searchTerm = '';
+  sortOption = 'nom-asc';
 
   // modal / form state
   showModal = false;
@@ -51,11 +56,13 @@ export class ActivitesAdminComponent implements OnInit {
   constructor(private activitesService: ActivitesService, private zonesService: ZonesAdminService, private villesService: VillesService, private mediaService: MediaService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    // Load zones and villes first, then activities so we can resolve zone names
     this.loadZonesAndVillesThenActivities();
   }
 
   loadZonesAndVillesThenActivities() {
+    this.loading = true;
+    this.loadError = '';
+
     this.zonesService.getAll().subscribe({
       next: (z: ZoneDTO[]) => {
         this.zones = z.map((zz: any) => ({ id: zz.id !== undefined ? zz.id : zz.idZone, nom: zz.nom, description: zz.description, ...zz }));
@@ -65,16 +72,24 @@ export class ActivitesAdminComponent implements OnInit {
             this.villes = vs.map((v: any) => ({
               id: v.id !== undefined ? v.id : v.idVille,
               nom: v.nom,
-              zoneId: v.zoneId ?? v.zone?.id ?? null,
+              zoneId: v.zoneId ?? v.zone?.idZone ?? v.zone?.id ?? null,
               zoneNom: v.zoneNom ?? (v.zone ? v.zone.nom : ''),
               ...v
             }));
             this.loadActivites();
           },
-          error: (err: any) => { console.error('Erreur chargement villes', err); this.loadActivites(); }
+          error: (err: any) => {
+            console.error('Erreur chargement villes', err);
+            this.loadError = 'Impossible de charger toutes les donnees des activites.';
+            this.loadActivites();
+          }
         });
       },
-      error: (err: any) => { console.error('Erreur chargement zones', err); this.loadActivites(); }
+      error: (err: any) => {
+        console.error('Erreur chargement zones', err);
+        this.loadError = 'Impossible de charger toutes les donnees des activites.';
+        this.loadActivites();
+      }
     });
   }
 
@@ -131,6 +146,8 @@ export class ActivitesAdminComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Erreur chargement activités', err);
+        this.activites = [];
+        this.loadError = 'Impossible de charger les activites pour le moment.';
         this.loading = false;
       }
     });
@@ -149,6 +166,8 @@ export class ActivitesAdminComponent implements OnInit {
   openAddModal(): void {
     this.isEditing = false;
     this.currentActivite = { id: 0, nom: '', description: '', prix: 0, duree: 1, type: 'Culture', zoneId: 0, villeId: 0, imagePrincipaleId: null };
+    this.formError = '';
+    this.saving = false;
     this.showModal = true;
   }
 
@@ -159,14 +178,34 @@ export class ActivitesAdminComponent implements OnInit {
     if (a.image) {
       (this.currentActivite as any).imagePreview = a.image;
     }
+    this.formError = '';
+    this.saving = false;
     this.showModal = true;
   }
 
   closeModal(): void {
     this.showModal = false;
+    this.formError = '';
+    this.saving = false;
   }
 
   saveActivite(): void {
+    const nom = String(this.currentActivite.nom || '').trim();
+    const villeId = Number(this.currentActivite.villeId || 0);
+
+    if (!nom) {
+      this.formError = 'Le nom est obligatoire';
+      return;
+    }
+
+    if (!villeId) {
+      this.formError = 'La ville est obligatoire';
+      return;
+    }
+
+    this.formError = '';
+    this.saving = true;
+
     if (this.isEditing && (this.currentActivite as any).id) {
       this.activitesService.updateActivite((this.currentActivite as any).id, this.currentActivite as Partial<Activite>).subscribe({
         next: (resp) => {
@@ -212,17 +251,21 @@ export class ActivitesAdminComponent implements OnInit {
           }
           this.closeModal();
         },
-        error: (err) => { console.error('[ActivitesAdmin] Erreur update for id', (this.currentActivite as any).id, err); }
+        error: (err) => {
+          console.error('[ActivitesAdmin] Erreur update for id', (this.currentActivite as any).id, err);
+          this.formError = 'Erreur lors de la modification de l activite';
+          this.saving = false;
+        }
       });
     } else {
       const payload = {
-        nom: this.currentActivite.nom || '',
+        nom,
         description: this.currentActivite.description || '',
         prix: this.currentActivite.prix ?? null,
         duree: this.currentActivite.duree ?? 1,
         type: (this.currentActivite.type as any) || 'Culture',
         zoneId: this.currentActivite.zoneId || 0,
-        villeId: this.currentActivite.villeId || 0,
+        villeId,
         imagePrincipaleId: (this.currentActivite as any).imagePrincipaleId ?? null
       };
       this.activitesService.createActivite(payload).subscribe({
@@ -270,7 +313,11 @@ export class ActivitesAdminComponent implements OnInit {
             }
             this.closeModal();
         },
-        error: (err: any) => { console.error('Erreur create', err); }
+        error: (err: any) => {
+          console.error('Erreur create', err);
+          this.formError = 'Erreur lors de la creation de l activite';
+          this.saving = false;
+        }
       });
     }
   }
@@ -283,5 +330,41 @@ export class ActivitesAdminComponent implements OnInit {
   deleteActivite(id: number) {
     if (!confirm('Supprimer cette activité ?')) return;
     this.activitesService.deleteActivite(id).subscribe({ next: () => { this.loadActivites(); }, error: (err: any) => { console.error('Erreur suppression', err); alert('Impossible de supprimer'); } });
+  }
+
+  get filteredActivites(): Activite[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    const filtered = !term
+      ? [...this.activites]
+      : this.activites.filter(a =>
+          String(a.nom || '').toLowerCase().includes(term) ||
+          String(a.ville || '').toLowerCase().includes(term) ||
+          String(a.zone || '').toLowerCase().includes(term) ||
+          String(a.type || '').toLowerCase().includes(term)
+        );
+
+    const [key, dir] = this.sortOption.split('-');
+    filtered.sort((a, b) => {
+      const av = key === 'ville'
+        ? String(a.ville || '').toLowerCase()
+        : key === 'zone'
+          ? String(a.zone || '').toLowerCase()
+          : key === 'id'
+            ? Number(a.id || 0)
+            : String(a.nom || '').toLowerCase();
+      const bv = key === 'ville'
+        ? String(b.ville || '').toLowerCase()
+        : key === 'zone'
+          ? String(b.zone || '').toLowerCase()
+          : key === 'id'
+            ? Number(b.id || 0)
+            : String(b.nom || '').toLowerCase();
+
+      if (av < bv) return dir === 'asc' ? -1 : 1;
+      if (av > bv) return dir === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return filtered;
   }
 }

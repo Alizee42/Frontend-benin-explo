@@ -24,6 +24,14 @@
         </div>
       </header>
 
+      <div *ngIf="isLoading" class="dashboard-state dashboard-state-loading">
+        Chargement des indicateurs...
+      </div>
+
+      <div *ngIf="!isLoading && hasDataWarning" class="dashboard-state dashboard-state-warning">
+        Certaines donnees n'ont pas pu etre chargees. Les compteurs affiches peuvent etre partiels.
+      </div>
+
       <div class="kpi-grid">
         <article class="kpi-card">
           <div class="kpi-icon"><i class="ri-route-line"></i></div>

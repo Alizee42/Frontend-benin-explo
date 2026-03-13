@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { catchError } from 'rxjs/operators';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { AuthService } from '../../../services/auth.service';
 import { CircuitService } from '../../../services/circuit.service';
@@ -24,6 +24,8 @@ export class DashboardComponent implements OnInit {
 
   userFirstName: string | undefined;
   lastUpdateLabel = '';
+  isLoading = true;
+  hasDataWarning = false;
   circuitsPublishedCount = 0;
   reservationsCount = 0;
   pendingRequestsCount = 0;
@@ -68,14 +70,25 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadDashboardStats(): void {
+    this.isLoading = true;
+    this.hasDataWarning = false;
+
+    const withFallback = <T>(source$: Observable<T[]>) =>
+      source$.pipe(
+        catchError(() => {
+          this.hasDataWarning = true;
+          return of([] as T[]);
+        })
+      );
+
     forkJoin({
-      circuits: this.circuitService.getAllCircuits().pipe(catchError(() => of([]))),
-      hebergements: this.hebergementsService.getAll().pipe(catchError(() => of([]))),
-      reservations: this.reservationHebergementService.getAll().pipe(catchError(() => of([]))),
-      demandes: this.circuitsPersonnalisesService.getAllDemandes().pipe(catchError(() => of([]))),
-      activites: this.activitesService.getAllActivites().pipe(catchError(() => of([]))),
-      zones: this.zonesAdminService.getAll().pipe(catchError(() => of([]))),
-      villes: this.villesService.getAll().pipe(catchError(() => of([])))
+      circuits: withFallback(this.circuitService.getAllCircuits()),
+      hebergements: withFallback(this.hebergementsService.getAll()),
+      reservations: withFallback(this.reservationHebergementService.getAll()),
+      demandes: withFallback(this.circuitsPersonnalisesService.getAllDemandes()),
+      activites: withFallback(this.activitesService.getAllActivites()),
+      zones: withFallback(this.zonesAdminService.getAll()),
+      villes: withFallback(this.villesService.getAll())
     }).subscribe(({ circuits, hebergements, reservations, demandes, activites, zones, villes }) => {
       const circuitsActifs = circuits.filter((c: any) => c?.actif === true).length;
       const demandesEnAttente = demandes.filter((d: any) =>
@@ -95,6 +108,7 @@ export class DashboardComponent implements OnInit {
       this.activitesCount = activites.length;
       this.demandesCount = demandes.length;
       this.hebergementsCount = hebergements.length;
+      this.isLoading = false;
     });
   }
 }

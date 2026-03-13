@@ -1,7 +1,7 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../../services/auth.service';
 
 @Component({
@@ -21,6 +21,7 @@ export class LoginComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
   ) {
     this.loginForm = this.fb.group({
@@ -38,8 +39,11 @@ export class LoginComponent {
       const credentials = { email: email.trim(), motDePasse: motDePasse.trim() };
 
       this.authService.login(credentials).subscribe({
-        next: () => {
+        next: (response) => {
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+          const target = returnUrl || (this.authService.isAdmin() ? '/admin/dashboard' : '/');
           this.loading = false;
+          this.router.navigateByUrl(target);
         },
         error: (error) => {
           this.errorMessage = 'Identifiants incorrects';

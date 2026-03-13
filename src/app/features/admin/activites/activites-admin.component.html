@@ -3,31 +3,82 @@
 
   <main class="page-content">
     <app-admin-actions-bar title="Gestion des activites" icon="ri-calendar-event-line">
-      <be-button
-        bar-right
-        variant="primary"
-        size="md"
-        iconLeft="ri-add-line"
-        label="Ajouter une activite"
-        (click)="openAddModal()">
-      </be-button>
+      <div bar-right class="actions-right">
+        <div class="search-field">
+          <i class="ri-search-line"></i>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Rechercher une activite..."
+            aria-label="Rechercher une activite"
+          />
+        </div>
+        <div class="sort-field">
+          <i class="ri-filter-3-line"></i>
+          <select [(ngModel)]="sortOption" aria-label="Trier les activites">
+            <option value="nom-asc">Nom A → Z</option>
+            <option value="nom-desc">Nom Z → A</option>
+            <option value="ville-asc">Ville A → Z</option>
+            <option value="zone-asc">Zone A → Z</option>
+            <option value="id-desc">Plus recentes</option>
+            <option value="id-asc">Plus anciennes</option>
+          </select>
+        </div>
+        <be-button
+          variant="primary"
+          size="md"
+          iconLeft="ri-add-line"
+          label="Ajouter une activite"
+          (click)="openAddModal()">
+        </be-button>
+      </div>
     </app-admin-actions-bar>
 
-    <app-data-table
-      [columns]="tableColumns"
-      [data]="activites"
-      [pageSize]="8"
-      [loading]="loading"
-      [actions]="tableActions"
-      (actionClick)="onTableAction($event)">
-    </app-data-table>
+    <div class="table-meta" *ngIf="!loading">
+      {{ filteredActivites.length }} activite{{ filteredActivites.length > 1 ? 's' : '' }}
+    </div>
+
+    <div class="load-error" *ngIf="!loading && loadError">
+      <i class="ri-error-warning-line"></i>
+      <span>{{ loadError }}</span>
+    </div>
+
+    <div class="table-card">
+      <app-data-table
+        [columns]="tableColumns"
+        [data]="filteredActivites"
+        [pageSize]="8"
+        [loading]="loading"
+        [actions]="tableActions"
+        (actionClick)="onTableAction($event)">
+      </app-data-table>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && !loadError && filteredActivites.length === 0">
+      <div class="empty-icon">
+        <i class="ri-calendar-event-line"></i>
+      </div>
+      <h2>Aucune activite trouvee</h2>
+      <p>
+        Essaie un autre mot-cle ou ajoute une nouvelle activite.
+      </p>
+      <button class="btn-add ghost" (click)="openAddModal()">
+        <i class="ri-add-line"></i>
+        Ajouter une activite
+      </button>
+    </div>
   </main>
 
   <app-modal [title]="isEditing ? 'Modifier activite' : 'Ajouter une activite'" [open]="showModal" [size]="'xlarge'" (close)="closeModal()">
+    <div class="form-error" *ngIf="formError">
+      <i class="ri-error-warning-line"></i>
+      {{ formError }}
+    </div>
     <app-activite-form
       [activite]="currentActivite"
       [zones]="zones"
       [villes]="villes"
+      [saving]="saving"
       (save)="onFormSave($event)"
       (cancel)="closeModal()">
     </app-activite-form>

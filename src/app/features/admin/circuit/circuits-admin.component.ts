@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { DataTableComponent, TableColumn, TableAction } from '../../../shared/components/data-table/data-table.component';
@@ -14,7 +15,7 @@ import { CircuitDTO } from '../../../models/circuit.dto';
 @Component({
   selector: 'app-circuits-admin',
   standalone: true,
-  imports: [CommonModule, HeaderComponent, DataTableComponent, AdminActionsBarComponent, BeButtonComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, DataTableComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './circuits-admin.component.html',
   styleUrls: ['./circuits-admin.component.scss']
 })
@@ -23,6 +24,10 @@ export class CircuitsAdminComponent implements OnInit {
   zones: Zone[] = [];
   villes: VilleDTO[] = [];
   loading = true;
+  loadError = '';
+  actionError = '';
+  searchTerm = '';
+  sortBy: 'recent' | 'title-asc' | 'title-desc' | 'price-asc' | 'price-desc' = 'recent';
 
   // Configuration du tableau
   tableColumns: TableColumn[] = [
@@ -104,6 +109,7 @@ export class CircuitsAdminComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erreur chargement zones', error);
+        this.loadError = 'Impossible de charger certaines données de référence.';
         this.loadVilles(); // Try to load villes and circuits anyway
       }
     });
@@ -123,15 +129,17 @@ export class CircuitsAdminComponent implements OnInit {
       },
       error: (err) => {
         console.error('Erreur chargement villes', err);
+        this.loadError = 'Impossible de charger certaines données de référence.';
         this.loadCircuits();
       }
     });
   }
 
   loadCircuits() {
+    this.loading = true;
+    this.actionError = '';
     this.circuitService.getAllCircuits().subscribe({
       next: (data) => {
-
         // Add zone names and status to circuits
         this.circuits = data.map(circuit => {
           // determine zone name: prefer zoneId on circuit, else use ville -> zone
@@ -157,7 +165,45 @@ export class CircuitsAdminComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erreur chargement circuits', error);
+        this.loadError = 'Impossible de charger les circuits.';
         this.loading = false;
+      }
+    });
+  }
+
+  get filteredCircuits(): CircuitDTO[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    const filtered = this.circuits.filter((circuit: any) => {
+      if (!term) {
+        return true;
+      }
+
+      return [
+        circuit.titre,
+        circuit.resume,
+        circuit.villeNom,
+        circuit.villeEtZone,
+        circuit.localisation,
+        circuit.formuleProposee,
+        circuit.statut
+      ]
+        .filter(Boolean)
+        .some(value => String(value).toLowerCase().includes(term));
+    });
+
+    return [...filtered].sort((a: any, b: any) => {
+      switch (this.sortBy) {
+        case 'title-asc':
+          return (a.titre || '').localeCompare(b.titre || '', 'fr');
+        case 'title-desc':
+          return (b.titre || '').localeCompare(a.titre || '', 'fr');
+        case 'price-asc':
+          return (a.prixIndicatif || 0) - (b.prixIndicatif || 0);
+        case 'price-desc':
+          return (b.prixIndicatif || 0) - (a.prixIndicatif || 0);
+        case 'recent':
+        default:
+          return (b.id || 0) - (a.id || 0);
       }
     });
   }
@@ -214,30 +260,13 @@ export class CircuitsAdminComponent implements OnInit {
 
   toggleStatus(circuit: any) {
     const nouveauStatut = !circuit.actif;
-
-    // Créer un payload propre avec seulement les propriétés nécessaires
-    const payload = {
-      titre: circuit.titre,
-      resume: circuit.resume,
-      description: circuit.description,
-      dureeIndicative: circuit.dureeIndicative,
-      prixIndicatif: circuit.prixIndicatif,
-      formuleProposee: circuit.formuleProposee,
-      localisation: circuit.localisation,
+    const payload = this.buildUpdatePayload(circuit, {
       actif: nouveauStatut,
-      aLaUne: nouveauStatut ? (circuit.aLaUne === true) : false,
-      zoneId: circuit.zoneId,
-      activiteIds: circuit.activiteIds,
-      img: circuit.img,
-      galerie: circuit.galerie,
-      programme: circuit.programme,
-      pointsForts: circuit.pointsForts,
-      inclus: circuit.inclus,
-      nonInclus: circuit.nonInclus
-    };
+      aLaUne: nouveauStatut ? (circuit.aLaUne === true) : false
+    });
 
     this.circuitService.updateCircuit(circuit.id, payload).subscribe({
-      next: (response) => {
+      next: () => {
         // Mettre à jour seulement le circuit concerné dans le tableau local
         const index = this.circuits.findIndex(c => c.id === circuit.id);
         if (index !== -1) {
@@ -251,6 +280,7 @@ export class CircuitsAdminComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erreur changement de statut circuit', error);
+        this.actionError = 'Impossible de modifier le statut du circuit.';
       }
     });
   }
@@ -266,25 +296,9 @@ export class CircuitsAdminComponent implements OnInit {
       return;
     }
 
-    const payload = {
-      titre: circuit.titre,
-      resume: circuit.resume,
-      description: circuit.description,
-      dureeIndicative: circuit.dureeIndicative,
-      prixIndicatif: circuit.prixIndicatif,
-      formuleProposee: circuit.formuleProposee,
-      localisation: circuit.localisation,
-      actif: circuit.actif,
-      aLaUne: targetValue,
-      zoneId: circuit.zoneId,
-      activiteIds: circuit.activiteIds,
-      img: circuit.img,
-      galerie: circuit.galerie,
-      programme: circuit.programme,
-      pointsForts: circuit.pointsForts,
-      inclus: circuit.inclus,
-      nonInclus: circuit.nonInclus
-    };
+    const payload = this.buildUpdatePayload(circuit, {
+      aLaUne: targetValue
+    });
 
     this.circuitService.updateCircuit(circuit.id, payload).subscribe({
       next: () => {
@@ -296,6 +310,7 @@ export class CircuitsAdminComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erreur mise a jour a la une', error);
+        this.actionError = 'Impossible de mettre a jour la mise en avant du circuit.';
       }
     });
   }
@@ -308,6 +323,7 @@ export class CircuitsAdminComponent implements OnInit {
         },
         error: (error) => {
           console.error('Erreur suppression circuit', error);
+          this.actionError = 'Impossible de supprimer ce circuit.';
         }
       });
     }
@@ -321,5 +337,20 @@ export class CircuitsAdminComponent implements OnInit {
 
   addCircuit() {
     this.router.navigate(['/admin/circuits/add-circuit']);
+  }
+
+  private buildUpdatePayload(circuit: any, overrides: Partial<CircuitDTO>): Partial<CircuitDTO> {
+    const {
+      id,
+      villeEtZone,
+      statut,
+      aLaUneLabel,
+      ...persistedFields
+    } = circuit;
+
+    return {
+      ...persistedFields,
+      ...overrides
+    };
   }
 }

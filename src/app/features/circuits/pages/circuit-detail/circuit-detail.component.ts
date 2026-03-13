@@ -44,6 +44,7 @@ export class CircuitDetailComponent implements OnInit {
       this.circuitService.getCircuitById(id).subscribe({
         next: (c) => {
           this.circuit = c;
+          this.loadZone(c.zoneId);
           // normalize programme
           const prog = (c.programme || []);
           this.circuitProgramme = prog.map((p: any, idx: number) => {
@@ -150,5 +151,25 @@ export class CircuitDetailComponent implements OnInit {
   getActivityName(id: number): string {
     const a = this.availableActivites.find(x => x.id === id);
     return a ? a.nom : 'Activité ' + id;
+  }
+
+  getFeaturedCities(): string[] {
+    const cities = new Set<string>();
+
+    if (this.circuit?.villeNom) {
+      cities.add(this.circuit.villeNom);
+    }
+
+    for (const jour of this.circuitProgramme) {
+      if (!jour.villeId) {
+        continue;
+      }
+      const ville = this.availableVilles.find(x => x.id === jour.villeId);
+      if (ville?.nom) {
+        cities.add(ville.nom);
+      }
+    }
+
+    return Array.from(cities);
   }
 }

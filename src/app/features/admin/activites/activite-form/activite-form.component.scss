@@ -30,6 +30,19 @@
 	}
 }
 
+.readonly-field {
+	width: 100%;
+	padding: 12px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	font-size: 15px;
+	min-height: 46px;
+	background: #f8fafc;
+	color: #475569;
+	display: flex;
+	align-items: center;
+}
+
 .form-row { display:flex; gap:12px; }
 .form-row .col { flex:1; }
 
@@ -84,5 +97,12 @@
 		border-radius: 6px;
 		border: 1px solid #e9ecef;
 		display: block;
+	}
+}
+
+@media (max-width: 900px) {
+	.form-row,
+	.form-row.three-cols {
+		flex-direction: column;
 	}
 }

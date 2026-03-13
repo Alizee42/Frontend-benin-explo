@@ -86,13 +86,137 @@ main.main {
 .logo img {
 	display: block;
 }
- input, textarea, select {
-        padding: 0.6rem;
-        border: 1px solid #d1d5db;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        font-family: inherit;
-			padding: 0 1rem;
+input, textarea, select {
+	border: 1px solid #d1d5db;
+	border-radius: 8px;
+	font-size: 0.95rem;
+	font-family: inherit;
+}
+
+/* Unified admin form controls */
+:where(
+	.zones-admin,
+	.villes-admin,
+	.activites-admin,
+	.reservations-hebergement-admin,
+	.hebergements-admin,
+	.circuit-form-container,
+	.edit-circuit-container,
+	.circuit-details
+) .form-group :is(input, select, textarea),
+:where(
+	.zones-admin,
+	.villes-admin,
+	.activites-admin,
+	.reservations-hebergement-admin,
+	.hebergements-admin,
+	.circuit-form-container,
+	.edit-circuit-container,
+	.circuit-details
+) .readonly-field {
+	width: 100%;
+	min-height: 46px;
+	padding: 0.72rem 0.95rem;
+	border: 1px solid #d7dee6;
+	border-radius: 10px;
+	background: #fff;
+	color: #18212b;
+	font-size: 0.95rem;
+	line-height: 1.35;
+	box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+	transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+:where(
+	.zones-admin,
+	.villes-admin,
+	.activites-admin,
+	.reservations-hebergement-admin,
+	.hebergements-admin,
+	.circuit-form-container,
+	.edit-circuit-container,
+	.circuit-details
+) .form-group textarea {
+	min-height: 110px;
+	padding-top: 0.82rem;
+	padding-bottom: 0.82rem;
+	resize: vertical;
+}
+
+:where(
+	.zones-admin,
+	.villes-admin,
+	.activites-admin,
+	.reservations-hebergement-admin,
+	.hebergements-admin,
+	.circuit-form-container,
+	.edit-circuit-container,
+	.circuit-details
+) .form-group select {
+	appearance: none;
+	background-image:
+		linear-gradient(45deg, transparent 50%, #64748b 50%),
+		linear-gradient(135deg, #64748b 50%, transparent 50%);
+	background-position:
+		calc(100% - 18px) calc(50% - 3px),
+		calc(100% - 12px) calc(50% - 3px);
+	background-size: 6px 6px, 6px 6px;
+	background-repeat: no-repeat;
+	padding-right: 2.5rem;
+}
+
+:where(
+	.zones-admin,
+	.villes-admin,
+	.activites-admin,
+	.reservations-hebergement-admin,
+	.hebergements-admin,
+	.circuit-form-container,
+	.edit-circuit-container,
+	.circuit-details
+) .form-group :is(input, select, textarea):focus,
+:where(
+	.zones-admin,
+	.villes-admin,
+	.activites-admin,
+	.reservations-hebergement-admin,
+	.hebergements-admin,
+	.circuit-form-container,
+	.edit-circuit-container,
+	.circuit-details
+) .readonly-field:focus {
+	outline: none;
+	border-color: #2f7d68;
+	box-shadow: 0 0 0 4px rgba(47, 125, 104, 0.14);
+}
+
+:where(
+	.zones-admin,
+	.villes-admin,
+	.activites-admin,
+	.reservations-hebergement-admin,
+	.hebergements-admin,
+	.circuit-form-container,
+	.edit-circuit-container,
+	.circuit-details
+) .form-group :is(input, select, textarea)::placeholder {
+	color: #94a3b8;
+}
+
+:where(
+	.zones-admin,
+	.villes-admin,
+	.activites-admin,
+	.reservations-hebergement-admin,
+	.hebergements-admin,
+	.circuit-form-container,
+	.edit-circuit-container,
+	.circuit-details
+) .readonly-field {
+	background: #f8fafc;
+	color: #475569;
+	display: flex;
+	align-items: center;
 }
 /* Global modal - consistent, modern look for all pages */
 .modal {

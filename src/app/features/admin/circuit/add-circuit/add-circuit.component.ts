@@ -380,6 +380,7 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
     if (!file) return;
 
     this.circuit.imageHero = file;
+    delete this.errors['hero'];
     
     // Créer la prévisualisation
     const reader = new FileReader();
@@ -662,18 +663,20 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
       console.log('Préparation du payload...');
       // Utiliser la première ville/zone définie comme ville/zone principale
       const premierJourAvecVille = this.circuit.programme.find(j => j.villeId && j.zoneId);
-      const villeNom = premierJourAvecVille ?
-        this.villes.find(v => v.id === premierJourAvecVille.villeId)?.nom || '' : '';
+      const villeNom = premierJourAvecVille
+        ? this.getVilleNom(premierJourAvecVille.villeId)
+        : '';
+      const localisation = villeNom || this.getZoneNom(premierJourAvecVille?.zoneId ?? null);
 
       const prixIndicatif = this.getPrixIndicatifEnEur();
       const payload = {
         titre: this.circuit.titre.trim(),
-        resume: this.circuit.description.substring(0, 150).trim() + '...',
+        resume: this.buildResume(this.circuit.description),
         description: this.circuit.description.trim(),
         dureeIndicative: `${this.circuit.dureeJours} jour${this.circuit.dureeJours > 1 ? 's' : ''}`,
         prixIndicatif,
         formuleProposee: 'Standard',
-        localisation: villeNom,
+        localisation,
         villeNom: villeNom,
         villeId: premierJourAvecVille?.villeId || null,
         zoneId: premierJourAvecVille?.zoneId || null,
@@ -960,5 +963,34 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
     } catch {
       return '';
     }
+  }
+
+  private getVilleNom(villeId: number | null | undefined): string {
+    if (!villeId) {
+      return '';
+    }
+
+    const fromJourCache = Object.values(this.villesParJour)
+      .flat()
+      .find(ville => ville.id === villeId);
+
+    return fromJourCache?.nom || '';
+  }
+
+  private getZoneNom(zoneId: number | null | undefined): string {
+    if (!zoneId) {
+      return '';
+    }
+
+    return this.zones.find(zone => zone.idZone === zoneId)?.nom || '';
+  }
+
+  private buildResume(description: string): string {
+    const trimmed = description.trim();
+    if (trimmed.length <= 150) {
+      return trimmed;
+    }
+
+    return `${trimmed.slice(0, 147).trim()}...`;
   }
 }

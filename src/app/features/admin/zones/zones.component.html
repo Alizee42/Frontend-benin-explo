@@ -35,6 +35,11 @@
       {{ filteredZones.length }} zone{{ filteredZones.length > 1 ? 's' : '' }}
     </div>
 
+    <div class="load-error" *ngIf="!loading && loadError">
+      <i class="ri-error-warning-line"></i>
+      <span>{{ loadError }}</span>
+    </div>
+
     <div class="table-card">
       <app-data-table
         [columns]="tableColumns"

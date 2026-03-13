@@ -78,6 +78,26 @@
   margin-bottom: 0.85rem;
 }
 
+.dashboard-state {
+  border-radius: 12px;
+  padding: 0.8rem 0.9rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.dashboard-state-loading {
+  background: #eef4ff;
+  color: #254a7d;
+  border: 1px solid #cfe0ff;
+}
+
+.dashboard-state-warning {
+  background: #fff6e7;
+  color: #7b5718;
+  border: 1px solid #efd7a2;
+}
+
 .section-header-main h2 {
   margin: 0 0 0.1rem;
   font-size: 1.1rem;

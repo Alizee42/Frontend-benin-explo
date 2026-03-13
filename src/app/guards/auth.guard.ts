@@ -9,27 +9,19 @@ export const authGuard: CanActivateFn = (route, state) => {
   const token = authService.getToken();
   
   if (!token) {
-    console.warn('🔒 Accès refusé : Aucun token JWT trouvé');
-    router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url } });
+    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
     return false;
   }
 
-  // Vérifier si le token n'est pas expiré
   if (authService.isTokenExpired()) {
-    console.warn('🔒 Accès refusé : Token expiré');
     authService.logout();
-    router.navigate(['/auth/login'], { queryParams: { returnUrl: state.url } });
+    router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
     return false;
   }
 
-  // Vérifier le rôle ADMIN pour les routes admin
-  if (state.url.startsWith('/admin')) {
-    const userRole = authService.getUserRole();
-    if (userRole !== 'ROLE_ADMIN') {
-      console.warn('🔒 Accès refusé : Rôle ADMIN requis');
-      router.navigate(['/']);
-      return false;
-    }
+  if (state.url.startsWith('/admin') && !authService.isAdmin()) {
+    router.navigate(['/']);
+    return false;
   }
 
   return true;

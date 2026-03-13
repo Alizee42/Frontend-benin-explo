@@ -38,6 +38,10 @@
                 <i class="ri-map-pin-line"></i>
                 {{ zone?.nom }}
               </span>
+              <span class="meta-chip" *ngIf="circuit.villeNom">
+                <i class="ri-community-line"></i>
+                {{ circuit.villeNom }}
+              </span>
               <span class="meta-chip">
                 <i class="ri-time-line"></i>
                 {{ circuit.dureeIndicative }}
@@ -71,6 +75,10 @@
               <div class="info-item" *ngIf="uniqueCities.length > 0">
                 <label>{{ uniqueCities.length === 1 ? 'Ville' : 'Villes' }}</label>
                 <p>{{ uniqueCities.join(', ') }}</p>
+              </div>
+              <div class="info-item" *ngIf="circuit.formuleProposee">
+                <label>Formule</label>
+                <p>{{ circuit.formuleProposee }}</p>
               </div>
             </div>
           </div>
@@ -183,7 +191,7 @@
           <div class="section-content">
             <div class="tags">
               <span class="tag" *ngFor="let activiteId of circuit.activiteIds">
-                Activité {{ activiteId }}
+                {{ getActiviteName(activiteId) }}
               </span>
             </div>
           </div>

@@ -8,6 +8,8 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
 import { AdminActionsBarComponent } from '../../../shared/components/admin-actions-bar/admin-actions-bar.component';
 import { BeButtonComponent } from '../../../shared/components/be-button/be-button.component';
 
+type ZoneRow = ZoneDTO & { id: number };
+
 @Component({
   selector: 'app-zones',
   standalone: true,
@@ -17,8 +19,9 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
 })
 export class ZonesComponent implements OnInit {
 
-  zones: ZoneDTO[] = [];
+  zones: ZoneRow[] = [];
   loading = true;
+  loadError = '';
   showModal = false;
   isEditing = false;
   saving = false;
@@ -27,7 +30,6 @@ export class ZonesComponent implements OnInit {
   sortOption = 'nom-asc';
 
   currentZone: ZoneDTO = {
-    idZone: 0,
     nom: '',
     description: ''
   };
@@ -39,25 +41,27 @@ export class ZonesComponent implements OnInit {
   }
 
   loadZones(): void {
+    this.loading = true;
+    this.loadError = '';
+
     this.zonesService.getAll().subscribe({
       next: (zones) => {
-        // Normaliser le champ d'identifiant : backend renvoie parfois `idZone`
-        this.zones = zones.map((z: any) => ({
-          id: z.id !== undefined ? z.id : z.idZone,
-          nom: z.nom,
-          description: z.description,
-          ...z
+        this.zones = zones.map((z) => ({
+          ...z,
+          id: z.idZone ?? 0,
+          description: z.description ?? ''
         }));
         this.loading = false;
       },
       error: (error) => {
         console.error('Erreur chargement zones', error);
+        this.zones = [];
+        this.loadError = 'Impossible de charger les zones pour le moment.';
         this.loading = false;
       }
     });
   }
 
-  // Configuration du tableau réutilisable
   tableColumns: TableColumn[] = [
     { key: 'id', label: 'ID', type: 'number', width: '80px' },
     { key: 'nom', label: 'Nom', type: 'text' },
@@ -70,40 +74,46 @@ export class ZonesComponent implements OnInit {
     { label: 'Supprimer', icon: 'ri-delete-bin-line', class: 'btn-delete', action: 'delete' }
   ];
 
-  onTableAction(event: { action: string, item: any }) {
+  onTableAction(event: { action: string, item: ZoneRow }) {
     const { action, item } = event;
     if (action === 'edit') {
       this.openEditModal(item);
     } else if (action === 'delete') {
-      const id = item?.idZone ?? item?.id;
-      this.deleteZone(id);
+      this.deleteZone(item.idZone);
     }
   }
 
-  onRowClick(item: any) {
+  onRowClick(item: ZoneRow) {
     this.openEditModal(item);
   }
 
   openAddModal(): void {
     this.isEditing = false;
     this.currentZone = {
-      idZone: 0,
       nom: '',
       description: ''
     };
     this.formError = '';
+    this.saving = false;
     this.showModal = true;
   }
 
   openEditModal(zone: ZoneDTO): void {
     this.isEditing = true;
-    this.currentZone = { ...zone, idZone: (zone as any).idZone ?? (zone as any).id ?? zone.idZone };
+    this.currentZone = {
+      idZone: zone.idZone,
+      nom: zone.nom,
+      description: zone.description ?? ''
+    };
     this.formError = '';
+    this.saving = false;
     this.showModal = true;
   }
 
   closeModal(): void {
     this.showModal = false;
+    this.formError = '';
+    this.saving = false;
   }
 
   saveZone(): void {
@@ -119,18 +129,15 @@ export class ZonesComponent implements OnInit {
     this.saving = true;
 
     const payload: ZoneDTO = {
-      ...this.currentZone,
       nom,
       description
     };
 
-    if (this.isEditing) {
-      const id = this.currentZone.idZone || (this.currentZone as any).id;
-      this.zonesService.update(id, payload).subscribe({
+    if (this.isEditing && this.currentZone.idZone != null) {
+      this.zonesService.update(this.currentZone.idZone, payload).subscribe({
         next: () => {
           this.loadZones();
           this.closeModal();
-          this.saving = false;
         },
         error: (error) => {
           console.error('Erreur modification zone', error);
@@ -143,7 +150,6 @@ export class ZonesComponent implements OnInit {
         next: () => {
           this.loadZones();
           this.closeModal();
-          this.saving = false;
         },
         error: (error) => {
           console.error('Erreur création zone', error);
@@ -154,8 +160,7 @@ export class ZonesComponent implements OnInit {
     }
   }
 
-  deleteZone(id: number): void {
-    // Garde: éviter d'appeler l'API si l'id est absent
+  deleteZone(id?: number): void {
     if (id == null) {
       console.warn('deleteZone appelé sans id valide', id);
       return;
@@ -173,19 +178,19 @@ export class ZonesComponent implements OnInit {
     }
   }
 
-  get filteredZones(): ZoneDTO[] {
+  get filteredZones(): ZoneRow[] {
     const term = this.searchTerm.trim().toLowerCase();
     const filtered = !term
       ? [...this.zones]
       : this.zones.filter(z =>
-      (z.nom || '').toLowerCase().includes(term) ||
-      (z.description || '').toLowerCase().includes(term)
-    );
+          (z.nom || '').toLowerCase().includes(term) ||
+          (z.description || '').toLowerCase().includes(term)
+        );
 
     const [key, dir] = this.sortOption.split('-');
-    filtered.sort((a: any, b: any) => {
-      const av = key === 'nom' ? (a.nom || '').toLowerCase() : (a.id ?? a.idZone ?? 0);
-      const bv = key === 'nom' ? (b.nom || '').toLowerCase() : (b.id ?? b.idZone ?? 0);
+    filtered.sort((a, b) => {
+      const av = key === 'nom' ? a.nom.toLowerCase() : a.id;
+      const bv = key === 'nom' ? b.nom.toLowerCase() : b.id;
 
       if (av < bv) return dir === 'asc' ? -1 : 1;
       if (av > bv) return dir === 'asc' ? 1 : -1;

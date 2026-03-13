@@ -127,6 +127,19 @@ export class EditCircuitComponent implements OnInit, OnDestroy {
     { icon: '👥', title: 'Rencontres humaines', desc: 'Échangez avec les populations locales et partagez leur quotidien' }
   ];
 
+  private readonly pointIconMap: Record<string, string> = {
+    HISTOIRE: '🏛️',
+    NATURE: '🌿',
+    GASTRO: '🍲',
+    PLAGES: '🏖️',
+    PAYSAGES: '🏞️',
+    TRADITIONS: '🎭',
+    ARTISANAT: '🎨',
+    AQUATIQUE: '🏊‍♂️',
+    PHOTO: '📸',
+    RENCONTRES: '👥'
+  };
+
   constructor(
     private circuitService: CircuitService,
     private cacheService: CircuitFormCacheService,
@@ -210,7 +223,11 @@ export class EditCircuitComponent implements OnInit, OnDestroy {
     this.circuit.prixEuros = Number(dto.prixIndicatif || 0);
 
     this.circuit.pointsForts = dto.pointsForts && dto.pointsForts.length > 0
-      ? dto.pointsForts.map(p => ({ icon: p.icon || '🏛️', title: p.title || '', desc: p.desc || '' }))
+      ? dto.pointsForts.map(p => ({
+          icon: this.normalizePointIcon(p.icon),
+          title: p.title || '',
+          desc: p.desc || ''
+        }))
       : [{ icon: '🏛️', title: '', desc: '' }];
 
     this.circuit.inclus = dto.inclus && dto.inclus.length > 0 ? dto.inclus : [''];
@@ -452,6 +469,7 @@ export class EditCircuitComponent implements OnInit, OnDestroy {
     if (!file) return;
 
     this.circuit.imageHero = file;
+    delete this.errors['hero'];
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -716,6 +734,7 @@ export class EditCircuitComponent implements OnInit, OnDestroy {
       const villeNom = premierJourAvecVille
         ? (this.getVilleNomById(premierJourAvecVille.villeId || null) || this.circuitDto?.villeNom || '')
         : (this.circuitDto?.villeNom || '');
+      const localisation = villeNom || this.getZoneNomById(premierJourAvecVille?.zoneId || this.circuitDto?.zoneId || null);
 
       if (!this.circuitDto) {
         throw new Error('Circuit introuvable');
@@ -726,12 +745,12 @@ export class EditCircuitComponent implements OnInit, OnDestroy {
         ...(this.circuitDto || {}),
         id: this.circuitDto.id,
         titre: this.circuit.titre.trim(),
-        resume: this.circuit.description.substring(0, 150).trim() + '...',
+        resume: this.buildResume(this.circuit.description),
         description: this.circuit.description.trim(),
         dureeIndicative: `${this.circuit.dureeJours} jour${this.circuit.dureeJours > 1 ? 's' : ''}`,
         prixIndicatif,
         formuleProposee: this.circuitDto?.formuleProposee || 'Standard',
-        localisation: villeNom,
+        localisation,
         villeNom: villeNom,
         villeId: premierJourAvecVille?.villeId || null,
         zoneId: premierJourAvecVille?.zoneId || null,
@@ -856,6 +875,28 @@ export class EditCircuitComponent implements OnInit, OnDestroy {
     if (!villeId) return '';
     const allVilles = Object.values(this.villesParJour).flat();
     return allVilles.find(v => v.id === villeId)?.nom || '';
+  }
+
+  private getZoneNomById(zoneId: number | null): string {
+    if (!zoneId) return '';
+    return this.zones.find(zone => zone.idZone === zoneId)?.nom || '';
+  }
+
+  private buildResume(description: string): string {
+    const trimmed = description.trim();
+    if (trimmed.length <= 150) {
+      return trimmed;
+    }
+
+    return `${trimmed.slice(0, 147).trim()}...`;
+  }
+
+  private normalizePointIcon(icon: string | undefined | null): string {
+    if (!icon) {
+      return '🏛️';
+    }
+
+    return this.pointIconMap[icon] || icon;
   }
 
   onPriceCurrencyChange(newCurrency: 'EUR' | 'XOF') {

@@ -3,6 +3,114 @@
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 }
 
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.toolbar-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.toolbar-main {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex: 1;
+}
+
+.search-box,
+.sort-box {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 280px;
+  padding: 0 0.95rem;
+  background: #fff;
+  border: 1px solid #dbe2ea;
+  border-radius: 14px;
+
+  i {
+    color: #6b7280;
+    font-size: 1rem;
+  }
+
+  input {
+    border: 0;
+    background: transparent;
+    min-height: 46px;
+    width: 100%;
+    box-shadow: none;
+  }
+}
+
+.sort-box {
+  padding: 0.35rem 0.35rem 0.35rem 0.9rem;
+  background: #fff;
+  border: 1px solid #dbe2ea;
+  border-radius: 14px;
+
+  span {
+    color: #475569;
+    font-size: 0.92rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  select {
+    min-width: 180px;
+    border: 0;
+    box-shadow: none;
+    background-color: transparent;
+  }
+}
+
+.toolbar-meta {
+  color: #475569;
+  font-size: 0.92rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.page-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+
+  i {
+    font-size: 1rem;
+  }
+
+  &.warning {
+    background: #fff7ed;
+    border-color: #fdba74;
+    color: #9a3412;
+  }
+
+  &.danger {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #b91c1c;
+  }
+}
+
 .actions-bar {
   display: flex;
   justify-content: space-between;
@@ -58,6 +166,24 @@
 @media (max-width: 768px) {
   .page-content {
     padding: 1rem 0.5rem;
+  }
+
+  .toolbar-card,
+  .toolbar-main {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box {
+    min-width: 0;
+  }
+
+  .sort-box {
+    justify-content: space-between;
+  }
+
+  .toolbar-meta {
+    text-align: center;
   }
 
   .actions-bar {

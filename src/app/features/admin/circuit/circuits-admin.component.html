@@ -13,11 +13,50 @@
       </be-button>
     </app-admin-actions-bar>
 
+    <section class="toolbar-card">
+      <div class="toolbar-main">
+        <label class="search-box">
+          <i class="ri-search-line"></i>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Rechercher un circuit, une ville ou une formule">
+        </label>
+
+        <label class="sort-box">
+          <span>Trier</span>
+          <select [(ngModel)]="sortBy">
+            <option value="recent">Plus recents</option>
+            <option value="title-asc">Titre A-Z</option>
+            <option value="title-desc">Titre Z-A</option>
+            <option value="price-asc">Prix croissant</option>
+            <option value="price-desc">Prix decroissant</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="toolbar-meta">
+        <span>{{ filteredCircuits.length }} circuit{{ filteredCircuits.length > 1 ? 's' : '' }}</span>
+      </div>
+    </section>
+
+    <div *ngIf="loadError" class="page-alert warning">
+      <i class="ri-error-warning-line"></i>
+      <span>{{ loadError }}</span>
+    </div>
+
+    <div *ngIf="actionError" class="page-alert danger">
+      <i class="ri-close-circle-line"></i>
+      <span>{{ actionError }}</span>
+    </div>
+
     <app-data-table
       [columns]="tableColumns"
-      [data]="circuits"
+      [data]="filteredCircuits"
       [loading]="loading"
       [actions]="tableActions"
+      [rowClickable]="true"
+      [emptyMessage]="searchTerm ? 'Aucun circuit ne correspond a cette recherche.' : 'Aucun circuit disponible.'"
       (actionClick)="onTableAction($event)"
       (rowClick)="onRowClick($event)">
     </app-data-table>

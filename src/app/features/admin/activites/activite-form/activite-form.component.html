@@ -10,7 +10,7 @@
   <div class="form-row three-cols">
     <div class="form-group col">
       <label>Ville</label>
-      <select [(ngModel)]="activite!.villeId" name="villeId">
+      <select [(ngModel)]="activite!.villeId" name="villeId" required (ngModelChange)="onVilleChange()">
         <option [ngValue]="0">-- sélectionner --</option>
         <option *ngFor="let v of villes" [ngValue]="v.id">{{ v.nom }}</option>
       </select>
@@ -24,10 +24,9 @@
     </div>
     <div class="form-group col">
       <label>Zone</label>
-      <select [(ngModel)]="activite!.zoneId" name="zoneId">
-        <option [ngValue]="0">-- sélectionner --</option>
-        <option *ngFor="let z of zones" [ngValue]="z.id">{{ z.nom }}</option>
-      </select>
+      <div class="readonly-field">
+        {{ selectedVilleZoneName }}
+      </div>
     </div>
   </div>
 
@@ -64,6 +63,8 @@
   </div>
   <div class="modal-actions">
     <button type="button" class="btn-secondary" (click)="cancel.emit()">Annuler</button>
-    <button type="submit" class="btn-primary" [disabled]="!activiteForm.form.valid">Enregistrer</button>
+    <button type="submit" class="btn-primary" [disabled]="!activiteForm.form.valid || saving">
+      {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+    </button>
   </div>
 </form>

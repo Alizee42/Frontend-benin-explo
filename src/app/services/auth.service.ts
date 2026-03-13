@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -22,61 +21,23 @@ export class AuthService {
   private readonly ADMIN_ROLES = new Set(['ADMIN', 'ROLE_ADMIN']);
 
   constructor(
-    private http: HttpClient,
-    private router: Router
+    private http: HttpClient
   ) {}
 
   login(credentials: { email: string; motDePasse: string }): Observable<any> {
-    // TEMPORARY: Mock login for testing admin pages
-    if (credentials.email === 'admin@beninexplo.com' && credentials.motDePasse === 'admin123') {
-      const mockResponse = {
-        token: 'mock-admin-token',
-        email: 'admin@beninexplo.com',
-        role: 'ROLE_ADMIN',
-        nom: 'Admin',
-        prenom: 'Bénin'
-      };
-
-      localStorage.setItem(this.TOKEN_KEY, mockResponse.token);
-      const user: User = {
-        email: mockResponse.email,
-        role: mockResponse.role,
-        nom: mockResponse.nom,
-        prenom: mockResponse.prenom
-      };
-      localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-      this.userSubject.next(user);
-
-      // Redirect to admin dashboard
-      this.router.navigate(['/admin/dashboard']);
-
-      return new Observable(observer => {
-        observer.next(mockResponse);
-        observer.complete();
-      });
-    }
-
-    // For other credentials, try real API call
     return this.http.post('/auth/login', credentials).pipe(
       tap((response: any) => {
-      if (response.token) {
-        localStorage.setItem(this.TOKEN_KEY, response.token);
-        const user: User = {
-          email: response.email,
-          role: response.role,
-          nom: response.nom,
-          prenom: response.prenom
-        };
-        localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-        this.userSubject.next(user);
-
-        // Redirect based on role
-        if (this.isAdminRole(response.role)) {
-          this.router.navigate(['/admin/dashboard']);
-        } else {
-          this.router.navigate(['/']);
+        if (response.token) {
+          localStorage.setItem(this.TOKEN_KEY, response.token);
+          const user: User = {
+            email: response.email,
+            role: response.role,
+            nom: response.nom,
+            prenom: response.prenom
+          };
+          localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+          this.userSubject.next(user);
         }
-      }
       })
     );
   }
@@ -85,7 +46,6 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.userSubject.next(null);
-    this.router.navigate(['/']);
   }
 
   isLoggedIn(): boolean {
@@ -114,22 +74,14 @@ export class AuthService {
     const token = this.getToken();
     if (!token) return true;
 
-    // TEMPORARY: Mock token is always valid
-    if (token === 'mock-admin-token') {
-      return false;
-    }
-
     try {
-      // Décoder le JWT (format: header.payload.signature)
       const payload = JSON.parse(atob(token.split('.')[1]));
       const expiry = payload.exp;
       
-      if (!expiry) return false; // Si pas d'expiration, considérer comme valide
+      if (!expiry) return false;
       
-      // Vérifier si le token est expiré (exp est en secondes)
       return Date.now() >= expiry * 1000;
     } catch (e) {
-      // Si erreur de décodage, considérer comme expiré
       return true;
     }
   }

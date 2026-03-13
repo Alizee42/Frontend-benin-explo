@@ -21,8 +21,13 @@ export class VillesComponent implements OnInit {
   villes: VilleDTO[] = [];
   zones: ZoneDTO[] = [];
   loading = true;
+  loadError = '';
   showModal = false;
   isEditing = false;
+  saving = false;
+  searchTerm = '';
+  sortOption = 'nom-asc';
+  formError = '';
 
   currentVille: VilleDTO = {
     id: 0,
@@ -42,20 +47,24 @@ export class VillesComponent implements OnInit {
   }
 
   loadVilles(): void {
+    this.loading = true;
+    this.loadError = '';
+
     this.villesService.getAll().subscribe({
       next: (villes) => {
-        // Normaliser l'identifiant (fallback si backend renvoie idVille)
         this.villes = villes.map((v: any) => ({
+          ...v,
           id: v.id !== undefined ? v.id : v.idVille,
           nom: v.nom,
-          zoneId: v.zoneId ?? v.zone?.id ?? null,
+          zoneId: v.zoneId ?? v.zone?.idZone ?? v.zone?.id ?? null,
           zoneNom: v.zoneNom ?? (v.zone ? v.zone.nom : ''),
-          ...v
         }));
         this.loading = false;
       },
       error: (error) => {
         console.error('Erreur chargement villes', error);
+        this.villes = [];
+        this.loadError = 'Impossible de charger les villes pour le moment.';
         this.loading = false;
       }
     });
@@ -64,7 +73,6 @@ export class VillesComponent implements OnInit {
   loadZones(): void {
     this.zonesService.getAll().subscribe({
       next: (zones) => {
-        // Normaliser les zones (backend renvoie idZone)
         this.zones = zones.map((z: any) => ({
           id: z.id !== undefined ? z.id : z.idZone,
           idZone: z.idZone ?? z.id,
@@ -87,12 +95,16 @@ export class VillesComponent implements OnInit {
       zoneId: null,
       zoneNom: ''
     };
+    this.formError = '';
+    this.saving = false;
     this.showModal = true;
   }
 
   openEditModal(ville: VilleDTO): void {
     this.isEditing = true;
     this.currentVille = { ...ville };
+    this.formError = '';
+    this.saving = false;
     this.showModal = true;
   }
 
@@ -124,32 +136,61 @@ export class VillesComponent implements OnInit {
 
   closeModal(): void {
     this.showModal = false;
+    this.formError = '';
+    this.saving = false;
   }
 
   saveVille(): void {
+    const nom = (this.currentVille.nom || '').trim();
+
+    if (!nom) {
+      this.formError = 'Le nom est obligatoire';
+      return;
+    }
+
+    if (this.currentVille.zoneId == null) {
+      this.formError = 'La zone est obligatoire';
+      return;
+    }
+
+    this.formError = '';
+    this.saving = true;
+
+    const payload: VilleDTO = {
+      id: this.currentVille.id,
+      nom,
+      zoneId: Number(this.currentVille.zoneId),
+      zoneNom: this.currentVille.zoneNom || ''
+    };
+
     if (this.isEditing) {
-      if (this.currentVille.id == null) {
+      if (payload.id == null) {
         console.warn('saveVille: id manquant pour modification', this.currentVille);
+        this.saving = false;
         return;
       }
 
-      this.villesService.update(this.currentVille.id, this.currentVille).subscribe({
+      this.villesService.update(payload.id, payload).subscribe({
         next: () => {
           this.loadVilles();
           this.closeModal();
         },
         error: (error) => {
           console.error('Erreur modification ville', error);
+          this.formError = 'Erreur lors de la modification de la ville';
+          this.saving = false;
         }
       });
     } else {
-      this.villesService.create(this.currentVille).subscribe({
+      this.villesService.create(payload).subscribe({
         next: () => {
           this.loadVilles();
           this.closeModal();
         },
         error: (error) => {
           console.error('Erreur création ville', error);
+          this.formError = 'Erreur lors de la création de la ville';
+          this.saving = false;
         }
       });
     }
@@ -172,5 +213,35 @@ export class VillesComponent implements OnInit {
         }
       });
     }
+  }
+
+  get filteredVilles(): VilleDTO[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    const filtered = !term
+      ? [...this.villes]
+      : this.villes.filter(v =>
+          (v.nom || '').toLowerCase().includes(term) ||
+          (v.zoneNom || '').toLowerCase().includes(term)
+        );
+
+    const [key, dir] = this.sortOption.split('-');
+    filtered.sort((a, b) => {
+      const av = key === 'zone'
+        ? (a.zoneNom || '').toLowerCase()
+        : key === 'id'
+          ? a.id
+          : (a.nom || '').toLowerCase();
+      const bv = key === 'zone'
+        ? (b.zoneNom || '').toLowerCase()
+        : key === 'id'
+          ? b.id
+          : (b.nom || '').toLowerCase();
+
+      if (av < bv) return dir === 'asc' ? -1 : 1;
+      if (av > bv) return dir === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return filtered;
   }
 }
