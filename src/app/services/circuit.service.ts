@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { CircuitDTO } from '../models/circuit.dto';
 
 @Injectable({
@@ -15,6 +14,10 @@ export class CircuitService {
 
   getAllCircuits(): Observable<CircuitDTO[]> {
     return this.http.get<CircuitDTO[]>(this.apiUrl);
+  }
+
+  getActiveCircuits(): Observable<CircuitDTO[]> {
+    return this.http.get<CircuitDTO[]>(`${this.apiUrl}/actifs`);
   }
 
   getCircuitById(id: number): Observable<CircuitDTO> {

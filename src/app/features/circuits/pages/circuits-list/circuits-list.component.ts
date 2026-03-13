@@ -15,14 +15,16 @@ import { CircuitDTO } from '../../../../models/circuit.dto';
 export class CircuitsListComponent implements OnInit {
 
   circuits: CircuitDTO[] = [];
-  allCircuits: CircuitDTO[] = []; // Pour garder tous les circuits
+  allCircuits: CircuitDTO[] = [];
   zones: Zone[] = [];
   loading = true;
-  selectedZoneId: number | null = null; // Zone sÃ©lectionnÃ©e pour filtrage
+  selectedZoneId: number | null = null;
   currentPage = 1;
   pageSize = 6;
+  circuitsNotice = '';
+  zonesNotice = '';
+  usingDemoCircuits = false;
 
-  // ðŸ”¹ Circuits de dÃ©mo (utilisÃ©s si la BDD est vide ou en erreur)
   private demoCircuits: CircuitDTO[] = [
     {
       id: 1,
@@ -126,7 +128,6 @@ export class CircuitsListComponent implements OnInit {
     }
   ];
 
-  // ðŸ”¹ Images associÃ©es aux circuits (par id, pour le visuel)
   private imageMap: Record<number, string> = {
     1: '/assets/images/esclaves.jpg',
     2: '/assets/images/village.jpg',
@@ -147,37 +148,47 @@ export class CircuitsListComponent implements OnInit {
   loadZones(): void {
     this.zonesService.getAllZones().subscribe({
       next: (zones) => {
-        this.zones = zones;
+        this.zones = zones ?? [];
+        this.zonesNotice = this.zones.length === 0
+          ? 'Les filtres par zone ne sont pas disponibles pour le moment.'
+          : '';
       },
       error: (error) => {
         console.error('Erreur chargement zones', error);
+        this.zones = [];
+        this.zonesNotice = 'Les filtres par zone ne sont pas disponibles pour le moment.';
       }
     });
   }
 
   loadCircuits(): void {
-    this.circuitService.getAllCircuits().subscribe({
+    this.loading = true;
+    this.circuitService.getActiveCircuits().subscribe({
       next: (data: CircuitDTO[]) => {
-        const source = data || [];
-        const actifs = source.filter(c => c?.actif === true);
-        if (source.length > 0) {
+        const actifs = (data || []).filter(c => c?.actif === true);
+        this.usingDemoCircuits = false;
+        this.currentPage = 1;
+
+        if (actifs.length > 0) {
           this.allCircuits = actifs;
           this.circuits = actifs;
-          this.currentPage = 1;
+          this.circuitsNotice = '';
         } else {
-          const demoActifs = this.demoCircuits.filter(c => c?.actif === true);
-          this.allCircuits = demoActifs;
-          this.circuits = demoActifs;
-          this.currentPage = 1;
+          this.allCircuits = [];
+          this.circuits = [];
+          this.circuitsNotice = 'Aucun circuit actif n est disponible pour le moment.';
         }
+
         this.loading = false;
       },
       error: (err: any) => {
         console.error('Erreur chargement circuits', err);
         const demoActifs = this.demoCircuits.filter(c => c?.actif === true);
+        this.usingDemoCircuits = true;
         this.allCircuits = demoActifs;
         this.circuits = demoActifs;
         this.currentPage = 1;
+        this.circuitsNotice = 'Le catalogue en ligne est temporairement indisponible. Affichage d un apercu local.';
         this.loading = false;
       }
     });
@@ -215,16 +226,12 @@ export class CircuitsListComponent implements OnInit {
   }
 
   getImageForCircuit(circuit: CircuitDTO): string {
-    // Utiliser l'image du circuit si elle existe, sinon utiliser le mapping par dÃ©faut
     if (circuit.img && circuit.img.trim()) {
       const raw = circuit.img.trim();
-      // Si c'est dÃ©jÃ  une URL absolue (http/https) -> retourner telle quelle
       if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('//')) {
         return raw;
       }
-      // S'assurer que le chemin commence par '/'
       const img = raw.startsWith('/') ? raw : '/' + raw;
-      // Si l'URL pointe vers le endpoint backend (/images/...), prÃ©fixer avec l'hÃ´te backend
       if (img.startsWith('/images') || img.startsWith('/api/images')) {
         return img;
       }
@@ -236,5 +243,13 @@ export class CircuitsListComponent implements OnInit {
   getShortDescription(circuit: CircuitDTO): string {
     const desc = circuit.description || '';
     return desc.length > 140 ? desc.substring(0, 140) + 'â€¦' : desc;
+  }
+
+  trackByCircuitId(_: number, circuit: CircuitDTO): number {
+    return circuit.id;
+  }
+
+  trackByZoneId(_: number, zone: Zone): number {
+    return zone.idZone;
   }
 }

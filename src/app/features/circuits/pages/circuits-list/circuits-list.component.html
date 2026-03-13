@@ -21,6 +21,15 @@
     </div>
 
     <ng-container *ngIf="!loading">
+      <div
+        *ngIf="circuitsNotice"
+        class="section-note"
+        [class.is-fallback]="usingDemoCircuits"
+        [class.is-empty]="!usingDemoCircuits && allCircuits.length === 0">
+        <i class="ri-error-warning-line" aria-hidden="true"></i>
+        <span>{{ circuitsNotice }}</span>
+      </div>
+
       <div class="filters-panel">
         <div class="filters-top">
           <div class="filters-title">
@@ -29,6 +38,8 @@
           </div>
           <div class="filters-count">{{ circuits.length }} resultat(s)</div>
         </div>
+
+        <p *ngIf="zonesNotice" class="filters-note">{{ zonesNotice }}</p>
 
         <div class="filters" aria-label="Filtres zones">
           <button
@@ -39,7 +50,7 @@
             <span>{{ allCircuits.length }}</span>
           </button>
           <button
-            *ngFor="let zone of zones"
+            *ngFor="let zone of zones; trackBy: trackByZoneId"
             class="filter-btn"
             [class.active]="selectedZoneId === zone.idZone"
             (click)="filterByZone(zone.idZone)">
@@ -50,12 +61,19 @@
       </div>
 
       <div class="circuits-grid">
-        <div *ngIf="circuits.length === 0" class="no-circuits">
+        <div *ngIf="allCircuits.length === 0" class="no-circuits">
+          <p>Aucun circuit actif n est disponible pour le moment.</p>
+          <a routerLink="/circuit-personnalise" class="btn-reset btn-reset-link">
+            Construire un circuit sur mesure
+          </a>
+        </div>
+
+        <div *ngIf="allCircuits.length > 0 && circuits.length === 0" class="no-circuits">
           <p>Aucun circuit trouve pour cette zone.</p>
           <button class="btn-reset" (click)="filterByZone(null)">Voir tous les circuits</button>
         </div>
 
-        <article class="circuit-card" *ngFor="let c of pagedCircuits">
+        <article class="circuit-card" *ngFor="let c of pagedCircuits; trackBy: trackByCircuitId">
           <a class="card-image" [routerLink]="['/circuit', c.id]" [attr.aria-label]="'Voir ' + c.titre">
             <img [src]="getImageForCircuit(c)" [alt]="c.titre">
             <div class="image-overlay"></div>

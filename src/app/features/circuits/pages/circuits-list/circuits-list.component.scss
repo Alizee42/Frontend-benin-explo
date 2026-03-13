@@ -144,6 +144,33 @@
   color: var(--circuit-muted);
 }
 
+.section-note {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 0.9rem;
+  border-radius: 14px;
+  border: 1px solid #d8e3dc;
+  background: #f7fbf8;
+  color: #244239;
+}
+
+.section-note i {
+  font-size: 1.05rem;
+}
+
+.section-note.is-fallback {
+  border-color: rgba(200, 168, 107, 0.45);
+  background: #f8f1de;
+  color: #5d4615;
+}
+
+.section-note.is-empty {
+  border-color: rgba(15, 76, 67, 0.18);
+  background: #eef5f1;
+}
+
 .loading-spinner {
   width: 44px;
   height: 44px;
@@ -206,6 +233,12 @@
   overflow-x: auto;
   padding-bottom: 0.15rem;
   scrollbar-width: thin;
+}
+
+.filters-note {
+  margin: 0 0 0.65rem;
+  color: #5d6d66;
+  font-size: 0.82rem;
 }
 
 .filter-btn {
@@ -424,6 +457,11 @@
   border-radius: 999px;
   padding: 0.48rem 0.92rem;
   font-weight: 700;
+}
+
+.btn-reset-link {
+  display: inline-block;
+  text-decoration: none;
 }
 
 .cta-personnalise {
