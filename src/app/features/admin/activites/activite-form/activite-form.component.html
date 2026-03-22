@@ -53,7 +53,7 @@
     <label>Image principale</label>
     <input #fileInput type="file" (change)="onFileSelected($event)" />
     <div *ngIf="uploading" class="uploading">Upload en cours...</div>
-    <div *ngIf="uploadError" class="error">{{ uploadError }}</div>
+    <div *ngIf="uploadError" class="form-error">{{ uploadError }}</div>
     <div class="image-preview" *ngIf="$any(activite).imagePreview">
       <img [src]="$any(activite).imagePreview" alt="Aperçu" />
     </div>
