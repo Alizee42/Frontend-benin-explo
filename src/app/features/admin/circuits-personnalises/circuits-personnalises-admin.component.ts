@@ -291,12 +291,12 @@ Telephone : ${demande.telephoneClient}`;
     const currency = (demande.devisePrixEstime || 'EUR').toUpperCase();
     if (currency === 'EUR') {
       const eurFormatted = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount);
-      const xofFormatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount * EUR_TO_XOF_RATE_RATE);
+      const xofFormatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount * EUR_TO_XOF_RATE);
       return `${eurFormatted} EUR (≈ ${xofFormatted} FCFA)`;
     }
 
     const xofFormatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount);
-    const eurFormatted = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount / EUR_TO_XOF_RATE_RATE);
+    const eurFormatted = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount / EUR_TO_XOF_RATE);
     return `${xofFormatted} FCFA (≈ ${eurFormatted} EUR)`;
   }
 

@@ -21,6 +21,7 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
 export class HebergementsAdminComponent implements OnInit {
   confirmDeleteOpen = false;
   pendingDeleteId: number | null = null;
+  error = '';
 
   hebergements: HebergementDTO[] = [];
   loading = true;
@@ -211,14 +212,6 @@ export class HebergementsAdminComponent implements OnInit {
   deleteHebergement(id: number): void {
     this.pendingDeleteId = id;
     this.confirmDeleteOpen = true;
-    if (false) {
-      this.hebergementsService.delete(id).subscribe({
-        next: () => {
-          this.hebergements = this.hebergements.filter(h => h.id !== id);
-        },
-        error: (err) => console.error('Erreur suppression hébergement', err)
-      });
-    }
   }
 
   // Image upload methods

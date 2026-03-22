@@ -18,6 +18,7 @@ import { AdminActionsBarComponent } from '../../../shared/components/admin-actio
 export class ReservationsHebergementAdminComponent implements OnInit {
   confirmDeleteOpen = false;
   pendingDeleteId: number | null = null;
+  actionError = '';
 
 
   reservations: ReservationHebergementDTO[] = [];
@@ -145,7 +146,6 @@ export class ReservationsHebergementAdminComponent implements OnInit {
     if (!reservation.id) return;
     this.pendingDeleteId = reservation.id;
     this.confirmDeleteOpen = true;
-    if (false) return;
 
     this.clearMessages();
     this.reservationService.delete(reservation.id).subscribe({

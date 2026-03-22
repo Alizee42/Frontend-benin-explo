@@ -24,6 +24,7 @@ import { EUR_TO_XOF_RATE } from '../../../shared/constants/currency.constants';
 export class ActivitesAdminComponent implements OnInit {
   confirmDeleteOpen = false;
   pendingDeleteId: number | null = null;
+  error = '';
 
   activites: Activite[] = [];
   loading = true;
@@ -344,7 +345,6 @@ export class ActivitesAdminComponent implements OnInit {
   deleteActivite(id: number) {
     this.pendingDeleteId = id;
     this.confirmDeleteOpen = true;
-    if (false) return;
     this.activitesService.deleteActivite(id).subscribe({ next: () => { this.loadActivites(); }, error: (err: any) => { this.error = 'Impossible de supprimer cette activité.'; } });
   }
 

@@ -20,6 +20,7 @@ type ZoneRow = ZoneDTO & { id: number };
 export class ZonesComponent implements OnInit {
   confirmDeleteOpen = false;
   pendingDeleteId: number | null = null;
+  error = '';
 
 
   zones: ZoneRow[] = [];
@@ -182,16 +183,6 @@ export class ZonesComponent implements OnInit {
 
     this.pendingDeleteId = id;
     this.confirmDeleteOpen = true;
-    if (false) {
-      this.zonesService.delete(id).subscribe({
-        next: () => {
-          this.loadZones();
-        },
-        error: (error) => {
-          console.error('Erreur suppression zone', error);
-        }
-      });
-    }
   }
 
   get filteredZones(): ZoneRow[] {

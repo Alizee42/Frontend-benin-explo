@@ -19,6 +19,7 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
 export class VillesComponent implements OnInit {
   confirmDeleteOpen = false;
   pendingDeleteId: number | null = null;
+  error = '';
 
 
   villes: VilleDTO[] = [];
@@ -219,16 +220,6 @@ export class VillesComponent implements OnInit {
 
     this.pendingDeleteId = id;
     this.confirmDeleteOpen = true;
-    if (false) {
-      this.villesService.delete(id).subscribe({
-        next: () => {
-          this.loadVilles();
-        },
-        error: (error) => {
-          console.error('Erreur suppression ville', error);
-        }
-      });
-    }
   }
 
   get filteredVilles(): VilleDTO[] {

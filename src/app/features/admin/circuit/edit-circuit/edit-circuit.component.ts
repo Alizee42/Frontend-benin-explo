@@ -22,7 +22,7 @@ import { EUR_TO_XOF_RATE } from '../../../../shared/constants/currency.constants
 })
 export class EditCircuitComponent implements OnInit, OnDestroy {
   // Taux fixe approximatif EUR <-> XOF (1 EUR = 655.957 XOF)
-  readonly RATE_XOF_PER_EUR = EUR_TO_XOF_RATE_RATE;
+  readonly RATE_XOF_PER_EUR = EUR_TO_XOF_RATE;
   // ============================================
   // MODÈLE DE DONNÉES (IDENTIQUE À ADD)
   // ============================================
