@@ -2,8 +2,8 @@
   <div class="hero-section">
     <div class="hero-overlay">
       <div class="hero-content">
-        <h1>Circuit Personnalise</h1>
-        <p>Creez votre voyage sur mesure au Benin</p>
+        <h1>Circuit Personnalisé</h1>
+        <p>Créez votre voyage sur mesure au Bénin</p>
       </div>
     </div>
   </div>
@@ -12,7 +12,7 @@
     <div class="progress-bar">
       <div class="progress-step" [class.active]="etape >= 1" [class.completed]="etape > 1">
         <span class="step-number">1</span>
-        <span class="step-label">Duree</span>
+        <span class="step-label">Durée</span>
       </div>
       <div class="progress-step" [class.active]="etape >= 2" [class.completed]="etape > 2">
         <span class="step-number">2</span>
@@ -24,645 +24,80 @@
       </div>
       <div class="progress-step" [class.active]="etape >= 4" [class.completed]="etape > 4">
         <span class="step-number">4</span>
-        <span class="step-label">Resume</span>
+        <span class="step-label">Résumé</span>
       </div>
       <div class="progress-step" [class.active]="etape >= 5">
         <span class="step-number">5</span>
         <span class="step-label">Contact</span>
       </div>
     </div>
-
-    <div *ngIf="catalogLoading" class="catalog-note is-loading">
-      <div class="catalog-spinner"></div>
-      <span>Preparation du catalogue d activites, de villes et d hebergements...</span>
-    </div>
-
-    <div *ngIf="!catalogLoading && catalogNotices.length > 0" class="catalog-note">
-      <i class="ri-information-line" aria-hidden="true"></i>
-      <span>{{ catalogNoticeText }}</span>
-    </div>
   </div>
 
-  <div class="step-container" *ngIf="etape === 1">
-    <div class="step-content">
-      <div class="step-heading">
-        <div>
-          <h2>Combien de jours dure votre voyage ?</h2>
-          <p class="step-subtitle">Indiquez la duree et le nombre de voyageurs.</p>
-        </div>
-        <span class="step-badge">Etape 1/5</span>
-      </div>
-      <div class="duree-selector">
-        <label for="nombreJours">Nombre de jours :</label>
-        <select id="nombreJours" [(ngModel)]="nombreJours" (change)="changerNombreJours()">
-          <option *ngFor="let n of [1,2,3,4,5,6,7,8,9,10,11,12,13,14]" [value]="n">{{ n }} jour{{ n > 1 ? 's' : '' }}</option>
-        </select>
-      </div>
-      <div class="duree-selector">
-        <label for="nombrePersonnes">Nombre de personnes :</label>
-        <select id="nombrePersonnes" [(ngModel)]="nombrePersonnes">
-          <option *ngFor="let n of [1,2,3,4,5,6,7,8,9,10]" [value]="n">{{ n }} personne{{ n > 1 ? 's' : '' }}</option>
-        </select>
-      </div>
-      <div class="step-actions">
-        <button class="btn-next" (click)="prochaineEtape()" [disabled]="catalogLoading">
-          {{ catalogLoading ? 'Chargement...' : 'Suivant' }}
-        </button>
-      </div>
-    </div>
+  <div class="catalog-notices" *ngIf="catalogNotices.length > 0 && !catalogLoading">
+    <p *ngFor="let notice of catalogNotices">{{ notice }}</p>
   </div>
 
-  <div class="step-container" *ngIf="etape === 2">
-    <div class="step-content">
-      <div class="step-heading">
-        <div>
-          <h2>Planifiez vos journees</h2>
-          <p class="step-subtitle">Choisissez une zone, une ville et jusqu a 5 activites par jour.</p>
-        </div>
-        <span class="step-badge">Etape 2/5</span>
-      </div>
+  <app-circuit-step1
+    *ngIf="etape === 1"
+    [nombreJours]="nombreJours"
+    [nombrePersonnes]="nombrePersonnes"
+    [catalogLoading]="catalogLoading"
+    (nombreJoursChange)="onNombreJoursChange($event)"
+    (nombrePersonnesChange)="onNombrePersonnesChange($event)"
+    (next)="etape = 2">
+  </app-circuit-step1>
 
-      <div class="step-grid">
-        <div class="step-main">
-          <div *ngIf="catalogLoading" class="inline-loading">
-            <div class="catalog-spinner"></div>
-            <p>Chargement des donnees necessaires a la planification...</p>
-          </div>
+  <app-circuit-step2
+    *ngIf="etape === 2"
+    [jours]="jours"
+    [zones]="zones"
+    [villes]="villes"
+    [activites]="activites"
+    [catalogLoading]="catalogLoading"
+    [tarifsOptions]="tarifsOptions"
+    (joursChange)="onJoursChange($event)"
+    (prev)="etape = 1"
+    (next)="etape = 3">
+  </app-circuit-step2>
 
-          <ng-container *ngIf="!catalogLoading">
-            <div class="day-tabs" *ngIf="jours.length > 0">
-              <button
-                type="button"
-                class="day-tab"
-                *ngFor="let jour of jours; let i = index; trackBy: trackByJour"
-                [class.active]="activeJourIndex === i"
-                [class.is-complete]="isJourPlanningComplete(jour)"
-                [class.is-incomplete]="!isJourPlanningComplete(jour)"
-                (click)="selectJour(i)">
-                <span class="day-tab-label">Jour {{ jour.numero }}</span>
-                <span class="day-tab-status" [class.is-complete]="isJourPlanningComplete(jour)">
-                  {{ getJourPlanningStatus(jour) }}
-                </span>
-              </button>
-            </div>
+  <app-circuit-step3
+    *ngIf="etape === 3"
+    [hebergements]="hebergements"
+    [tarifsOptions]="tarifsOptions"
+    [nombrePersonnes]="nombrePersonnes"
+    [nombreJours]="nombreJours"
+    [initialOptions]="options"
+    [initialHebergementState]="hebergementState"
+    (optionsChange)="onOptionsChange($event)"
+    (hebergementStateChange)="onHebergementStateChange($event)"
+    (prev)="etape = 2"
+    (next)="etape = 4">
+  </app-circuit-step3>
 
-            <div class="jour-card" *ngIf="jours[activeJourIndex] as jour">
-              <h3 class="jour-header">
-                <span>Jour {{ jour.numero }}</span>
-                <span class="jour-status" [class.is-complete]="isJourPlanningComplete(jour)">
-                  {{ getJourPlanningStatus(jour) }}
-                </span>
-              </h3>
+  <app-circuit-step4
+    *ngIf="etape === 4"
+    [jours]="jours"
+    [activites]="activites"
+    [hebergements]="hebergements"
+    [options]="options"
+    [hebergementState]="hebergementState"
+    [tarifsOptions]="tarifsOptions"
+    [nombreJours]="nombreJours"
+    [nombrePersonnes]="nombrePersonnes"
+    (prev)="etape = 3"
+    (next)="etape = 5">
+  </app-circuit-step4>
 
-              <div class="jour-content">
-                <div class="zones-section">
-                  <div class="section-title">
-                    <h4>Zone et ville</h4>
-                    <span class="section-hint">Affinez le perimetre de la journee.</span>
-                  </div>
-                  <div class="form-row">
-                    <div class="form-group">
-                      <label>Zone</label>
-                      <select
-                        [(ngModel)]="jour.zoneId"
-                        (ngModelChange)="onZoneChange(jour, $event)"
-                        [name]="'zone-' + activeJourIndex"
-                        [disabled]="zones.length === 0">
-                        <option [ngValue]="null">Toutes les zones</option>
-                        <option *ngFor="let z of zones; trackBy: trackByZone" [ngValue]="z.idZone">{{ z.nom }}</option>
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label>Ville</label>
-                      <select
-                        [(ngModel)]="jour.villeId"
-                        (ngModelChange)="onVilleChange(jour, $event)"
-                        [name]="'ville-' + activeJourIndex"
-                        [disabled]="getVillesForZone(jour.zoneId).length === 0">
-                        <option [ngValue]="null">Toutes les villes</option>
-                        <option *ngFor="let v of getVillesForZone(jour.zoneId); trackBy: trackByVille" [ngValue]="v.id">{{ v.nom }}</option>
-                      </select>
-                    </div>
-                  </div>
-                  <p class="hint" *ngIf="jour.zoneId">
-                    Zone selectionnee : {{ getZoneNames(jour) }}
-                  </p>
-                </div>
-
-                <div class="activites-section">
-                  <div class="section-title">
-                    <h4>Activites du jour</h4>
-                    <span class="section-hint">Maximum 5 activites, ~12h au total.</span>
-                  </div>
-
-                  <div class="activites-toolbar" *ngIf="hasActivitesDisponibles(activeJourIndex)">
-                    <span class="activites-count">{{ getActivitesRangeLabel(activeJourIndex) }}</span>
-                    <span class="activites-page-label">Page {{ getCurrentActivitesPage(activeJourIndex) }}/{{ getActivitesTotalPages(activeJourIndex) }}</span>
-                  </div>
-
-                  <div *ngIf="hasActivitesDisponibles(activeJourIndex); else emptyActivitiesState" class="activites-list">
-                    <div
-                      class="activite-option"
-                      *ngFor="let activite of getPaginatedActivitesDisponibles(activeJourIndex); trackBy: trackByActivite"
-                      [class.selected]="isActiviteSelected(activeJourIndex, activite)"
-                      (click)="toggleActivite(activeJourIndex, activite)">
-                      <div class="activite-header">
-                        <h5>{{ activite.nom }}</h5>
-                        <div class="activite-actions">
-                          <button *ngIf="activite.image" class="btn-view-image" (click)="openImageModal(activite.image, $event)" title="Voir l'image">
-                            <i class="ri-eye-line"></i>
-                          </button>
-                          <span class="prix" *ngIf="activite.prix != null">{{ formatPrixBadge(activite.prix) }} {{ getPricingCurrencyLabel() }}</span>
-                        </div>
-                      </div>
-                      <p>{{ activite.description }}</p>
-                      <small>
-                        <span *ngIf="activite.dureeDisplay; else dureeMinutes">{{ activite.dureeDisplay }}</span>
-                        <ng-template #dureeMinutes>
-                          <span *ngIf="activite.dureeMinutes">{{ activite.dureeMinutes }} min</span>
-                        </ng-template>
-                        <span *ngIf="activite.ville"> - {{ activite.ville }}</span>
-                      </small>
-                    </div>
-                  </div>
-
-                  <div class="activites-pagination" *ngIf="getActivitesTotalPages(activeJourIndex) > 1">
-                    <button
-                      type="button"
-                      class="pagination-button nav-button"
-                      (click)="changeActivitesPage(activeJourIndex, getCurrentActivitesPage(activeJourIndex) - 1)"
-                      [disabled]="getCurrentActivitesPage(activeJourIndex) === 1">
-                      Precedent
-                    </button>
-
-                    <div class="pagination-pages">
-                      <button
-                        type="button"
-                        class="pagination-button"
-                        *ngFor="let page of getActivitesPageNumbers(activeJourIndex)"
-                        [class.active]="page === getCurrentActivitesPage(activeJourIndex)"
-                        (click)="changeActivitesPage(activeJourIndex, page)">
-                        {{ page }}
-                      </button>
-                    </div>
-
-                    <button
-                      type="button"
-                      class="pagination-button nav-button"
-                      (click)="changeActivitesPage(activeJourIndex, getCurrentActivitesPage(activeJourIndex) + 1)"
-                      [disabled]="getCurrentActivitesPage(activeJourIndex) === getActivitesTotalPages(activeJourIndex)">
-                      Suivant
-                    </button>
-                  </div>
-
-                  <ng-template #emptyActivitiesState>
-                    <div class="empty-panel">
-                      <p>Aucune activite n est disponible avec ce filtre pour le moment.</p>
-                      <small>Essayez une autre zone ou une autre ville, ou laissez notre equipe vous proposer un parcours.</small>
-                    </div>
-                  </ng-template>
-                </div>
-              </div>
-            </div>
-          </ng-container>
-        </div>
-
-        <aside class="step-aside">
-          <div class="summary-card">
-            <h3>Votre circuit</h3>
-            <div class="summary-row">
-              <span>{{ nombreJours }} jour{{ nombreJours > 1 ? 's' : '' }}</span>
-              <span>- {{ nombrePersonnes }} pers.</span>
-            </div>
-            <div class="summary-days">
-              <div class="summary-day" *ngFor="let jour of jours; trackBy: trackByJour">
-                <div class="summary-day-title">
-                  <span>Jour {{ jour.numero }}</span>
-                  <span class="summary-day-status" [class.is-complete]="isJourPlanningComplete(jour)">
-                    {{ getJourPlanningStatus(jour) }}
-                  </span>
-                </div>
-                <div class="summary-day-meta">{{ getZoneNames(jour) || 'Zone a definir' }}</div>
-                <div class="summary-day-acts">
-                  {{ getActiviteNames(jour) || 'Activites a definir' }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </aside>
-      </div>
-
-      <div class="error-message inline-error" *ngIf="etape2ErrorMessage">
-        <p>{{ etape2ErrorMessage }}</p>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn-prev" (click)="etapePrecedente()">Precedent</button>
-        <button class="btn-next" (click)="prochaineEtape()" [disabled]="!isPlanningStepComplete()">Suivant</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="step-container" *ngIf="etape === 3">
-    <div class="step-content">
-      <div class="step-heading">
-        <div>
-          <h2>Options pour votre circuit</h2>
-          <p class="step-subtitle">Personnalisez le confort et les services souhaites.</p>
-        </div>
-        <span class="step-badge">Etape 3/5</span>
-      </div>
-
-      <div class="step-grid">
-        <div class="step-main">
-          <div class="option-block">
-            <div class="block-header">
-              <h3>Hebergement</h3>
-              <p>Choisissez un hebergement precis avec vos dates ou laissez notre equipe proposer une option adaptee.</p>
-            </div>
-            <div class="choice-cards">
-              <button type="button" class="choice-card" [class.selected]="hebergementMode === 'auto'" (click)="setHebergementMode('auto')">
-                <span class="choice-title">Laisser proposer</span>
-                <span class="choice-desc">Nous vous proposerons le meilleur hebergement selon votre circuit.</span>
-              </button>
-              <button type="button" class="choice-card" [class.selected]="hebergementMode === 'choisir'" (click)="setHebergementMode('choisir')">
-                <span class="choice-title">Je choisis</span>
-                <span class="choice-desc">Je veux selectionner un hebergement, mes dates et voir le cout estime.</span>
-              </button>
-            </div>
-
-            <div class="hebergement-select" *ngIf="hebergementMode === 'choisir'">
-              <label for="hebergement">Choix de l hebergement</label>
-              <select id="hebergement" [(ngModel)]="selectedHebergementId" (ngModelChange)="onHebergementIdChange($event)" [disabled]="hebergements.length === 0">
-                <option [ngValue]="null">Choisir un hebergement...</option>
-                <option *ngFor="let h of hebergements" [ngValue]="h.id">
-                  {{ h.nom }} - {{ h.localisation }} ({{ h.prixParNuit | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}/nuit)
-                </option>
-              </select>
-
-              <div class="form-row hebergement-dates">
-                <div class="form-group">
-                  <label for="dateArriveeHebergement">Date d arrivee</label>
-                  <input
-                    type="date"
-                    id="dateArriveeHebergement"
-                    [(ngModel)]="hebergementDateArrivee"
-                    (ngModelChange)="onHebergementDatesChange()"
-                    [min]="getMinDateArrivee()">
-                </div>
-                <div class="form-group">
-                  <label for="dateDepartHebergement">Date de depart</label>
-                  <input
-                    type="date"
-                    id="dateDepartHebergement"
-                    [(ngModel)]="hebergementDateDepart"
-                    (ngModelChange)="onHebergementDatesChange()"
-                    [min]="getMinDateDepart()">
-                </div>
-              </div>
-
-              <div class="selected-hebergement-card" *ngIf="getSelectedHebergement() as hebergement">
-                <div class="selected-hebergement-header">
-                  <div>
-                    <h4>{{ hebergement.nom }}</h4>
-                    <p>{{ hebergement.localisation }} <span *ngIf="hebergement.type">- {{ hebergement.type }}</span></p>
-                  </div>
-                  <strong>{{ hebergement.prixParNuit | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}/nuit</strong>
-                </div>
-                <p class="selected-hebergement-meta">
-                  {{ getHebergementDateRangeLabel() }}
-                </p>
-              </div>
-
-              <div
-                class="availability-note"
-                [class.is-loading]="isCheckingHebergementAvailability"
-                [class.is-available]="hebergementAvailability === true"
-                [class.is-unavailable]="hebergementAvailability === false">
-                <div class="catalog-spinner" *ngIf="isCheckingHebergementAvailability"></div>
-                <span>{{ hebergementAvailabilityMessage }}</span>
-              </div>
-
-              <p class="hint" *ngIf="hebergements.length === 0">
-                Aucun hebergement n est disponible dans le catalogue pour le moment.
-              </p>
-              <button class="link-button" type="button" (click)="voirHebergements()">Voir tous les hebergements</button>
-            </div>
-
-            <div class="catalog-note compact-note" *ngIf="hebergementMode === 'auto'">
-              <i class="ri-hotel-line" aria-hidden="true"></i>
-              <span>Vous pourrez finaliser l hebergement avec notre equipe. Le cout sera ajoute au devis final.</span>
-            </div>
-          </div>
-
-          <div class="option-block">
-            <div class="block-header">
-              <h3>Transport</h3>
-              <p>Choisissez l option la plus adaptee au nombre de personnes.</p>
-            </div>
-            <div class="transport-grid">
-              <button
-                type="button"
-                class="transport-card"
-                *ngFor="let t of getTransportsDisponibles()"
-                [class.selected]="options.transport === t"
-                (click)="options.transport = t">
-                <span class="transport-title">{{ t }}</span>
-                <span class="transport-price">{{ getTransportRateLabel(t) }}</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="option-block">
-            <div class="block-header">
-              <h3>Services complementaires</h3>
-              <p>Activez les services dont vous avez besoin.</p>
-            </div>
-            <div class="services-grid">
-              <label class="service-card" [class.selected]="options.guide">
-                <input type="checkbox" [(ngModel)]="options.guide">
-                <div>
-                  <span class="service-title">Guide touristique</span>
-                  <span class="service-desc">Accompagnement local et culturel.</span>
-                  <span class="service-price">{{ getGuideRateLabel() }}</span>
-                </div>
-              </label>
-              <label class="service-card" [class.selected]="options.chauffeur">
-                <input type="checkbox" [(ngModel)]="options.chauffeur">
-                <div>
-                  <span class="service-title">Chauffeur prive</span>
-                  <span class="service-desc">Deplacements fluides et confort.</span>
-                  <span class="service-price">{{ getChauffeurRateLabel() }}</span>
-                </div>
-              </label>
-              <label class="service-card" [class.selected]="options.pensionComplete">
-                <input type="checkbox" [(ngModel)]="options.pensionComplete">
-                <div>
-                  <span class="service-title">Pension complete</span>
-                  <span class="service-desc">Repas inclus pendant le sejour.</span>
-                  <span class="service-price">{{ getPensionRateLabel() }}</span>
-                </div>
-              </label>
-            </div>
-
-            <div class="catalog-note compact-note" *ngIf="!tarifsOptions">
-              <i class="ri-information-line" aria-hidden="true"></i>
-              <span>Les tarifs admin de transport et services ne sont pas encore disponibles. Notre equipe les confirmera apres votre demande.</span>
-            </div>
-          </div>
-
-          <div class="error-message inline-error" *ngIf="optionsErrorMessage">
-            <p>{{ optionsErrorMessage }}</p>
-          </div>
-        </div>
-
-        <aside class="step-aside">
-          <div class="summary-card">
-            <h3>Resume des options</h3>
-            <div class="summary-row">
-              <span>Hebergement</span>
-              <span>{{ getHebergementDisplayValue() }}</span>
-            </div>
-            <div class="summary-row" *ngIf="hebergementMode === 'choisir'">
-              <span>Sejour</span>
-              <span>{{ getHebergementDateRangeLabel() }}</span>
-            </div>
-            <div class="summary-row" *ngIf="hebergementMode === 'choisir' && getSelectedHebergement()">
-              <span>Prix hebergement</span>
-              <span>{{ calculerPrixHebergementTotal() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</span>
-            </div>
-            <div class="summary-row">
-              <span>Transport</span>
-              <span>{{ options.transport || 'A definir' }}</span>
-            </div>
-            <div class="summary-row" *ngIf="options.transport">
-              <span>Cout transport</span>
-              <span>{{ calculerPrixTransportTotal() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</span>
-            </div>
-            <div class="summary-row">
-              <span>Services</span>
-              <span>
-                <ng-container *ngIf="options.guide || options.chauffeur || options.pensionComplete; else aucunService">
-                  {{ getSelectedServicesSummary() }}
-                </ng-container>
-                <ng-template #aucunService>Aucun</ng-template>
-              </span>
-            </div>
-            <div class="summary-row" *ngIf="options.guide">
-              <span>Guide</span>
-              <span>{{ calculerPrixGuideTotal() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</span>
-            </div>
-            <div class="summary-row" *ngIf="options.chauffeur">
-              <span>Chauffeur</span>
-              <span>{{ calculerPrixChauffeurTotal() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</span>
-            </div>
-            <div class="summary-row" *ngIf="options.pensionComplete">
-              <span>Pension complete</span>
-              <span>{{ calculerPrixPensionCompleteTotal() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</span>
-            </div>
-            <div class="summary-row">
-              <span>Activites</span>
-              <span>{{ calculerPrixActivitesTotal() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</span>
-            </div>
-            <div class="summary-highlight">
-              <span>Devis estime</span>
-              <strong>{{ calculerPrixTotalEstime() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</strong>
-            </div>
-          </div>
-        </aside>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn-prev" (click)="etapePrecedente()">Precedent</button>
-        <button class="btn-next" (click)="prochaineEtape()">Suivant</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="step-container" *ngIf="etape === 4">
-    <div class="step-content">
-      <div class="step-heading">
-        <div>
-          <h2>Resume de votre circuit personnalise</h2>
-          <p class="step-subtitle">Verifiez vos choix avant de nous envoyer la demande.</p>
-        </div>
-        <span class="step-badge">Etape 4/5</span>
-      </div>
-
-      <div class="resume-grid">
-        <div class="resume-card">
-          <h3>Informations cles</h3>
-          <div class="resume-row">
-            <span>Duree</span>
-            <strong>{{ nombreJours }} jour{{ nombreJours > 1 ? 's' : '' }}</strong>
-          </div>
-          <div class="resume-row">
-            <span>Participants</span>
-            <strong>{{ nombrePersonnes }} personne{{ nombrePersonnes > 1 ? 's' : '' }}</strong>
-          </div>
-          <div class="resume-row">
-            <span>Hebergement</span>
-            <strong>{{ getHebergementDisplayValue() }}</strong>
-          </div>
-          <div class="resume-row" *ngIf="hebergementMode === 'choisir'">
-            <span>Sejour</span>
-            <strong>{{ getHebergementDateRangeLabel() }}</strong>
-          </div>
-          <div class="resume-row" *ngIf="hebergementMode === 'choisir' && getSelectedHebergement()">
-            <span>Localisation</span>
-            <strong>{{ getHebergementLocationLabel() || 'A definir' }}</strong>
-          </div>
-          <div class="resume-row">
-            <span>Transport</span>
-            <strong>{{ options.transport || 'A definir' }}</strong>
-          </div>
-          <div class="resume-row" *ngIf="options.transport">
-            <span>Cout transport</span>
-            <strong>{{ calculerPrixTransportTotal() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</strong>
-          </div>
-          <div class="resume-row">
-            <span>Services</span>
-            <strong>
-              <ng-container *ngIf="options.guide || options.chauffeur || options.pensionComplete; else aucunServiceResume">
-                {{ getSelectedServicesSummary() }}
-              </ng-container>
-              <ng-template #aucunServiceResume>Aucun</ng-template>
-            </strong>
-          </div>
-          <div class="resume-breakdown">
-            <div class="resume-row">
-              <span>Activites</span>
-              <strong>{{ calculerPrixActivitesTotal() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</strong>
-            </div>
-            <div class="resume-row" *ngIf="hebergementMode === 'choisir'">
-              <span>Hebergement</span>
-              <strong>{{ calculerPrixHebergementTotal() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</strong>
-            </div>
-            <div class="resume-row" *ngIf="options.guide">
-              <span>Guide</span>
-              <strong>{{ calculerPrixGuideTotal() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</strong>
-            </div>
-            <div class="resume-row" *ngIf="options.chauffeur">
-              <span>Chauffeur</span>
-              <strong>{{ calculerPrixChauffeurTotal() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</strong>
-            </div>
-            <div class="resume-row" *ngIf="options.pensionComplete">
-              <span>Pension complete</span>
-              <strong>{{ calculerPrixPensionCompleteTotal() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</strong>
-            </div>
-          </div>
-          <div class="resume-highlight">
-            <span>Devis estime</span>
-            <strong>{{ calculerPrixTotalEstime() | number:'1.0-2' }} {{ getPricingCurrencyLabel() }}</strong>
-          </div>
-          <p class="resume-note">{{ getDevisNote() }}</p>
-        </div>
-
-        <div class="resume-card">
-          <div class="resume-card-header">
-            <h3>Journees</h3>
-            <button class="btn-toggle" (click)="toggleJoursExpanded()">{{ joursExpanded ? 'Reduire' : 'Voir details' }}</button>
-          </div>
-          <div class="resume-days" *ngIf="joursExpanded">
-            <div class="jour-resume" *ngFor="let jour of jours; trackBy: trackByJour">
-              <div class="jour-resume-header">
-                <h4>Jour {{ jour.numero }}</h4>
-                <span class="jour-zone">{{ getZoneNames(jour) || 'Zone a definir' }}</span>
-              </div>
-              <div class="activites-resume" *ngIf="jour.activites.length > 0; else noActs">
-                <div class="activite-item" *ngFor="let actId of jour.activites">
-                  <ng-container *ngIf="getActiviteById(actId) as act">
-                    <img *ngIf="act.image" [src]="act.image" alt="{{ act.nom }}" class="activite-image" />
-                    <span>{{ act.nom }}</span>
-                  </ng-container>
-                </div>
-              </div>
-              <ng-template #noActs>
-                <p class="empty-activities">Activites a definir</p>
-              </ng-template>
-            </div>
-          </div>
-          <div class="resume-days" *ngIf="!joursExpanded">
-            <p class="collapsed-hint">Cliquez sur "Voir details" pour afficher chaque journee.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="step-actions">
-        <button class="btn-prev" (click)="etapePrecedente()">Precedent</button>
-        <button class="btn-next" (click)="prochaineEtape()">Continuer</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="step-container" *ngIf="etape === 5">
-    <div class="step-content">
-      <div class="step-heading">
-        <div>
-          <h2>Informations de contact</h2>
-          <p class="step-subtitle">Nous vous recontactons rapidement avec un devis personnalise.</p>
-        </div>
-        <span class="step-badge">Etape 5/5</span>
-      </div>
-      <form class="contact-form" (ngSubmit)="onSubmit()">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="nom">Nom *</label>
-            <input type="text" id="nom" [(ngModel)]="demande.nom" name="nom" required>
-          </div>
-          <div class="form-group">
-            <label for="prenom">Prenom *</label>
-            <input type="text" id="prenom" [(ngModel)]="demande.prenom" name="prenom" required>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="email">Email *</label>
-            <input type="email" id="email" [(ngModel)]="demande.email" name="email" required>
-          </div>
-          <div class="form-group">
-            <label for="telephone">Telephone *</label>
-            <input type="tel" id="telephone" [(ngModel)]="demande.telephone" name="telephone" required>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="message">Message (optionnel)</label>
-          <textarea id="message" [(ngModel)]="demande.message" name="message" rows="4"
-                    placeholder="Dites-nous en plus sur vos preferences..."></textarea>
-        </div>
-
-        <div class="submit-actions">
-          <button class="btn-prev" type="button" (click)="etapePrecedente()">Precedent</button>
-          <button class="btn-submit" type="submit" [disabled]="isSubmitting">
-            <span *ngIf="!isSubmitting">Envoyer ma demande</span>
-            <span *ngIf="isSubmitting">Envoi en cours...</span>
-          </button>
-        </div>
-      </form>
-
-      <div class="success-message" *ngIf="submitSuccess">
-        <div class="success-modal">
-          <div class="success-modal-icon">
-            <i class="ri-check-line"></i>
-          </div>
-          <h3>Demande envoyee !</h3>
-          <p>Nous avons bien recu votre demande de circuit personnalise. Notre equipe vous contactera dans les plus brefs delais pour vous proposer un devis adapte.</p>
-          <button class="btn-home" type="button" (click)="goHome()">Retour a l accueil</button>
-        </div>
-      </div>
-
-      <div class="error-message" *ngIf="submitError">
-        <p>{{ submitErrorMessage }}</p>
-      </div>
-    </div>
-  </div>
+  <app-circuit-step5
+    *ngIf="etape === 5"
+    [contact]="contact"
+    [isSubmitting]="isSubmitting"
+    [submitSuccess]="submitSuccess"
+    [submitError]="submitError"
+    [submitErrorMessage]="submitErrorMessage"
+    (contactChange)="onContactChange($event)"
+    (prev)="etape = 4"
+    (formSubmit)="onSubmit()"
+    (goHome)="goHome()">
+  </app-circuit-step5>
 </section>
-
-<div class="image-modal" *ngIf="imageModalOpen" (click)="closeImageModal()">
-  <div class="image-modal-content" (click)="$event.stopPropagation()">
-    <button class="close-btn" (click)="closeImageModal()">&times;</button>
-    <img *ngIf="imageModalUrl" [src]="imageModalUrl" alt="Image de l'activite" />
-  </div>
-</div>

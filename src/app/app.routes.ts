@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { HebergementsListComponent } from './features/hebergements/pages/hebergements-list/hebergements-list.component';
+import { canDeactivateCircuitPersonnalise } from './features/circuits/pages/circuit-personnalise/circuit-personnalise.guard';
 export const routes: Routes = [
 
   /* PAGE D’ACCUEIL */
@@ -31,6 +32,7 @@ export const routes: Routes = [
     path: 'circuit-personnalise',
     loadComponent: () =>
       import('./features/circuits/pages/circuit-personnalise/circuit-personnalise.component').then(m => m.CircuitPersonnaliseComponent),
+    canDeactivate: [canDeactivateCircuitPersonnalise],
     data: { headerLight: true }
   },
 

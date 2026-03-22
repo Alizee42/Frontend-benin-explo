@@ -1,0 +1,175 @@
+<div class="step-container">
+  <div class="step-content">
+    <div class="step-heading">
+      <div>
+        <h2>Planifiez vos journées</h2>
+        <p class="step-subtitle">Choisissez une zone, une ville et jusqu'à 5 activités par jour.</p>
+      </div>
+      <span class="step-badge">Étape 2/5</span>
+    </div>
+
+    <div class="step-grid">
+      <div class="step-main">
+        <div *ngIf="catalogLoading" class="inline-loading">
+          <div class="catalog-spinner"></div>
+          <p>Chargement des données nécessaires à la planification...</p>
+        </div>
+
+        <ng-container *ngIf="!catalogLoading">
+          <div class="day-tabs" *ngIf="jours.length > 0">
+            <button
+              type="button"
+              class="day-tab"
+              *ngFor="let jour of jours; let i = index; trackBy: trackByJour"
+              [class.active]="activeJourIndex === i"
+              [class.is-complete]="isComplete(jour)"
+              [class.is-incomplete]="!isComplete(jour)"
+              (click)="selectJour(i)">
+              <span class="day-tab-label">Jour {{ jour.numero }}</span>
+              <span class="day-tab-status" [class.is-complete]="isComplete(jour)">
+                {{ getStatus(jour) }}
+              </span>
+            </button>
+          </div>
+
+          <div class="jour-card" *ngIf="jours[activeJourIndex] as jour">
+            <h3 class="jour-header">
+              <span>Jour {{ jour.numero }}</span>
+              <span class="jour-status" [class.is-complete]="isComplete(jour)">
+                {{ getStatus(jour) }}
+              </span>
+            </h3>
+
+            <div class="jour-content">
+              <div class="zones-section">
+                <div class="section-title">
+                  <h4>Zone et ville</h4>
+                  <span class="section-hint">Affinez le périmètre de la journée.</span>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Zone</label>
+                    <select
+                      [(ngModel)]="jour.zoneId"
+                      (ngModelChange)="onZoneChange(jour, $event)"
+                      [name]="'zone-' + activeJourIndex"
+                      [disabled]="zones.length === 0">
+                      <option [ngValue]="null">Toutes les zones</option>
+                      <option *ngFor="let z of zones; trackBy: trackByZone" [ngValue]="z.idZone">{{ z.nom }}</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Ville</label>
+                    <select
+                      [(ngModel)]="jour.villeId"
+                      (ngModelChange)="onVilleChange(jour, $event)"
+                      [name]="'ville-' + activeJourIndex"
+                      [disabled]="getVillesForZone(jour.zoneId).length === 0">
+                      <option [ngValue]="null">{{ jour.zoneId ? 'Toutes les villes de la zone' : 'Sélectionnez d\'abord une zone' }}</option>
+                      <option *ngFor="let v of getVillesForZone(jour.zoneId); trackBy: trackByVille" [ngValue]="v.id">{{ v.nom }}</option>
+                    </select>
+                  </div>
+                </div>
+                <p class="hint" *ngIf="jour.zoneId">Zone sélectionnée : {{ getZoneName(jour) }}</p>
+              </div>
+
+              <div class="activites-section">
+                <div class="section-title">
+                  <h4>Activités du jour</h4>
+                  <span class="section-hint">Maximum 5 activités, ~12h au total.</span>
+                </div>
+
+                <div class="activites-toolbar" *ngIf="getActivitesDisponibles(activeJourIndex).length > 0">
+                  <span class="activites-count">{{ getRangeLabel(activeJourIndex) }}</span>
+                  <span class="activites-page-label">
+                    Page {{ getCurrentPage(activeJourIndex) }}/{{ getTotalPages(activeJourIndex) }}
+                  </span>
+                </div>
+
+                <div *ngIf="getActivitesDisponibles(activeJourIndex).length > 0; else emptyActivites"
+                     class="activites-list">
+                  <div
+                    class="activite-option"
+                    *ngFor="let activite of getPaginatedActivites(activeJourIndex); trackBy: trackByActivite"
+                    [class.selected]="isSelected(activeJourIndex, activite)"
+                    (click)="toggleActivite(activeJourIndex, activite)">
+                    <div class="activite-header">
+                      <h5>{{ activite.nom }}</h5>
+                      <div class="activite-actions">
+                        <span class="prix" *ngIf="activite.prix != null">
+                          {{ formatPrixBadge(activite.prix) }} {{ getPricingLabel() }}
+                        </span>
+                      </div>
+                    </div>
+                    <p>{{ activite.description }}</p>
+                    <small>
+                      <span *ngIf="activite.dureeDisplay">{{ activite.dureeDisplay }}</span>
+                      <span *ngIf="!activite.dureeDisplay && activite.dureeMinutes">{{ activite.dureeMinutes }} min</span>
+                      <span *ngIf="activite.ville"> - {{ activite.ville }}</span>
+                    </small>
+                  </div>
+                </div>
+
+                <div class="activites-pagination" *ngIf="getTotalPages(activeJourIndex) > 1">
+                  <button
+                    type="button" class="pagination-button nav-button"
+                    (click)="changePage(activeJourIndex, getCurrentPage(activeJourIndex) - 1)"
+                    [disabled]="getCurrentPage(activeJourIndex) === 1">
+                    Précédent
+                  </button>
+                  <div class="pagination-pages">
+                    <button
+                      type="button" class="pagination-button"
+                      *ngFor="let page of getPageNumbers(activeJourIndex)"
+                      [class.active]="page === getCurrentPage(activeJourIndex)"
+                      (click)="changePage(activeJourIndex, page)">
+                      {{ page }}
+                    </button>
+                  </div>
+                  <button
+                    type="button" class="pagination-button nav-button"
+                    (click)="changePage(activeJourIndex, getCurrentPage(activeJourIndex) + 1)"
+                    [disabled]="getCurrentPage(activeJourIndex) === getTotalPages(activeJourIndex)">
+                    Suivant
+                  </button>
+                </div>
+
+                <ng-template #emptyActivites>
+                  <div class="empty-panel">
+                    <p>Aucune activité disponible avec ce filtre pour le moment.</p>
+                    <small>Essayez une autre zone ou une autre ville.</small>
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <aside class="step-aside">
+        <div class="summary-card">
+          <h3>Votre circuit</h3>
+          <div class="summary-days">
+            <div class="summary-day" *ngFor="let jour of jours; trackBy: trackByJour">
+              <div class="summary-day-title">
+                <span>Jour {{ jour.numero }}</span>
+                <span class="summary-day-status" [class.is-complete]="isComplete(jour)">
+                  {{ getStatus(jour) }}
+                </span>
+              </div>
+              <div class="summary-day-meta">{{ getZoneName(jour) || 'Zone à définir' }}</div>
+              <div class="summary-day-acts">{{ getActiviteNames(jour) || 'Activités à définir' }}</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="form-error" *ngIf="stepError">{{ stepError }}</div>
+
+    <div class="step-actions">
+      <button class="btn-prev" (click)="prev.emit()">Précédent</button>
+      <button class="btn-next" (click)="validate() && next.emit()" [disabled]="!isPlanningComplete()">Suivant</button>
+    </div>
+  </div>
+</div>

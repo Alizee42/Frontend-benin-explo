@@ -1,0 +1,81 @@
+<div class="step-container">
+  <div class="step-content">
+    <div class="step-heading">
+      <div>
+        <h2>Informations de contact</h2>
+        <p class="step-subtitle">Nous vous recontactons rapidement avec un devis personnalisé.</p>
+      </div>
+      <span class="step-badge">Étape 5/5</span>
+    </div>
+
+    <form class="contact-form" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nom">Nom *</label>
+          <input type="text" id="nom"
+                 [(ngModel)]="contact.nom" name="nom"
+                 (ngModelChange)="onFieldChange()"
+                 required>
+        </div>
+        <div class="form-group">
+          <label for="prenom">Prénom *</label>
+          <input type="text" id="prenom"
+                 [(ngModel)]="contact.prenom" name="prenom"
+                 (ngModelChange)="onFieldChange()"
+                 required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input type="email" id="email"
+                 [(ngModel)]="contact.email" name="email"
+                 (ngModelChange)="onFieldChange()"
+                 required>
+        </div>
+        <div class="form-group">
+          <label for="telephone">Téléphone *</label>
+          <input type="tel" id="telephone"
+                 [(ngModel)]="contact.telephone" name="telephone"
+                 (ngModelChange)="onFieldChange()"
+                 required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="message">Message (optionnel)</label>
+        <textarea id="message"
+                  [(ngModel)]="contact.message" name="message"
+                  (ngModelChange)="onFieldChange()"
+                  rows="4"
+                  placeholder="Dites-nous en plus sur vos préférences..."></textarea>
+      </div>
+
+      <div class="form-error" *ngIf="stepError">{{ stepError }}</div>
+
+      <div class="submit-actions">
+        <button class="btn-prev" type="button" (click)="prev.emit()">Précédent</button>
+        <button class="btn-submit" type="submit" [disabled]="isSubmitting">
+          <span *ngIf="!isSubmitting">Envoyer ma demande</span>
+          <span *ngIf="isSubmitting">Envoi en cours...</span>
+        </button>
+      </div>
+    </form>
+
+    <div class="success-message" *ngIf="submitSuccess">
+      <div class="success-modal">
+        <div class="success-modal-icon">
+          <i class="ri-check-line"></i>
+        </div>
+        <h3>Demande envoyée !</h3>
+        <p>Nous avons bien reçu votre demande de circuit personnalisé. Notre équipe vous contactera dans les plus brefs délais pour vous proposer un devis adapté.</p>
+        <button class="btn-home" type="button" (click)="goHome.emit()">Retour à l'accueil</button>
+      </div>
+    </div>
+
+    <div class="error-message" *ngIf="submitError">
+      <p>{{ submitErrorMessage }}</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,182 @@
+<div class="step-container">
+  <div class="step-content">
+    <div class="step-heading">
+      <div>
+        <h2>Résumé de votre demande</h2>
+        <p class="step-subtitle">Vérifiez les détails avant d'envoyer votre demande.</p>
+      </div>
+      <span class="step-badge">Étape 4/5</span>
+    </div>
+
+    <div class="step-grid">
+      <div class="step-main">
+
+        <!-- Paramètres généraux -->
+        <div class="option-block">
+          <div class="block-header">
+            <h3>Paramètres du circuit</h3>
+          </div>
+          <div class="summary-rows">
+            <div class="summary-row">
+              <span>Durée</span>
+              <span>{{ nombreJours }} jour{{ nombreJours > 1 ? 's' : '' }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Voyageurs</span>
+              <span>{{ nombrePersonnes }} personne{{ nombrePersonnes > 1 ? 's' : '' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Planning par jour -->
+        <div class="option-block">
+          <div class="block-header">
+            <h3>Planning des journées</h3>
+          </div>
+          <div class="jour-summary" *ngFor="let jour of jours">
+            <div class="jour-summary-header">
+              <strong>Jour {{ jour.numero }}</strong>
+            </div>
+            <div class="summary-rows">
+              <div class="summary-row">
+                <span>Activités</span>
+                <span>{{ getActiviteNamesForJour(jour) }}</span>
+              </div>
+              <div class="summary-row" *ngIf="prixActivites() > 0">
+                <span>Coût activités (estimé)</span>
+                <span>{{ prixActivites() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hébergement -->
+        <div class="option-block">
+          <div class="block-header">
+            <h3>Hébergement</h3>
+          </div>
+          <div class="summary-rows">
+            <ng-container *ngIf="hebergementState.mode === 'auto'">
+              <div class="summary-row">
+                <span>Mode</span>
+                <span>À proposer par notre équipe</span>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="hebergementState.mode === 'choisir' && getSelectedHebergement() as h">
+              <div class="summary-row">
+                <span>Hébergement</span>
+                <span>{{ h.nom }}</span>
+              </div>
+              <div class="summary-row">
+                <span>Localisation</span>
+                <span>{{ h.localisation }}</span>
+              </div>
+              <div class="summary-row">
+                <span>Séjour</span>
+                <span>{{ getDateRangeLabel() }}</span>
+              </div>
+              <div class="summary-row">
+                <span>Prix/nuit</span>
+                <span>{{ h.prixParNuit | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+              </div>
+              <div class="summary-row" *ngIf="prixHebergement() > 0">
+                <span>Coût hébergement</span>
+                <strong>{{ prixHebergement() | number:'1.0-2' }} {{ getPricingLabel() }}</strong>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="hebergementState.mode === 'choisir' && !getSelectedHebergement()">
+              <div class="summary-row">
+                <span>Hébergement</span>
+                <span>Non sélectionné</span>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Transport & Services -->
+        <div class="option-block">
+          <div class="block-header">
+            <h3>Transport &amp; Services</h3>
+          </div>
+          <div class="summary-rows">
+            <div class="summary-row">
+              <span>Transport</span>
+              <span>{{ getTransportLabel(options.transportId) }}</span>
+            </div>
+            <div class="summary-row" *ngIf="options.transportId && prixTransport() > 0">
+              <span>Coût transport</span>
+              <span>{{ prixTransport() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+            </div>
+            <div class="summary-row" *ngIf="options.guide">
+              <span>Guide touristique</span>
+              <span *ngIf="prixGuide() > 0">{{ prixGuide() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+              <span *ngIf="prixGuide() === 0">Inclus (tarif à confirmer)</span>
+            </div>
+            <div class="summary-row" *ngIf="options.chauffeur">
+              <span>Chauffeur privé</span>
+              <span *ngIf="prixChauffeur() > 0">{{ prixChauffeur() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+              <span *ngIf="prixChauffeur() === 0">Inclus (tarif à confirmer)</span>
+            </div>
+            <div class="summary-row" *ngIf="options.pensionComplete">
+              <span>Pension complète</span>
+              <span *ngIf="prixPension() > 0">{{ prixPension() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+              <span *ngIf="prixPension() === 0">Inclus (tarif à confirmer)</span>
+            </div>
+            <div class="summary-row"
+                 *ngIf="!options.transportId && !options.guide && !options.chauffeur && !options.pensionComplete">
+              <span>Services</span>
+              <span>Aucun</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Total estimé -->
+      <aside class="step-aside">
+        <div class="summary-card">
+          <h3>Total estimé</h3>
+          <div class="summary-row" *ngIf="prixActivites() > 0">
+            <span>Activités</span>
+            <span>{{ prixActivites() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+          </div>
+          <div class="summary-row" *ngIf="prixHebergement() > 0">
+            <span>Hébergement</span>
+            <span>{{ prixHebergement() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+          </div>
+          <div class="summary-row" *ngIf="prixTransport() > 0">
+            <span>Transport</span>
+            <span>{{ prixTransport() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+          </div>
+          <div class="summary-row" *ngIf="prixGuide() > 0">
+            <span>Guide</span>
+            <span>{{ prixGuide() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+          </div>
+          <div class="summary-row" *ngIf="prixChauffeur() > 0">
+            <span>Chauffeur</span>
+            <span>{{ prixChauffeur() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+          </div>
+          <div class="summary-row" *ngIf="prixPension() > 0">
+            <span>Pension</span>
+            <span>{{ prixPension() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+          </div>
+          <div class="summary-total" *ngIf="hasPricedItems()">
+            <span>Total indicatif</span>
+            <strong>{{ prixTotal() | number:'1.0-2' }} {{ getPricingLabel() }}</strong>
+          </div>
+          <p class="summary-note" *ngIf="!hasPricedItems()">
+            Le devis sera établi par notre équipe après réception de votre demande.
+          </p>
+          <p class="summary-note" *ngIf="hasPricedItems()">
+            Ce total est indicatif. Le devis final sera confirmé par notre équipe.
+          </p>
+        </div>
+      </aside>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn-prev" (click)="prev.emit()">Précédent</button>
+      <button class="btn-next" (click)="next.emit()">Continuer vers le formulaire</button>
+    </div>
+  </div>
+</div>

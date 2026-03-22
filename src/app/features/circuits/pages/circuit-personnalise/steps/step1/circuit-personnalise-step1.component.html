@@ -1,0 +1,35 @@
+<div class="step-container">
+  <div class="step-content">
+    <div class="step-heading">
+      <div>
+        <h2>Combien de jours dure votre voyage ?</h2>
+        <p class="step-subtitle">Indiquez la durée et le nombre de voyageurs.</p>
+      </div>
+      <span class="step-badge">Étape 1/5</span>
+    </div>
+
+    <div class="duree-selector">
+      <label for="nombreJours">Nombre de jours :</label>
+      <select id="nombreJours"
+              [ngModel]="nombreJours"
+              (ngModelChange)="nombreJoursChange.emit(+$event)">
+        <option *ngFor="let n of jourOptions" [value]="n">{{ n }} jour{{ n > 1 ? 's' : '' }}</option>
+      </select>
+    </div>
+
+    <div class="duree-selector">
+      <label for="nombrePersonnes">Nombre de personnes :</label>
+      <select id="nombrePersonnes"
+              [ngModel]="nombrePersonnes"
+              (ngModelChange)="nombrePersonnesChange.emit(+$event)">
+        <option *ngFor="let n of personnesOptions" [value]="n">{{ n }} personne{{ n > 1 ? 's' : '' }}</option>
+      </select>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn-next" (click)="next.emit()" [disabled]="catalogLoading">
+        {{ catalogLoading ? 'Chargement...' : 'Suivant' }}
+      </button>
+    </div>
+  </div>
+</div>

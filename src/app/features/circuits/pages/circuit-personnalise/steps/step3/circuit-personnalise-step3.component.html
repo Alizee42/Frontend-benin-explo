@@ -1,0 +1,205 @@
+<div class="step-container">
+  <div class="step-content">
+    <div class="step-heading">
+      <div>
+        <h2>Options pour votre circuit</h2>
+        <p class="step-subtitle">Personnalisez le confort et les services souhaités.</p>
+      </div>
+      <span class="step-badge">Étape 3/5</span>
+    </div>
+
+    <div class="step-grid">
+      <div class="step-main">
+
+        <!-- Hébergement -->
+        <div class="option-block">
+          <div class="block-header">
+            <h3>Hébergement</h3>
+            <p>Choisissez un hébergement précis ou laissez notre équipe proposer une option adaptée.</p>
+          </div>
+          <div class="choice-cards">
+            <button type="button" class="choice-card"
+                    [class.selected]="hebergementMode === 'auto'"
+                    (click)="setHebergementMode('auto')">
+              <span class="choice-title">Laisser proposer</span>
+              <span class="choice-desc">Nous vous proposerons le meilleur hébergement selon votre circuit.</span>
+            </button>
+            <button type="button" class="choice-card"
+                    [class.selected]="hebergementMode === 'choisir'"
+                    (click)="setHebergementMode('choisir')">
+              <span class="choice-title">Je choisis</span>
+              <span class="choice-desc">Je veux sélectionner un hébergement, mes dates et voir le coût estimé.</span>
+            </button>
+          </div>
+
+          <div class="hebergement-select" *ngIf="hebergementMode === 'choisir'">
+            <label for="hebergement">Choix de l'hébergement</label>
+            <select id="hebergement"
+                    [(ngModel)]="selectedHebergementId"
+                    (ngModelChange)="onHebergementChange($event)"
+                    [disabled]="hebergements.length === 0">
+              <option [ngValue]="null">Choisir un hébergement...</option>
+              <option *ngFor="let h of hebergements" [ngValue]="h.id">
+                {{ h.nom }} - {{ h.localisation }} ({{ h.prixParNuit | number:'1.0-2' }} {{ getPricingLabel() }}/nuit)
+              </option>
+            </select>
+
+            <div class="form-row hebergement-dates">
+              <div class="form-group">
+                <label for="dateArrivee">Date d'arrivée</label>
+                <input type="date" id="dateArrivee"
+                       [(ngModel)]="hebergementDateArrivee"
+                       (ngModelChange)="onDatesChange()"
+                       [min]="getMinDateArrivee()">
+              </div>
+              <div class="form-group">
+                <label for="dateDepart">Date de départ</label>
+                <input type="date" id="dateDepart"
+                       [(ngModel)]="hebergementDateDepart"
+                       (ngModelChange)="onDatesChange()"
+                       [min]="getMinDateDepart()">
+              </div>
+            </div>
+
+            <div class="selected-hebergement-card" *ngIf="getSelectedHebergement() as h">
+              <div class="selected-hebergement-header">
+                <div>
+                  <h4>{{ h.nom }}</h4>
+                  <p>{{ h.localisation }} <span *ngIf="h.type">- {{ h.type }}</span></p>
+                </div>
+                <strong>{{ h.prixParNuit | number:'1.0-2' }} {{ getPricingLabel() }}/nuit</strong>
+              </div>
+              <p class="selected-hebergement-meta">{{ getDateRangeLabel() }}</p>
+            </div>
+
+            <div class="availability-note"
+                 [class.is-loading]="isCheckingAvailability"
+                 [class.is-available]="hebergementAvailability === true"
+                 [class.is-unavailable]="hebergementAvailability === false">
+              <div class="catalog-spinner" *ngIf="isCheckingAvailability"></div>
+              <span>{{ hebergementAvailabilityMessage }}</span>
+            </div>
+
+            <p class="hint" *ngIf="hebergements.length === 0">
+              Aucun hébergement disponible dans le catalogue pour le moment.
+            </p>
+            <button class="link-button" type="button" (click)="voirHebergements()">
+              Voir tous les hébergements
+            </button>
+          </div>
+
+          <div class="catalog-note compact-note" *ngIf="hebergementMode === 'auto'">
+            <i class="ri-hotel-line" aria-hidden="true"></i>
+            <span>Vous pourrez finaliser l'hébergement avec notre équipe. Le coût sera ajouté au devis final.</span>
+          </div>
+        </div>
+
+        <!-- Transport -->
+        <div class="option-block">
+          <div class="block-header">
+            <h3>Transport</h3>
+            <p>Choisissez l'option la plus adaptée au nombre de personnes.</p>
+          </div>
+          <div class="transport-grid">
+            <button
+              type="button" class="transport-card"
+              *ngFor="let t of getTransportsDisponibles()"
+              [class.selected]="options.transportId === t.id"
+              (click)="options.transportId = t.id; onOptionsChange()">
+              <span class="transport-title">{{ t.label }}</span>
+              <span class="transport-price">{{ getTransportRateLabel(t.id) }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Services -->
+        <div class="option-block">
+          <div class="block-header">
+            <h3>Services complémentaires</h3>
+            <p>Activez les services dont vous avez besoin.</p>
+          </div>
+          <div class="services-grid">
+            <label class="service-card" [class.selected]="options.guide">
+              <input type="checkbox" [(ngModel)]="options.guide" (ngModelChange)="onOptionsChange()">
+              <div>
+                <span class="service-title">Guide touristique</span>
+                <span class="service-desc">Accompagnement local et culturel.</span>
+                <span class="service-price">{{ getGuideRateLabel() }}</span>
+              </div>
+            </label>
+            <label class="service-card" [class.selected]="options.chauffeur">
+              <input type="checkbox" [(ngModel)]="options.chauffeur" (ngModelChange)="onOptionsChange()">
+              <div>
+                <span class="service-title">Chauffeur privé</span>
+                <span class="service-desc">Déplacements fluides et confort.</span>
+                <span class="service-price">{{ getChauffeurRateLabel() }}</span>
+              </div>
+            </label>
+            <label class="service-card" [class.selected]="options.pensionComplete">
+              <input type="checkbox" [(ngModel)]="options.pensionComplete" (ngModelChange)="onOptionsChange()">
+              <div>
+                <span class="service-title">Pension complète</span>
+                <span class="service-desc">Repas inclus pendant le séjour.</span>
+                <span class="service-price">{{ getPensionRateLabel() }}</span>
+              </div>
+            </label>
+          </div>
+          <div class="catalog-note compact-note" *ngIf="!tarifsOptions">
+            <i class="ri-information-line" aria-hidden="true"></i>
+            <span>Les tarifs seront confirmés par notre équipe après votre demande.</span>
+          </div>
+        </div>
+
+        <div class="form-error" *ngIf="stepError">{{ stepError }}</div>
+      </div>
+
+      <!-- Aside résumé options -->
+      <aside class="step-aside">
+        <div class="summary-card">
+          <h3>Résumé des options</h3>
+          <div class="summary-row">
+            <span>Hébergement</span>
+            <span>{{ getHebergementDisplayValue() }}</span>
+          </div>
+          <div class="summary-row" *ngIf="hebergementMode === 'choisir'">
+            <span>Séjour</span>
+            <span>{{ getDateRangeLabel() }}</span>
+          </div>
+          <div class="summary-row" *ngIf="hebergementMode === 'choisir' && getSelectedHebergement()">
+            <span>Coût hébergement</span>
+            <span>{{ calculerPrixHebergement() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Transport</span>
+            <span>{{ getTransportLabel(options.transportId) }}</span>
+          </div>
+          <div class="summary-row" *ngIf="options.transportId">
+            <span>Coût transport</span>
+            <span>{{ calculerPrixTransport() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Services</span>
+            <span>{{ getServicesLabel() }}</span>
+          </div>
+          <div class="summary-row" *ngIf="options.guide">
+            <span>Guide</span>
+            <span>{{ calculerPrixGuide() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+          </div>
+          <div class="summary-row" *ngIf="options.chauffeur">
+            <span>Chauffeur</span>
+            <span>{{ calculerPrixChauffeur() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+          </div>
+          <div class="summary-row" *ngIf="options.pensionComplete">
+            <span>Pension complète</span>
+            <span>{{ calculerPrixPension() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn-prev" (click)="prev.emit()">Précédent</button>
+      <button class="btn-next" (click)="validate() && next.emit()">Suivant</button>
+    </div>
+  </div>
+</div>
