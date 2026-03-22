@@ -1,0 +1,98 @@
+<div class="error-banner" *ngIf="errors['programme']">
+  <div class="error-title">Champs manquants :</div>
+  <ul class="error-list">
+    <li *ngFor="let item of getStep3MissingSummary()">{{ item }}</li>
+  </ul>
+</div>
+
+<div class="programme-head">
+  <h3>Programme ({{ circuit.dureeJours }} jour{{ circuit.dureeJours > 1 ? 's' : '' }})</h3>
+  <div class="day-nav-inline" *ngIf="circuit.programme.length > 1">
+    <button type="button" class="day-nav-btn" (click)="goPrevDay()" [disabled]="activeDayIndex === 0">Prec.</button>
+    <span class="day-nav-current">Jour {{ activeDayIndex + 1 }} / {{ circuit.programme.length }}</span>
+    <button type="button" class="day-nav-btn" (click)="goNextDay()" [disabled]="activeDayIndex >= circuit.programme.length - 1">Suiv.</button>
+  </div>
+</div>
+
+<div class="day-pills" *ngIf="circuit.programme.length > 1">
+  <button type="button" class="day-pill"
+    *ngFor="let jour of circuit.programme; let i = index"
+    [class.active]="i === activeDayIndex"
+    [class.complete]="getDayMissingFields(i).length === 0"
+    [class.incomplete]="getDayMissingFields(i).length > 0"
+    [attr.title]="getDayMissingFields(i).length === 0 ? 'Complet' : ('Manque: ' + getDayMissingFields(i).join(', '))"
+    (click)="selectDay(i)">
+    J{{ i + 1 }}
+    <span class="day-pill-status" *ngIf="getDayMissingFields(i).length === 0">✓ OK</span>
+    <span class="day-pill-status warn" *ngIf="getDayMissingFields(i).length > 0">Manque</span>
+  </button>
+</div>
+
+<div class="jour-card" *ngIf="circuit.programme[activeDayIndex] as day">
+  <h4>Jour {{ day.jour }}<span *ngIf="day.title"> – {{ day.title }}</span></h4>
+
+  <div class="form-group">
+    <label>Titre du jour (optionnel)</label>
+    <input type="text" [(ngModel)]="day.title" [name]="'jour-title-' + activeDayIndex"
+      placeholder="Ex: Arrivée et installation">
+  </div>
+
+  <div class="jour-location">
+    <div class="form-group">
+      <label>Zone du jour {{ day.jour }}</label>
+      <select [(ngModel)]="day.zoneId" [name]="'jour-zone-' + activeDayIndex"
+        (ngModelChange)="onZoneChange(activeDayIndex)" [class.error]="errors['programme']">
+        <option [ngValue]="null">Selectionner une zone</option>
+        <option *ngFor="let z of zones" [ngValue]="z.idZone">{{ z.nom }}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Ville du jour {{ day.jour }}</label>
+      <select [(ngModel)]="day.villeId" [name]="'jour-ville-' + activeDayIndex"
+        (ngModelChange)="onVilleChange(activeDayIndex)" [disabled]="!day.zoneId"
+        [class.error]="errors['programme']">
+        <option [ngValue]="null">
+          {{ isLoadingVillesForJour(activeDayIndex) ? 'Chargement...' : !day.zoneId ? 'Selectionnez une zone d abord' : 'Selectionner une ville' }}
+        </option>
+        <option *ngFor="let v of getVillesForJour(activeDayIndex)" [ngValue]="v.id">{{ v.nom }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <textarea [(ngModel)]="day.description" [name]="'jour-desc-' + activeDayIndex"
+      rows="2" placeholder="Description des activites du jour..."
+      [class.error]="errors['programme']"></textarea>
+  </div>
+
+  <div class="activites-selection" *ngIf="getActivitesForJour(activeDayIndex).length > 0">
+    <label>Activites du jour ({{ day.activiteIds.length }} selectionnee(s))</label>
+    <div class="activites-list">
+      <label class="activite-item" *ngFor="let act of getActivitesForJour(activeDayIndex)">
+        <div class="activite-header">
+          <input type="checkbox" [checked]="isActiviteSelected(activeDayIndex, act.id)"
+            (change)="toggleActivite(activeDayIndex, act.id)">
+          <div class="activite-info">
+            <span class="activite-nom">{{ act.nom }}</span>
+            <div class="activite-meta">
+              <span class="activite-ville">{{ act.villeNom }}</span>
+              <span class="activite-duree" *ngIf="act.dureeDisplay">• {{ act.dureeDisplay }}</span>
+              <span class="activite-difficulte" *ngIf="act.difficulte">• {{ act.difficulte }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="activite-description" *ngIf="act.description">{{ act.description }}</div>
+      </label>
+    </div>
+  </div>
+  <p class="hint" *ngIf="isLoadingActivitesForJour(activeDayIndex)">Chargement des activites pour cette zone...</p>
+  <p class="hint" *ngIf="!day.zoneId">Selectionnez une zone pour voir les activites disponibles</p>
+  <p class="hint" *ngIf="day.zoneId && getActivitesForJour(activeDayIndex).length === 0 && !isLoadingActivitesForJour(activeDayIndex)">
+    Aucune activite disponible pour cette zone
+  </p>
+  <span class="error-text" *ngIf="errors['programme']">{{ errors['programme'] }}</span>
+  <ul class="error-list" *ngIf="programmeMissingDetails.length > 0">
+    <li *ngFor="let item of programmeMissingDetails">Jour {{ item.jour }} : {{ item.missing.join(', ') }}</li>
+  </ul>
+</div>

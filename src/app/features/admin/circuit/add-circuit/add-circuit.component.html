@@ -5,9 +5,7 @@
     <h1 class="form-title">Créer un nouveau circuit</h1>
 
     <div class="draft-banner" *ngIf="draftAvailable">
-      <div class="draft-text">
-        Un brouillon a été trouvé ({{ formatDraftDate(draftSavedAt) }}). Les images ne sont pas sauvegardées.
-      </div>
+      <div class="draft-text">Un brouillon a été trouvé ({{ formatDraftDate(draftSavedAt) }}). Les images ne sont pas sauvegardées.</div>
       <div class="draft-actions">
         <button type="button" class="btn-draft" (click)="restoreDraft()">Restaurer</button>
         <button type="button" class="btn-draft ghost" (click)="discardDraft()">Supprimer</button>
@@ -19,479 +17,85 @@
     <div class="draft-banner info" *ngIf="manualSaveNotice">
       <div class="draft-text">Brouillon enregistré ({{ formatDraftDate(draftSavedAt) }}).</div>
     </div>
-    
-    <!-- Indicateur d'étape -->
+
     <div class="steps-indicator">
       <div class="step-item" [class.active]="currentStep === 1" [class.completed]="currentStep > 1" (click)="goToStep(1)">
-        <div class="step-circle">
-          <span class="step-icon" *ngIf="currentStep <= 1">1</span>
-          <span class="step-icon" *ngIf="currentStep > 1">&#10003;</span>
-        </div>
+        <div class="step-circle"><span class="step-icon" *ngIf="currentStep <= 1">1</span><span class="step-icon" *ngIf="currentStep > 1">&#10003;</span></div>
         <div class="step-label">Informations</div>
       </div>
       <div class="step-divider" [class.completed]="currentStep > 1"></div>
       <div class="step-item" [class.active]="currentStep === 2" [class.completed]="currentStep > 2" (click)="goToStep(2)">
-        <div class="step-circle">
-          <span class="step-icon" *ngIf="currentStep <= 2">2</span>
-          <span class="step-icon" *ngIf="currentStep > 2">&#10003;</span>
-        </div>
+        <div class="step-circle"><span class="step-icon" *ngIf="currentStep <= 2">2</span><span class="step-icon" *ngIf="currentStep > 2">&#10003;</span></div>
         <div class="step-label">Médias</div>
       </div>
       <div class="step-divider" [class.completed]="currentStep > 2"></div>
       <div class="step-item" [class.active]="currentStep === 3" [class.completed]="currentStep > 3" (click)="goToStep(3)">
-        <div class="step-circle">
-          <span class="step-icon" *ngIf="currentStep <= 3">3</span>
-          <span class="step-icon" *ngIf="currentStep > 3">&#10003;</span>
-        </div>
+        <div class="step-circle"><span class="step-icon" *ngIf="currentStep <= 3">3</span><span class="step-icon" *ngIf="currentStep > 3">&#10003;</span></div>
         <div class="step-label">Programme</div>
       </div>
       <div class="step-divider" [class.completed]="currentStep > 3"></div>
       <div class="step-item" [class.active]="currentStep === 4" (click)="goToStep(4)">
-        <div class="step-circle">
-          <span class="step-icon">4</span>
-        </div>
+        <div class="step-circle"><span class="step-icon">4</span></div>
         <div class="step-label">Détails</div>
       </div>
     </div>
 
-    <!-- Message d'erreur global -->
     <div class="error-banner" *ngIf="errors['submit']">
       <span>⚠️ {{ errors['submit'] }}</span>
     </div>
 
     <form (ngSubmit)="onSubmit()">
-      
-      <!-- ÉTAPE 1 : INFORMATIONS DE BASE -->
       <div class="step-content" *ngIf="currentStep === 1">
         <h2>Informations de base</h2>
-
-        <div class="form-grid">
-          <div class="form-group full-width">
-            <label>Titre du circuit *</label>
-            <input 
-              type="text" 
-              [(ngModel)]="circuit.titre" 
-              name="titre"
-              placeholder="Ex: Découverte du patrimoine royal"
-              [class.error]="errors['titre']">
-            <span class="error-text" *ngIf="errors['titre']">{{ errors['titre'] }}</span>
-          </div>
-
-          <div class="form-group full-width">
-            <label>Description *</label>
-            <textarea 
-              [(ngModel)]="circuit.description" 
-              name="description"
-              rows="4"
-              placeholder="Décrivez le circuit de manière détaillée..."
-              [class.error]="errors['description']"></textarea>
-            <span class="error-text" *ngIf="errors['description']">{{ errors['description'] }}</span>
-          </div>
-
-          <div class="form-group">
-            <label>Durée (jours) *</label>
-            <input 
-              type="number" 
-              [(ngModel)]="circuit.dureeJours" 
-              name="duree"
-              min="1"
-              max="30"
-              (ngModelChange)="onDureeChange()"
-              [class.error]="errors['duree']">
-            <span class="error-text" *ngIf="errors['duree']">{{ errors['duree'] }}</span>
-          </div>
-
-          <div class="form-group">
-            <label>Prix *</label>
-            <div class="price-row">
-              <input 
-                type="number" 
-                [(ngModel)]="circuit.prixEuros" 
-                name="prix"
-                min="0"
-                step="10"
-                placeholder="0"
-                [class.error]="errors['prix']">
-              <select class="currency-select" [(ngModel)]="priceCurrency" name="priceCurrency" (ngModelChange)="onPriceCurrencyChange($event)">
-                <option value="EUR">EUR</option>
-                <option value="XOF">XOF</option>
-              </select>
-            </div>
-            <span class="hint" *ngIf="getPriceConversionLabel()">{{ getPriceConversionLabel() }}</span>
-            <span class="error-text" *ngIf="errors['prix']">{{ errors['prix'] }}</span>
-          </div>
-
-          <!-- Zone et ville supprimés de l'étape 1 - maintenant dans le programme -->
-        </div>
+        <app-add-circuit-step1
+          [circuit]="circuit"
+          [errors]="errors"
+          (dureeChanged)="onDureeChange()">
+        </app-add-circuit-step1>
       </div>
 
-      <!-- ÉTAPE 2 : MÉDIAS -->
       <div class="step-content" *ngIf="currentStep === 2">
         <h2>Images du circuit</h2>
-
-        <div class="media-section">
-          <div class="form-group">
-            <label>Image principale *</label>
-            <div class="file-upload-area" [class.has-file]="previewHero">
-              <input 
-                type="file" 
-                accept="image/*"
-                (change)="onHeroSelect($event)"
-                #heroInput>
-              <div class="upload-placeholder" *ngIf="!previewHero" (click)="heroInput.click()">
-                <span class="upload-icon">📷</span>
-                <span>Cliquez pour sélectionner l'image</span>
-              </div>
-              <img *ngIf="previewHero" [src]="previewHero" alt="Aperçu" class="preview-image">
-            </div>
-            <span class="error-text" *ngIf="errors['hero']">{{ errors['hero'] }}</span>
-          </div>
-
-          <div class="form-group full-width">
-            <label>Galerie (3-10 images) *</label>
-            <div class="file-upload-area">
-              <input 
-                type="file" 
-                accept="image/*"
-                multiple
-                (change)="onGalerieSelect($event)"
-                #galerieInput>
-              <div class="upload-placeholder" (click)="galerieInput.click()">
-                <span class="upload-icon">🖼️</span>
-                <span>Sélectionnez entre 3 et 10 images</span>
-              </div>
-            </div>
-            <div class="preview-grid" *ngIf="previewsGalerie.length > 0">
-              <img *ngFor="let preview of previewsGalerie" [src]="preview" alt="Aperçu" class="preview-thumb">
-            </div>
-            <span class="hint" *ngIf="circuit.imagesGalerie.length > 0">
-              {{ circuit.imagesGalerie.length }} image(s) sélectionnée(s)
-            </span>
-            <span class="error-text" *ngIf="errors['galerie']">{{ errors['galerie'] }}</span>
-          </div>
-        </div>
+        <app-add-circuit-step2
+          [circuit]="circuit"
+          [errors]="errors"
+          [previewHero]="previewHero"
+          [previewsGalerie]="previewsGalerie"
+          (heroSelected)="onHeroSelected($event)"
+          (galerieSelected)="onGalerieSelected($event)">
+        </app-add-circuit-step2>
       </div>
 
-      <!-- ÉTAPE 3 : PROGRAMME -->
       <div class="step-content" *ngIf="currentStep === 3">
         <h2>Programme</h2>
-
-        <div class="error-banner" *ngIf="errors['programme']">
-          <div class="error-title">Champs manquants :</div>
-          <ul class="error-list">
-            <li *ngFor="let item of getStep3MissingSummary()">{{ item }}</li>
-          </ul>
-        </div>
-
-        <div class="programme-head">
-          <h3>Programme ({{ circuit.dureeJours }} jour{{ circuit.dureeJours > 1 ? 's' : '' }})</h3>
-          <div class="day-nav-inline" *ngIf="circuit.programme.length > 1">
-            <button type="button" class="day-nav-btn" (click)="goPrevDay()" [disabled]="activeDayIndex === 0">Prec.</button>
-            <span class="day-nav-current">Jour {{ activeDayIndex + 1 }} / {{ circuit.programme.length }}</span>
-            <button type="button" class="day-nav-btn" (click)="goNextDay()" [disabled]="activeDayIndex >= circuit.programme.length - 1">Suiv.</button>
-          </div>
-        </div>
-
-        <div class="day-pills" *ngIf="circuit.programme.length > 1">
-          <button
-            type="button"
-            class="day-pill"
-            *ngFor="let jour of circuit.programme; let i = index"
-            [class.active]="i === activeDayIndex"
-            [class.complete]="getDayMissingFields(i).length === 0"
-            [class.incomplete]="getDayMissingFields(i).length > 0"
-            [attr.title]="getDayMissingFields(i).length === 0 ? 'Complet' : ('Manque: ' + getDayMissingFields(i).join(', '))"
-            (click)="selectDay(i)">
-            J{{ i + 1 }}
-            <span class="day-pill-status" *ngIf="getDayMissingFields(i).length === 0">✓ OK</span>
-            <span class="day-pill-status warn" *ngIf="getDayMissingFields(i).length > 0">Manque</span>
-          </button>
-        </div>
-
-          <div class="jour-card" *ngIf="circuit.programme[activeDayIndex] as day">
-            <h4>Jour {{ day.jour }}<span *ngIf="day.title"> – {{ day.title }}</span></h4>
-
-            <div class="form-group">
-              <label>Titre du jour (optionnel)</label>
-              <input
-                type="text"
-                [(ngModel)]="day.title"
-                [name]="'jour-title-' + activeDayIndex"
-                placeholder="Ex: Arrivée et installation">
-            </div>
-
-          <div class="jour-location">
-            <div class="form-group">
-              <label>Zone du jour {{ day.jour }}</label>
-              <select
-                [(ngModel)]="day.zoneId"
-                [name]="'jour-zone-' + activeDayIndex"
-                (ngModelChange)="onJourZoneChange(activeDayIndex)"
-                [class.error]="errors['programme']">
-                <option [ngValue]="null">Selectionner une zone</option>
-                <option *ngFor="let z of zones" [ngValue]="z.idZone">{{ z.nom }}</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Ville du jour {{ day.jour }}</label>
-              <select
-                [(ngModel)]="day.villeId"
-                [name]="'jour-ville-' + activeDayIndex"
-                (ngModelChange)="onJourVilleChange(activeDayIndex)"
-                [disabled]="!day.zoneId"
-                [class.error]="errors['programme']">
-                <option [ngValue]="null">
-                  {{ isLoadingVillesForJour(activeDayIndex) ? 'Chargement...' : !day.zoneId ? 'Selectionnez une zone d abord' : 'Selectionner une ville' }}
-                </option>
-                <option *ngFor="let v of getVillesForJour(activeDayIndex)" [ngValue]="v.id">{{ v.nom }}</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <textarea
-              [(ngModel)]="day.description"
-              [name]="'jour-desc-' + activeDayIndex"
-              rows="2"
-              placeholder="Description des activites du jour..."
-              [class.error]="errors['programme']"></textarea>
-          </div>
-
-          <div class="activites-selection" *ngIf="getActivitesForJour(activeDayIndex).length > 0">
-            <label>Activites du jour ({{ day.activiteIds.length }} selectionnee(s))</label>
-            <div class="activites-list">
-              <label class="activite-item" *ngFor="let act of getActivitesForJour(activeDayIndex)">
-                <div class="activite-header">
-                  <input
-                    type="checkbox"
-                    [checked]="isActiviteSelected(activeDayIndex, act.id)"
-                    (change)="toggleActivite(activeDayIndex, act.id)">
-                  <div class="activite-info">
-                    <span class="activite-nom">{{ act.nom }}</span>
-                    <div class="activite-meta">
-                      <span class="activite-ville">{{ act.villeNom }}</span>
-                      <span class="activite-duree" *ngIf="act.dureeDisplay">• {{ act.dureeDisplay }}</span>
-                      <span class="activite-difficulte" *ngIf="act.difficulte">• {{ act.difficulte }}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="activite-description" *ngIf="act.description">
-                  {{ act.description }}
-                </div>
-              </label>
-            </div>
-          </div>
-          <p class="hint" *ngIf="isLoadingActivitesForJour(activeDayIndex)">
-            Chargement des activites pour cette zone...
-          </p>
-          <p class="hint" *ngIf="!day.zoneId">
-            Selectionnez une zone pour voir les activites disponibles
-          </p>
-          <p class="hint" *ngIf="day.zoneId && getActivitesForJour(activeDayIndex).length === 0 && !isLoadingActivitesForJour(activeDayIndex)">
-            Aucune activite disponible pour cette zone
-          </p>
-          <span class="error-text" *ngIf="errors['programme']">{{ errors['programme'] }}</span>
-          <ul class="error-list" *ngIf="programmeMissingDetails.length > 0">
-            <li *ngFor="let item of programmeMissingDetails">
-              Jour {{ item.jour }} : {{ item.missing.join(', ') }}
-            </li>
-          </ul>
-        </div>
+        <app-add-circuit-step3
+          [circuit]="circuit"
+          [zones]="zones"
+          [villesParJour]="villesParJour"
+          [activitesParJour]="activitesParJour"
+          [errors]="errors"
+          [programmeMissingDetails]="programmeMissingDetails"
+          (zoneChanged)="onJourZoneChange($event)"
+          (villeChanged)="onJourVilleChange($event)">
+        </app-add-circuit-step3>
       </div>
 
-      <!-- ÉTAPE 4 : DÉTAILS -->
       <div class="step-content" *ngIf="currentStep === 4">
         <h2>Points forts et inclusions</h2>
-
-        <div class="error-banner" *ngIf="errors['inclus'] || errors['nonInclus']">
-          <div class="error-title">Champs manquants :</div>
-          <ul class="error-list">
-            <li *ngFor="let item of getStep4MissingSummary()">{{ item }}</li>
-          </ul>
-        </div>
-
-        <div class="step3-tabs" role="tablist" aria-label="Sections etape 4">
-          <button type="button" class="step3-tab" [class.open]="step4Section === 'highlights'" (click)="setStep4Section('highlights')">
-            Points forts
-          </button>
-          <button type="button" class="step3-tab" [class.open]="step4Section === 'inclusions'" (click)="setStep4Section('inclusions')">
-            Inclus / Non inclus
-          </button>
-        </div>
-
-        <div class="step3-panel" *ngIf="step4Section === 'highlights'">
-          <div class="section highlights-section">
-            <h3>Points forts du circuit</h3>
-
-            <div class="predefined-points">
-              <h4>Ajouter un point fort predefini</h4>
-              <div class="predefined-grid">
-                <button
-                  type="button"
-                  class="btn-predefined"
-                  *ngFor="let point of predefinedPointsForts"
-                  (click)="addPredefinedPointFort(point)"
-                  [disabled]="circuit.pointsForts.length >= 5"
-                >
-                  <span class="point-icon">{{ point.icon }}</span>
-                  <span class="point-title">{{ point.title }}</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="highlights-grid">
-              <div class="highlight-card" *ngFor="let point of circuit.pointsForts; let i = index; trackBy: trackByIndex">
-                <div class="point-header">
-                  <span class="point-number">Point fort {{ i + 1 }}</span>
-                  <button type="button" class="btn-remove" (click)="removePointFort(i)" *ngIf="circuit.pointsForts.length > 1" title="Supprimer">×</button>
-                </div>
-
-                <div class="point-form">
-                  <div class="form-row">
-                    <label>Icone *</label>
-                    <select
-                      [(ngModel)]="circuit.pointsForts[i].icon"
-                      [name]="'point-icon-' + i"
-                      class="icon-select"
-                    >
-                      <option value="">Choisir une icone</option>
-                      <option value="🏛️">Histoire & Culture</option>
-                      <option value="🌿">Nature & Ecologie</option>
-                      <option value="🍲">Gastronomie</option>
-                      <option value="🏖️">Plages & Detente</option>
-                      <option value="🏞️">Paysages</option>
-                      <option value="🎭">Traditions</option>
-                      <option value="🎨">Artisanat</option>
-                      <option value="🏊‍♂️">Activites aquatiques</option>
-                      <option value="📸">Photographie</option>
-                      <option value="👥">Rencontres humaines</option>
-                    </select>
-                  </div>
-
-                  <div class="form-row">
-                    <label>Titre *</label>
-                    <input
-                      type="text"
-                      [(ngModel)]="circuit.pointsForts[i].title"
-                      [name]="'point-title-' + i"
-                      placeholder="Titre du point fort"
-                      class="title-input"
-                    >
-                  </div>
-
-                  <div class="form-row">
-                    <label>Description *</label>
-                    <textarea
-                      [(ngModel)]="circuit.pointsForts[i].desc"
-                      [name]="'point-desc-' + i"
-                      placeholder="Description detaillee du point fort"
-                      rows="2"
-                      class="desc-input"
-                    ></textarea>
-                  </div>
-                </div>
-              </div>
-
-              <button type="button" class="btn-add-highlight" (click)="addPointFort()" *ngIf="circuit.pointsForts.length < 5">
-                <span class="add-icon">+</span>
-                <span>Creer un point fort personnalise</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="step3-panel" *ngIf="step4Section === 'inclusions'">
-          <div class="section inclusions-section">
-            <div class="inclusions-grid">
-              <div class="inclusion-card included">
-                <div class="inclusion-header">
-                  <div class="inclusion-icon">+</div>
-                  <h4>Inclus dans le prix</h4>
-                </div>
-                <div class="inclusion-list">
-                  <div class="inclusion-item" *ngFor="let item of circuit.inclus; let i = index; trackBy: trackByIndex">
-                    <span class="item-bullet"></span>
-                    <input
-                      type="text"
-                      [(ngModel)]="circuit.inclus[i]"
-                      [name]="'inclus-' + i"
-                      placeholder="Ex: Guide francophone"
-                      class="item-input">
-                    <button type="button" class="btn-remove-small" (click)="removeInclus(i)" *ngIf="circuit.inclus.length > 1" title="Supprimer">×</button>
-                  </div>
-                  <button type="button" class="btn-add-small" (click)="addInclus()">
-                    <span class="add-icon-small">+</span>
-                    <span>Ajouter</span>
-                  </button>
-                  <span class="error-text" *ngIf="errors['inclus']">{{ errors['inclus'] }}</span>
-                </div>
-              </div>
-
-              <div class="inclusion-card not-included">
-                <div class="inclusion-header">
-                  <div class="inclusion-icon">-</div>
-                  <h4>Non inclus</h4>
-                </div>
-                <div class="inclusion-list">
-                  <div class="inclusion-item" *ngFor="let item of circuit.nonInclus; let i = index; trackBy: trackByIndex">
-                    <span class="item-bullet"></span>
-                    <input
-                      type="text"
-                      [(ngModel)]="circuit.nonInclus[i]"
-                      [name]="'noninclus-' + i"
-                      placeholder="Ex: Vol international"
-                      class="item-input">
-                    <button type="button" class="btn-remove-small" (click)="removeNonInclus(i)" *ngIf="circuit.nonInclus.length > 1" title="Supprimer">×</button>
-                  </div>
-                  <button type="button" class="btn-add-small" (click)="addNonInclus()">
-                    <span class="add-icon-small">+</span>
-                    <span>Ajouter</span>
-                  </button>
-                  <span class="error-text" *ngIf="errors['nonInclus']">{{ errors['nonInclus'] }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <app-add-circuit-step4
+          [circuit]="circuit"
+          [errors]="errors"
+          [predefinedPointsForts]="predefinedPointsForts">
+        </app-add-circuit-step4>
       </div>
 
-      <!-- Actions -->
       <div class="form-actions">
-        <be-button 
-          type="button" 
-          variant="ghost" 
-          (click)="cancel()">
-          Annuler
-        </be-button>
-
+        <be-button type="button" variant="ghost" (click)="cancel()">Annuler</be-button>
         <div class="actions-right">
-          <button type="button" class="btn-draft secondary" (click)="saveDraftManual()">
-            Enregistrer le brouillon
-          </button>
-
-          <be-button 
-            type="button" 
-            variant="secondary" 
-            (click)="prevStep()"
-            *ngIf="currentStep > 1">
-            Précédent
-          </be-button>
-
-          <be-button 
-            type="button" 
-            variant="primary" 
-            (click)="nextStep()"
-            *ngIf="currentStep < totalSteps"
-            [disabled]="!canGoNext()">
-            Suivant
-          </be-button>
-
-          <be-button 
-            type="submit" 
-            variant="primary" 
-            *ngIf="currentStep === totalSteps"
-            [disabled]="loading.submit">
+          <button type="button" class="btn-draft secondary" (click)="saveDraftManual()">Enregistrer le brouillon</button>
+          <be-button type="button" variant="secondary" (click)="prevStep()" *ngIf="currentStep > 1">Précédent</be-button>
+          <be-button type="button" variant="primary" (click)="nextStep()" *ngIf="currentStep < totalSteps" [disabled]="!canGoNext()">Suivant</be-button>
+          <be-button type="submit" variant="primary" *ngIf="currentStep === totalSteps" [disabled]="loading.submit">
             {{ loading.submit ? 'Création...' : 'Créer le circuit' }}
           </be-button>
         </div>
