@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -101,26 +102,16 @@ export class CircuitsAdminComponent implements OnInit {
       return;
     }
 
-    // Load zones first, then villes, then circuits
-    this.loadZones();
+    this.loadData();
   }
 
-  loadZones() {
-    this.zonesService.getAllZones().subscribe({
-      next: (zones) => {
+  loadData(): void {
+    forkJoin({
+      zones: this.zonesService.getAllZones(),
+      villes: this.villesService.getAll()
+    }).subscribe({
+      next: ({ zones, villes }) => {
         this.zones = zones;
-        this.loadVilles();
-      },
-      error: (error) => {
-        this.loadError = 'Impossible de charger certaines données de référence.';
-        this.loadVilles(); // Try to load villes and circuits anyway
-      }
-    });
-  }
-
-  loadVilles() {
-    this.villesService.getAll().subscribe({
-      next: (villes) => {
         this.villes = villes.map((v: any) => ({
           id: v.id !== undefined ? v.id : v.idVille,
           nom: v.nom,
@@ -130,7 +121,7 @@ export class CircuitsAdminComponent implements OnInit {
         }));
         this.loadCircuits();
       },
-      error: (err) => {
+      error: () => {
         this.loadError = 'Impossible de charger certaines données de référence.';
         this.loadCircuits();
       }

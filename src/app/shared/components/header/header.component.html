@@ -50,7 +50,7 @@
         </button>
 
         <div class="dropdown user-dropdown" [class.open]="isUserDropdownOpen">
-          <button class="user-avatar-btn" (click)="toggleUserDropdown()">
+          <button class="user-avatar-btn" type="button" (click)="toggleUserDropdown()" aria-label="Menu utilisateur" [attr.aria-expanded]="isUserDropdownOpen">
             <div class="user-avatar">
               <span class="user-initials">{{ getUserInitials() }}</span>
             </div>
@@ -113,7 +113,7 @@
 
       <div class="user-actions mobile-only" *ngIf="isLoggedIn">
         <div class="dropdown user-dropdown" [class.open]="isUserDropdownOpen">
-          <button class="user-avatar-btn" (click)="toggleUserDropdown()">
+          <button class="user-avatar-btn" type="button" (click)="toggleUserDropdown()" aria-label="Menu utilisateur" [attr.aria-expanded]="isUserDropdownOpen">
             <div class="user-avatar">
               <span class="user-initials">{{ getUserInitials() }}</span>
             </div>

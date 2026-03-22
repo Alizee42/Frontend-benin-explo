@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { HebergementsService, HebergementDTO } from '../../../services/hebergements.service';
 import { VillesService, VilleDTO } from '../../../services/villes.service';
 import { MediaService, MediaDTO } from '../../../services/media.service';
@@ -148,17 +149,15 @@ export class HebergementsAdminComponent implements OnInit {
 
     // Upload images first, then save hebergement
     if (this.selectedImages.length > 0) {
-      const uploadPromises = this.selectedImages.map(image =>
-        this.mediaService.uploadImage(image.file).toPromise()
-      );
-
-      Promise.all(uploadPromises).then(medias => {
-        this.currentHebergement.imageUrls = medias.filter((m): m is MediaDTO => m !== null && m !== undefined).map(m => m.url);
-        this.saveHebergementWithMedias();
-      }).catch(err => {
-        // Continue without images if upload fails
-        this.currentHebergement.imageUrls = [];
-        this.saveHebergementWithMedias();
+      forkJoin(this.selectedImages.map(img => this.mediaService.uploadImage(img.file))).subscribe({
+        next: (medias) => {
+          this.currentHebergement.imageUrls = medias.filter((m): m is MediaDTO => !!m).map(m => m.url);
+          this.saveHebergementWithMedias();
+        },
+        error: () => {
+          this.currentHebergement.imageUrls = [];
+          this.saveHebergementWithMedias();
+        }
       });
     } else {
       if (!this.isEditing) {
@@ -219,21 +218,25 @@ export class HebergementsAdminComponent implements OnInit {
 
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files) {
-      Array.from(input.files).forEach(file => {
-        if (file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            this.selectedImages.push({
-              file: file,
-              preview: e.target?.result as string
-            });
-            this.cdr.detectChanges();
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-    }
+    if (!input.files) return;
+    const MAX_SIZE = 5 * 1024 * 1024;
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    Array.from(input.files).forEach(file => {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        this.error = 'Format non supporté. Utilisez JPG, PNG, WebP ou GIF.';
+        return;
+      }
+      if (file.size > MAX_SIZE) {
+        this.error = 'Image trop volumineuse (maximum 5 Mo).';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.selectedImages.push({ file, preview: e.target?.result as string });
+        this.cdr.detectChanges();
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
   removeImage(index: number): void {
