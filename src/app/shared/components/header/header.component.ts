@@ -1,7 +1,9 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { AuthService, User } from '../../../services/auth.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-header',
@@ -10,7 +12,8 @@ import { AuthService, User } from '../../../services/auth.service';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
   @Input() mode: 'normal' | 'compact' = 'normal';
 
   public menuOpen = false;
@@ -29,14 +32,14 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit() {
     // Subscribe to auth state
-    this.authService.user$.subscribe(user => {
+    this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe(user => {
       this.user = user;
       this.isLoggedIn = this.authService.isLoggedIn();
       this.isAdmin = this.authService.isAdmin();
     });
 
     // Existing navigation logic
-    this.router.events.subscribe(event => {
+    this.router.events.pipe(takeUntil(this.destroy$)).subscribe(event => {
       if (event instanceof NavigationEnd) {
         // ... existing header light logic ...
         let node: ActivatedRoute | null = (this.router.routerState && (this.router.routerState.root as ActivatedRoute)) || this.route;
@@ -53,7 +56,6 @@ export class HeaderComponent implements OnInit {
           ? headerLightFromData
           : (event.urlAfterRedirects.includes('circuits') || event.urlAfterRedirects.includes('circuit-personnalise'));
 
-        console.debug('Header navigation:', { url: (event as NavigationEnd).urlAfterRedirects, headerLightFromData });
         if (isLightPage) {
           document.body.classList.add('header-light');
           const headerEl = document.querySelector('.site-header') as HTMLElement | null;
@@ -61,7 +63,6 @@ export class HeaderComponent implements OnInit {
             headerEl.setAttribute('data-header-light', 'true');
             headerEl.classList.add('header-light');
           }
-          console.debug('Header: headerLight=true — applied body.header-light');
         } else {
           document.body.classList.remove('header-light');
           const headerEl = document.querySelector('.site-header') as HTMLElement | null;
@@ -69,10 +70,14 @@ export class HeaderComponent implements OnInit {
             headerEl.removeAttribute('data-header-light');
             headerEl.classList.remove('header-light');
           }
-          console.debug('Header: headerLight=false — removed body.header-light');
         }
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   toggleMenu() {

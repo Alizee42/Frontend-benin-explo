@@ -12,6 +12,7 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
 import { MediaService } from '../../../services/media.service';
 import { AdminActionsBarComponent } from '../../../shared/components/admin-actions-bar/admin-actions-bar.component';
 import { BeButtonComponent } from '../../../shared/components/be-button/be-button.component';
+import { EUR_TO_XOF_RATE } from '../../../shared/constants/currency.constants';
 
 @Component({
   standalone: true,
@@ -21,6 +22,9 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
   styleUrls: ['./activites-admin.component.scss']
 })
 export class ActivitesAdminComponent implements OnInit {
+  confirmDeleteOpen = false;
+  pendingDeleteId: number | null = null;
+
   activites: Activite[] = [];
   loading = true;
   loadError = '';
@@ -98,7 +102,7 @@ export class ActivitesAdminComponent implements OnInit {
     this.activitesService.getAllActivites().subscribe({
       next: (acts: Activite[]) => {
         // resolve zone name for each activity if zones already loaded
-        const EUR_TO_XOF = 655.957; // rate for conversion (1 EUR = 655.957 XOF)
+        
         this.activites = acts.map(a => {
           const zoneName = this.zones.find(z => (z as any).idZone === (a as any).zoneId || (z as any).id === (a as any).zoneId)?.nom || '';
           // Backend already provides villeNom
@@ -115,7 +119,7 @@ export class ActivitesAdminComponent implements OnInit {
           let prixDisplay = '-';
           if (prixNum !== null && !isNaN(prixNum)) {
             const eur = prixNum.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            const xof = Math.round(prixNum * EUR_TO_XOF).toLocaleString('fr-FR');
+            const xof = Math.round(prixNum * EUR_TO_XOF_RATE).toLocaleString('fr-FR');
             prixDisplay = `${eur} € / ${xof} XOF`;
           }
 
@@ -128,7 +132,6 @@ export class ActivitesAdminComponent implements OnInit {
           if (id) {
             this.mediaService.getImageUrl(id).subscribe({
               next: (url) => {
-                console.debug('[ActivitesAdmin] resolved image url for id', id, url);
                 act.image = url || null;
               },
               error: (err) => {
@@ -217,7 +220,7 @@ export class ActivitesAdminComponent implements OnInit {
           // Backend already provides villeNom
           updated.ville = updated.villeNom || updated.ville || '';
           
-          const EUR_TO_XOF = 655.957;
+          
           const minutes = ((updated as any).dureeMinutes != null) ? Number((updated as any).dureeMinutes) : Math.round((Number((updated as any).duree ?? 0) || 0) * 60);
           const hh = Math.floor(minutes / 60);
           const mm = minutes % 60;
@@ -227,7 +230,7 @@ export class ActivitesAdminComponent implements OnInit {
           let prixDisplay = '-';
           if (prixNum !== null && !isNaN(prixNum)) {
             const eur = prixNum.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            const xof = Math.round(prixNum * EUR_TO_XOF).toLocaleString('fr-FR');
+            const xof = Math.round(prixNum * EUR_TO_XOF_RATE).toLocaleString('fr-FR');
             prixDisplay = `${eur} € / ${xof} XOF`;
           }
           updated.prixDisplay = prixDisplay;
@@ -278,7 +281,7 @@ export class ActivitesAdminComponent implements OnInit {
             const createdWithZone: Activite = { ...(created as Activite), zone: zoneName, ville: villeName };
 
             // Calculer dureeDisplay et prixDisplay pour la nouvelle activité
-            const EUR_TO_XOF = 655.957;
+            
             const minutes = ((created as any).dureeMinutes != null) ? Number((created as any).dureeMinutes) : Math.round((Number((created as any).duree ?? 0) || 0) * 60);
             const hh = Math.floor(minutes / 60);
             const mm = minutes % 60;
@@ -288,7 +291,7 @@ export class ActivitesAdminComponent implements OnInit {
             let prixDisplay = '-';
             if (prixNum !== null && !isNaN(prixNum)) {
               const eur = prixNum.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-              const xof = Math.round(prixNum * EUR_TO_XOF).toLocaleString('fr-FR');
+              const xof = Math.round(prixNum * EUR_TO_XOF_RATE).toLocaleString('fr-FR');
               prixDisplay = `${eur} € / ${xof} XOF`;
             }
 
@@ -327,9 +330,22 @@ export class ActivitesAdminComponent implements OnInit {
     this.saveActivite();
   }
 
+  executeDelete(): void {
+    if (this.pendingDeleteId == null) return;
+    const id = this.pendingDeleteId;
+    this.confirmDeleteOpen = false;
+    this.pendingDeleteId = null;
+    this.activitesService.deleteActivite(id).subscribe({
+      next: () => this.loadActivites(),
+      error: () => { this.error = 'Impossible de supprimer cette activité.'; }
+    });
+  }
+
   deleteActivite(id: number) {
-    if (!confirm('Supprimer cette activité ?')) return;
-    this.activitesService.deleteActivite(id).subscribe({ next: () => { this.loadActivites(); }, error: (err: any) => { console.error('Erreur suppression', err); alert('Impossible de supprimer'); } });
+    this.pendingDeleteId = id;
+    this.confirmDeleteOpen = true;
+    if (false) return;
+    this.activitesService.deleteActivite(id).subscribe({ next: () => { this.loadActivites(); }, error: (err: any) => { this.error = 'Impossible de supprimer cette activité.'; } });
   }
 
   get filteredActivites(): Activite[] {

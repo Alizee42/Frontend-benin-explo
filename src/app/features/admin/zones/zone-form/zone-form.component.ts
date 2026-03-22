@@ -17,6 +17,7 @@ export class ZoneFormComponent implements OnChanges {
 
   model: Partial<Zone> = { nom: '', region: '', description: '', image: '' };
   saving = false;
+  errorMessage = '';
 
   constructor(private zonesService: ZonesService) {}
 
@@ -33,7 +34,7 @@ export class ZoneFormComponent implements OnChanges {
   submit() {
     const nom = (this.model.nom || '').toString().trim();
     if (!nom) {
-      alert('Le nom de la zone est requis');
+      this.errorMessage = 'Le nom de la zone est requis.';
       return;
     }
     this.saving = true;
@@ -43,13 +44,13 @@ export class ZoneFormComponent implements OnChanges {
       // update
       this.zonesService.updateZone((this.model as any).id, payload).subscribe({
         next: z => { this.saving = false; this.saved.emit(z); },
-        error: e => { this.saving = false; console.error(e); alert('Erreur lors de la mise à jour'); }
+        error: e => { this.saving = false; this.errorMessage = 'Erreur lors de la mise à jour.'; }
       });
     } else {
       // create
       this.zonesService.createZone(payload).subscribe({
         next: z => { this.saving = false; this.saved.emit(z); },
-        error: e => { this.saving = false; console.error(e); alert('Erreur lors de la création'); }
+        error: e => { this.saving = false; this.errorMessage = 'Erreur lors de la création.'; }
       });
     }
   }

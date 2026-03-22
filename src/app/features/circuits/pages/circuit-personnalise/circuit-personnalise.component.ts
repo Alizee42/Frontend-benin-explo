@@ -63,6 +63,7 @@ export class CircuitPersonnaliseComponent {
   private readonly ACTIVITES_PAGE_SIZE = 6;
   private hebergementAvailabilityRequestId = 0;
 
+  validationError = '';
   etape = 1;
 
   zones: Zone[] = [];
@@ -259,7 +260,7 @@ export class CircuitPersonnaliseComponent {
     }
 
     if (jour.activites.length >= 5) {
-      alert('Maximum 5 activites par jour.');
+      this.validationError = 'Maximum 5 activités par jour.';
       return;
     }
 
@@ -271,7 +272,7 @@ export class CircuitPersonnaliseComponent {
     const newTotal = currentTotal + this.getActiviteDurationMinutes(activite);
     if (newTotal > this.DAILY_MINUTES_LIMIT) {
       const heuresMax = this.DAILY_MINUTES_LIMIT / 60;
-      alert(`Vous depassez la duree maximale de ${heuresMax}h d activites pour une journee.`);
+      this.validationError = `Vous dépassez la durée maximale de ${heuresMax}h d\'activités pour une journée.`;
       return;
     }
 
@@ -592,7 +593,7 @@ export class CircuitPersonnaliseComponent {
 
   onSubmit(): void {
     if (!this.isFormValid()) {
-      alert('Veuillez remplir tous les champs obligatoires.');
+      this.validationError = 'Veuillez remplir tous les champs obligatoires.';
       return;
     }
 

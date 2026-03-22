@@ -52,7 +52,8 @@
       </button>
 
       <div class="forgot-password">
-        <a href="#" (click)="forgotPassword()">Mot de passe oublié ?</a>
+        <button type="button" class="btn-link" (click)="forgotPassword()">Mot de passe oublié ?</button>
+        <p *ngIf="forgotPasswordMessage" class="forgot-password-message">{{ forgotPasswordMessage }}</p>
       </div>
     </form>
   </div>

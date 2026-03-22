@@ -10,6 +10,7 @@ import { ZoneDTO } from '../../../../services/zones-admin.service';
 import { VilleDTO } from '../../../../services/villes.service';
 import { Activite } from '../../../../services/activites.service';
 import { lastValueFrom } from 'rxjs';
+import { EUR_TO_XOF_RATE } from '../../../../shared/constants/currency.constants';
 
 /**
  * VERSION SIMPLIFIÉE ET OPTIMISÉE DU FORMULAIRE DE CRÉATION DE CIRCUIT
@@ -30,7 +31,7 @@ import { lastValueFrom } from 'rxjs';
 })
 export class AddCircuitComponent implements OnInit, OnDestroy {
   // Taux fixe approximatif EUR <-> XOF (1 EUR = 655.957 XOF)
-  readonly RATE_XOF_PER_EUR = 655.957;
+  readonly RATE_XOF_PER_EUR = EUR_TO_XOF_RATE_RATE;
   
   // ============================================
   // MODÈLE DE DONNÉES SIMPLIFIÉ
@@ -171,13 +172,11 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
   // ============================================
 
   private loadZones() {
-    console.log('📡 Chargement des zones...');
     this.loading.zones = true;
     this.cacheService.getZones().subscribe({
       next: (zones) => {
         this.zones = zones;
         this.loading.zones = false;
-        console.log('✅ Zones chargées:', zones.length, zones);
       },
       error: (err) => {
         console.error('❌ Erreur chargement zones:', err);
@@ -209,7 +208,6 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
     this.cacheService.getVillesForZone(jour.zoneId).subscribe({
       next: (villes) => {
         this.villesParJour = { ...this.villesParJour, [jourIndex]: villes };
-        console.log(`📍 Villes chargées pour jour ${jourIndex + 1}: ${villes.length} villes`);
       },
       error: (err) => {
         console.error(`Erreur chargement villes pour jour ${jourIndex + 1}:`, err);
@@ -321,7 +319,6 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
   // Obtenir les villes disponibles pour un jour spécifique
   getVillesForJour(jourIndex: number): VilleDTO[] {
     const villes = this.villesParJour[jourIndex] || [];
-    console.log(`📋 getVillesForJour(${jourIndex}):`, villes.length, 'villes');
     return villes;
   }
 
@@ -645,22 +642,17 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
 
     try {
       // 1. Upload image hero
-      console.log('Upload image hero...');
       const heroRes = await lastValueFrom(
         this.circuitService.uploadImage(this.circuit.imageHero!, 'circuits/hero')
       );
-      console.log('Image hero uploadée:', heroRes);
 
       // 2. Upload images galerie
-      console.log('Upload images galerie...');
       const galerieUploads = this.circuit.imagesGalerie.map(file =>
         lastValueFrom(this.circuitService.uploadImage(file, 'circuits/galerie'))
       );
       const galerieRes = await Promise.all(galerieUploads);
-      console.log('Images galerie uploadées:', galerieRes);
 
       // 3. Préparer le payload
-      console.log('Préparation du payload...');
       // Utiliser la première ville/zone définie comme ville/zone principale
       const premierJourAvecVille = this.circuit.programme.find(j => j.villeId && j.zoneId);
       const villeNom = premierJourAvecVille
@@ -702,12 +694,9 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
         aLaUne: false
       };
 
-      console.log('Payload préparé:', payload);
 
       // 4. Créer le circuit
-      console.log('Création du circuit...');
       await lastValueFrom(this.circuitService.createCircuit(payload));
-      console.log('Circuit créé avec succès');
 
       // Nettoyer le brouillon après succès
       this.clearDraft();

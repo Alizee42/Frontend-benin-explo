@@ -1,1 +1,65 @@
-<p>register works!</p>
+<div class="register-container">
+  <div class="register-card">
+
+    <div class="register-header">
+      <h1>Créer un compte</h1>
+      <p>Les comptes sont créés par l'agence. Envoyez-nous votre demande et nous vous contacterons.</p>
+    </div>
+
+    <ng-container *ngIf="!submitted; else confirmation">
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+
+        <div class="form-group">
+          <label for="nom">Nom *</label>
+          <input type="text" id="nom" formControlName="nom" class="form-control" placeholder="Votre nom">
+          <div *ngIf="registerForm.get('nom')?.invalid && registerForm.get('nom')?.touched" class="field-error">
+            Le nom est obligatoire.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="prenom">Prénom *</label>
+          <input type="text" id="prenom" formControlName="prenom" class="form-control" placeholder="Votre prénom">
+          <div *ngIf="registerForm.get('prenom')?.invalid && registerForm.get('prenom')?.touched" class="field-error">
+            Le prénom est obligatoire.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input type="email" id="email" formControlName="email" class="form-control" placeholder="Votre adresse email">
+          <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="field-error">
+            Veuillez saisir un email valide.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="message">Message (optionnel)</label>
+          <textarea id="message" formControlName="message" class="form-control" rows="3"
+            placeholder="Précisez l'objet de votre demande..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-register" [disabled]="registerForm.invalid">
+          Envoyer ma demande
+        </button>
+
+        <div class="login-link">
+          Déjà un compte ? <a routerLink="/auth/login">Se connecter</a>
+        </div>
+
+      </form>
+    </ng-container>
+
+    <ng-template #confirmation>
+      <div class="confirmation-message">
+        <div class="confirmation-icon">✓</div>
+        <h2>Demande envoyée !</h2>
+        <p>Merci <strong>{{ registerForm.get('prenom')?.value }} {{ registerForm.get('nom')?.value }}</strong>,
+          votre demande a bien été enregistrée. L'agence vous contactera à l'adresse
+          <strong>{{ registerForm.get('email')?.value }}</strong> sous 24–48h.</p>
+        <a routerLink="/auth/login" class="btn-register">Retour à la connexion</a>
+      </div>
+    </ng-template>
+
+  </div>
+</div>

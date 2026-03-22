@@ -17,6 +17,9 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
   styleUrls: ['./villes.component.scss']
 })
 export class VillesComponent implements OnInit {
+  confirmDeleteOpen = false;
+  pendingDeleteId: number | null = null;
+
 
   villes: VilleDTO[] = [];
   zones: ZoneDTO[] = [];
@@ -196,6 +199,17 @@ export class VillesComponent implements OnInit {
     }
   }
 
+  executeDelete(): void {
+    if (this.pendingDeleteId == null) return;
+    const id = this.pendingDeleteId;
+    this.confirmDeleteOpen = false;
+    this.pendingDeleteId = null;
+    this.villesService.delete(id).subscribe({
+      next: () => this.loadVilles(),
+      error: () => { this.error = 'Impossible de supprimer cette ville.'; }
+    });
+  }
+
   deleteVille(id: number): void {
     // Garde: éviter d'appeler l'API si l'id est absent
     if (id == null) {
@@ -203,7 +217,9 @@ export class VillesComponent implements OnInit {
       return;
     }
 
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette ville ?')) {
+    this.pendingDeleteId = id;
+    this.confirmDeleteOpen = true;
+    if (false) {
       this.villesService.delete(id).subscribe({
         next: () => {
           this.loadVilles();

@@ -58,7 +58,9 @@ export class LoginComponent {
     this.cdr.detectChanges();
   }
 
+  forgotPasswordMessage = '';
+
   forgotPassword() {
-    alert('Fonctionnalité "Mot de passe oublié" à implémenter');
+    this.forgotPasswordMessage = 'Pour réinitialiser votre mot de passe, contactez l\'agence par email.';
   }
 }

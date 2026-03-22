@@ -61,4 +61,12 @@
       (rowClick)="onRowClick($event)">
     </app-data-table>
   </main>
+
+<app-modal title="Supprimer le circuit" [open]="confirmDeleteOpen" [closeOnBackdrop]="false" size="small" (close)="confirmDeleteOpen = false">
+  <p>Êtes-vous sûr de vouloir supprimer ce circuit ? Cette action est irréversible.</p>
+  <div class="d-flex gap-2 justify-content-end mt-3">
+    <button type="button" class="btn btn-secondary btn-sm" (click)="confirmDeleteOpen = false">Annuler</button>
+    <button type="button" class="btn btn-danger btn-sm" (click)="executeDelete()">Supprimer</button>
+  </div>
+</app-modal>
 </div>

@@ -11,6 +11,7 @@ import { ZoneDTO } from '../../../../services/zones-admin.service';
 import { VilleDTO } from '../../../../services/villes.service';
 import { Activite } from '../../../../services/activites.service';
 import { lastValueFrom } from 'rxjs';
+import { EUR_TO_XOF_RATE } from '../../../../shared/constants/currency.constants';
 
 @Component({
   selector: 'app-edit-circuit',
@@ -21,7 +22,7 @@ import { lastValueFrom } from 'rxjs';
 })
 export class EditCircuitComponent implements OnInit, OnDestroy {
   // Taux fixe approximatif EUR <-> XOF (1 EUR = 655.957 XOF)
-  readonly RATE_XOF_PER_EUR = 655.957;
+  readonly RATE_XOF_PER_EUR = EUR_TO_XOF_RATE_RATE;
   // ============================================
   // MODÈLE DE DONNÉES (IDENTIQUE À ADD)
   // ============================================

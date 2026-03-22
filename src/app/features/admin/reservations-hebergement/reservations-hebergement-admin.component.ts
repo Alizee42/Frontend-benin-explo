@@ -16,6 +16,9 @@ import { AdminActionsBarComponent } from '../../../shared/components/admin-actio
   styleUrls: ['./reservations-hebergement-admin.component.scss']
 })
 export class ReservationsHebergementAdminComponent implements OnInit {
+  confirmDeleteOpen = false;
+  pendingDeleteId: number | null = null;
+
 
   reservations: ReservationHebergementDTO[] = [];
   filteredReservations: ReservationHebergementDTO[] = [];
@@ -127,9 +130,22 @@ export class ReservationsHebergementAdminComponent implements OnInit {
     });
   }
 
+  executeDelete(): void {
+    if (this.pendingDeleteId == null) return;
+    const id = this.pendingDeleteId;
+    this.confirmDeleteOpen = false;
+    this.pendingDeleteId = null;
+    this.reservationService.delete(id).subscribe({
+      next: () => this.loadReservations(),
+      error: () => { this.actionError = 'Impossible de supprimer cette réservation.'; }
+    });
+  }
+
   deleteReservation(reservation: ReservationHebergementDTO): void {
     if (!reservation.id) return;
-    if (!confirm(`Supprimer la reservation de ${reservation.nomClient} ${reservation.prenomClient} ?`)) return;
+    this.pendingDeleteId = reservation.id;
+    this.confirmDeleteOpen = true;
+    if (false) return;
 
     this.clearMessages();
     this.reservationService.delete(reservation.id).subscribe({

@@ -11,15 +11,19 @@ import { CircuitService } from '../../../services/circuit.service';
 import { ZonesService, Zone } from '../../../services/zones.service';
 import { VillesService, VilleDTO } from '../../../services/villes.service';
 import { CircuitDTO } from '../../../models/circuit.dto';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-circuits-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, DataTableComponent, AdminActionsBarComponent, BeButtonComponent],
+  imports: [CommonModule, FormsModule, HeaderComponent, DataTableComponent, AdminActionsBarComponent, BeButtonComponent, ModalComponent],
   templateUrl: './circuits-admin.component.html',
   styleUrls: ['./circuits-admin.component.scss']
 })
 export class CircuitsAdminComponent implements OnInit {
+  confirmDeleteOpen = false;
+  pendingDeleteId: number | null = null;
+
   circuits: CircuitDTO[] = [];
   zones: Zone[] = [];
   villes: VilleDTO[] = [];
@@ -288,11 +292,11 @@ export class CircuitsAdminComponent implements OnInit {
   toggleFeatured(circuit: any, targetValue: boolean) {
     const countFeatured = this.circuits.filter(c => c.aLaUne === true).length;
     if (targetValue && countFeatured >= 4) {
-      alert('Maximum 4 circuits a la une sur la page d accueil.');
+      this.actionError = 'Maximum 4 circuits à la une sur la page d\'accueil.';
       return;
     }
     if (targetValue && !circuit.actif) {
-      alert('Un circuit inactif ne peut pas etre mis a la une.');
+      this.actionError = 'Un circuit inactif ne peut pas être mis à la une.';
       return;
     }
 
@@ -316,17 +320,19 @@ export class CircuitsAdminComponent implements OnInit {
   }
 
   deleteCircuit(id: number) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce circuit ?')) {
-      this.circuitService.deleteCircuit(id).subscribe({
-        next: () => {
-          this.loadCircuits();
-        },
-        error: (error) => {
-          console.error('Erreur suppression circuit', error);
-          this.actionError = 'Impossible de supprimer ce circuit.';
-        }
-      });
-    }
+    this.pendingDeleteId = id;
+    this.confirmDeleteOpen = true;
+  }
+
+  executeDelete(): void {
+    if (this.pendingDeleteId == null) return;
+    const id = this.pendingDeleteId;
+    this.confirmDeleteOpen = false;
+    this.pendingDeleteId = null;
+    this.circuitService.deleteCircuit(id).subscribe({
+      next: () => this.loadCircuits(),
+      error: () => { this.actionError = 'Impossible de supprimer ce circuit.'; }
+    });
   }
 
   getZoneName(zoneId: number | null): string {

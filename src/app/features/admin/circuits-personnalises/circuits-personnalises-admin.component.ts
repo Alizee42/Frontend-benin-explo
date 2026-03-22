@@ -6,6 +6,7 @@ import { HeaderComponent } from '../../../shared/components/header/header.compon
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { AdminActionsBarComponent } from '../../../shared/components/admin-actions-bar/admin-actions-bar.component';
 import { CircuitsPersonnalisesService, CircuitPersonnaliseDTO } from '../../../services/circuits-personnalises.service';
+import { EUR_TO_XOF_RATE } from '../../../shared/constants/currency.constants';
 
 @Component({
   selector: 'app-circuits-personnalises-admin',
@@ -290,12 +291,12 @@ Telephone : ${demande.telephoneClient}`;
     const currency = (demande.devisePrixEstime || 'EUR').toUpperCase();
     if (currency === 'EUR') {
       const eurFormatted = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount);
-      const xofFormatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount * 655.957);
+      const xofFormatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount * EUR_TO_XOF_RATE_RATE);
       return `${eurFormatted} EUR (≈ ${xofFormatted} FCFA)`;
     }
 
     const xofFormatted = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(amount);
-    const eurFormatted = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount / 655.957);
+    const eurFormatted = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amount / EUR_TO_XOF_RATE_RATE);
     return `${xofFormatted} FCFA (≈ ${eurFormatted} EUR)`;
   }
 

@@ -101,7 +101,6 @@ export class ActiviteFormComponent {
           (this.activite as any).imagePrincipaleId = media.id;
           (this.activite as any).imagePreview = media.url || null;
         }
-        console.log('[ActiviteForm] Image uploaded successfully:', media);
         this.uploading = false;
       },
       error: (err) => {

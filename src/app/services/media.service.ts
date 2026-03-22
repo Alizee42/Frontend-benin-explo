@@ -41,6 +41,19 @@ export class MediaService {
   }
 
   /**
+   * Résout une URL d'image brute en URL utilisable dans les templates.
+   * Centralise la logique dupliquée dans home, circuits-list, circuit-detail, data-table.
+   */
+  resolveImage(raw?: string, fallback = 'assets/images/circuit-default.jpg'): string {
+    const value = (raw || '').trim();
+    if (!value) return fallback;
+    if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('//') || value.startsWith('data:')) {
+      return value;
+    }
+    return value.startsWith('/') ? value : `/${value}`;
+  }
+
+  /**
    * Upload une image et retourne le MediaDTO créé.
    */
   uploadImage(file: File): Observable<MediaDTO> {

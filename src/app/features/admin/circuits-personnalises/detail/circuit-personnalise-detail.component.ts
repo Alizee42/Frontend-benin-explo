@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+import { EUR_TO_XOF_RATE } from '../../../../shared/constants/currency.constants';
   CircuitPersonnaliseDTO,
   CircuitsPersonnalisesService
 } from '../../../../services/circuits-personnalises.service';
@@ -191,7 +192,7 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
       const xof = new Intl.NumberFormat('fr-FR', {
         style: 'currency',
         currency: 'XOF'
-      }).format(prix * 655.957);
+      }).format(prix * EUR_TO_XOF_RATE_RATE);
 
       return `${eur} / ${xof}`;
     }
@@ -201,7 +202,7 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
       currency: 'XOF'
     }).format(prix);
 
-    const eurValue = prix / 655.957;
+    const eurValue = prix / EUR_TO_XOF_RATE_RATE;
     const eur = new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'EUR'

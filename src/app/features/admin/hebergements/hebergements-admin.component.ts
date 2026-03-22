@@ -19,6 +19,9 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
   styleUrls: ['./hebergements-admin.component.scss']
 })
 export class HebergementsAdminComponent implements OnInit {
+  confirmDeleteOpen = false;
+  pendingDeleteId: number | null = null;
+
   hebergements: HebergementDTO[] = [];
   loading = true;
 
@@ -163,13 +166,11 @@ export class HebergementsAdminComponent implements OnInit {
       if (!this.isEditing) {
         this.currentHebergement.imageUrls = [];
       }
-      console.log('[HebergementsAdminComponent] Creation/edition sans nouvelles images, payload avant saveHebergementWithMedias =', this.currentHebergement);
       this.saveHebergementWithMedias();
     }
   }
 
   private saveHebergementWithMedias(): void {
-    console.log('[HebergementsAdminComponent] saveHebergementWithMedias() appelé, isEditing=', this.isEditing, 'payload=', this.currentHebergement);
 
     if (this.isEditing && this.currentHebergement.id) {
       this.hebergementsService.update(this.currentHebergement.id, this.currentHebergement as Omit<HebergementDTO, 'id'>).subscribe({
@@ -185,10 +186,8 @@ export class HebergementsAdminComponent implements OnInit {
         error: (err) => console.error('Erreur update hébergement', err)
       });
     } else {
-      console.log('[HebergementsAdminComponent] Appel create() avec payload =', this.currentHebergement);
       this.hebergementsService.create(this.currentHebergement as Omit<HebergementDTO, 'id'>).subscribe({
         next: (created) => {
-          console.log('[HebergementsAdminComponent] Réponse création hébergement =', created);
           this.hebergements = [...this.hebergements, created];
           this.selectedImages = [];
           this.closeModal();
@@ -198,8 +197,21 @@ export class HebergementsAdminComponent implements OnInit {
     }
   }
 
+  executeDelete(): void {
+    if (this.pendingDeleteId == null) return;
+    const id = this.pendingDeleteId;
+    this.confirmDeleteOpen = false;
+    this.pendingDeleteId = null;
+    this.hebergementsService.delete(id).subscribe({
+      next: () => this.loadHebergements(),
+      error: () => { this.error = 'Impossible de supprimer cet hébergement.'; }
+    });
+  }
+
   deleteHebergement(id: number): void {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cet hébergement ?')) {
+    this.pendingDeleteId = id;
+    this.confirmDeleteOpen = true;
+    if (false) {
       this.hebergementsService.delete(id).subscribe({
         next: () => {
           this.hebergements = this.hebergements.filter(h => h.id !== id);

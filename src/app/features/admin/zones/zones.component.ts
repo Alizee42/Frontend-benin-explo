@@ -18,6 +18,9 @@ type ZoneRow = ZoneDTO & { id: number };
   styleUrls: ['./zones.component.scss']
 })
 export class ZonesComponent implements OnInit {
+  confirmDeleteOpen = false;
+  pendingDeleteId: number | null = null;
+
 
   zones: ZoneRow[] = [];
   loading = true;
@@ -160,13 +163,26 @@ export class ZonesComponent implements OnInit {
     }
   }
 
+  executeDelete(): void {
+    if (this.pendingDeleteId == null) return;
+    const id = this.pendingDeleteId;
+    this.confirmDeleteOpen = false;
+    this.pendingDeleteId = null;
+    this.zonesService.delete(id).subscribe({
+      next: () => this.loadZones(),
+      error: () => { this.error = 'Impossible de supprimer cette zone.'; }
+    });
+  }
+
   deleteZone(id?: number): void {
     if (id == null) {
       console.warn('deleteZone appelé sans id valide', id);
       return;
     }
 
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette zone ?')) {
+    this.pendingDeleteId = id;
+    this.confirmDeleteOpen = true;
+    if (false) {
       this.zonesService.delete(id).subscribe({
         next: () => {
           this.loadZones();
