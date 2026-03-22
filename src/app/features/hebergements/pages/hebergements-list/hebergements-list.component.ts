@@ -36,7 +36,6 @@ export class HebergementsListComponent implements OnInit {
         this.loading = false;
       },
       error: (err: any) => {
-        console.error('Erreur chargement hebergements', err);
         this.loading = false;
       }
     });
@@ -45,7 +44,6 @@ export class HebergementsListComponent implements OnInit {
   reserver(hebergement: HebergementDTO): void {
     const id = Number((hebergement as any)?.id);
     if (!Number.isFinite(id) || id <= 0) {
-      console.error('ID hebergement invalide pour la reservation:', hebergement);
       return;
     }
     this.router.navigate(['/reservation-hebergement', id]);

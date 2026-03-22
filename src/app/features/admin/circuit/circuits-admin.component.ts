@@ -112,7 +112,6 @@ export class CircuitsAdminComponent implements OnInit {
         this.loadVilles();
       },
       error: (error) => {
-        console.error('Erreur chargement zones', error);
         this.loadError = 'Impossible de charger certaines données de référence.';
         this.loadVilles(); // Try to load villes and circuits anyway
       }
@@ -132,7 +131,6 @@ export class CircuitsAdminComponent implements OnInit {
         this.loadCircuits();
       },
       error: (err) => {
-        console.error('Erreur chargement villes', err);
         this.loadError = 'Impossible de charger certaines données de référence.';
         this.loadCircuits();
       }
@@ -168,7 +166,6 @@ export class CircuitsAdminComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erreur chargement circuits', error);
         this.loadError = 'Impossible de charger les circuits.';
         this.loading = false;
       }
@@ -283,7 +280,6 @@ export class CircuitsAdminComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Erreur changement de statut circuit', error);
         this.actionError = 'Impossible de modifier le statut du circuit.';
       }
     });
@@ -313,7 +309,6 @@ export class CircuitsAdminComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Erreur mise a jour a la une', error);
         this.actionError = 'Impossible de mettre a jour la mise en avant du circuit.';
       }
     });

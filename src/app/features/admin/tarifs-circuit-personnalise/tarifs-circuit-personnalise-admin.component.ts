@@ -40,7 +40,6 @@ export class TarifsCircuitPersonnaliseAdminComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Erreur chargement tarifs circuit personnalise', error);
         this.tarifs = this.createDefaultTarifs();
         this.errorMessage = 'Impossible de charger les tarifs pour le moment.';
         this.isLoading = false;
@@ -65,7 +64,6 @@ export class TarifsCircuitPersonnaliseAdminComponent implements OnInit {
         this.isSaving = false;
       },
       error: (error) => {
-        console.error('Erreur enregistrement tarifs circuit personnalise', error);
         this.errorMessage = 'Impossible d enregistrer les tarifs pour le moment.';
         this.isSaving = false;
       }

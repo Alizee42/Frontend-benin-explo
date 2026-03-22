@@ -84,14 +84,12 @@ export class ActivitesAdminComponent implements OnInit {
             this.loadActivites();
           },
           error: (err: any) => {
-            console.error('Erreur chargement villes', err);
             this.loadError = 'Impossible de charger toutes les donnees des activites.';
             this.loadActivites();
           }
         });
       },
       error: (err: any) => {
-        console.error('Erreur chargement zones', err);
         this.loadError = 'Impossible de charger toutes les donnees des activites.';
         this.loadActivites();
       }
@@ -136,7 +134,6 @@ export class ActivitesAdminComponent implements OnInit {
                 act.image = url || null;
               },
               error: (err) => {
-                console.warn('[ActivitesAdmin] media fetch failed for id', id, err);
                 act.image = null;
               }
             });
@@ -149,7 +146,6 @@ export class ActivitesAdminComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err: any) => {
-        console.error('Erreur chargement activités', err);
         this.activites = [];
         this.loadError = 'Impossible de charger les activites pour le moment.';
         this.loading = false;
@@ -240,8 +236,8 @@ export class ActivitesAdminComponent implements OnInit {
           const imgId = (updated as any).imagePrincipaleId;
           if (imgId) {
             this.mediaService.getImageUrl(imgId).subscribe({
-              next: (url) => { console.debug('[ActivitesAdmin] resolved image url for updated item id', imgId, url); updated.image = url || null; },
-              error: (err) => { console.warn('[ActivitesAdmin] media fetch failed for updated item id', imgId, err); updated.image = null; }
+              next: (url) => { updated.image = url || null; },
+              error: () => { updated.image = null; }
             });
           } else {
             updated.image = null;
@@ -256,7 +252,6 @@ export class ActivitesAdminComponent implements OnInit {
           this.closeModal();
         },
         error: (err) => {
-          console.error('[ActivitesAdmin] Erreur update for id', (this.currentActivite as any).id, err);
           this.formError = 'Erreur lors de la modification de l activite';
           this.saving = false;
         }
@@ -303,8 +298,8 @@ export class ActivitesAdminComponent implements OnInit {
             const imgId = (created as any).imagePrincipaleId;
             if (imgId) {
               this.mediaService.getImageUrl(imgId).subscribe({
-                next: (url) => { console.debug('[ActivitesAdmin] resolved image url for created item id', imgId, url); createdWithZone.image = url || null; },
-                error: (err) => { console.warn('[ActivitesAdmin] media fetch failed for created item id', imgId, err); createdWithZone.image = null; }
+                next: (url) => { createdWithZone.image = url || null; },
+                error: () => { createdWithZone.image = null; }
               });
             }
 
@@ -318,7 +313,6 @@ export class ActivitesAdminComponent implements OnInit {
             this.closeModal();
         },
         error: (err: any) => {
-          console.error('Erreur create', err);
           this.formError = 'Erreur lors de la creation de l activite';
           this.saving = false;
         }

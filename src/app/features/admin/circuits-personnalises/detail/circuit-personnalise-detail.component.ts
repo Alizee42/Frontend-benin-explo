@@ -52,7 +52,6 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error: any) => {
-        console.error('Erreur chargement demande', error);
         this.isLoading = false;
         this.router.navigate(['/admin/circuits-personnalises']);
       }
@@ -118,7 +117,6 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
         this.closeDecisionModal();
       },
       error: (error: any) => {
-        console.error('Erreur mise a jour du statut', error);
         this.isSubmittingDecision = false;
       }
     });

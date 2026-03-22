@@ -94,7 +94,6 @@ export class CircuitDetailComponent implements OnInit {
         this.loadSupportingData(circuit);
       },
       error: (err) => {
-        console.error('[CircuitDetail] erreur fetch circuit', err);
         this.setErrorState(
           err?.status === 404 ? 'Circuit introuvable' : 'Circuit indisponible',
           err?.status === 404
@@ -111,21 +110,18 @@ export class CircuitDetailComponent implements OnInit {
     forkJoin({
       zones: this.zonesService.getAllZones().pipe(
         catchError((err) => {
-          console.error('[CircuitDetail] erreur zones', err);
           notices.push('La zone du circuit ne peut pas etre affichee pour le moment.');
           return of([] as Zone[]);
         })
       ),
       activites: this.activitesService.getAllActivites().pipe(
         catchError((err) => {
-          console.error('[CircuitDetail] erreur activites', err);
           notices.push('Les activites associees sont partiellement indisponibles.');
           return of([] as Activite[]);
         })
       ),
       villes: this.villesService.getAll().pipe(
         catchError((err) => {
-          console.error('[CircuitDetail] erreur villes', err);
           notices.push('Les villes du programme ne peuvent pas etre resolues.');
           return of([] as VilleDTO[]);
         })

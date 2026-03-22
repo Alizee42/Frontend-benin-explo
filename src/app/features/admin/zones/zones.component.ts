@@ -58,7 +58,6 @@ export class ZonesComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erreur chargement zones', error);
         this.zones = [];
         this.loadError = 'Impossible de charger les zones pour le moment.';
         this.loading = false;
@@ -144,7 +143,6 @@ export class ZonesComponent implements OnInit {
           this.closeModal();
         },
         error: (error) => {
-          console.error('Erreur modification zone', error);
           this.formError = 'Erreur lors de la modification de la zone';
           this.saving = false;
         }
@@ -156,7 +154,6 @@ export class ZonesComponent implements OnInit {
           this.closeModal();
         },
         error: (error) => {
-          console.error('Erreur création zone', error);
           this.formError = 'Erreur lors de la création de la zone';
           this.saving = false;
         }
@@ -177,7 +174,6 @@ export class ZonesComponent implements OnInit {
 
   deleteZone(id?: number): void {
     if (id == null) {
-      console.warn('deleteZone appelé sans id valide', id);
       return;
     }
 

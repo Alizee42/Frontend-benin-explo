@@ -105,7 +105,6 @@ export class ActiviteFormComponent {
       },
       error: (err) => {
         this.uploadError = 'Erreur upload image';
-        console.error('[ActiviteForm] Upload error:', err);
         this.uploading = false;
       }
     });

@@ -134,7 +134,6 @@ Telephone : {telephone}`
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Erreur chargement demandes', error);
         this.isLoading = false;
       }
     });
@@ -250,7 +249,6 @@ Telephone : ${demande.telephoneClient}`;
       },
       error: (error: any) => {
         this.isSendingDecision = false;
-        console.error('Erreur mise a jour statut', error);
         this.modalError = 'Erreur lors de la mise a jour ou de l envoi email. Verifie le backend et reessaye.';
       }
     });

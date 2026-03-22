@@ -154,7 +154,6 @@ export class CircuitsListComponent implements OnInit {
           : '';
       },
       error: (error) => {
-        console.error('Erreur chargement zones', error);
         this.zones = [];
         this.zonesNotice = 'Les filtres par zone ne sont pas disponibles pour le moment.';
       }
@@ -182,7 +181,6 @@ export class CircuitsListComponent implements OnInit {
         this.loading = false;
       },
       error: (err: any) => {
-        console.error('Erreur chargement circuits', err);
         const demoActifs = this.demoCircuits.filter(c => c?.actif === true);
         this.usingDemoCircuits = true;
         this.allCircuits = demoActifs;

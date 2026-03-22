@@ -179,7 +179,6 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
         this.loading.zones = false;
       },
       error: (err) => {
-        console.error('❌ Erreur chargement zones:', err);
         this.loading.zones = false;
         this.errors['zones'] = 'Impossible de charger les zones';
       }
@@ -210,7 +209,6 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
         this.villesParJour = { ...this.villesParJour, [jourIndex]: villes };
       },
       error: (err) => {
-        console.error(`Erreur chargement villes pour jour ${jourIndex + 1}:`, err);
         this.villesParJour = { ...this.villesParJour, [jourIndex]: [] };
       }
     });
@@ -226,7 +224,6 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
         );
       },
       error: (err) => {
-        console.error(`Erreur chargement activités pour jour ${jourIndex + 1}:`, err);
         this.activitesParJour = { ...this.activitesParJour, [jourIndex]: [] };
       }
     });
@@ -705,7 +702,6 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
       this.router.navigate(['/admin/circuits']);
 
     } catch (error) {
-      console.error('Erreur création circuit:', error);
       this.errors['submit'] = 'Erreur lors de la création du circuit';
       this.loading.submit = false;
     }

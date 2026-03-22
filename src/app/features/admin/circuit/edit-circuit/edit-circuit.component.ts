@@ -210,7 +210,6 @@ export class EditCircuitComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Erreur chargement circuit', error);
         this.isLoading = false;
         this.router.navigate(['/admin/circuits']);
       }
@@ -782,7 +781,6 @@ export class EditCircuitComponent implements OnInit, OnDestroy {
       this.router.navigate(['/admin/circuits']);
 
     } catch (error) {
-      console.error('Erreur mise à jour circuit:', error);
       this.errors['submit'] = 'Erreur lors de la mise à jour du circuit';
       this.loading.submit = false;
     }

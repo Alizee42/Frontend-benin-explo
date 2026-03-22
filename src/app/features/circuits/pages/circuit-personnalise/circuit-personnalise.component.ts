@@ -139,35 +139,30 @@ export class CircuitPersonnaliseComponent {
     forkJoin({
       zones: this.zonesService.getAllZones().pipe(
         catchError((err) => {
-          console.error('Erreur chargement zones pour circuit personnalise', err);
           notices.push('Les zones ne peuvent pas etre chargees pour le moment.');
           return of([] as Zone[]);
         })
       ),
       activites: this.activitesService.getAllActivites().pipe(
         catchError((err) => {
-          console.error('Erreur chargement activites pour circuit personnalise', err);
           notices.push('Les activites ne peuvent pas etre chargees pour le moment.');
           return of([] as Activite[]);
         })
       ),
       villes: this.villesService.getAll().pipe(
         catchError((err) => {
-          console.error('Erreur chargement villes pour circuit personnalise', err);
           notices.push('Les villes ne peuvent pas etre chargees pour le moment.');
           return of([] as VilleDTO[]);
         })
       ),
       hebergements: this.hebergementsService.getAll().pipe(
         catchError((err) => {
-          console.error('Erreur chargement hebergements pour circuit personnalise', err);
           notices.push('Les hebergements ne peuvent pas etre charges pour le moment.');
           return of([] as HebergementDTO[]);
         })
       ),
       tarifs: this.tarifsCircuitPersonnaliseService.getCurrent().pipe(
         catchError((err) => {
-          console.error('Erreur chargement tarifs circuit personnalise', err);
           notices.push('Les tarifs de transport et services seront confirmes par notre equipe.');
           return of(null as TarifsCircuitPersonnaliseDTO | null);
         })

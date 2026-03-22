@@ -74,7 +74,6 @@ export class HebergementsAdminComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Erreur chargement hébergements', err);
         this.loading = false;
       }
     });
@@ -86,7 +85,6 @@ export class HebergementsAdminComponent implements OnInit {
         this.villes = data;
       },
       error: (err) => {
-        console.error('Erreur chargement villes', err);
       }
     });
   }
@@ -158,7 +156,6 @@ export class HebergementsAdminComponent implements OnInit {
         this.currentHebergement.imageUrls = medias.filter((m): m is MediaDTO => m !== null && m !== undefined).map(m => m.url);
         this.saveHebergementWithMedias();
       }).catch(err => {
-        console.error('Erreur upload images', err);
         // Continue without images if upload fails
         this.currentHebergement.imageUrls = [];
         this.saveHebergementWithMedias();
@@ -184,7 +181,7 @@ export class HebergementsAdminComponent implements OnInit {
           this.selectedImages = [];
           this.closeModal();
         },
-        error: (err) => console.error('Erreur update hébergement', err)
+        error: () => {}
       });
     } else {
       this.hebergementsService.create(this.currentHebergement as Omit<HebergementDTO, 'id'>).subscribe({
@@ -193,7 +190,7 @@ export class HebergementsAdminComponent implements OnInit {
           this.selectedImages = [];
           this.closeModal();
         },
-        error: (err) => console.error('Erreur création hébergement', err)
+        error: () => {}
       });
     }
   }

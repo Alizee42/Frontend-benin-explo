@@ -46,7 +46,6 @@ export class CircuitDetailsComponent implements OnInit {
         this.loading = false;
       },
       error: (error: any) => {
-        console.error('Erreur chargement circuit', error);
         this.loading = false;
         this.router.navigate(['/admin/circuits']);
       }
@@ -83,7 +82,6 @@ export class CircuitDetailsComponent implements OnInit {
         });
       },
       error: (err) => {
-        console.error('[CircuitDetails] Erreur chargement activités', err);
       }
     });
   }
@@ -96,7 +94,6 @@ export class CircuitDetailsComponent implements OnInit {
         this.zone = zones.find((z: Zone) => z.idZone === zoneId) || null;
       },
       error: (error: any) => {
-        console.error('Erreur chargement zone', error);
       }
     });
   }

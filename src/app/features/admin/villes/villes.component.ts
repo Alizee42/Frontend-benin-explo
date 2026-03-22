@@ -66,7 +66,6 @@ export class VillesComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erreur chargement villes', error);
         this.villes = [];
         this.loadError = 'Impossible de charger les villes pour le moment.';
         this.loading = false;
@@ -86,7 +85,6 @@ export class VillesComponent implements OnInit {
         }));
       },
       error: (error) => {
-        console.error('Erreur chargement zones', error);
       }
     });
   }
@@ -169,7 +167,6 @@ export class VillesComponent implements OnInit {
 
     if (this.isEditing) {
       if (payload.id == null) {
-        console.warn('saveVille: id manquant pour modification', this.currentVille);
         this.saving = false;
         return;
       }
@@ -180,7 +177,6 @@ export class VillesComponent implements OnInit {
           this.closeModal();
         },
         error: (error) => {
-          console.error('Erreur modification ville', error);
           this.formError = 'Erreur lors de la modification de la ville';
           this.saving = false;
         }
@@ -192,7 +188,6 @@ export class VillesComponent implements OnInit {
           this.closeModal();
         },
         error: (error) => {
-          console.error('Erreur création ville', error);
           this.formError = 'Erreur lors de la création de la ville';
           this.saving = false;
         }
@@ -214,7 +209,6 @@ export class VillesComponent implements OnInit {
   deleteVille(id: number): void {
     // Garde: éviter d'appeler l'API si l'id est absent
     if (id == null) {
-      console.warn('deleteVille appelé sans id valide', id);
       return;
     }
 
