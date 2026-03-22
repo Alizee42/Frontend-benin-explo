@@ -143,7 +143,7 @@ export class CircuitsPersonnalisesService {
     return this.http.patch<CircuitPersonnaliseDTO>(`${this.apiUrl}/${id}/statut`, body);
   }
 
-  deleteDemande(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/${id}`);
+  deleteDemande(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

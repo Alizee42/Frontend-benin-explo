@@ -28,7 +28,6 @@ export interface Activite {
   prixDisplay?: string;
   difficulte?: string | null;
   dureeInterne?: number | null;
-  poids?: number | null;
   imagePrincipaleUrl?: string | null;
 }
 

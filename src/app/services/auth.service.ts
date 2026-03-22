@@ -10,6 +10,14 @@ export interface User {
   prenom?: string;
 }
 
+interface LoginResponse {
+  token: string;
+  email: string;
+  role: string;
+  nom?: string;
+  prenom?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -24,9 +32,9 @@ export class AuthService {
     private http: HttpClient
   ) {}
 
-  login(credentials: { email: string; motDePasse: string }): Observable<any> {
-    return this.http.post('/auth/login', credentials).pipe(
-      tap((response: any) => {
+  login(credentials: { email: string; motDePasse: string }): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>('/auth/login', credentials).pipe(
+      tap((response) => {
         if (response.token) {
           localStorage.setItem(this.TOKEN_KEY, response.token);
           const user: User = {

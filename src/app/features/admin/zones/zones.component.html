@@ -106,8 +106,8 @@
 <app-modal title="Supprimer la zone" [open]="confirmDeleteOpen" [closeOnBackdrop]="false" size="small" (close)="confirmDeleteOpen = false">
   <p>Êtes-vous sûr de vouloir supprimer cette zone ? Cette action est irréversible.</p>
   <div class="d-flex gap-2 justify-content-end mt-3">
-    <button type="button" class="btn btn-secondary btn-sm" (click)="confirmDeleteOpen = false">Annuler</button>
-    <button type="button" class="btn btn-danger btn-sm" (click)="executeDelete()">Supprimer</button>
+    <be-button variant="secondary" label="Annuler" (click)="confirmDeleteOpen = false"></be-button>
+    <be-button variant="danger" label="Supprimer" (click)="executeDelete()"></be-button>
   </div>
 </app-modal>
 </div>

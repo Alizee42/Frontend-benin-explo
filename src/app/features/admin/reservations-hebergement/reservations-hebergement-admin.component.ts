@@ -7,11 +7,12 @@ import { DataTableComponent, TableAction, TableColumn } from '../../../shared/co
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { AdminActionsBarComponent } from '../../../shared/components/admin-actions-bar/admin-actions-bar.component';
+import { BeButtonComponent } from '../../../shared/components/be-button/be-button.component';
 
 @Component({
   selector: 'app-reservations-hebergement-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, DataTableComponent, ModalComponent, HeaderComponent, AdminActionsBarComponent],
+  imports: [CommonModule, FormsModule, DataTableComponent, ModalComponent, HeaderComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './reservations-hebergement-admin.component.html',
   styleUrls: ['./reservations-hebergement-admin.component.scss']
 })
