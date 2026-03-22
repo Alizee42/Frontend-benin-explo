@@ -13,7 +13,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401) {
         authService.logout();
         router.navigate(['/auth/login'], { queryParams: { returnUrl: router.url } });
-      } else if (error.status === 403) {
+      } else if (error.status === 403 && !router.url.startsWith('/admin')) {
         router.navigate(['/']);
       }
       return throwError(() => error);
