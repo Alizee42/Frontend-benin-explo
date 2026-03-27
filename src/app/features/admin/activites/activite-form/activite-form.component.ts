@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, ViewC
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Activite } from '../../../../services/activites.service';
+import { CategorieActivite } from '../../../../services/categories-activites.service';
 import { MediaService } from '../../../../services/media.service';
 
 export interface VilleOption { id: number; nom: string }
@@ -18,10 +19,7 @@ export class ActiviteFormComponent {
   @Input() zones: any[] = [];
   @Input() villes: Array<VilleOption & { zoneId?: number | null; zoneNom?: string }> = [];
   @Input() saving = false;
-  // Optional list of type options. If parent doesn't provide, use defaults below.
-  @Input() typeOptions?: string[];
-  // Default types used in the app
-  types: string[] = ['Culture', 'Nature', 'Aventure', 'Détente', 'Sport', 'Gastronomie'];
+  @Input() categories: CategorieActivite[] = [];
   @Output() save = new EventEmitter<Partial<Activite>>();
   @Output() cancel = new EventEmitter<void>();
 

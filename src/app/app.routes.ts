@@ -90,6 +90,14 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
+  /* ADMIN CATEGORIES ACTIVITES */
+  {
+    path: 'admin/categories-activites',
+    loadComponent: () =>
+      import('./features/admin/categories-activites/categories-activites-admin.component').then(m => m.CategoriesActivitesAdminComponent),
+    canActivate: [authGuard]
+  },
+
   /* ADMIN VILLES */
   {
     path: 'admin/villes',

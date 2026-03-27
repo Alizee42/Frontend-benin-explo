@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ActivitesService, Activite } from '../../../services/activites.service';
+import { CategoriesActivitesService, CategorieActivite } from '../../../services/categories-activites.service';
 import { ZonesAdminService, ZoneDTO } from '../../../services/zones-admin.service';
 import { VillesService, VilleDTO } from '../../../services/villes.service';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
@@ -37,16 +38,17 @@ export class ActivitesAdminComponent implements OnInit {
   // modal / form state
   showModal = false;
   isEditing = false;
-  currentActivite: Partial<Activite> = { id: 0, nom: '', description: '', prix: 0, duree: 1, type: 'Culture', zoneId: 0, villeId: 0, imagePrincipaleId: null };
+  currentActivite: Partial<Activite> = { id: 0, nom: '', description: '', prix: 0, duree: 1, categorieId: null, zoneId: 0, villeId: 0, imagePrincipaleId: null };
   zones: ZoneDTO[] = [];
   villes: VilleDTO[] = [];
+  categories: CategorieActivite[] = [];
 
   tableColumns: TableColumn[] = [
     { key: 'image', label: 'Image', type: 'image', width: '100px' },
     { key: 'id', label: 'ID', type: 'number', width: '80px' },
     { key: 'nom', label: 'Nom', type: 'text' },
     { key: 'ville', label: 'Ville', type: 'text', width: '160px' },
-    { key: 'type', label: 'Type', type: 'text', width: '120px' },
+    { key: 'categorie', label: 'Catégorie', type: 'text', width: '120px' },
     { key: 'dureeDisplay', label: 'Durée', type: 'text', width: '110px' },
     { key: 'prixDisplay', label: 'Prix (EUR / XOF)', type: 'text', width: '160px' },
     { key: 'zone', label: 'Zone', type: 'text', width: '180px' },
@@ -58,9 +60,13 @@ export class ActivitesAdminComponent implements OnInit {
     { label: 'Supprimer', icon: 'ri-delete-bin-line', class: 'btn-delete', action: 'delete' }
   ];
 
-  constructor(private activitesService: ActivitesService, private zonesService: ZonesAdminService, private villesService: VillesService, private mediaService: MediaService, private cdr: ChangeDetectorRef) {}
+  constructor(private activitesService: ActivitesService, private categoriesService: CategoriesActivitesService, private zonesService: ZonesAdminService, private villesService: VillesService, private mediaService: MediaService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
+    this.categoriesService.getAll().subscribe({
+      next: (cats) => { this.categories = cats; },
+      error: () => {}
+    });
     this.loadZonesAndVillesThenActivities();
   }
 
@@ -165,7 +171,7 @@ export class ActivitesAdminComponent implements OnInit {
 
   openAddModal(): void {
     this.isEditing = false;
-    this.currentActivite = { id: 0, nom: '', description: '', prix: 0, duree: 1, type: 'Culture', zoneId: 0, villeId: 0, imagePrincipaleId: null };
+    this.currentActivite = { id: 0, nom: '', description: '', prix: 0, duree: 1, categorieId: null, zoneId: 0, villeId: 0, imagePrincipaleId: null, activiteType: 'ACTIVITE' };
     this.formError = '';
     this.saving = false;
     this.showModal = true;
@@ -257,17 +263,7 @@ export class ActivitesAdminComponent implements OnInit {
         }
       });
     } else {
-      const payload = {
-        nom,
-        description: this.currentActivite.description || '',
-        prix: this.currentActivite.prix ?? null,
-        duree: this.currentActivite.duree ?? 1,
-        type: (this.currentActivite.type as any) || 'Culture',
-        zoneId: this.currentActivite.zoneId || 0,
-        villeId,
-        imagePrincipaleId: (this.currentActivite as any).imagePrincipaleId ?? null
-      };
-      this.activitesService.createActivite(payload).subscribe({
+      this.activitesService.createActivite(this.currentActivite).subscribe({
         next: (created) => {
           // Insérer directement l'activité créée dans la liste pour mise à jour instantanée
             const zoneName = this.zones.find(z => z.idZone === (created as any).zoneId)?.nom || '';
@@ -350,7 +346,7 @@ export class ActivitesAdminComponent implements OnInit {
           String(a.nom || '').toLowerCase().includes(term) ||
           String(a.ville || '').toLowerCase().includes(term) ||
           String(a.zone || '').toLowerCase().includes(term) ||
-          String(a.type || '').toLowerCase().includes(term)
+          String(a.categorie || '').toLowerCase().includes(term)
         );
 
     const [key, dir] = this.sortOption.split('-');

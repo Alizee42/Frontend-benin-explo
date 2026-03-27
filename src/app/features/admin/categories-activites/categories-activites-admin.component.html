@@ -1,0 +1,111 @@
+<div class="categories-activites-admin">
+  <app-header mode="compact"></app-header>
+
+  <main class="page-content">
+    <app-admin-actions-bar title="Catégories d'activités" icon="ri-price-tag-3-line">
+      <div bar-right class="actions-right">
+        <div class="search-field">
+          <i class="ri-search-line"></i>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Rechercher une catégorie..."
+            aria-label="Rechercher une catégorie"
+          />
+        </div>
+        <div class="sort-field">
+          <i class="ri-filter-3-line"></i>
+          <select [(ngModel)]="sortOption" aria-label="Trier">
+            <option value="nom-asc">Nom A → Z</option>
+            <option value="nom-desc">Nom Z → A</option>
+            <option value="id-desc">Plus récentes</option>
+            <option value="id-asc">Plus anciennes</option>
+          </select>
+        </div>
+        <be-button
+          variant="primary"
+          iconLeft="ri-add-line"
+          label="Ajouter une catégorie"
+          (click)="openAddModal()">
+        </be-button>
+      </div>
+    </app-admin-actions-bar>
+
+    <div class="table-meta" *ngIf="!loading">
+      {{ filtered.length }} catégorie{{ filtered.length > 1 ? 's' : '' }}
+    </div>
+
+    <div class="load-error" *ngIf="!loading && loadError">
+      <i class="ri-error-warning-line"></i>
+      <span>{{ loadError }}</span>
+    </div>
+
+    <div class="table-card">
+      <app-data-table
+        [columns]="tableColumns"
+        [data]="filtered"
+        [loading]="loading"
+        [actions]="tableActions"
+        (actionClick)="onTableAction($event)"
+        (rowClick)="onRowClick($event)">
+      </app-data-table>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && !loadError && filtered.length === 0">
+      <div class="empty-icon"><i class="ri-price-tag-3-line"></i></div>
+      <h2>Aucune catégorie trouvée</h2>
+      <p>Créez des catégories comme Nature, Culture, Aventure, Sport…</p>
+      <button class="btn-add ghost" (click)="openAddModal()">
+        <i class="ri-add-line"></i>
+        Ajouter une catégorie
+      </button>
+    </div>
+  </main>
+</div>
+
+<app-modal
+  [title]="isEditing ? 'Modifier la catégorie' : 'Ajouter une catégorie'"
+  [open]="showModal"
+  (close)="closeModal()">
+  <form (ngSubmit)="save()" #catForm="ngForm">
+    <div class="form-error" *ngIf="formError">
+      <i class="ri-error-warning-line"></i>
+      {{ formError }}
+    </div>
+    <div class="form-group">
+      <label for="nom">Nom *</label>
+      <input
+        type="text"
+        id="nom"
+        name="nom"
+        [(ngModel)]="current.nom"
+        required
+        placeholder="Ex : Nature, Culture, Aventure, Sport…"
+      />
+    </div>
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea
+        id="description"
+        name="description"
+        [(ngModel)]="current.description"
+        rows="3"
+        placeholder="Description optionnelle de la catégorie"
+      ></textarea>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
+      <button type="submit" class="btn-primary" [disabled]="!catForm.valid || saving">
+        {{ saving ? (isEditing ? 'Modification...' : 'Ajout...') : (isEditing ? 'Modifier' : 'Ajouter') }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<app-modal title="Supprimer la catégorie" [open]="confirmDeleteOpen" [closeOnBackdrop]="false" size="small" (close)="confirmDeleteOpen = false">
+  <p>Êtes-vous sûr de vouloir supprimer cette catégorie ? Les activités liées perdront leur catégorie.</p>
+  <div class="d-flex gap-2 justify-content-end mt-3">
+    <be-button variant="secondary" label="Annuler" (click)="confirmDeleteOpen = false"></be-button>
+    <be-button variant="danger" label="Supprimer" (click)="executeDelete()"></be-button>
+  </div>
+</app-modal>

@@ -6,27 +6,27 @@ import { map } from 'rxjs/operators';
 export interface Activite {
   id: number;
   nom: string;
+  activiteType: 'ACTIVITE' | 'ATELIER';
   description: string;
   prix: number | null;
   duree: number | null;
-  // human-friendly display of duration (e.g. "2h30")
   dureeDisplay?: string;
-  type?: 'Culture' | 'Nature' | 'Aventure' | 'Détente' | string;
+  /** Catégorie de l'activité (Nature, Culture, Aventure…) — vient de CategorieActivite */
+  categorie?: string;
+  categorieId?: number | null;
+  /** Niveau de difficulté physique : Facile, Moyen, Difficile, Expert */
+  difficulte?: string | null;
   zoneId: number;
   zone?: string;
   images?: string[];
   ville?: string;
   villeId: number;
   villeNom: string;
-  // resolved main image URL (absolute or relative to backend)
   image?: string | null;
-  // preview url for UI (not persisted)
   imagePreview?: string | null;
-  dureeMinutes?: number | null; // exact duration in minutes as received from backend (if available)
+  dureeMinutes?: number | null;
   imagePrincipaleId?: number | null;
-  // display price string (EUR / XOF)
   prixDisplay?: string;
-  difficulte?: string | null;
   dureeInterne?: number | null;
   imagePrincipaleUrl?: string | null;
 }
@@ -62,14 +62,14 @@ export class ActivitesService {
 
     const payload: any = {
       nom: activite.nom,
+      type: activite.activiteType,
       description: activite.description,
-      // map frontend names to backend DTO names
       villeId: activite.villeId ?? null,
       dureeInterne: dureeInterne,
-      poids: (activite as any).prix ?? null,
-      difficulte: (activite as any).type ?? null,
+      poids: activite.prix ?? null,
+      categorieId: activite.categorieId ?? null,
+      difficulte: activite.difficulte ?? null,
       zoneId: activite.zoneId ?? null,
-      // images are handled separately; backend expects imagePrincipaleId (nullable)
       imagePrincipaleId: (activite as any).imagePrincipaleId ?? null
     };
 
@@ -82,11 +82,13 @@ export class ActivitesService {
 
     const payload: any = {
       nom: activite.nom,
+      type: activite.activiteType,
       description: activite.description,
       villeId: activite.villeId ?? null,
       dureeInterne: dureeInterne,
-      poids: (activite as any).prix ?? null,
-      difficulte: (activite as any).type ?? null,
+      poids: activite.prix ?? null,
+      categorieId: activite.categorieId ?? null,
+      difficulte: activite.difficulte ?? null,
       zoneId: activite.zoneId ?? null,
       imagePrincipaleId: (activite as any).imagePrincipaleId ?? null
     };
@@ -107,12 +109,15 @@ export class ActivitesService {
     const a: Activite = {
       id: dto.id,
       nom: dto.nom,
+      activiteType: dto.type,
       description: dto.description,
       prix: dto.poids ?? null,
-      duree: dto.dureeInterne != null ? Math.round(dto.dureeInterne / 60 * 100) / 100 : null, // hours with 2 decimals
+      duree: dto.dureeInterne != null ? Math.round(dto.dureeInterne / 60 * 100) / 100 : null,
       dureeMinutes: minutes,
       dureeDisplay,
-      type: dto.difficulte ?? undefined,
+      categorie: dto.categorieNom ?? undefined,
+      categorieId: dto.categorieId ?? null,
+      difficulte: dto.difficulte ?? null,
       zoneId: dto.zoneId ?? 0,
       zone: undefined,
       images: undefined,

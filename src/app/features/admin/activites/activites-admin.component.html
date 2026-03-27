@@ -47,7 +47,8 @@
       <app-data-table
         [columns]="tableColumns"
         [data]="filteredActivites"
-        [pageSize]="8"
+        [pageable]="true"
+        [pageSize]="7"
         [loading]="loading"
         [actions]="tableActions"
         (actionClick)="onTableAction($event)">
@@ -78,6 +79,7 @@
       [activite]="currentActivite"
       [zones]="zones"
       [villes]="villes"
+      [categories]="categories"
       [saving]="saving"
       (save)="onFormSave($event)"
       (cancel)="closeModal()">
