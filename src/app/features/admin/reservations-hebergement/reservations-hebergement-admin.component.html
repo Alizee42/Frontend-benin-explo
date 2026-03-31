@@ -43,6 +43,8 @@
           [loading]="loading"
           [actions]="tableActions"
           [iconOnlyActions]="true"
+          [pageable]="true"
+          [pageSize]="8"
           (actionClick)="onTableAction($event)"
           emptyMessage="Aucune reservation trouvee">
         </app-data-table>

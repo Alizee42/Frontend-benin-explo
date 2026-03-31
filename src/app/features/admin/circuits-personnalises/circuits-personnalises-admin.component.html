@@ -58,6 +58,7 @@
           [data]="demandes"
           [columns]="tableColumns"
           [actions]="tableActions"
+          [pageable]="true"
           [pageSize]="6"
           (actionClick)="onActionClick($event)">
         </app-data-table>

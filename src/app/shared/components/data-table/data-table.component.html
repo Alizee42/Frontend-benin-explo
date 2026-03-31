@@ -75,7 +75,7 @@
       <div class="pagination-info">Affichage {{ ((currentPage-1)*pageSize)+1 }} - {{ Math.min(currentPage*pageSize, data.length) }} sur {{ data.length }}</div>
       <div class="pagination-controls">
         <button class="page-btn" [disabled]="currentPage===1" (click)="prevPage()">Préc</button>
-        <button *ngFor="let p of [].constructor(totalPages); let i = index" class="page-number" [class.active]="currentPage===i+1" (click)="changePage(i+1)">{{ i+1 }}</button>
+        <button *ngFor="let p of pageNumbers" class="page-number" [class.active]="currentPage===p" (click)="changePage(p)">{{ p }}</button>
         <button class="page-btn" [disabled]="currentPage===totalPages" (click)="nextPage()">Suiv</button>
       </div>
     </div>

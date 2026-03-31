@@ -53,7 +53,12 @@ export class DataTableComponent {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['data'] && !changes['data'].firstChange) {
-      this.currentPage = 1;
+      const newTotal = Math.max(1, Math.ceil(
+        (changes['data'].currentValue?.length || 0) / (this.pageSize || 8)
+      ));
+      if (this.currentPage > newTotal) {
+        this.currentPage = 1;
+      }
     }
   }
 
@@ -219,6 +224,10 @@ export class DataTableComponent {
 
   prevPage() { this.changePage(this.currentPage - 1); }
   nextPage() { this.changePage(this.currentPage + 1); }
+
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
 
   // Image preview (lightbox) state
   imageModalOpen = false;

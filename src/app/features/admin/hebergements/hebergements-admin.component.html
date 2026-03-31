@@ -19,6 +19,8 @@
           [data]="hebergements"
           [actions]="tableActions"
           [loading]="loading"
+          [pageable]="true"
+          [pageSize]="7"
           (actionClick)="onTableAction($event)">
         </app-data-table>
       </div>

@@ -95,6 +95,7 @@
                     (click)="toggleActivite(activeJourIndex, activite)">
                     <div class="activite-header">
                       <h5>{{ activite.nom }}</h5>
+                      <span *ngIf="activite.activiteType === 'ATELIER'" class="badge bg-info ms-2">Atelier</span>
                       <div class="activite-actions">
                         <span class="prix" *ngIf="activite.prix != null">
                           {{ formatPrixBadge(activite.prix) }} {{ getPricingLabel() }}

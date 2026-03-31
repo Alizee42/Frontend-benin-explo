@@ -56,6 +56,8 @@
       [loading]="loading"
       [actions]="tableActions"
       [rowClickable]="true"
+      [pageable]="true"
+      [pageSize]="5"
       [emptyMessage]="searchTerm ? 'Aucun circuit ne correspond a cette recherche.' : 'Aucun circuit disponible.'"
       (actionClick)="onTableAction($event)"
       (rowClick)="onRowClick($event)">
