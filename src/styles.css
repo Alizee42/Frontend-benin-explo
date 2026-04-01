@@ -344,7 +344,6 @@ form { padding: 18px 20px 24px; }
 	max-height: calc(100vh - 12rem) !important;
 	object-fit: contain !important;
 }
-
 /* Allow modal content to accommodate the scaled image without clipping */
 .modal-overlay .modal-content {
 	overflow: visible;
