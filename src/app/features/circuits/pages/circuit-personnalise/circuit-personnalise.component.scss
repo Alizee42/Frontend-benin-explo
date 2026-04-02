@@ -1,11 +1,17 @@
 /* HERO SECTION */
 .hero-section {
   position: relative;
-  height: 220px;
+  min-height: 160px;
   background: var(--be-green);
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .hero-section {
+    min-height: 220px;
+  }
 }
 
 .hero-overlay {
@@ -22,7 +28,7 @@
   margin: 2.2rem auto;
 
   h1 {
-    font-size: 2.2rem;
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
     font-weight: 800;
     margin-bottom: 0.35rem;
   }
@@ -78,26 +84,38 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 1rem;
-  max-width: 800px;
+  gap: 0.35rem;
+  max-width: 100%;
   margin: 0 auto;
+  padding: 0 0.25rem;
 
-  @media (max-width: 768px) {
-    gap: 0.5rem;
-    max-width: 100%;
-    padding: 0 1rem;
+  @media (min-width: 769px) {
+    gap: 1rem;
+    max-width: 800px;
+    padding: 0;
   }
 }
 
 .step-heading {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
   margin-bottom: 1rem;
 
   h2 {
-    margin: 0 0 0.35rem;
+    margin: 0 0 0.25rem;
+  }
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+
+    h2 {
+      margin: 0 0 0.35rem;
+    }
   }
 }
 
@@ -224,8 +242,8 @@
 }
 
 .step-number {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--be-gold);
   color: white;
@@ -233,36 +251,41 @@
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 0.85rem;
+  flex-shrink: 0;
 
-  @media (max-width: 768px) {
-    width: 30px;
-    height: 30px;
-    font-size: 0.9rem;
+  @media (min-width: 769px) {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
   }
 }
 
 .step-label {
-  font-size: 0.84rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--be-dark);
 
-  @media (max-width: 768px) {
-    font-size: 0.8rem;
+  @media (min-width: 769px) {
+    font-size: 0.84rem;
   }
 }
 
 /* STEP CONTAINER */
 .step-container {
-  padding: 1.1rem 1.1rem;
+  padding: 0.85rem 0.85rem;
   min-height: auto;
 
   h2 {
     color: var(--be-green);
-    font-size: 1.8rem;
+    font-size: clamp(1.25rem, 4vw, 1.8rem);
     font-weight: 800;
     margin-bottom: 0.5rem;
     text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    padding: 1.1rem;
   }
 
   > p {
@@ -277,14 +300,18 @@
   max-width: 1000px;
   margin: 0 auto;
   background: #fefefe;
-  padding: 1.35rem;
+  padding: 1rem;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
   border: 1px solid #e0e0e0;
 
+  @media (min-width: 768px) {
+    padding: 1.35rem;
+  }
+
   h2 {
     color: var(--be-green);
-    font-size: 1.8rem;
+    font-size: clamp(1.25rem, 4vw, 1.8rem);
     font-weight: 800;
     margin-bottom: 1.2rem;
     text-align: center;
@@ -1079,9 +1106,15 @@
 /* ÉTAPE 3: OPTIONS */
 .options-form {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+
+  @media (min-width: 600px) {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
 }
 
 .option-group {
@@ -1129,12 +1162,12 @@
 
 .form-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
   margin-bottom: 1rem;
 
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+  @media (min-width: 576px) {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -1169,12 +1202,14 @@
 
 .submit-actions {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.75rem;
   margin-top: 1.25rem;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
+  @media (min-width: 576px) {
+    flex-direction: row;
+    justify-content: center;
+    gap: 1rem;
   }
 }
 
@@ -1244,12 +1279,14 @@
 /* BUTTONS */
 .step-actions {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.75rem;
   margin-top: 1.25rem;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
+  @media (min-width: 576px) {
+    flex-direction: row;
+    justify-content: center;
+    gap: 1rem;
   }
 }
 
@@ -1262,8 +1299,16 @@
   cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  width: 100%;
   text-align: center;
+
+  @media (min-width: 576px) {
+    width: auto;
+  }
 }
 
 .btn-next, .btn-submit {
@@ -1316,13 +1361,14 @@
 
   .form-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
 
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-      gap: 1rem;
+    @media (min-width: 576px) {
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
     }
   }
 
@@ -1391,12 +1437,15 @@
 /* FORM ACTIONS */
 .form-actions {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 2rem;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
+  @media (min-width: 576px) {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2rem;
   }
 
   .btn-secondary {
@@ -1443,46 +1492,21 @@
   }
 }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .hero-section {
-    height: 180px;
-
-    .hero-content h1 {
-      font-size: 1.75rem;
-    }
-  }
-
-  .form-container {
-    padding: 1.25rem 1rem;
-  }
-
-  .form-wrapper {
-    padding: 1.4rem 1.1rem;
-  }
-}
-
-@media (max-width: 1024px) {
-  .step-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .step-aside {
-    position: static;
-  }
-
-  .step-heading {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
+/* Supprimé : ces blocs desktop-first (max-width) ont été convertis
+   en mobile-first inline sur chaque composant ci-dessus */
 
 /* SUMMARY STYLES */
 .resume-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
 }
 
 .resume-card {
