@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { resolveApiUrl } from '../config/api-base-url';
 
 export interface MediaDTO {
   id: number;
@@ -23,11 +24,10 @@ export class MediaService {
       map(m => {
         if (!m) return m;
         const url = m.url || '';
-        // si URL relative, garder en relatif (même origine), compatible Nginx + proxy dev
         const trimmed = url.trim();
         const resolved = (trimmed.startsWith('http') || trimmed.startsWith('data:'))
           ? trimmed
-          : (trimmed.startsWith('/') ? trimmed : `/${trimmed}`);
+          : resolveApiUrl(trimmed.startsWith('/') ? trimmed : `/${trimmed}`);
         return { ...m, url: resolved } as MediaDTO;
       })
     );
@@ -50,7 +50,7 @@ export class MediaService {
     if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('//') || value.startsWith('data:')) {
       return value;
     }
-    return value.startsWith('/') ? value : `/${value}`;
+    return resolveApiUrl(value.startsWith('/') ? value : `/${value}`);
   }
 
   /**
