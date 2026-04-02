@@ -390,80 +390,114 @@
   }
 }
 
-/* Mobile: switch to stacked rows (label + value) to improve readability */
+/* Mobile: switch to stacked card rows (label + value) */
 @media (max-width: 720px) {
   .table-wrapper {
-    overflow-x: hidden; /* avoid horizontal scroll, use stacked rows */
+    overflow-x: auto; /* fallback sécurisé */
   }
 
   .data-table thead {
     display: none;
   }
 
+  /* Chaque ligne devient une card */
   .data-table tbody .data-row {
     display: block;
-    margin-bottom: 0.6rem;
-    padding: 0.6rem 0;
-    background: transparent;
-    border-radius: 8px;
-    box-shadow: none;
-    border-bottom: 1px solid #eee;
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #e4eaee;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.9rem;
+    transform: none !important;
   }
 
+  .data-table tbody .data-row:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.11);
+    background: #fff;
+  }
+
+  /* Chaque cellule = une ligne label / valeur */
   .data-table tbody td {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 0;
+    padding: 0.48rem 0;
     border: none;
+    border-bottom: 1px dashed #eef1f4;
     background: transparent;
   }
 
-  /* Label shown on the left of each cell */
+  .data-table tbody tr td:last-child {
+    border-bottom: none;
+  }
+
+  /* Label à gauche de chaque cellule */
   .data-table tbody td::before {
     content: attr(data-label);
     display: inline-block;
-    width: 45%;
-    max-width: 45%;
-    margin-right: 0.6rem;
-    color: #6c757d;
-    font-weight: 600;
-    font-size: 0.78rem;
+    min-width: 42%;
+    max-width: 42%;
+    margin-right: 0.5rem;
+    color: #6b7280;
+    font-weight: 700;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
   }
 
-  /* Hide label for image and actions cells (they render differently) */
+  /* Pas de label pour image et actions */
   .data-table tbody td[data-type="image"]::before,
   .data-table tbody td[data-type="actions"]::before {
     content: none;
-    width: auto;
+    min-width: 0;
+    max-width: 0;
     margin: 0;
   }
 
-  .data-table tbody td .image-cell {
-    justify-content: flex-start;
-    gap: 0.6rem;
+  /* Image : alignée à droite */
+  .data-table tbody td[data-type="image"] {
+    justify-content: flex-end;
   }
 
-  /* Actions: make buttons scrollable horizontally or stacked */
+  .data-table tbody td .image-cell {
+    justify-content: flex-end;
+  }
+
+  /* Actions : centrées en bas de la card, séparées par un tiret */
+  .data-table tbody td[data-type="actions"] {
+    justify-content: center;
+    padding-top: 0.65rem;
+    margin-top: 0.15rem;
+    border-top: 1px dashed #e4eaee;
+    border-bottom: none;
+  }
+
   .data-table tbody td[data-type="actions"] .actions-cell {
     display: flex;
-    gap: 0.4rem;
-    overflow-x: auto;
-    padding-bottom: 4px;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
-  /* Ensure values wrap nicely */
+  .data-table tbody td[data-type="actions"] .actions-cell .btn-action {
+    min-width: 40px;
+    height: 36px;
+    padding: 0.35rem 0.55rem;
+  }
+
+  /* Valeurs alignées à droite */
   .data-table tbody td span,
-  .data-table tbody td .module-body,
-  .data-table tbody td .kpi-content {
+  .data-table tbody td .cell-content,
+  .data-table tbody td .module-body {
     text-align: right;
     display: block;
     width: 55%;
     max-width: 55%;
-    color: var(--be-dark);
     word-break: break-word;
+    color: var(--be-dark);
   }
-
 }
 
 @media (min-width: 769px) {

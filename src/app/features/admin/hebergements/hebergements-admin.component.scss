@@ -5,15 +5,24 @@
 
 .admin-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
 
   h1 {
     color: var(--be-green);
-    font-size: 2rem;
+    font-size: clamp(1.35rem, 4vw, 2rem);
     font-weight: 700;
   }
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+}
 
   .btn-add {
     background: var(--be-gold);
@@ -40,7 +49,6 @@
       font-size: 1rem;
     }
   }
-}
 
 .admin-content {
   background: white;
@@ -69,12 +77,12 @@
 .hebergement-form {
   .form-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 1rem;
     margin-bottom: 1rem;
 
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
+    @media (min-width: 576px) {
+      grid-template-columns: 1fr 1fr;
     }
   }
 
@@ -115,11 +123,29 @@
 }
 
 .modal-footer {
-  padding: 1.5rem;
+  padding: 1rem;
   border-top: 1px solid #e0e0e0;
   display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  .btn-cancel, .btn-save {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  @media (min-width: 576px) {
+    flex-direction: row;
+    justify-content: flex-end;
+    padding: 1.5rem;
+    gap: 1rem;
+
+    .btn-cancel, .btn-save {
+      width: auto;
+    }
+  }
+}
 
   .btn-cancel {
     background: #e0e0e0;
@@ -153,36 +179,8 @@
       color: white;
     }
   }
-}
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .admin-container {
-    padding: 1rem;
-  }
-
-  .admin-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-
-    h1 {
-      font-size: 1.5rem;
-    }
-  }
-
-  .modal-body {
-    padding: 1rem;
-  }
-
-  .modal-footer {
-    flex-direction: column;
-
-    .btn-cancel, .btn-save {
-      width: 100%;
-    }
-  }
-}
+/* Responsive block moved to mobile-first inline above */
 
 // Image upload styles
 .image-upload-section {
