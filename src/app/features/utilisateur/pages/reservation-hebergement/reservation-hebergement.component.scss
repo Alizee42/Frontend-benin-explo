@@ -8,20 +8,30 @@
 .circuits-hero {
   background: var(--be-green);
   color: var(--be-light);
-  padding: 5rem 1rem 4rem;
+  padding: 2.5rem 1rem 2rem;
   text-align: center;
 
   .hero-title {
-    font-size: 3rem;
+    font-size: clamp(1.8rem, 5vw, 3rem);
     font-weight: 800;
     margin-bottom: 1rem;
   }
 
   .hero-subtitle {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     max-width: 600px;
     margin: 0 auto;
     opacity: 0.9;
+  }
+}
+
+@media (min-width: 768px) {
+  .circuits-hero {
+    padding: 5rem 1rem 4rem;
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+    }
   }
 }
 

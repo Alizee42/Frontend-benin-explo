@@ -40,8 +40,13 @@ main {
 
 /* Ensure page content doesn't sit under the sticky header */
 main.main {
-	padding-top: 64px;
-	/* header height */
+	padding-top: 56px; /* mobile header height */
+}
+
+@media (min-width: 851px) {
+	main.main {
+		padding-top: 64px;
+	}
 }
 
 /* Admin content width system (single source of truth) */

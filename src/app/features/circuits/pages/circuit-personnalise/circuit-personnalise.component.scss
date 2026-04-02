@@ -120,14 +120,24 @@
 
 .step-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-columns: 1fr;
   gap: 1.15rem;
   align-items: start;
 }
 
 .step-aside {
-  position: sticky;
-  top: 84px;
+  position: static;
+}
+
+@media (min-width: 992px) {
+  .step-grid {
+    grid-template-columns: minmax(0, 1fr) 320px;
+  }
+
+  .step-aside {
+    position: sticky;
+    top: 84px;
+  }
 }
 
 .summary-card {

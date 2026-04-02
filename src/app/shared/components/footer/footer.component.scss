@@ -43,6 +43,11 @@
     flex-direction: column;
     gap: 1rem;
   }
+
+  .contact-mini {
+    flex-direction: row;
+    align-self: flex-end;
+  }
 }
 
 /* ==========================================
@@ -134,11 +139,11 @@
 
 .contact-mini {
   display: flex;
-  flex-direction: row; /* desktop: email + bouton côte à côte */
+  flex-direction: column; /* mobile-first: stacked */
   gap: 0.6rem;
   align-items: center;
   justify-content: center;
-  align-self: flex-end; /* place the block to the right inside .footer-meta */
+  align-self: center;
 }
 
 .contact-mini .footer-link {
@@ -325,13 +330,6 @@
 
   .newsletter-form {
     flex-direction: column;
-  }
-
-  .contact-mini {
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    align-self: center;
   }
 
   /* Make footer-inner wider on mobile: use full available width with small side padding */
