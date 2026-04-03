@@ -1193,6 +1193,17 @@
   }
 }
 
+@media (max-width: 380px) {
+  .steps-indicator .step-item .step-label {
+    display: none;
+  }
+
+  .steps-indicator .step-divider {
+    max-width: 20px;
+    margin: 0 0.25rem;
+  }
+}
+
 /* Visual refresh */
 .circuit-form-container {
   position: relative;

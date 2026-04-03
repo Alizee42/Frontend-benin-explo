@@ -271,6 +271,30 @@
   }
 }
 
+@media (max-width: 480px) {
+  .progress-bar {
+    gap: 0.2rem;
+    justify-content: space-between;
+    padding: 0 0.5rem;
+  }
+
+  .progress-step {
+    flex-direction: column;
+    gap: 0.2rem;
+    text-align: center;
+  }
+
+  .step-number {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+
+  .step-label {
+    font-size: 0.62rem;
+  }
+}
+
 /* STEP CONTAINER */
 .step-container {
   padding: 0.85rem 0.85rem;
