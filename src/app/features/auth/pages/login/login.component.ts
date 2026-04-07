@@ -45,7 +45,7 @@ export class LoginComponent {
       this.authService.login(credentials).subscribe({
         next: (response) => {
           const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-          const target = returnUrl || (this.authService.isAdmin() ? '/admin/dashboard' : '/');
+          const target = returnUrl || (this.authService.isAdmin() ? '/admin/dashboard' : '/dashboard');
           this.loading = false;
           this.router.navigateByUrl(target);
         },

@@ -101,11 +101,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
   logout() {
     this.authService.logout();
     this.closeMenu();
+    this.router.navigate(['/']);
   }
 
   goToDashboard() {
-    this.router.navigate(['/admin/dashboard']);
+    this.router.navigate([this.getDashboardRoute()]);
     this.closeMenu();
+  }
+
+  getDashboardRoute(): string {
+    return this.isAdmin ? '/admin/dashboard' : '/dashboard';
+  }
+
+  getDashboardLabel(): string {
+    return this.isAdmin ? 'Tableau de bord' : 'Mon espace';
   }
 
   toggleUserDropdown() {

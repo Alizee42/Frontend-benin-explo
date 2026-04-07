@@ -35,13 +35,14 @@
         <a class="nav-link" routerLink="/hebergements" (click)="closeMenu()">Hebergements</a>
         <a class="nav-link" routerLink="/" fragment="news" (click)="closeMenu()">Actualite</a>
         <a class="nav-link" routerLink="/" fragment="contact" (click)="closeMenu()">Contact</a>
+        <a class="nav-link" *ngIf="isLoggedIn" [routerLink]="getDashboardRoute()" (click)="closeMenu()">{{ getDashboardLabel() }}</a>
 
         <a class="nav-link" *ngIf="!isLoggedIn" routerLink="/login" (click)="closeMenu()">Connexion</a>
       </nav>
 
       <nav class="nav compact-nav" *ngIf="mode === 'compact'">
         <a class="nav-link" routerLink="/" (click)="closeMenu()">Accueil</a>
-        <a *ngIf="isAdmin" class="nav-link" routerLink="/admin/dashboard" (click)="closeMenu()">Tableau de bord</a>
+        <a *ngIf="isLoggedIn" class="nav-link" [routerLink]="getDashboardRoute()" (click)="closeMenu()">{{ getDashboardLabel() }}</a>
       </nav>
 
       <div class="user-actions desktop-only" *ngIf="isLoggedIn">
@@ -61,11 +62,11 @@
               <li><hr class="dropdown-divider"></li>
 
               <li>
-                <a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a>
+                <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">{{ getDashboardLabel() }}</a>
               </li>
 
-              <li *ngIf="isAdmin">
-                <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">Tableau de bord</a>
+              <li>
+                <a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a>
               </li>
 
               <li>
@@ -83,10 +84,14 @@
               <li><hr class="dropdown-divider"></li>
 
               <li>
+                <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">{{ getDashboardLabel() }}</a>
+              </li>
+
+              <li>
                 <a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a>
               </li>
 
-              <li *ngIf="isAdmin">
+              <li>
                 <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Parametres</a>
               </li>
 
@@ -124,11 +129,11 @@
               <li><hr class="dropdown-divider"></li>
 
               <li>
-                <a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a>
+                <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">{{ getDashboardLabel() }}</a>
               </li>
 
-              <li *ngIf="isAdmin">
-                <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">Tableau de bord</a>
+              <li>
+                <a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a>
               </li>
 
               <li>
@@ -144,10 +149,14 @@
               <li><hr class="dropdown-divider"></li>
 
               <li>
+                <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">{{ getDashboardLabel() }}</a>
+              </li>
+
+              <li>
                 <a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a>
               </li>
 
-              <li *ngIf="isAdmin">
+              <li>
                 <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Parametres</a>
               </li>
 

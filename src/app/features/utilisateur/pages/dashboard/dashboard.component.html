@@ -1,0 +1,156 @@
+<div class="client-dashboard">
+
+  <header class="dash-header">
+    <div class="dash-header__inner">
+      <div class="dash-header__greeting">
+        <div class="dash-avatar">{{ firstName.charAt(0).toUpperCase() }}</div>
+        <div>
+          <span class="dash-eyebrow">Espace client</span>
+          <h1>Bonjour, {{ firstName }}</h1>
+        </div>
+      </div>
+      <div class="dash-header__account">
+        <span class="dash-account__label">Compte connecte</span>
+        <strong>{{ displayName || 'Benin Explo' }}</strong>
+        <span>{{ email || 'Email non disponible' }}</span>
+        <span *ngIf="telephone">{{ telephone }}</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="dash-body">
+    <div class="dashboard-alert dashboard-alert--error" *ngIf="errorMessage">
+      <i class="ri-error-warning-line"></i>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <div class="dashboard-alert dashboard-alert--loading" *ngIf="loading">
+      <i class="ri-loader-4-line spin"></i>
+      <span>Chargement de votre espace client...</span>
+    </div>
+
+    <div *ngIf="loaded">
+      <div class="stats-grid">
+        <article class="stat-card">
+          <div class="stat-card__icon stat-card__icon--blue">
+            <i class="ri-calendar-check-line"></i>
+          </div>
+          <div class="stat-card__body">
+            <strong>{{ totalReservations }}</strong>
+            <span class="stat-card__label">Reservations</span>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-card__icon stat-card__icon--green">
+            <i class="ri-hotel-bed-line"></i>
+          </div>
+          <div class="stat-card__body">
+            <strong>{{ totalHebergements }}</strong>
+            <span class="stat-card__label">Hebergements</span>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-card__icon stat-card__icon--teal">
+            <i class="ri-route-line"></i>
+          </div>
+          <div class="stat-card__body">
+            <strong>{{ totalCircuits }}</strong>
+            <span class="stat-card__label">Circuits</span>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-card__icon stat-card__icon--gold">
+            <i class="ri-shield-check-line"></i>
+          </div>
+          <div class="stat-card__body">
+            <strong>{{ reservationsConfirmees }} <small>confirm{{ reservationsConfirmees > 1 ? 'ees' : 'ee' }}</small></strong>
+            <span class="stat-card__label">{{ reservationsEnAttente }} en attente</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="dashboard-grid">
+        <section class="panel">
+          <div class="panel__header">
+            <h2><i class="ri-lightning-line"></i> Actions rapides</h2>
+          </div>
+
+          <div class="quick-links">
+            <a routerLink="/mes-reservations" class="quick-link">
+              <i class="ri-calendar-check-line"></i>
+              <div>
+                <strong>Mes reservations</strong>
+                <span>Voir toutes les reservations</span>
+              </div>
+              <i class="ri-arrow-right-s-line quick-link__arrow"></i>
+            </a>
+
+            <a routerLink="/hebergements" class="quick-link">
+              <i class="ri-hotel-bed-line"></i>
+              <div>
+                <strong>Reserver un hebergement</strong>
+                <span>Parcourir les logements</span>
+              </div>
+              <i class="ri-arrow-right-s-line quick-link__arrow"></i>
+            </a>
+
+            <a routerLink="/circuit" class="quick-link">
+              <i class="ri-route-line"></i>
+              <div>
+                <strong>Explorer les circuits</strong>
+                <span>Decouvrir les itineraires</span>
+              </div>
+              <i class="ri-arrow-right-s-line quick-link__arrow"></i>
+            </a>
+
+            <a routerLink="/profil" class="quick-link">
+              <i class="ri-user-3-line"></i>
+              <div>
+                <strong>Mon profil</strong>
+                <span>Informations du compte</span>
+              </div>
+              <i class="ri-arrow-right-s-line quick-link__arrow"></i>
+            </a>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel__header panel__header--inline">
+            <h2><i class="ri-history-line"></i> Activite recente</h2>
+            <a routerLink="/mes-reservations" class="panel-link">
+              Tout voir <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+
+          <div class="empty-state" *ngIf="recentActivity.length === 0">
+            <i class="ri-inbox-2-line"></i>
+            <strong>Aucune reservation</strong>
+            <span>Vos futures reservations apparaitront ici.</span>
+          </div>
+
+          <div class="activity-list" *ngIf="recentActivity.length > 0">
+            <article class="activity-item" *ngFor="let item of recentActivity">
+              <div class="activity-item__icon" [class.activity-item__icon--circuit]="item.kind === 'circuit'">
+                <i [class]="item.kind === 'hebergement' ? 'ri-hotel-bed-line' : 'ri-route-line'"></i>
+              </div>
+
+              <div class="activity-item__content">
+                <div class="activity-item__top">
+                  <strong>{{ item.title }}</strong>
+                  <span class="status-badge" [ngClass]="getStatusClass(item.status)">
+                    {{ getStatusLabel(item.status) }}
+                  </span>
+                </div>
+                <span class="activity-item__meta">{{ item.details }}</span>
+                <span class="activity-item__date">{{ formatDate(item.date) }}</span>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>

@@ -41,7 +41,7 @@ export class RegisterComponent {
   createdUser: User | null = null;
   emailDeliveryLabel = '';
   autoLoginSucceeded = false;
-  continueUrl = '/mes-reservations';
+  continueUrl = '/dashboard';
 
   constructor(
     private fb: FormBuilder,
@@ -60,7 +60,7 @@ export class RegisterComponent {
 
     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
     this.loginQueryParams = returnUrl ? { returnUrl } : null;
-    this.continueUrl = returnUrl || '/mes-reservations';
+    this.continueUrl = returnUrl || '/dashboard';
   }
 
   onSubmit(): void {
@@ -129,7 +129,7 @@ export class RegisterComponent {
       return 'Aller a la connexion';
     }
 
-    return this.continueUrl === '/mes-reservations'
+    return this.continueUrl === '/dashboard' || this.continueUrl === '/mes-reservations'
       ? 'Voir mon espace'
       : 'Continuer';
   }

@@ -52,6 +52,13 @@ export const routes: Routes = [
     data: { headerLight: true }
   },
 
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./features/utilisateur/pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [authGuard]
+  },
+
   /* RESERVATION HEBERGEMENT */
   {
     path: 'reservation-hebergement/:id',
