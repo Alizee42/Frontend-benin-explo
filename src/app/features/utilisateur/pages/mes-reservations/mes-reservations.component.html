@@ -45,9 +45,14 @@
                   <i class="ri-hotel-bed-line"></i>
                   <strong>{{ r.hebergementNom }}</strong>
                 </div>
-                <span class="status-badge" [ngClass]="getStatusClass(r.statut)">
-                  {{ getStatusLabel(r.statut) }}
-                </span>
+                <div class="resa-card__badges">
+                  <span class="status-badge" [ngClass]="getStatusClass(r.statut)">
+                    {{ getStatusLabel(r.statut) }}
+                  </span>
+                  <span class="status-badge" [ngClass]="getPaymentStatusClass(r.statutPaiement)">
+                    {{ getPaymentStatusLabel(r.statutPaiement) }}
+                  </span>
+                </div>
               </div>
 
               <div class="resa-card__details">
@@ -79,8 +84,19 @@
                 <i class="ri-message-2-line"></i> {{ r.commentaires }}
               </div>
 
+              <div class="resa-card__payment-meta" *ngIf="r.datePaiement || r.paypalCaptureId">
+                <span *ngIf="r.datePaiement">Paye le {{ formatDateTime(r.datePaiement) }}</span>
+                <span *ngIf="r.paypalCaptureId">Capture PayPal: {{ r.paypalCaptureId }}</span>
+              </div>
+
               <div class="resa-card__footer">
                 <span class="resa-date-created">Reserve le {{ formatDate(r.dateCreation) }}</span>
+                <a
+                  *ngIf="canPayReservation(r)"
+                  class="pay-link"
+                  [routerLink]="['/paiement/hebergement', r.id]">
+                  Payer maintenant
+                </a>
               </div>
             </div>
           </div>

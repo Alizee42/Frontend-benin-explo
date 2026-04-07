@@ -132,8 +132,4 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return 'U';
   }
 
-  getUserAvatarColor(): string {
-    // Plus de couleur dynamique, on utilise un fond uni avec motif
-    return 'var(--be-sand)';
-  }
 }

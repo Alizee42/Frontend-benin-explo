@@ -1,0 +1,133 @@
+<div class="payment-page">
+  <section class="payment-hero">
+    <div class="payment-hero__content">
+      <span class="payment-hero__eyebrow">Paiement securise</span>
+      <h1>Reglez votre reservation</h1>
+      <p>Le montant total est regle en une seule fois avec PayPal. Votre reservation reste visible dans votre espace client a chaque etape.</p>
+    </div>
+  </section>
+
+  <main class="payment-shell">
+    <div class="payment-state payment-state--loading" *ngIf="loading">
+      <i class="ri-loader-4-line spin"></i>
+      <span>Chargement de votre reservation...</span>
+    </div>
+
+    <div class="payment-state payment-state--error" *ngIf="!loading && errorMessage">
+      <i class="ri-error-warning-line"></i>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <div class="payment-state payment-state--success" *ngIf="successMessage">
+      <i class="ri-checkbox-circle-line"></i>
+      <span>{{ successMessage }}</span>
+    </div>
+
+    <div class="payment-layout" *ngIf="!loading && reservation">
+      <section class="payment-card payment-card--summary">
+        <div class="payment-card__header">
+          <span class="payment-card__eyebrow">Reservation</span>
+          <h2>{{ reservation.hebergementNom || 'Hebergement' }}</h2>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span>Arrivee</span>
+            <strong>{{ formatDate(reservation.dateArrivee) }}</strong>
+          </div>
+          <div class="summary-item">
+            <span>Depart</span>
+            <strong>{{ formatDate(reservation.dateDepart) }}</strong>
+          </div>
+          <div class="summary-item">
+            <span>Duree</span>
+            <strong>{{ getNuits() }} nuit{{ getNuits() > 1 ? 's' : '' }}</strong>
+          </div>
+          <div class="summary-item">
+            <span>Voyageurs</span>
+            <strong>{{ reservation.nombrePersonnes }} personne{{ (reservation.nombrePersonnes || 0) > 1 ? 's' : '' }}</strong>
+          </div>
+        </div>
+
+        <div class="payment-total">
+          <span>Total a regler</span>
+          <strong>{{ getTotalPrice() | number:'1.2-2' }} €</strong>
+          <small>≈ {{ getTotalPrice() * 655.957 | number:'1.0-0' }} F CFA</small>
+        </div>
+
+        <div class="payment-note payment-note--info" *ngIf="isSandboxCurrencyMismatch">
+          <i class="ri-information-line"></i>
+          <span>
+            Mode test PayPal sandbox: le site reste affiche en EUR, mais le checkout PayPal sera simule en
+            <strong>{{ payPalCurrency }}</strong> avec le meme montant numerique, soit <strong>{{ formatPayPalAmount() }}</strong>.
+          </span>
+        </div>
+
+        <div class="payment-status-line">
+          <span class="status-badge" [ngClass]="getPaymentStatusClass(reservation.statutPaiement)">
+            {{ getPaymentStatusLabel(reservation.statutPaiement) }}
+          </span>
+          <span class="payment-status-line__text" *ngIf="reservation.datePaiement">
+            Regle le {{ formatDateTime(reservation.datePaiement) }}
+          </span>
+        </div>
+
+        <div class="payment-meta" *ngIf="reservation.paypalCaptureId || reservation.paypalOrderId">
+          <div class="payment-meta__item" *ngIf="reservation.paypalOrderId">
+            <span>Commande PayPal</span>
+            <strong>{{ reservation.paypalOrderId }}</strong>
+          </div>
+          <div class="payment-meta__item" *ngIf="reservation.paypalCaptureId">
+            <span>Capture PayPal</span>
+            <strong>{{ reservation.paypalCaptureId }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="payment-card payment-card--checkout">
+        <div class="payment-card__header">
+          <span class="payment-card__eyebrow">Checkout</span>
+          <h2>Payer avec PayPal</h2>
+          <p *ngIf="!isPaid">Validez maintenant pour regler 100% du montant de votre sejour.</p>
+          <p *ngIf="isPaid">Votre paiement est deja enregistre. Vous pouvez revenir a votre espace client.</p>
+        </div>
+
+        <div class="payment-note payment-note--warning" *ngIf="isSandboxCurrencyMismatch">
+          <i class="ri-flask-line"></i>
+          <span>
+            Test technique uniquement: PayPal sandbox utilise ici <strong>{{ payPalCurrency }}</strong> pour contourner
+            le refus de conformite rencontre avec le couple pays/devise precedent.
+          </span>
+        </div>
+
+        <div class="payment-state payment-state--loading" *ngIf="sdkLoading">
+          <i class="ri-loader-4-line spin"></i>
+          <span>Preparation du module PayPal...</span>
+        </div>
+
+        <div class="payment-state payment-state--success" *ngIf="isPaid">
+          <i class="ri-shield-check-line"></i>
+          <span>Le paiement complet de cette reservation a bien ete valide.</span>
+        </div>
+
+        <div class="payment-state payment-state--error" *ngIf="buttonsUnavailable && !isPaid">
+          <i class="ri-close-circle-line"></i>
+          <span>PayPal n'est pas disponible pour cette reservation pour le moment.</span>
+        </div>
+
+        <div class="paypal-buttons" #paypalButtonsContainer *ngIf="!isPaid && !sdkLoading && canAttemptPayment"></div>
+
+        <div class="payment-processing" *ngIf="paymentProcessing">
+          <i class="ri-loader-4-line spin"></i>
+          <span>Validation du paiement en cours...</span>
+        </div>
+
+        <div class="checkout-actions">
+          <button type="button" class="btn secondary" routerLink="/mes-reservations">Mes reservations</button>
+          <button type="button" class="btn ghost" routerLink="/dashboard">Mon espace</button>
+          <button type="button" class="btn primary" *ngIf="!isPaid && canAttemptPayment" (click)="retryPayment()">Recharger PayPal</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>

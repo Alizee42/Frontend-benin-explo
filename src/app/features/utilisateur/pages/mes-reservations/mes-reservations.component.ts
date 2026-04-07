@@ -106,7 +106,52 @@ export class MesReservationsComponent implements OnInit {
     return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('fr-FR');
   }
 
+  formatDateTime(d?: string): string {
+    if (!d) return '';
+    const date = new Date(d);
+    return Number.isNaN(date.getTime())
+      ? ''
+      : date.toLocaleString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+  }
+
   getNuits(r: ReservationHebergementDTO): number {
     return r.nombreNuits || 0;
+  }
+
+  getPaymentStatusLabel(statut?: string): string {
+    switch ((statut || '').toUpperCase()) {
+      case 'PAYE': return 'Paye';
+      case 'EN_COURS': return 'En cours';
+      case 'ECHEC': return 'Echec';
+      case 'REMBOURSE': return 'Rembourse';
+      case 'A_PAYER': return 'A payer';
+      default: return 'Non renseigne';
+    }
+  }
+
+  getPaymentStatusClass(statut?: string): string {
+    switch ((statut || '').toUpperCase()) {
+      case 'PAYE': return 'badge-success';
+      case 'EN_COURS': return 'badge-info';
+      case 'ECHEC': return 'badge-danger';
+      case 'REMBOURSE': return 'badge-secondary';
+      case 'A_PAYER': return 'badge-warning';
+      default: return 'badge-secondary';
+    }
+  }
+
+  canPayReservation(reservation: ReservationHebergementDTO): boolean {
+    const reservationStatus = (reservation.statut || 'EN_ATTENTE').toUpperCase();
+    const paymentStatus = (reservation.statutPaiement || '').toUpperCase();
+    return !!reservation.id
+      && reservationStatus !== 'ANNULEE'
+      && paymentStatus !== 'PAYE'
+      && paymentStatus !== 'REMBOURSE';
   }
 }

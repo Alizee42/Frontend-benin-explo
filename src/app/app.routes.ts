@@ -59,6 +59,13 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
+  {
+    path: 'paiement/hebergement/:reservationId',
+    loadComponent: () =>
+      import('./features/utilisateur/pages/paiement-hebergement/paiement-hebergement.component').then(m => m.PaiementHebergementComponent),
+    canActivate: [authGuard]
+  },
+
   /* RESERVATION HEBERGEMENT */
   {
     path: 'reservation-hebergement/:id',

@@ -261,8 +261,8 @@
 
           <div class="step-content" *ngIf="currentStep === 3">
             <div class="step-header">
-              <h3><i class="ri-file-list-line"></i> Confirmation de reservation</h3>
-              <p>Verifiez vos informations et confirmez votre reservation</p>
+              <h3><i class="ri-file-list-line"></i> Confirmation et paiement</h3>
+              <p>Verifiez vos informations puis continuez vers le paiement complet du sejour.</p>
             </div>
 
             <div class="summary-card">
@@ -283,8 +283,13 @@
               </div>
 
               <div class="summary-section total-section">
-                <div class="summary-item total"><span><i class="ri-calculator-line"></i> Total:</span><span>{{ getTotalPrice() }} EUR</span></div>
+                <div class="summary-item total"><span><i class="ri-calculator-line"></i> Total:</span><span>{{ getTotalPrice() | number:'1.2-2' }} EUR</span></div>
               </div>
+            </div>
+
+            <div class="account-prefill">
+              <i class="ri-secure-payment-line"></i>
+              <span>En cliquant ci-dessous, votre reservation sera creee puis vous serez redirige vers PayPal pour regler 100% du montant.</span>
             </div>
           </div>
         </div>
@@ -312,8 +317,8 @@
           </button>
 
           <button type="submit" class="btn primary" *ngIf="currentStep === totalSteps" (click)="onSubmit()" [disabled]="isSubmitting || !isFormValid()">
-            <span *ngIf="isSubmitting"><i class="ri-loader-4-line spinning"></i> Reservation en cours...</span>
-            <span *ngIf="!isSubmitting"><i class="ri-check-line"></i> Confirmer la reservation</span>
+            <span *ngIf="isSubmitting"><i class="ri-loader-4-line spinning"></i> Preparation du paiement...</span>
+            <span *ngIf="!isSubmitting"><i class="ri-secure-payment-line"></i> Continuer vers le paiement</span>
           </button>
         </div>
       </section>

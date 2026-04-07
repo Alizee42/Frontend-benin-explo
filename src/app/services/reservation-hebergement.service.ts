@@ -53,6 +53,10 @@ export class ReservationHebergementService {
     return this.http.get<ReservationHebergementDTO[]>(`${this.apiUrl}/me`);
   }
 
+  getMineById(id: number): Observable<ReservationHebergementDTO> {
+    return this.http.get<ReservationHebergementDTO>(`${this.apiUrl}/me/${id}`);
+  }
+
   checkDisponibilite(hebergementId: number, dateArrivee: string, dateDepart: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.apiUrl}/disponibilite`, {
       params: {

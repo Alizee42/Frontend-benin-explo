@@ -1,172 +1,116 @@
 <header class="site-header" [class.open]="menuOpen" [class.compact]="mode === 'compact'">
   <div class="header-inner">
 
-    <div class="logo" *ngIf="mode === 'normal' || mode === 'compact'">
-      <a routerLink="/" aria-label="Benin Explo home" class="brand">
-        <img src="assets/logos/BeninExplo.png" alt="Logo Benin Explo" class="brand-image" />
+    <!-- Logo -->
+    <a routerLink="/" class="brand" aria-label="Benin Explo accueil">
+      <img src="assets/logos/BeninExplo.png" alt="Logo Benin Explo" class="brand-image" />
+    </a>
+
+    <!-- Nav desktop (mode public uniquement) -->
+    <nav class="site-nav" *ngIf="mode === 'normal'" aria-label="Navigation principale">
+      <a class="nav-link"
+         routerLink="/"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: true }"
+         (click)="closeMenu()">Accueil</a>
+
+      <div class="nav-dropdown" [class.open]="isCircuitsDropdownOpen">
+        <button class="nav-link nav-dropdown__toggle" type="button" (click)="toggleCircuitsDropdown()">
+          Circuits <i class="ri-arrow-down-s-line"></i>
+        </button>
+        <ul class="nav-dropdown__menu">
+          <li><a class="nav-dropdown__item" routerLink="/circuit" (click)="closeMenu(); closeCircuitsDropdown()">Nos circuits</a></li>
+          <li><a class="nav-dropdown__item" routerLink="/circuit-personnalise" (click)="closeMenu(); closeCircuitsDropdown()">Circuit personnalise</a></li>
+        </ul>
+      </div>
+
+      <a class="nav-link" routerLink="/hebergements" routerLinkActive="active" (click)="closeMenu()">Hebergements</a>
+      <a class="nav-link" routerLink="/" fragment="news" (click)="closeMenu()">Actualite</a>
+      <a class="nav-link" routerLink="/" fragment="contact" (click)="closeMenu()">Contact</a>
+    </nav>
+
+    <!-- Actions à droite (toujours visibles) -->
+    <div class="header-actions">
+
+      <!-- Bouton connexion (non connecté) -->
+      <a *ngIf="!isLoggedIn" routerLink="/login" class="btn-connexion" (click)="closeMenu()">
+        <i class="ri-user-line"></i>
+        <span>Connexion</span>
       </a>
-    </div>
 
-    <div class="nav-container">
-      <nav class="nav" *ngIf="mode === 'normal'">
-        <a class="nav-link"
-           routerLink="/"
-           routerLinkActive="active"
-           [routerLinkActiveOptions]="{ exact: true }"
-           (click)="closeMenu()">Accueil</a>
-
-        <div class="dropdown" [class.open]="isCircuitsDropdownOpen">
-          <div class="nav-link dropdown-toggle" (click)="toggleCircuitsDropdown()">Circuits</div>
-
-          <ul class="dropdown-menu" [class.show]="isCircuitsDropdownOpen">
-            <li>
-              <a class="dropdown-item"
-                 routerLink="/circuit"
-                 (click)="closeMenu(); closeCircuitsDropdown()">Nos circuits</a>
-            </li>
-            <li>
-              <a class="dropdown-item"
-                 routerLink="/circuit-personnalise"
-                 (click)="closeMenu(); closeCircuitsDropdown()">Circuit personnalise</a>
-            </li>
-          </ul>
-        </div>
-
-        <a class="nav-link" routerLink="/hebergements" (click)="closeMenu()">Hebergements</a>
-        <a class="nav-link" routerLink="/" fragment="news" (click)="closeMenu()">Actualite</a>
-        <a class="nav-link" routerLink="/" fragment="contact" (click)="closeMenu()">Contact</a>
-        <a class="nav-link" *ngIf="isLoggedIn" [routerLink]="getDashboardRoute()" (click)="closeMenu()">{{ getDashboardLabel() }}</a>
-
-        <a class="nav-link" *ngIf="!isLoggedIn" routerLink="/login" (click)="closeMenu()">Connexion</a>
-      </nav>
-
-      <nav class="nav compact-nav" *ngIf="mode === 'compact'">
-        <a class="nav-link" routerLink="/" (click)="closeMenu()">Accueil</a>
-        <a *ngIf="isLoggedIn" class="nav-link" [routerLink]="getDashboardRoute()" (click)="closeMenu()">{{ getDashboardLabel() }}</a>
-      </nav>
-
-      <div class="user-actions desktop-only" *ngIf="isLoggedIn">
-        <button *ngIf="isAdmin" class="notification-btn" type="button" aria-label="Notifications">
-          <i class="ri-notification-3-line"></i>
+      <!-- Avatar + dropdown (connecté) -->
+      <div class="user-menu" *ngIf="isLoggedIn" [class.open]="isUserDropdownOpen">
+        <button class="avatar-btn" type="button" (click)="toggleUserDropdown()" [attr.aria-expanded]="isUserDropdownOpen" aria-label="Menu utilisateur">
+          <div class="avatar" [class.avatar--admin]="isAdmin">
+            <span>{{ getUserInitials() }}</span>
+          </div>
+          <i class="ri-arrow-down-s-line avatar-chevron"></i>
         </button>
 
-        <div class="dropdown user-dropdown" [class.open]="isUserDropdownOpen">
-          <button class="user-avatar-btn" type="button" (click)="toggleUserDropdown()" aria-label="Menu utilisateur" [attr.aria-expanded]="isUserDropdownOpen">
-            <div class="user-avatar">
-              <span class="user-initials">{{ getUserInitials() }}</span>
+        <div class="user-panel" role="menu">
+          <!-- Info utilisateur -->
+          <div class="user-panel__header">
+            <div class="avatar avatar--lg" [class.avatar--admin]="isAdmin">
+              <span>{{ getUserInitials() }}</span>
             </div>
-          </button>
+            <div class="user-panel__meta">
+              <strong>{{ user?.prenom }} {{ user?.nom }}</strong>
+              <span>{{ user?.email }}</span>
+              <span class="role-badge" [class.role-badge--admin]="isAdmin">
+                {{ isAdmin ? 'Administrateur' : 'Voyageur' }}
+              </span>
+            </div>
+          </div>
 
-          <ul class="dropdown-menu user-menu" [class.show]="isUserDropdownOpen">
-            <ng-container *ngIf="mode === 'normal'; else adminUserMenuDesktop">
-              <li><hr class="dropdown-divider"></li>
+          <!-- Liens -->
+          <div class="user-panel__body">
+            <a class="panel-item" [routerLink]="getDashboardRoute()" (click)="closeUserDropdown()">
+              <i class="ri-dashboard-line"></i>
+              <span>{{ getDashboardLabel() }}</span>
+            </a>
+            <a class="panel-item" routerLink="/profil" (click)="closeUserDropdown()">
+              <i class="ri-user-3-line"></i>
+              <span>Mon profil</span>
+            </a>
+            <a class="panel-item" routerLink="/parametres" (click)="closeUserDropdown()">
+              <i class="ri-settings-3-line"></i>
+              <span>Parametres</span>
+            </a>
+          </div>
 
-              <li>
-                <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">{{ getDashboardLabel() }}</a>
-              </li>
-
-              <li>
-                <a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a>
-              </li>
-
-              <li>
-                <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Parametres</a>
-              </li>
-
-              <li><hr class="dropdown-divider"></li>
-
-              <li>
-                <a class="dropdown-item" (click)="logout(); closeUserDropdown()">Deconnexion</a>
-              </li>
-            </ng-container>
-
-            <ng-template #adminUserMenuDesktop>
-              <li><hr class="dropdown-divider"></li>
-
-              <li>
-                <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">{{ getDashboardLabel() }}</a>
-              </li>
-
-              <li>
-                <a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a>
-              </li>
-
-              <li>
-                <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Parametres</a>
-              </li>
-
-              <li><hr class="dropdown-divider"></li>
-
-              <li>
-                <a class="dropdown-item" (click)="logout(); closeUserDropdown()">Deconnexion</a>
-              </li>
-            </ng-template>
-          </ul>
+          <!-- Déconnexion -->
+          <div class="user-panel__footer">
+            <button class="panel-item panel-item--logout" type="button" (click)="logout(); closeUserDropdown()">
+              <i class="ri-logout-box-r-line"></i>
+              <span>Deconnexion</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="mobile-controls" *ngIf="mode === 'normal' || mode === 'compact'">
-      <button class="hamburger"
-              aria-label="Toggle menu"
-              [attr.aria-expanded]="menuOpen"
-              (click)="toggleMenu()">
+      <!-- Hamburger (mobile, mode normal) -->
+      <button
+        *ngIf="mode === 'normal'"
+        class="hamburger"
+        type="button"
+        aria-label="Ouvrir le menu"
+        [attr.aria-expanded]="menuOpen"
+        (click)="toggleMenu()">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
       </button>
 
-      <div class="user-actions mobile-only" *ngIf="isLoggedIn">
-        <div class="dropdown user-dropdown" [class.open]="isUserDropdownOpen">
-          <button class="user-avatar-btn" type="button" (click)="toggleUserDropdown()" aria-label="Menu utilisateur" [attr.aria-expanded]="isUserDropdownOpen">
-            <div class="user-avatar">
-              <span class="user-initials">{{ getUserInitials() }}</span>
-            </div>
-          </button>
-
-          <ul class="dropdown-menu user-menu" [class.show]="isUserDropdownOpen">
-            <ng-container *ngIf="mode === 'normal'; else adminUserMenuMobile">
-              <li><hr class="dropdown-divider"></li>
-
-              <li>
-                <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">{{ getDashboardLabel() }}</a>
-              </li>
-
-              <li>
-                <a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a>
-              </li>
-
-              <li>
-                <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Parametres</a>
-              </li>
-
-              <li><hr class="dropdown-divider"></li>
-
-              <li><a class="dropdown-item" (click)="logout()">Deconnexion</a></li>
-            </ng-container>
-
-            <ng-template #adminUserMenuMobile>
-              <li><hr class="dropdown-divider"></li>
-
-              <li>
-                <a class="dropdown-item" (click)="goToDashboard(); closeUserDropdown()">{{ getDashboardLabel() }}</a>
-              </li>
-
-              <li>
-                <a class="dropdown-item" routerLink="/profil" (click)="closeUserDropdown()">Mon profil</a>
-              </li>
-
-              <li>
-                <a class="dropdown-item" routerLink="/parametres" (click)="closeUserDropdown()">Parametres</a>
-              </li>
-
-              <li><hr class="dropdown-divider"></li>
-
-              <li><a class="dropdown-item" (click)="logout()">Deconnexion</a></li>
-            </ng-template>
-          </ul>
-        </div>
-      </div>
     </div>
   </div>
+
+  <!-- Drawer mobile (mode normal) -->
+  <nav class="mobile-drawer" *ngIf="mode === 'normal'" [class.open]="menuOpen" aria-label="Menu mobile">
+    <a class="drawer-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()">Accueil</a>
+    <a class="drawer-link" routerLink="/circuit" routerLinkActive="active" (click)="closeMenu()">Nos circuits</a>
+    <a class="drawer-link" routerLink="/circuit-personnalise" routerLinkActive="active" (click)="closeMenu()">Circuit personnalise</a>
+    <a class="drawer-link" routerLink="/hebergements" routerLinkActive="active" (click)="closeMenu()">Hebergements</a>
+    <a class="drawer-link" routerLink="/" fragment="news" (click)="closeMenu()">Actualite</a>
+    <a class="drawer-link" routerLink="/" fragment="contact" (click)="closeMenu()">Contact</a>
+  </nav>
 </header>

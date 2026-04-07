@@ -121,10 +121,16 @@ export class ReservationHebergementComponent implements OnInit {
     this.successMessage = '';
 
     this.reservationService.create(this.reservation).subscribe({
-      next: () => {
-        this.successMessage = 'Votre reservation a ete creee avec succes.';
-        this.confirmationModalOpen = true;
+      next: (createdReservation) => {
+        const reservationId = createdReservation?.id;
+        if (!reservationId) {
+          this.errorMessage = 'La reservation a ete creee, mais le paiement ne peut pas etre initialise.';
+          this.isSubmitting = false;
+          return;
+        }
+
         this.isSubmitting = false;
+        this.router.navigate(['/paiement/hebergement', reservationId]);
       },
       error: (error: any) => {
         this.errorMessage = error?.error || 'Erreur lors de la creation de la reservation';

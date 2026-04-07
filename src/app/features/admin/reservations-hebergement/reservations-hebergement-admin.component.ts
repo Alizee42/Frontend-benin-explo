@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReservationHebergementService } from '../../../services/reservation-hebergement.service';
 import { ReservationHebergementDTO } from '../../../models/reservation-hebergement.dto';
@@ -21,7 +21,6 @@ export class ReservationsHebergementAdminComponent implements OnInit {
   pendingDeleteId: number | null = null;
   actionError = '';
 
-
   reservations: ReservationHebergementDTO[] = [];
   filteredReservations: ReservationHebergementDTO[] = [];
   loading = true;
@@ -37,12 +36,13 @@ export class ReservationsHebergementAdminComponent implements OnInit {
 
   columns: TableColumn[] = [
     { key: 'nomClient', label: 'Client', sortable: true, valueGetter: (item: any) => `${item.prenomClient || ''} ${item.nomClient || ''}`.trim() },
-    { key: 'telephoneClient', label: 'Téléphone', sortable: true },
-    { key: 'hebergementNom', label: 'Hébergement', sortable: true },
-    { key: 'dateArrivee', label: 'Arrivée', sortable: true, type: 'date' },
-    { key: 'dateDepart', label: 'Départ', sortable: true, type: 'date' },
+    { key: 'telephoneClient', label: 'Telephone', sortable: true },
+    { key: 'hebergementNom', label: 'Hebergement', sortable: true },
+    { key: 'dateArrivee', label: 'Arrivee', sortable: true, type: 'date' },
+    { key: 'dateDepart', label: 'Depart', sortable: true, type: 'date' },
     { key: 'nombrePersonnes', label: 'Pers.', sortable: true, width: '70px' },
-    { key: 'prixTotal', label: 'Prix', sortable: true, formatter: (v: number) => (v == null ? '-' : `${v} €`) },
+    { key: 'statutPaiement', label: 'Paiement', sortable: true, type: 'status', formatter: (value: string) => this.getPaymentStatusLabel(value) },
+    { key: 'prixTotal', label: 'Prix', sortable: true, formatter: (value: number) => (value == null ? '-' : `${value} EUR`) },
     { key: 'statut', label: 'Statut', sortable: true, type: 'status', formatter: (value: string) => this.getStatusLabel(value) },
     { key: 'actions', label: 'Actions', type: 'actions' }
   ];
@@ -77,19 +77,24 @@ export class ReservationsHebergementAdminComponent implements OnInit {
 
   applyFilters(): void {
     const term = (this.searchTerm || '').trim().toLowerCase();
-    this.filteredReservations = this.reservations.filter(r => {
-      const matchesStatus = !this.statusFilter || (r.statut || '').toUpperCase() === this.statusFilter;
+    this.filteredReservations = this.reservations.filter((reservation) => {
+      const matchesStatus = !this.statusFilter || (reservation.statut || '').toUpperCase() === this.statusFilter;
       const matchesSearch = !term
-        || (r.nomClient || '').toLowerCase().includes(term)
-        || (r.prenomClient || '').toLowerCase().includes(term)
-        || (r.hebergementNom || '').toLowerCase().includes(term)
-        || (r.emailClient || '').toLowerCase().includes(term);
+        || (reservation.nomClient || '').toLowerCase().includes(term)
+        || (reservation.prenomClient || '').toLowerCase().includes(term)
+        || (reservation.hebergementNom || '').toLowerCase().includes(term)
+        || (reservation.emailClient || '').toLowerCase().includes(term);
       return matchesStatus && matchesSearch;
     });
   }
 
-  onStatusFilterChange(): void { this.applyFilters(); }
-  onSearchChange(): void { this.applyFilters(); }
+  onStatusFilterChange(): void {
+    this.applyFilters();
+  }
+
+  onSearchChange(): void {
+    this.applyFilters();
+  }
 
   viewReservation(reservation: ReservationHebergementDTO): void {
     this.selectedReservation = { ...reservation };
@@ -104,20 +109,27 @@ export class ReservationsHebergementAdminComponent implements OnInit {
   }
 
   quickSetStatus(statut: 'CONFIRMEE' | 'ANNULEE' | 'EN_ATTENTE' | 'TERMINEE'): void {
-    if (!this.selectedReservation) return;
+    if (!this.selectedReservation) {
+      return;
+    }
     this.selectedReservation.statut = statut;
     this.saveReservation();
   }
 
   saveReservation(): void {
-    if (!this.selectedReservation?.id) return;
+    if (!this.selectedReservation?.id) {
+      return;
+    }
+
     this.saving = true;
     this.clearMessages();
 
     this.reservationService.update(this.selectedReservation.id, this.selectedReservation).subscribe({
       next: (updated) => {
-        const index = this.reservations.findIndex(r => r.id === updated.id);
-        if (index !== -1) this.reservations[index] = updated;
+        const index = this.reservations.findIndex((item) => item.id === updated.id);
+        if (index !== -1) {
+          this.reservations[index] = updated;
+        }
         this.applyFilters();
         this.saving = false;
         this.successMessage = 'Reservation mise a jour avec succes.';
@@ -131,18 +143,25 @@ export class ReservationsHebergementAdminComponent implements OnInit {
   }
 
   executeDelete(): void {
-    if (this.pendingDeleteId == null) return;
+    if (this.pendingDeleteId == null) {
+      return;
+    }
+
     const id = this.pendingDeleteId;
     this.confirmDeleteOpen = false;
     this.pendingDeleteId = null;
     this.reservationService.delete(id).subscribe({
       next: () => this.loadReservations(),
-      error: () => { this.actionError = 'Impossible de supprimer cette réservation.'; }
+      error: () => {
+        this.actionError = 'Impossible de supprimer cette reservation.';
+      }
     });
   }
 
   deleteReservation(reservation: ReservationHebergementDTO): void {
-    if (!reservation.id) return;
+    if (!reservation.id) {
+      return;
+    }
     this.pendingDeleteId = reservation.id;
     this.confirmDeleteOpen = true;
   }
@@ -153,41 +172,97 @@ export class ReservationsHebergementAdminComponent implements OnInit {
   }
 
   countByStatus(statut: string): number {
-    return this.reservations.filter(r => (r.statut || '').toUpperCase() === statut).length;
+    return this.reservations.filter((reservation) => (reservation.statut || '').toUpperCase() === statut).length;
   }
 
-  getStatusBadgeClass(statut: string): string {
+  getStatusBadgeClass(statut?: string): string {
     switch ((statut || '').toUpperCase()) {
-      case 'CONFIRMEE': return 'badge-success';
-      case 'EN_ATTENTE': return 'badge-warning';
-      case 'ANNULEE': return 'badge-danger';
-      case 'TERMINEE': return 'badge-info';
-      default: return 'badge-secondary';
+      case 'CONFIRMEE':
+        return 'badge-success';
+      case 'EN_ATTENTE':
+        return 'badge-warning';
+      case 'ANNULEE':
+        return 'badge-danger';
+      case 'TERMINEE':
+        return 'badge-info';
+      default:
+        return 'badge-secondary';
     }
   }
 
-  getStatusIcon(statut: string): string {
+  getStatusIcon(statut?: string): string {
     switch ((statut || '').toUpperCase()) {
-      case 'CONFIRMEE': return 'ri-checkbox-circle-fill';
-      case 'EN_ATTENTE': return 'ri-time-fill';
-      case 'ANNULEE': return 'ri-close-circle-fill';
-      case 'TERMINEE': return 'ri-flag-fill';
-      default: return 'ri-question-fill';
+      case 'CONFIRMEE':
+        return 'ri-checkbox-circle-fill';
+      case 'EN_ATTENTE':
+        return 'ri-time-fill';
+      case 'ANNULEE':
+        return 'ri-close-circle-fill';
+      case 'TERMINEE':
+        return 'ri-flag-fill';
+      default:
+        return 'ri-question-fill';
     }
   }
 
   getStatusLabel(statut?: string): string {
     const normalized = String(statut || '').trim().toUpperCase();
-    if (normalized === 'CONFIRMEE') return 'Confirmée';
+    if (normalized === 'CONFIRMEE') return 'Confirmee';
     if (normalized === 'EN_ATTENTE') return 'En attente';
-    if (normalized === 'ANNULEE') return 'Annulée';
-    if (normalized === 'TERMINEE') return 'Terminée';
+    if (normalized === 'ANNULEE') return 'Annulee';
+    if (normalized === 'TERMINEE') return 'Terminee';
     return normalized || '-';
   }
 
-  formatDate(dateString: string): string {
+  getPaymentBadgeClass(statut?: string): string {
+    switch ((statut || '').toUpperCase()) {
+      case 'PAYE':
+        return 'badge-success';
+      case 'EN_COURS':
+        return 'badge-info';
+      case 'ECHEC':
+        return 'badge-danger';
+      case 'REMBOURSE':
+        return 'badge-secondary';
+      case 'A_PAYER':
+        return 'badge-warning';
+      default:
+        return 'badge-secondary';
+    }
+  }
+
+  getPaymentStatusLabel(statut?: string): string {
+    const normalized = String(statut || '').trim().toUpperCase();
+    if (normalized === 'PAYE') return 'Paye';
+    if (normalized === 'EN_COURS') return 'En cours';
+    if (normalized === 'ECHEC') return 'Echec';
+    if (normalized === 'REMBOURSE') return 'Rembourse';
+    if (normalized === 'A_PAYER') return 'A payer';
+    return 'Non renseigne';
+  }
+
+  formatDate(dateString?: string): string {
+    if (!dateString) {
+      return '';
+    }
     const date = new Date(dateString);
     return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('fr-FR');
+  }
+
+  formatDateTime(dateString?: string): string {
+    if (!dateString) {
+      return '';
+    }
+    const date = new Date(dateString);
+    return Number.isNaN(date.getTime())
+      ? ''
+      : date.toLocaleString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
   }
 
   onTableAction(event: { action: string; item: ReservationHebergementDTO }): void {

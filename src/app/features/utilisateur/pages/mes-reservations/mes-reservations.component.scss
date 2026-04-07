@@ -158,6 +158,13 @@
     flex-wrap: wrap;
   }
 
+  &__badges {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
   &__hotel {
     display: flex;
     align-items: center;
@@ -191,9 +198,23 @@
     gap: 0.4rem;
   }
 
+  &__payment-meta {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+    color: #64748b;
+    font-size: 0.82rem;
+  }
+
   &__footer {
     border-top: 1px solid #f0f0f0;
     padding-top: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
   }
 }
 
@@ -254,6 +275,19 @@
   &.badge-danger { background: #f8d7da; color: #721c24; }
   &.badge-info { background: #d1ecf1; color: #0c5460; }
   &.badge-secondary { background: #e2e3e5; color: #383d41; }
+}
+
+.pay-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  background: var(--be-green);
+  color: white;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 
 .spin {

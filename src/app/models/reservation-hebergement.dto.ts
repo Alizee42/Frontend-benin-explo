@@ -13,6 +13,12 @@ export interface ReservationHebergementDTO {
   prixTotal?: number;
   statut?: string;
   utilisateurId?: number;
+  statutPaiement?: string;
+  montantPaye?: number;
+  devisePaiement?: string;
+  paypalOrderId?: string;
+  paypalCaptureId?: string;
+  datePaiement?: string;
   commentaires?: string;
   dateCreation?: string;
 }
