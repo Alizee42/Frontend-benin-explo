@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReservationHebergementService } from '../../../services/reservation-hebergement.service';
 import { ReservationHebergementDTO } from '../../../models/reservation-hebergement.dto';
@@ -36,16 +36,14 @@ export class ReservationsHebergementAdminComponent implements OnInit {
   errorMessage = '';
 
   columns: TableColumn[] = [
-    { key: 'id', label: 'ID', sortable: true },
-    { key: 'nomClient', label: 'Client', sortable: true },
-    { key: 'telephoneClient', label: 'Telephone', sortable: true },
-    { key: 'hebergementNom', label: 'Hebergement', sortable: true },
-    { key: 'dateArrivee', label: 'Arrivee', sortable: true, type: 'date' },
-    { key: 'dateDepart', label: 'Depart', sortable: true, type: 'date' },
-    { key: 'nombrePersonnes', label: 'Personnes', sortable: true },
-    { key: 'prixTotal', label: 'Prix Total', sortable: true, formatter: (v: number) => (v == null ? '-' : `${v} EUR`) },
+    { key: 'nomClient', label: 'Client', sortable: true, valueGetter: (item: any) => `${item.prenomClient || ''} ${item.nomClient || ''}`.trim() },
+    { key: 'telephoneClient', label: 'Téléphone', sortable: true },
+    { key: 'hebergementNom', label: 'Hébergement', sortable: true },
+    { key: 'dateArrivee', label: 'Arrivée', sortable: true, type: 'date' },
+    { key: 'dateDepart', label: 'Départ', sortable: true, type: 'date' },
+    { key: 'nombrePersonnes', label: 'Pers.', sortable: true, width: '70px' },
+    { key: 'prixTotal', label: 'Prix', sortable: true, formatter: (v: number) => (v == null ? '-' : `${v} €`) },
     { key: 'statut', label: 'Statut', sortable: true, type: 'status', formatter: (value: string) => this.getStatusLabel(value) },
-    { key: 'dateCreation', label: 'Creee le', sortable: true, type: 'date' },
     { key: 'actions', label: 'Actions', type: 'actions' }
   ];
 
@@ -122,7 +120,7 @@ export class ReservationsHebergementAdminComponent implements OnInit {
         if (index !== -1) this.reservations[index] = updated;
         this.applyFilters();
         this.saving = false;
-        this.successMessage = 'Reservation mise a jour. Le client est notifie si email active.';
+        this.successMessage = 'Reservation mise a jour avec succes.';
         this.closeModal();
       },
       error: (error) => {
@@ -147,18 +145,6 @@ export class ReservationsHebergementAdminComponent implements OnInit {
     if (!reservation.id) return;
     this.pendingDeleteId = reservation.id;
     this.confirmDeleteOpen = true;
-
-    this.clearMessages();
-    this.reservationService.delete(reservation.id).subscribe({
-      next: () => {
-        this.reservations = this.reservations.filter(r => r.id !== reservation.id);
-        this.applyFilters();
-        this.successMessage = 'Reservation supprimee.';
-      },
-      error: () => {
-        this.errorMessage = 'Suppression impossible.';
-      }
-    });
   }
 
   closeModal(): void {
@@ -166,22 +152,36 @@ export class ReservationsHebergementAdminComponent implements OnInit {
     this.selectedReservation = null;
   }
 
+  countByStatus(statut: string): number {
+    return this.reservations.filter(r => (r.statut || '').toUpperCase() === statut).length;
+  }
+
   getStatusBadgeClass(statut: string): string {
-    switch ((statut || '').toLowerCase()) {
-      case 'confirmee': return 'badge-success';
-      case 'en_attente': return 'badge-warning';
-      case 'annulee': return 'badge-danger';
-      case 'terminee': return 'badge-info';
+    switch ((statut || '').toUpperCase()) {
+      case 'CONFIRMEE': return 'badge-success';
+      case 'EN_ATTENTE': return 'badge-warning';
+      case 'ANNULEE': return 'badge-danger';
+      case 'TERMINEE': return 'badge-info';
       default: return 'badge-secondary';
+    }
+  }
+
+  getStatusIcon(statut: string): string {
+    switch ((statut || '').toUpperCase()) {
+      case 'CONFIRMEE': return 'ri-checkbox-circle-fill';
+      case 'EN_ATTENTE': return 'ri-time-fill';
+      case 'ANNULEE': return 'ri-close-circle-fill';
+      case 'TERMINEE': return 'ri-flag-fill';
+      default: return 'ri-question-fill';
     }
   }
 
   getStatusLabel(statut?: string): string {
     const normalized = String(statut || '').trim().toUpperCase();
-    if (normalized === 'CONFIRMEE') return 'Confirmee';
+    if (normalized === 'CONFIRMEE') return 'Confirmée';
     if (normalized === 'EN_ATTENTE') return 'En attente';
-    if (normalized === 'ANNULEE') return 'Annulee';
-    if (normalized === 'TERMINEE') return 'Terminee';
+    if (normalized === 'ANNULEE') return 'Annulée';
+    if (normalized === 'TERMINEE') return 'Terminée';
     return normalized || '-';
   }
 

@@ -258,6 +258,204 @@ input, textarea, select {
 	border-bottom: 1px solid rgba(0,0,0,0.04);
 }
 
+/* Fallback global styles for the register confirmation modal.
+   These remain intentionally strong so the modal still renders correctly
+   even if component-scoped styles fail to refresh in dev mode. */
+.register-modal-backdrop {
+	position: fixed !important;
+	inset: 0 !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	padding: 1.25rem !important;
+	background: rgba(15, 23, 42, 0.7) !important;
+	backdrop-filter: blur(8px) !important;
+	z-index: 4000 !important;
+}
+
+.register-modal {
+	position: relative !important;
+	display: block !important;
+	width: min(100%, 520px) !important;
+	padding: 2rem 1.75rem 1.5rem !important;
+	background: linear-gradient(180deg, #fffdf8 0%, #ffffff 100%) !important;
+	border-radius: 24px !important;
+	box-shadow: 0 28px 70px rgba(15, 23, 42, 0.34) !important;
+	border: 1px solid rgba(148, 163, 184, 0.18) !important;
+}
+
+.register-modal__icon {
+	width: 74px !important;
+	height: 74px !important;
+	border-radius: 22px !important;
+	display: grid !important;
+	place-items: center !important;
+	background:
+		radial-gradient(circle at top, rgba(201, 168, 106, 0.32), transparent 60%),
+		linear-gradient(135deg, #145746 0%, #1e7f67 100%) !important;
+	box-shadow: 0 16px 36px rgba(20, 87, 70, 0.24) !important;
+	color: #fff !important;
+	font-size: 2rem !important;
+}
+
+.register-modal__header {
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: center !important;
+	text-align: center !important;
+	gap: 0.7rem !important;
+}
+
+.register-modal__header h2 {
+	margin: 0 !important;
+	color: #0f172a !important;
+	font-size: 1.9rem !important;
+	line-height: 1.08 !important;
+	font-weight: 900 !important;
+	letter-spacing: -0.03em !important;
+}
+
+.register-modal__eyebrow {
+	margin: 0 !important;
+	color: var(--be-green) !important;
+	font-size: 0.74rem !important;
+	font-weight: 800 !important;
+	letter-spacing: 0.2em !important;
+	text-transform: uppercase !important;
+}
+
+.register-modal__message {
+	margin: 0 !important;
+	color: #475569 !important;
+	font-size: 0.98rem !important;
+	line-height: 1.65 !important;
+	max-width: 34ch !important;
+}
+
+.register-modal__summary {
+	display: grid !important;
+	gap: 0.45rem !important;
+	margin-top: 1.5rem !important;
+	padding: 1rem 1.1rem !important;
+	border-radius: 18px !important;
+	background: #f8fafc !important;
+	border: 1px solid rgba(148, 163, 184, 0.18) !important;
+}
+
+.register-modal__label {
+	font-size: 0.72rem !important;
+	color: #64748b !important;
+	text-transform: uppercase !important;
+	letter-spacing: 0.12em !important;
+	font-weight: 800 !important;
+}
+
+.register-modal__summary strong {
+	color: #0f172a !important;
+	font-size: 1rem !important;
+	line-height: 1.45 !important;
+	overflow-wrap: anywhere !important;
+}
+
+.register-modal__status {
+	justify-self: start !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	padding: 0.4rem 0.72rem !important;
+	border-radius: 999px !important;
+	background: rgba(148, 163, 184, 0.14) !important;
+	color: #475569 !important;
+	font-size: 0.8rem !important;
+	font-weight: 700 !important;
+}
+
+.register-modal__status--active {
+	background: rgba(21, 116, 94, 0.1) !important;
+	color: var(--be-green) !important;
+}
+
+.register-modal__hint {
+	display: flex !important;
+	align-items: flex-start !important;
+	gap: 0.7rem !important;
+	margin-top: 1rem !important;
+	padding: 0.95rem 1rem !important;
+	border-radius: 16px !important;
+	background: #fff8ea !important;
+	border: 1px solid rgba(201, 168, 106, 0.2) !important;
+	color: #6b4f10 !important;
+}
+
+.register-modal__hint span {
+	line-height: 1.55 !important;
+	font-size: 0.92rem !important;
+}
+
+.register-modal__actions {
+	display: flex !important;
+	justify-content: flex-end !important;
+	gap: 0.75rem !important;
+	margin-top: 1.35rem !important;
+}
+
+.register-modal__close {
+	position: absolute !important;
+	top: 0.95rem !important;
+	right: 0.95rem !important;
+	width: 36px !important;
+	height: 36px !important;
+	border-radius: 999px !important;
+	border: 1px solid rgba(148, 163, 184, 0.18) !important;
+	background: #f8fafc !important;
+	color: #475569 !important;
+	display: grid !important;
+	place-items: center !important;
+}
+
+.register-modal .btn {
+	border-radius: 14px !important;
+	padding: 0.9rem 1.18rem !important;
+	font-weight: 800 !important;
+	font-size: 0.95rem !important;
+}
+
+.register-modal .btn-secondary {
+	background: #f1f5f9 !important;
+	color: #334155 !important;
+	border: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+.register-modal .btn-primary {
+	background: linear-gradient(135deg, #145746 0%, #1e7f67 100%) !important;
+	color: #fff !important;
+	box-shadow: 0 14px 30px rgba(20, 87, 70, 0.24) !important;
+}
+
+@media (max-width: 640px) {
+	.register-modal {
+		width: min(100%, 96vw) !important;
+		padding: 1.6rem 1rem 1rem !important;
+	}
+
+	.register-modal__icon {
+		width: 68px !important;
+		height: 68px !important;
+		font-size: 1.8rem !important;
+	}
+
+	.register-modal__header h2 {
+		font-size: 1.6rem !important;
+	}
+
+	.register-modal__actions {
+		flex-direction: column-reverse !important;
+	}
+
+	.register-modal .btn {
+		width: 100% !important;
+	}
+}
+
 .modal-header h3 {
 	margin: 0;
 	font-size: 1.125rem;

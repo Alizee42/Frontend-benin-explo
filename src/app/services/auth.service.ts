@@ -4,18 +4,30 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 export interface User {
+  id?: number;
   email: string;
   role: string;
   nom?: string;
   prenom?: string;
+  telephone?: string;
+}
+
+export interface RegisterRequest {
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone: string;
+  motDePasse: string;
 }
 
 interface LoginResponse {
   token: string;
+  id: number;
   email: string;
   role: string;
   nom?: string;
   prenom?: string;
+  telephone?: string;
 }
 
 @Injectable({
@@ -32,16 +44,22 @@ export class AuthService {
     private http: HttpClient
   ) {}
 
+  register(payload: RegisterRequest): Observable<User> {
+    return this.http.post<User>('/auth/register', payload);
+  }
+
   login(credentials: { email: string; motDePasse: string }): Observable<LoginResponse> {
     return this.http.post<LoginResponse>('/auth/login', credentials).pipe(
       tap((response) => {
         if (response.token) {
           localStorage.setItem(this.TOKEN_KEY, response.token);
           const user: User = {
+            id: response.id,
             email: response.email,
             role: response.role,
             nom: response.nom,
-            prenom: response.prenom
+            prenom: response.prenom,
+            telephone: response.telephone
           };
           localStorage.setItem(this.USER_KEY, JSON.stringify(user));
           this.userSubject.next(user);

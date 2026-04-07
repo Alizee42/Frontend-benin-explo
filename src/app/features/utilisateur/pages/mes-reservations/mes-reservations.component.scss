@@ -1,0 +1,277 @@
+.mes-reservations-page {
+  min-height: 100vh;
+  background: #f6f7fb;
+}
+
+.page-hero {
+  background: linear-gradient(135deg, var(--be-green), #0a4d38);
+  color: white;
+  padding: 3rem 2rem 2.5rem;
+  text-align: center;
+
+  h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 800;
+    margin: 0 0 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  p {
+    margin: 0;
+    opacity: 0.88;
+    font-size: 1rem;
+  }
+}
+
+.page-body {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.account-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.account-card__identity {
+  display: grid;
+  gap: 0.25rem;
+
+  strong {
+    font-size: 1.1rem;
+    color: #0f172a;
+  }
+}
+
+.account-card__label {
+  color: var(--be-green);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.account-card__email {
+  font-size: 0.92rem;
+  color: #64748b;
+}
+
+.search-btn {
+  padding: 0.75rem 1.5rem;
+  background: var(--be-green);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: filter 0.2s;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) { filter: brightness(1.1); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.search-error {
+  margin-top: -1rem;
+  margin-bottom: 1rem;
+  color: #b91c1c;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.reservation-section {
+  margin-top: 1.25rem;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.85rem;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 800;
+
+  i {
+    color: var(--be-green);
+    font-size: 1.15rem;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #888;
+
+  i { font-size: 3rem; display: block; margin-bottom: 1rem; }
+  p { font-size: 1rem; font-weight: 600; margin: 0 0 0.25rem; }
+  small { font-size: 0.85rem; }
+}
+
+.results-count {
+  font-weight: 600;
+  color: #555;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+
+.resa-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.resa-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
+  transition: box-shadow 0.2s;
+
+  &:hover { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10); }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &__hotel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: #111;
+
+    i {
+      color: var(--be-green);
+      font-size: 1.2rem;
+    }
+  }
+
+  &__details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  &__comments {
+    font-style: italic;
+    color: #666;
+    font-size: 0.88rem;
+    padding: 0.6rem 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  &__footer {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 0.6rem;
+  }
+}
+
+.resa-card--circuit .resa-card__hotel i {
+  color: #0b5d7a;
+}
+
+.resa-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+
+  &__label {
+    font-size: 0.77rem;
+    color: #999;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #222;
+    overflow-wrap: anywhere;
+  }
+
+  &--price .price-val {
+    color: var(--be-gold);
+    font-size: 1rem;
+
+    small {
+      font-size: 0.75rem;
+      color: #888;
+      display: block;
+      font-weight: 400;
+    }
+  }
+}
+
+.resa-date-created {
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+
+  &.badge-success { background: #d4edda; color: #155724; }
+  &.badge-warning { background: #fff3cd; color: #856404; }
+  &.badge-danger { background: #f8d7da; color: #721c24; }
+  &.badge-info { background: #d1ecf1; color: #0c5460; }
+  &.badge-secondary { background: #e2e3e5; color: #383d41; }
+}
+
+.spin {
+  display: inline-block;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 640px) {
+  .search-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page-body {
+    padding: 1.5rem 0.9rem;
+  }
+}

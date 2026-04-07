@@ -159,4 +159,22 @@
       text-align: center;
     }
   }
+
+  .auth-footer {
+    margin-top: 1.25rem;
+    text-align: center;
+    font-size: 0.92rem;
+    color: var(--be-dark);
+
+    a {
+      color: var(--be-green);
+      font-weight: 700;
+      text-decoration: none;
+      margin-left: 0.3rem;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
 }

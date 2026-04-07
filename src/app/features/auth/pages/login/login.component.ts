@@ -1,13 +1,13 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
@@ -16,6 +16,7 @@ export class LoginComponent {
   loading = false;
   errorMessage = '';
   showPassword = false;
+  registerQueryParams: { returnUrl: string } | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -28,9 +29,12 @@ export class LoginComponent {
       email: ['', [Validators.required, Validators.email]],
       motDePasse: ['', [Validators.required]]
     });
+
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    this.registerQueryParams = returnUrl ? { returnUrl } : null;
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.loginForm.valid) {
       this.loading = true;
       this.errorMessage = '';
@@ -53,7 +57,7 @@ export class LoginComponent {
     }
   }
 
-  togglePassword() {
+  togglePassword(): void {
     this.showPassword = !this.showPassword;
     this.cdr.detectChanges();
   }

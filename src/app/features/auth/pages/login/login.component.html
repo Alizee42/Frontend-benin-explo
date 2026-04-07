@@ -55,6 +55,10 @@
         <button type="button" class="btn-link" (click)="forgotPassword()">Mot de passe oublié ?</button>
         <p *ngIf="forgotPasswordMessage" class="forgot-password-message">{{ forgotPasswordMessage }}</p>
       </div>
+      <div class="auth-footer">
+        <span>Pas encore de compte ?</span>
+        <a routerLink="/register" [queryParams]="registerQueryParams || undefined">Creer un compte</a>
+      </div>
     </form>
   </div>
 </div>

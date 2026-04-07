@@ -43,11 +43,21 @@ export const routes: Routes = [
     data: { headerLight: true }
   },
 
+  /* MES RÉSERVATIONS */
+  {
+    path: 'mes-reservations',
+    loadComponent: () =>
+      import('./features/utilisateur/pages/mes-reservations/mes-reservations.component').then(m => m.MesReservationsComponent),
+    canActivate: [authGuard],
+    data: { headerLight: true }
+  },
+
   /* RESERVATION HEBERGEMENT */
   {
     path: 'reservation-hebergement/:id',
     loadComponent: () =>
       import('./features/utilisateur/pages/reservation-hebergement/reservation-hebergement.component').then(m => m.ReservationHebergementComponent),
+    canActivate: [authGuard],
     data: { headerLight: true }
   },
 
@@ -56,6 +66,13 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () =>
       import('./features/auth/pages/login/login.component').then(m => m.LoginComponent)
+  },
+
+  /* REGISTER */
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./features/utilisateur/pages/register/register.component').then(m => m.RegisterComponent)
   },
 
   /* ADMIN DASHBOARD */
@@ -122,6 +139,14 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
+  /* ADMIN RESERVATIONS CIRCUITS */
+  {
+    path: 'admin/reservations-circuit',
+    loadComponent: () =>
+      import('./features/admin/reservations-circuit/reservations-circuit-admin.component').then(m => m.ReservationsCircuitAdminComponent),
+    canActivate: [authGuard]
+  },
+
   /* ADMIN ADD CIRCUIT */
   {
     path: 'admin/circuits/add-circuit',
@@ -175,14 +200,16 @@ export const routes: Routes = [
   {
     path: 'profil',
     loadComponent: () =>
-      import('./features/utilisateur/pages/profil/profil.component').then(m => m.ProfilComponent)
+      import('./features/utilisateur/pages/profil/profil.component').then(m => m.ProfilComponent),
+    canActivate: [authGuard]
   },
 
   /* PARAMETRES */
   {
     path: 'parametres',
     loadComponent: () =>
-      import('./features/utilisateur/pages/parametres/parametres.component').then(m => m.ParametresComponent)
+      import('./features/utilisateur/pages/parametres/parametres.component').then(m => m.ParametresComponent),
+    canActivate: [authGuard]
   },
 
   /* WILDCARD → redirige vers l’accueil */

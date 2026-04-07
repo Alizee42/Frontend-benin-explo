@@ -12,6 +12,7 @@ export interface ReservationHebergementDTO {
   nombrePersonnes: number;
   prixTotal?: number;
   statut?: string;
+  utilisateurId?: number;
   commentaires?: string;
   dateCreation?: string;
 }

@@ -3,6 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ReservationHebergementDTO } from '../models/reservation-hebergement.dto';
 
+export interface ReservationHebergementIndisponibiliteDTO {
+  dateArrivee: string;
+  dateDepart: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -36,8 +41,16 @@ export class ReservationHebergementService {
     return this.http.get<ReservationHebergementDTO[]>(`${this.apiUrl}/hebergement/${hebergementId}`);
   }
 
+  getBookedRangesByHebergement(hebergementId: number): Observable<ReservationHebergementIndisponibiliteDTO[]> {
+    return this.http.get<ReservationHebergementIndisponibiliteDTO[]>(`${this.apiUrl}/indisponibilites/${hebergementId}`);
+  }
+
   getByStatut(statut: string): Observable<ReservationHebergementDTO[]> {
     return this.http.get<ReservationHebergementDTO[]>(`${this.apiUrl}/statut/${statut}`);
+  }
+
+  getMine(): Observable<ReservationHebergementDTO[]> {
+    return this.http.get<ReservationHebergementDTO[]>(`${this.apiUrl}/me`);
   }
 
   checkDisponibilite(hebergementId: number, dateArrivee: string, dateDepart: string): Observable<boolean> {
@@ -48,5 +61,9 @@ export class ReservationHebergementService {
         dateDepart
       }
     });
+  }
+
+  getByEmail(email: string): Observable<ReservationHebergementDTO[]> {
+    return this.http.get<ReservationHebergementDTO[]>(`${this.apiUrl}/email`, { params: { email } });
   }
 }
