@@ -32,7 +32,7 @@
       <select class="currency-select" [(ngModel)]="priceCurrency" name="priceCurrency"
         (ngModelChange)="onPriceCurrencyChange($event)">
         <option value="EUR">EUR</option>
-        <option value="XOF">XOF</option>
+        <option value="XOF">XOF (FCFA)</option>
       </select>
     </div>
     <span class="hint" *ngIf="getPriceConversionLabel()">{{ getPriceConversionLabel() }}</span>

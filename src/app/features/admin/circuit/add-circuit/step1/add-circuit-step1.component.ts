@@ -31,6 +31,7 @@ export class AddCircuitStep1Component {
         ? Math.round(current * this.RATE)
         : Number((current / this.RATE).toFixed(2));
     }
+    this.circuit.priceCurrency = newCurrency;
     this.lastPriceCurrency = newCurrency;
   }
 

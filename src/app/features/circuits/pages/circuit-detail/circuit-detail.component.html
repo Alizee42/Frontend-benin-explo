@@ -57,7 +57,8 @@
               </span>
               <span class="meta-chip price" *ngIf="circuit.prixIndicatif != null">
                 <i class="ri-money-euro-circle-line"></i>
-                {{ circuit.prixIndicatif }} EUR
+                {{ circuit.prixIndicatif | number:'1.0-2' }} €
+                <small class="price-fcfa">≈ {{ circuit.prixIndicatif * 655.957 | number:'1.0-0' }} F CFA</small>
               </span>
             </div>
           </div>

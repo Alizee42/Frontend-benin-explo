@@ -48,24 +48,30 @@
             <!-- Regular Data -->
             <span *ngIf="column.type !== 'actions' && column.type !== 'image'"
               [class]="'cell-content ' + (column.type === 'status' && getCellValue(item, column) !== '-' ? 'status-' + getCellValue(item, column) : '')">
-              {{ column.formatter ? column.formatter(getCellValue(item, column)) : getCellValue(item, column) }}
+              {{ column.valueGetter ? column.valueGetter(item) : (column.formatter ? column.formatter(getCellValue(item, column)) : getCellValue(item, column)) }}
             </span>
 
             <!-- Image Column -->
-            <div *ngIf="column.type === 'image'" class="image-cell">
-              <img
-                *ngIf="getCellValue(item, column)"
-                [src]="getImageSrc(getCellValue(item, column))"
-                [alt]="column.label"
-                class="table-image"
-                (click)="onImageClick($event, getImageSrc(getCellValue(item, column)))"
-                role="button"
-                title="Cliquer pour agrandir"
-                (error)="onImageError($event)">
-              <div *ngIf="!getCellValue(item, column)" class="no-image">
-                <i class="ri-image-line"></i>
-              </div>
-            </div>
+            <ng-container *ngIf="column.type === 'image'">
+              <ng-container *ngIf="getImageSrc(column.formatter ? column.formatter(getCellValue(item, column)) : getCellValue(item, column)) as imgSrc; else noImg">
+                <div class="image-cell">
+                  <img
+                    [src]="imgSrc"
+                    [alt]="column.label"
+                    class="table-image"
+                    (click)="onImageClick($event, imgSrc)"
+                    role="button"
+                    title="Cliquer pour agrandir"
+                    (error)="onImageError($event)">
+                  <div class="no-image" style="display:none"><i class="ri-image-line"></i></div>
+                </div>
+              </ng-container>
+              <ng-template #noImg>
+                <div class="image-cell">
+                  <div class="no-image"><i class="ri-image-line"></i></div>
+                </div>
+              </ng-template>
+            </ng-container>
           </td>
         </tr>
       </tbody>

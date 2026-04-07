@@ -9,6 +9,7 @@ export interface TableColumn {
   sortable?: boolean;
   width?: string;
   formatter?: (value: any) => string;
+  valueGetter?: (item: any) => string;
 }
 
 export interface TableAction {

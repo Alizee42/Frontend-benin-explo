@@ -91,12 +91,28 @@
           <div class="form-group full-width">
             <label>Images de l'hébergement</label>
             <div class="image-upload-section">
+
+              <!-- Photos déjà enregistrées (mode édition) -->
+              <div class="existing-images" *ngIf="isEditing && currentHebergement.imageUrls && currentHebergement.imageUrls.length > 0">
+                <p class="images-label">Photos actuelles</p>
+                <div class="image-preview">
+                  <div class="image-item" *ngFor="let url of currentHebergement.imageUrls; let i = index">
+                    <img [src]="url" alt="Photo existante" class="preview-img">
+                    <button type="button" class="btn-remove" (click)="removeExistingImage(i)" title="Supprimer cette photo">
+                      <i class="ri-close-line"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ajout de nouvelles photos -->
               <input type="file" id="imageUpload" (change)="onImageSelected($event)" accept="image/*" multiple style="display: none;">
               <button type="button" class="btn-upload" (click)="triggerImageUpload()">
                 <i class="ri-image-add-line"></i>
                 Ajouter des images
               </button>
               <div class="image-preview" *ngIf="selectedImages.length > 0">
+                <p class="images-label">Nouvelles photos à ajouter</p>
                 <div class="image-item" *ngFor="let image of selectedImages; let i = index">
                   <img [src]="image.preview" alt="Preview" class="preview-img">
                   <button type="button" class="btn-remove" (click)="removeImage(i)">
@@ -104,6 +120,7 @@
                   </button>
                 </div>
               </div>
+
             </div>
           </div>
         </div>

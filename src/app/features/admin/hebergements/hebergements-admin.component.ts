@@ -40,7 +40,7 @@ export class HebergementsAdminComponent implements OnInit {
   selectedImages: { file: File; preview: string }[] = [];
 
   tableColumns: TableColumn[] = [
-    { key: 'id', label: 'ID', type: 'number', width: '80px' },
+    { key: 'imageUrls', label: 'Photo', type: 'image', width: '80px', formatter: (v: any) => Array.isArray(v) ? (v[0] || '') : (v || '') },
     { key: 'nom', label: 'Nom', type: 'text' },
     { key: 'type', label: 'Type', type: 'text', width: '120px' },
     { key: 'localisation', label: 'Localisation', type: 'text', width: '200px' },
@@ -151,11 +151,12 @@ export class HebergementsAdminComponent implements OnInit {
     if (this.selectedImages.length > 0) {
       forkJoin(this.selectedImages.map(img => this.mediaService.uploadImage(img.file))).subscribe({
         next: (medias) => {
-          this.currentHebergement.imageUrls = medias.filter((m): m is MediaDTO => !!m).map(m => m.url);
+          const newUrls = medias.filter((m): m is MediaDTO => !!m).map(m => m.url);
+          const existingUrls = this.currentHebergement.imageUrls || [];
+          this.currentHebergement.imageUrls = [...existingUrls, ...newUrls];
           this.saveHebergementWithMedias();
         },
         error: () => {
-          this.currentHebergement.imageUrls = [];
           this.saveHebergementWithMedias();
         }
       });
@@ -219,6 +220,11 @@ export class HebergementsAdminComponent implements OnInit {
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files) return;
+    // En mode édition, les nouvelles images remplacent les anciennes
+    if (this.isEditing) {
+      this.currentHebergement.imageUrls = [];
+      this.selectedImages = [];
+    }
     const MAX_SIZE = 5 * 1024 * 1024;
     const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     Array.from(input.files).forEach(file => {
@@ -241,5 +247,11 @@ export class HebergementsAdminComponent implements OnInit {
 
   removeImage(index: number): void {
     this.selectedImages.splice(index, 1);
+  }
+
+  removeExistingImage(index: number): void {
+    if (this.currentHebergement.imageUrls) {
+      this.currentHebergement.imageUrls = this.currentHebergement.imageUrls.filter((_, i) => i !== index);
+    }
   }
 }

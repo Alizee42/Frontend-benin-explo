@@ -48,7 +48,8 @@
               </span>
               <span class="meta-chip price">
                 <i class="ri-money-euro-circle-line"></i>
-                {{ circuit.prixIndicatif }} €
+                {{ circuit.prixIndicatif | number:'1.0-2' }} €
+                <small class="price-fcfa">≈ {{ circuit.prixIndicatif * 655.957 | number:'1.0-0' }} F CFA</small>
               </span>
             </div>
           </div>
@@ -70,7 +71,7 @@
               </div>
               <div class="info-item" *ngIf="circuit.prixIndicatif">
                 <label>Prix indicatif</label>
-                <p>{{ circuit.prixIndicatif }} €</p>
+                <p>{{ circuit.prixIndicatif | number:'1.0-2' }} € <small class="price-fcfa">(≈ {{ circuit.prixIndicatif * 655.957 | number:'1.0-0' }} F CFA)</small></p>
               </div>
               <div class="info-item" *ngIf="uniqueCities.length > 0">
                 <label>{{ uniqueCities.length === 1 ? 'Ville' : 'Villes' }}</label>

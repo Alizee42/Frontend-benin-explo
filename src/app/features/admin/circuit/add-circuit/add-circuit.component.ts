@@ -35,6 +35,7 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
     description: '',
     dureeJours: 1,
     prixEuros: 0,
+    priceCurrency: 'EUR',
     imageHero: null,
     imagesGalerie: [],
     programme: [],
@@ -266,7 +267,10 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
       const premierJour = this.circuit.programme.find(j => j.villeId && j.zoneId);
       const villeNom = premierJour ? this.getVilleNom(premierJour.villeId) : '';
       const localisation = villeNom || this.getZoneNom(premierJour?.zoneId ?? null);
-      const prixIndicatif = this.circuit.prixEuros;
+      const rawPrix = Number(this.circuit.prixEuros);
+      const prixIndicatif = this.circuit.priceCurrency === 'XOF'
+        ? Number((rawPrix / this.RATE_XOF_PER_EUR).toFixed(2))
+        : rawPrix;
 
       const payload = {
         titre: this.circuit.titre.trim(),

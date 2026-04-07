@@ -133,7 +133,8 @@
             <div class="title-row">
               <h3 class="title">{{ heb.nom }}</h3>
               <div class="price">
-                <span class="amount">{{ heb.prixParNuit | number:'1.0-2' }} EUR</span>
+                <span class="amount">{{ heb.prixParNuit | number:'1.0-2' }} €</span>
+                <span class="amount-fcfa">≈ {{ heb.prixParNuit * 655.957 | number:'1.0-0' }} F CFA</span>
                 <span class="unit">/ nuit</span>
               </div>
             </div>

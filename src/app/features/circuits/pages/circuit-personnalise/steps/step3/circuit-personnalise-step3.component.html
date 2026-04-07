@@ -40,7 +40,7 @@
                     [disabled]="hebergements.length === 0">
               <option [ngValue]="null">Choisir un hébergement...</option>
               <option *ngFor="let h of hebergements" [ngValue]="h.id">
-                {{ h.nom }} - {{ h.localisation }} ({{ h.prixParNuit | number:'1.0-2' }} {{ getPricingLabel() }}/nuit)
+                {{ h.nom }} - {{ h.localisation }} ({{ h.prixParNuit | number:'1.0-2' }} €/nuit)
               </option>
             </select>
 
@@ -67,7 +67,7 @@
                   <h4>{{ h.nom }}</h4>
                   <p>{{ h.localisation }} <span *ngIf="h.type">- {{ h.type }}</span></p>
                 </div>
-                <strong>{{ h.prixParNuit | number:'1.0-2' }} {{ getPricingLabel() }}/nuit</strong>
+                <strong>{{ h.prixParNuit | number:'1.0-2' }} €/nuit</strong>
               </div>
               <p class="selected-hebergement-meta">{{ getDateRangeLabel() }}</p>
             </div>

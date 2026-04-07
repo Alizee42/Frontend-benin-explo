@@ -79,7 +79,7 @@
             <div class="image-overlay"></div>
             <div class="card-badges">
               <span class="badge duration"><i class="ri-time-line"></i> {{ c.dureeIndicative }}</span>
-              <span class="badge price" *ngIf="c.prixIndicatif != null">{{ c.prixIndicatif }} EUR</span>
+              <span class="badge price" *ngIf="c.prixIndicatif != null">{{ c.prixIndicatif | number:'1.0-2' }} €</span>
             </div>
           </a>
 

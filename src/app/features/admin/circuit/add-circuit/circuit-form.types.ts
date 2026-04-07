@@ -18,6 +18,7 @@ export interface CircuitFormData {
   description: string;
   dureeJours: number;
   prixEuros: number;
+  priceCurrency: 'EUR' | 'XOF';
   imageHero: File | null;
   imagesGalerie: File[];
   programme: ProgrammeJour[];
