@@ -1,0 +1,348 @@
+.profil-page {
+  min-height: 100vh;
+  background: #f6f7fb;
+  padding-top: 0;
+}
+
+// Hero
+.profil-hero {
+  background: linear-gradient(135deg, var(--be-green, #004D40) 0%, #083d2e 100%);
+  padding: 2rem 1rem;
+  text-align: center;
+
+  @media (min-width: 640px) {
+    padding: 2.5rem 1.5rem;
+  }
+
+  &--admin {
+    background: linear-gradient(135deg, #1a3d2e 0%, #0d2a1e 100%);
+    border-bottom: 3px solid var(--be-gold, #C9A86A);
+  }
+
+  &__title {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0 0 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    i { font-size: 1.3rem; opacity: 0.85; }
+
+    @media (min-width: 640px) {
+      font-size: 1.9rem;
+    }
+  }
+
+  &__sub {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    margin: 0;
+
+    @media (min-width: 640px) {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+
+  &.role-user {
+    background: rgba(255, 255, 255, 0.15);
+    color: #d4f0e4;
+    border: 1px solid rgba(212, 240, 228, 0.3);
+  }
+
+  &.role-admin {
+    background: rgba(201, 168, 106, 0.25);
+    color: var(--be-gold, #C9A86A);
+    border: 1px solid rgba(201, 168, 106, 0.4);
+  }
+}
+
+
+// Body
+.profil-body {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.profil-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+
+  &--success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+}
+
+.profil-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+
+  @media (max-width: 720px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Cards
+.profil-card {
+  background: white;
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+  border: 1px solid #eef0f4;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+
+    h2 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin: 0;
+
+      i { color: var(--be-green); font-size: 1.1rem; }
+    }
+  }
+}
+
+// Bouton modifier
+.edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.9rem;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover { border-color: var(--be-green); color: var(--be-green); }
+}
+
+// Info grid (lecture)
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+.info-item {
+  background: #f8fafc;
+  border: 1px solid #e8edf3;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+
+  &--full { grid-column: 1 / -1; }
+}
+
+.info-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  margin-bottom: 0.2rem;
+}
+
+.info-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+// Edit form
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  input {
+    padding: 0.6rem 0.85rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 9px;
+    font-size: 0.9rem;
+    color: #0f172a;
+    transition: border-color 0.15s;
+
+    &:focus { outline: none; border-color: var(--be-green); }
+    &:disabled { background: #f8fafc; color: #94a3b8; cursor: not-allowed; }
+  }
+
+  small { font-size: 0.75rem; color: #94a3b8; }
+
+  &--readonly input { background: #f8fafc; }
+}
+
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #b91c1c;
+  font-size: 0.85rem;
+  background: #fef2f2;
+  padding: 0.6rem 0.85rem;
+  border-radius: 8px;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
+}
+
+.btn-cancel {
+  padding: 0.6rem 1.25rem;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  border-radius: 9px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) { border-color: #94a3b8; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.btn-save {
+  padding: 0.6rem 1.4rem;
+  background: var(--be-green);
+  color: white;
+  border: none;
+  border-radius: 9px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: filter 0.15s;
+
+  &:hover:not(:disabled) { filter: brightness(1.1); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+// Liens rapides
+.quick-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quick-link {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #0f172a;
+  transition: background 0.15s;
+  border: 1px solid transparent;
+
+  &:hover {
+    background: #f8fafc;
+    border-color: #e8edf3;
+  }
+
+  &__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #e8f5ee;
+    color: var(--be-green);
+    display: grid;
+    place-items: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+
+    &--admin {
+      background: #e8eef8;
+      color: #1e3a5f;
+    }
+  }
+
+  &__text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+
+    strong { font-size: 0.9rem; font-weight: 700; }
+    span { font-size: 0.78rem; color: #64748b; }
+  }
+
+  &__arrow {
+    color: #cbd5e1;
+    font-size: 1.2rem;
+  }
+}
+
+.spin {
+  display: inline-block;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 640px) {
+  .profil-body { padding: 1rem; }
+  .form-row { grid-template-columns: 1fr; }
+  .info-grid { grid-template-columns: 1fr; }
+  .info-item--full { grid-column: auto; }
+}

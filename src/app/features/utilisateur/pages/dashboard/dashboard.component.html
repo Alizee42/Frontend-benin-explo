@@ -1,129 +1,142 @@
-<div class="client-dashboard">
+<div class="user-dashboard">
+  <main class="dash-layout">
 
-  <header class="dash-header">
-    <div class="dash-header__inner">
-      <div class="dash-header__greeting">
-        <div class="dash-avatar">{{ firstName.charAt(0).toUpperCase() }}</div>
-        <div>
-          <span class="dash-eyebrow">Espace client</span>
-          <h1>Bonjour, {{ firstName }}</h1>
+    <!-- Hero -->
+    <section class="dash-hero">
+      <div class="dash-hero-main">
+        <p class="dash-hero-kicker">Mon espace</p>
+        <h1 class="dash-hero-title">Bonjour, {{ firstName }}</h1>
+        <p class="dash-hero-subtitle">Retrouvez vos reservations et gerez votre compte.</p>
+      </div>
+      <div class="dash-hero-meta">
+        <span class="dash-role-chip">Voyageur</span>
+        <span class="dash-hero-context">{{ email }}</span>
+      </div>
+    </section>
+
+    <!-- Etat chargement / erreur -->
+    <div *ngIf="loading" class="dashboard-state dashboard-state-loading">
+      Chargement de votre espace...
+    </div>
+    <div *ngIf="errorMessage" class="dashboard-state dashboard-state-error">
+      <i class="ri-error-warning-line"></i> {{ errorMessage }}
+    </div>
+
+    <ng-container *ngIf="loaded">
+
+      <!-- KPI -->
+      <section class="dash-section">
+        <header class="section-header">
+          <div class="section-header-main">
+            <h2>Mes reservations</h2>
+            <p>Vue d'ensemble de vos sejours reserves.</p>
+          </div>
+        </header>
+
+        <div class="kpi-grid">
+          <article class="kpi-card">
+            <div class="kpi-icon"><i class="ri-calendar-check-line"></i></div>
+            <div class="kpi-content">
+              <p class="kpi-label">Total reservations</p>
+              <p class="kpi-value">{{ totalReservations }}</p>
+              <p class="kpi-hint">Hebergements et circuits confondus.</p>
+            </div>
+          </article>
+
+          <article class="kpi-card">
+            <div class="kpi-icon"><i class="ri-hotel-bed-line"></i></div>
+            <div class="kpi-content">
+              <p class="kpi-label">Hebergements</p>
+              <p class="kpi-value">{{ totalHebergements }}</p>
+              <p class="kpi-hint">Reservations de logements.</p>
+            </div>
+          </article>
+
+          <article class="kpi-card">
+            <div class="kpi-icon"><i class="ri-route-line"></i></div>
+            <div class="kpi-content">
+              <p class="kpi-label">Circuits</p>
+              <p class="kpi-value">{{ totalCircuits }}</p>
+              <p class="kpi-hint">Reservations de circuits touristiques.</p>
+            </div>
+          </article>
+
+          <article class="kpi-card">
+            <div class="kpi-icon"><i class="ri-shield-check-line"></i></div>
+            <div class="kpi-content">
+              <p class="kpi-label">Confirmees</p>
+              <p class="kpi-value">{{ reservationsConfirmees }}</p>
+              <p class="kpi-hint">{{ reservationsEnAttente }} en attente de validation.</p>
+            </div>
+          </article>
         </div>
-      </div>
-      <div class="dash-header__account">
-        <span class="dash-account__label">Compte connecte</span>
-        <strong>{{ displayName || 'Benin Explo' }}</strong>
-        <span>{{ email || 'Email non disponible' }}</span>
-        <span *ngIf="telephone">{{ telephone }}</span>
-      </div>
-    </div>
-  </header>
+      </section>
 
-  <div class="dash-body">
-    <div class="dashboard-alert dashboard-alert--error" *ngIf="errorMessage">
-      <i class="ri-error-warning-line"></i>
-      <span>{{ errorMessage }}</span>
-    </div>
+      <!-- Acces rapide + Activite -->
+      <div class="dash-bottom-grid">
 
-    <div class="dashboard-alert dashboard-alert--loading" *ngIf="loading">
-      <i class="ri-loader-4-line spin"></i>
-      <span>Chargement de votre espace client...</span>
-    </div>
+        <section class="dash-section">
+          <header class="section-header">
+            <div class="section-header-main">
+              <h2>Acces rapide</h2>
+              <p>Naviguez vers vos espaces favoris.</p>
+            </div>
+          </header>
 
-    <div *ngIf="loaded">
-      <div class="stats-grid">
-        <article class="stat-card">
-          <div class="stat-card__icon stat-card__icon--blue">
-            <i class="ri-calendar-check-line"></i>
-          </div>
-          <div class="stat-card__body">
-            <strong>{{ totalReservations }}</strong>
-            <span class="stat-card__label">Reservations</span>
-          </div>
-        </article>
-
-        <article class="stat-card">
-          <div class="stat-card__icon stat-card__icon--green">
-            <i class="ri-hotel-bed-line"></i>
-          </div>
-          <div class="stat-card__body">
-            <strong>{{ totalHebergements }}</strong>
-            <span class="stat-card__label">Hebergements</span>
-          </div>
-        </article>
-
-        <article class="stat-card">
-          <div class="stat-card__icon stat-card__icon--teal">
-            <i class="ri-route-line"></i>
-          </div>
-          <div class="stat-card__body">
-            <strong>{{ totalCircuits }}</strong>
-            <span class="stat-card__label">Circuits</span>
-          </div>
-        </article>
-
-        <article class="stat-card">
-          <div class="stat-card__icon stat-card__icon--gold">
-            <i class="ri-shield-check-line"></i>
-          </div>
-          <div class="stat-card__body">
-            <strong>{{ reservationsConfirmees }} <small>confirm{{ reservationsConfirmees > 1 ? 'ees' : 'ee' }}</small></strong>
-            <span class="stat-card__label">{{ reservationsEnAttente }} en attente</span>
-          </div>
-        </article>
-      </div>
-
-      <div class="dashboard-grid">
-        <section class="panel">
-          <div class="panel__header">
-            <h2><i class="ri-lightning-line"></i> Actions rapides</h2>
-          </div>
-
-          <div class="quick-links">
-            <a routerLink="/mes-reservations" class="quick-link">
-              <i class="ri-calendar-check-line"></i>
-              <div>
-                <strong>Mes reservations</strong>
-                <span>Voir toutes les reservations</span>
+          <div class="modules-grid">
+            <a routerLink="/mes-reservations" class="module-card">
+              <span class="module-icon"><i class="ri-calendar-check-line"></i></span>
+              <div class="module-content">
+                <p class="module-title">Mes reservations</p>
+                <p class="module-subtitle">Consulter tous vos sejours reserves.</p>
               </div>
-              <i class="ri-arrow-right-s-line quick-link__arrow"></i>
+              <span class="module-count" *ngIf="totalReservations > 0">{{ totalReservations }}</span>
             </a>
 
-            <a routerLink="/hebergements" class="quick-link">
-              <i class="ri-hotel-bed-line"></i>
-              <div>
-                <strong>Reserver un hebergement</strong>
-                <span>Parcourir les logements</span>
+            <a routerLink="/hebergements" class="module-card">
+              <span class="module-icon"><i class="ri-hotel-bed-line"></i></span>
+              <div class="module-content">
+                <p class="module-title">Hebergements</p>
+                <p class="module-subtitle">Parcourir les logements disponibles.</p>
               </div>
-              <i class="ri-arrow-right-s-line quick-link__arrow"></i>
             </a>
 
-            <a routerLink="/circuit" class="quick-link">
-              <i class="ri-route-line"></i>
-              <div>
-                <strong>Explorer les circuits</strong>
-                <span>Decouvrir les itineraires</span>
+            <a routerLink="/circuit" class="module-card">
+              <span class="module-icon"><i class="ri-route-line"></i></span>
+              <div class="module-content">
+                <p class="module-title">Circuits</p>
+                <p class="module-subtitle">Decouvrir les itineraires au Benin.</p>
               </div>
-              <i class="ri-arrow-right-s-line quick-link__arrow"></i>
             </a>
 
-            <a routerLink="/profil" class="quick-link">
-              <i class="ri-user-3-line"></i>
-              <div>
-                <strong>Mon profil</strong>
-                <span>Informations du compte</span>
+            <a routerLink="/circuit-personnalise" class="module-card">
+              <span class="module-icon"><i class="ri-instance-line"></i></span>
+              <div class="module-content">
+                <p class="module-title">Circuit personnalise</p>
+                <p class="module-subtitle">Creer votre voyage sur mesure.</p>
               </div>
-              <i class="ri-arrow-right-s-line quick-link__arrow"></i>
+            </a>
+
+            <a routerLink="/profil" class="module-card">
+              <span class="module-icon"><i class="ri-user-3-line"></i></span>
+              <div class="module-content">
+                <p class="module-title">Mon profil</p>
+                <p class="module-subtitle">Gerer vos informations personnelles.</p>
+              </div>
             </a>
           </div>
         </section>
 
-        <section class="panel">
-          <div class="panel__header panel__header--inline">
-            <h2><i class="ri-history-line"></i> Activite recente</h2>
+        <section class="dash-section">
+          <header class="section-header section-header--inline">
+            <div class="section-header-main">
+              <h2>Activite recente</h2>
+              <p>Vos dernieres reservations.</p>
+            </div>
             <a routerLink="/mes-reservations" class="panel-link">
               Tout voir <i class="ri-arrow-right-line"></i>
             </a>
-          </div>
+          </header>
 
           <div class="empty-state" *ngIf="recentActivity.length === 0">
             <i class="ri-inbox-2-line"></i>
@@ -136,7 +149,6 @@
               <div class="activity-item__icon" [class.activity-item__icon--circuit]="item.kind === 'circuit'">
                 <i [class]="item.kind === 'hebergement' ? 'ri-hotel-bed-line' : 'ri-route-line'"></i>
               </div>
-
               <div class="activity-item__content">
                 <div class="activity-item__top">
                   <strong>{{ item.title }}</strong>
@@ -150,7 +162,9 @@
             </article>
           </div>
         </section>
+
       </div>
-    </div>
-  </div>
+    </ng-container>
+
+  </main>
 </div>

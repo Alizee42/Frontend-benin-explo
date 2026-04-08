@@ -1,0 +1,111 @@
+<div class="profil-page">
+
+  <!-- Hero -->
+  <div class="profil-hero" [class.profil-hero--admin]="isAdmin">
+    <h1 class="profil-hero__title">
+      <i [class]="isAdmin ? 'ri-shield-star-line' : 'ri-user-3-line'"></i>
+      Mon profil
+    </h1>
+    <p class="profil-hero__sub">{{ isAdmin ? 'Espace administration' : 'Gérez vos informations personnelles' }}</p>
+  </div>
+
+  <div class="profil-body">
+
+    <!-- Message succes -->
+    <div class="profil-alert profil-alert--success" *ngIf="successMessage">
+      <i class="ri-checkbox-circle-line"></i> {{ successMessage }}
+    </div>
+
+    <div class="profil-grid">
+
+      <!-- Informations personnelles -->
+      <section class="profil-card">
+        <div class="profil-card__header">
+          <h2><i class="ri-user-line"></i> Informations personnelles</h2>
+          <button class="edit-btn" (click)="startEdit()" *ngIf="!editMode">
+            <i class="ri-edit-2-line"></i> Modifier
+          </button>
+        </div>
+
+        <!-- Mode lecture -->
+        <div class="info-grid" *ngIf="!editMode">
+          <div class="info-item">
+            <span class="info-label">Prenom</span>
+            <span class="info-value">{{ user?.prenom || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Nom</span>
+            <span class="info-value">{{ user?.nom || '-' }}</span>
+          </div>
+          <div class="info-item info-item--full">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ user?.email || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Telephone</span>
+            <span class="info-value">{{ user?.telephone || '-' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Role</span>
+            <span class="info-value">{{ roleLabel }}</span>
+          </div>
+        </div>
+
+        <!-- Mode edition -->
+        <div class="edit-form" *ngIf="editMode">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Prenom</label>
+              <input type="text" [(ngModel)]="editPrenom" placeholder="Votre prenom" />
+            </div>
+            <div class="form-group">
+              <label>Nom</label>
+              <input type="text" [(ngModel)]="editNom" placeholder="Votre nom" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Telephone</label>
+            <input type="tel" [(ngModel)]="editTelephone" placeholder="+229 ..." />
+          </div>
+          <div class="form-group form-group--readonly">
+            <label>Email</label>
+            <input type="email" [value]="user?.email || ''" disabled />
+            <small>L'email ne peut pas etre modifie.</small>
+          </div>
+
+          <div class="form-error" *ngIf="errorMessage">
+            <i class="ri-error-warning-line"></i> {{ errorMessage }}
+          </div>
+
+          <div class="edit-actions">
+            <button class="btn-cancel" (click)="cancelEdit()" [disabled]="saving">Annuler</button>
+            <button class="btn-save" (click)="saveProfile()" [disabled]="saving">
+              <span *ngIf="!saving"><i class="ri-save-line"></i> Enregistrer</span>
+              <span *ngIf="saving"><i class="ri-loader-4-line spin"></i> Sauvegarde...</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Liens rapides -->
+      <section class="profil-card">
+        <div class="profil-card__header">
+          <h2><i class="ri-lightning-line"></i> Acces rapide</h2>
+        </div>
+        <div class="quick-links">
+          <a class="quick-link" *ngFor="let link of quickLinks" [routerLink]="link.route">
+            <div class="quick-link__icon" [class.quick-link__icon--admin]="isAdmin">
+              <i [class]="link.icon"></i>
+            </div>
+            <div class="quick-link__text">
+              <strong>{{ link.label }}</strong>
+              <span>{{ link.sub }}</span>
+            </div>
+            <i class="ri-arrow-right-s-line quick-link__arrow"></i>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
