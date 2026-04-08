@@ -42,7 +42,9 @@ export class AuthService {
 
   constructor(
     private http: HttpClient
-  ) {}
+  ) {
+    this.sanitizeStoredSession();
+  }
 
   register(payload: RegisterRequest): Observable<User> {
     return this.http.post<User>('/auth/register', payload);
@@ -69,13 +71,23 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
+    this.clearStoredSession();
     this.userSubject.next(null);
   }
 
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
+
+    if (this.isTokenExpired()) {
+      this.clearStoredSession();
+      this.userSubject.next(null);
+      return false;
+    }
+
+    return true;
   }
 
   isAdmin(): boolean {
@@ -113,11 +125,27 @@ export class AuthService {
   }
 
   getUser(): User | null {
+    if (!this.isLoggedIn()) {
+      return null;
+    }
     return this.userSubject.value;
   }
 
   private getUserFromStorage(): User | null {
     const userData = localStorage.getItem(this.USER_KEY);
     return userData ? JSON.parse(userData) : null;
+  }
+
+  private sanitizeStoredSession(): void {
+    const token = this.getToken();
+    if (!token || this.isTokenExpired() || !this.userSubject.value) {
+      this.clearStoredSession();
+      this.userSubject.next(null);
+    }
+  }
+
+  private clearStoredSession(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
   }
 }

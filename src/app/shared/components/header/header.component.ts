@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { AuthService, User } from '../../../services/auth.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -15,6 +15,7 @@ import { takeUntil } from 'rxjs/operators';
 export class HeaderComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   @Input() mode: 'normal' | 'compact' = 'normal';
+  private currentPath = '/';
 
   public menuOpen = false;
   public isCircuitsDropdownOpen = false;
@@ -25,52 +26,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public user: User | null = null;
 
   constructor(
+    private elementRef: ElementRef<HTMLElement>,
     private router: Router,
-    private route: ActivatedRoute,
     private authService: AuthService
   ) {}
 
-  ngOnInit() {
-    // Subscribe to auth state
-    this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe(user => {
-      this.user = user;
-      this.isLoggedIn = this.authService.isLoggedIn();
-      this.isAdmin = this.authService.isAdmin();
+  ngOnInit(): void {
+    this.currentPath = this.normalizePath(this.router.url);
+    this.syncAuthState();
+
+    this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.syncAuthState();
     });
 
-    // Existing navigation logic
     this.router.events.pipe(takeUntil(this.destroy$)).subscribe(event => {
       if (event instanceof NavigationEnd) {
-        // ... existing header light logic ...
-        let node: ActivatedRoute | null = (this.router.routerState && (this.router.routerState.root as ActivatedRoute)) || this.route;
-        let headerLightFromData: boolean | null = null;
-
-        while (node) {
-          if (node.snapshot && node.snapshot.data && node.snapshot.data['headerLight'] !== undefined) {
-            headerLightFromData = !!node.snapshot.data['headerLight'];
-          }
-          node = node.firstChild as ActivatedRoute | null;
-        }
-
-        const isLightPage = headerLightFromData !== null
-          ? headerLightFromData
-          : (event.urlAfterRedirects.includes('circuits') || event.urlAfterRedirects.includes('circuit-personnalise'));
-
-        if (isLightPage) {
-          document.body.classList.add('header-light');
-          const headerEl = document.querySelector('.site-header') as HTMLElement | null;
-          if (headerEl) {
-            headerEl.setAttribute('data-header-light', 'true');
-            headerEl.classList.add('header-light');
-          }
-        } else {
-          document.body.classList.remove('header-light');
-          const headerEl = document.querySelector('.site-header') as HTMLElement | null;
-          if (headerEl) {
-            headerEl.removeAttribute('data-header-light');
-            headerEl.classList.remove('header-light');
-          }
-        }
+        this.currentPath = this.normalizePath(event.urlAfterRedirects);
+        this.closeMenu();
+        this.syncAuthState();
       }
     });
   }
@@ -80,11 +53,30 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  toggleMenu() {
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as Node | null;
+    if (target && !this.elementRef.nativeElement.contains(target)) {
+      this.closeMenu();
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeMenu();
+  }
+
+  toggleMenu(): void {
+    this.closeUserDropdown();
+    this.closeCircuitsDropdown();
     this.menuOpen = !this.menuOpen;
   }
 
-  toggleCircuitsDropdown() {
+  toggleCircuitsDropdown(): void {
+    if (!this.showPublicNavigation()) {
+      return;
+    }
+    this.closeUserDropdown();
     this.isCircuitsDropdownOpen = !this.isCircuitsDropdownOpen;
   }
 
@@ -117,7 +109,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.isAdmin ? 'Tableau de bord' : 'Mon espace';
   }
 
-  toggleUserDropdown() {
+  toggleUserDropdown(): void {
+    this.menuOpen = false;
+    this.closeCircuitsDropdown();
     this.isUserDropdownOpen = !this.isUserDropdownOpen;
   }
 
@@ -130,6 +124,63 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return (this.user.prenom.charAt(0) + this.user.nom.charAt(0)).toUpperCase();
     }
     return 'U';
+  }
+
+  showPublicNavigation(): boolean {
+    if (this.isAdmin) {
+      return this.mode !== 'compact';
+    }
+
+    return !this.isUserSpaceRoute();
+  }
+
+  showReservationsLink(): boolean {
+    return this.isUserSpaceRoute();
+  }
+
+  showDashboardLink(): boolean {
+    if (!this.isLoggedIn) {
+      return false;
+    }
+
+    if (this.isAdmin) {
+      return true;
+    }
+
+    return this.isDashboardRoute();
+  }
+
+  private syncAuthState(): void {
+    this.isLoggedIn = this.authService.isLoggedIn();
+    this.isAdmin = this.isLoggedIn && this.authService.isAdmin();
+    this.user = this.isLoggedIn ? this.authService.getUser() : null;
+
+    if (!this.isLoggedIn) {
+      this.closeUserDropdown();
+    }
+  }
+
+  private isUserSpaceRoute(): boolean {
+    if (!this.isLoggedIn || this.isAdmin) {
+      return false;
+    }
+
+    return [
+      '/dashboard',
+      '/mes-reservations',
+      '/profil',
+      '/parametres',
+      '/reservation-hebergement',
+      '/paiement/hebergement'
+    ].some(prefix => this.currentPath.startsWith(prefix));
+  }
+
+  private isDashboardRoute(): boolean {
+    return this.currentPath === '/dashboard';
+  }
+
+  private normalizePath(url: string): string {
+    return url.split('?')[0].split('#')[0] || '/';
   }
 
 }

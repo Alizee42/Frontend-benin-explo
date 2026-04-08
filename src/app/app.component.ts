@@ -20,10 +20,16 @@ export class AppComponent implements OnInit {
   constructor(private router: Router) {}
 
   ngOnInit() {
+    this.updateLayoutMode(this.router.url);
+
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        this.isAdminRoute = event.urlAfterRedirects.startsWith('/admin');
+        this.updateLayoutMode(event.urlAfterRedirects);
       });
+  }
+
+  private updateLayoutMode(url: string): void {
+    this.isAdminRoute = url.startsWith('/admin');
   }
 }

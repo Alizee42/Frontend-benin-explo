@@ -6,27 +6,36 @@
       <img src="assets/logos/BeninExplo.png" alt="Logo Benin Explo" class="brand-image" />
     </a>
 
-    <!-- Nav desktop (mode public uniquement) -->
-    <nav class="site-nav" *ngIf="mode === 'normal'" aria-label="Navigation principale">
+    <nav class="site-nav" aria-label="Navigation principale">
       <a class="nav-link"
          routerLink="/"
          routerLinkActive="active"
          [routerLinkActiveOptions]="{ exact: true }"
          (click)="closeMenu()">Accueil</a>
 
-      <div class="nav-dropdown" [class.open]="isCircuitsDropdownOpen">
-        <button class="nav-link nav-dropdown__toggle" type="button" (click)="toggleCircuitsDropdown()">
-          Circuits <i class="ri-arrow-down-s-line"></i>
-        </button>
-        <ul class="nav-dropdown__menu">
-          <li><a class="nav-dropdown__item" routerLink="/circuit" (click)="closeMenu(); closeCircuitsDropdown()">Nos circuits</a></li>
-          <li><a class="nav-dropdown__item" routerLink="/circuit-personnalise" (click)="closeMenu(); closeCircuitsDropdown()">Circuit personnalise</a></li>
-        </ul>
-      </div>
+      <ng-container *ngIf="showPublicNavigation()">
+        <div class="nav-dropdown" [class.open]="isCircuitsDropdownOpen">
+          <button class="nav-link nav-dropdown__toggle" type="button" (click)="toggleCircuitsDropdown()">
+            Circuits <i class="ri-arrow-down-s-line"></i>
+          </button>
+          <ul class="nav-dropdown__menu">
+            <li><a class="nav-dropdown__item" routerLink="/circuit" (click)="closeMenu(); closeCircuitsDropdown()">Nos circuits</a></li>
+            <li><a class="nav-dropdown__item" routerLink="/circuit-personnalise" (click)="closeMenu(); closeCircuitsDropdown()">Circuit personnalise</a></li>
+          </ul>
+        </div>
 
-      <a class="nav-link" routerLink="/hebergements" routerLinkActive="active" (click)="closeMenu()">Hebergements</a>
-      <a class="nav-link" routerLink="/" fragment="news" (click)="closeMenu()">Actualite</a>
-      <a class="nav-link" routerLink="/" fragment="contact" (click)="closeMenu()">Contact</a>
+        <a class="nav-link" routerLink="/hebergements" routerLinkActive="active" (click)="closeMenu()">Hebergements</a>
+        <a class="nav-link" routerLink="/" fragment="news" (click)="closeMenu()">Actualite</a>
+        <a class="nav-link" routerLink="/" fragment="contact" (click)="closeMenu()">Contact</a>
+      </ng-container>
+
+      <a class="nav-link" [routerLink]="getDashboardRoute()" routerLinkActive="active" (click)="closeMenu()" *ngIf="showDashboardLink()">
+        {{ getDashboardLabel() }}
+      </a>
+
+      <a class="nav-link" routerLink="/mes-reservations" routerLinkActive="active" (click)="closeMenu()" *ngIf="showReservationsLink()">
+        Mes reservations
+      </a>
     </nav>
 
     <!-- Actions à droite (toujours visibles) -->
@@ -88,9 +97,8 @@
         </div>
       </div>
 
-      <!-- Hamburger (mobile, mode normal) -->
+      <!-- Hamburger mobile -->
       <button
-        *ngIf="mode === 'normal'"
         class="hamburger"
         type="button"
         aria-label="Ouvrir le menu"
@@ -104,13 +112,21 @@
     </div>
   </div>
 
-  <!-- Drawer mobile (mode normal) -->
-  <nav class="mobile-drawer" *ngIf="mode === 'normal'" [class.open]="menuOpen" aria-label="Menu mobile">
+  <nav class="mobile-drawer" [class.open]="menuOpen" aria-label="Menu mobile">
     <a class="drawer-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()">Accueil</a>
-    <a class="drawer-link" routerLink="/circuit" routerLinkActive="active" (click)="closeMenu()">Nos circuits</a>
-    <a class="drawer-link" routerLink="/circuit-personnalise" routerLinkActive="active" (click)="closeMenu()">Circuit personnalise</a>
-    <a class="drawer-link" routerLink="/hebergements" routerLinkActive="active" (click)="closeMenu()">Hebergements</a>
-    <a class="drawer-link" routerLink="/" fragment="news" (click)="closeMenu()">Actualite</a>
-    <a class="drawer-link" routerLink="/" fragment="contact" (click)="closeMenu()">Contact</a>
+
+    <ng-container *ngIf="showPublicNavigation()">
+      <a class="drawer-link" routerLink="/circuit" routerLinkActive="active" (click)="closeMenu()">Nos circuits</a>
+      <a class="drawer-link" routerLink="/circuit-personnalise" routerLinkActive="active" (click)="closeMenu()">Circuit personnalise</a>
+      <a class="drawer-link" routerLink="/hebergements" routerLinkActive="active" (click)="closeMenu()">Hebergements</a>
+      <a class="drawer-link" routerLink="/" fragment="news" (click)="closeMenu()">Actualite</a>
+      <a class="drawer-link" routerLink="/" fragment="contact" (click)="closeMenu()">Contact</a>
+    </ng-container>
+
+    <ng-container *ngIf="isLoggedIn">
+      <a class="drawer-link" [routerLink]="getDashboardRoute()" routerLinkActive="active" (click)="closeMenu()" *ngIf="showDashboardLink()">{{ getDashboardLabel() }}</a>
+      <a class="drawer-link" routerLink="/mes-reservations" routerLinkActive="active" (click)="closeMenu()" *ngIf="showReservationsLink()">Mes reservations</a>
+      <button class="drawer-link drawer-link--button drawer-link--logout" type="button" (click)="logout()">Deconnexion</button>
+    </ng-container>
   </nav>
 </header>
