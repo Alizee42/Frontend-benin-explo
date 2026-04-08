@@ -3,17 +3,17 @@
     <div class="payment-hero__content">
       <div class="payment-hero__copy">
         <span class="payment-hero__eyebrow">Paiement securise</span>
-        <h1>Reglez votre reservation</h1>
+        <h1>Reglez votre circuit</h1>
         <p>
-          Finalisez votre sejour avec PayPal en une seule etape.
-          Votre reservation reste accessible dans votre espace client avant et apres le paiement.
+          Finalisez votre reservation circuit avec PayPal en une seule etape.
+          Votre dossier restera accessible dans votre espace client avant et apres le paiement.
         </p>
       </div>
 
       <div class="payment-hero__meta" *ngIf="reservation">
         <span>{{ getReservationReference() }}</span>
-        <span>{{ reservation.hebergementNom || 'Hebergement' }}</span>
-        <span>{{ formatDate(reservation.dateArrivee) }} - {{ formatDate(reservation.dateDepart) }}</span>
+        <span>{{ reservation.circuitNom || 'Circuit' }}</span>
+        <span>{{ formatDate(reservation.dateReservation) }}</span>
       </div>
     </div>
   </section>
@@ -39,7 +39,7 @@
         <div class="payment-card__header payment-card__header--split">
           <div>
             <span class="payment-card__eyebrow">Reservation</span>
-            <h2>{{ reservation.hebergementNom || 'Hebergement' }}</h2>
+            <h2>{{ reservation.circuitNom || 'Circuit' }}</h2>
             <p>{{ getReservationReference() }}</p>
           </div>
 
@@ -50,20 +50,16 @@
 
         <div class="summary-pills">
           <div class="summary-pill">
-            <span>Arrivee</span>
-            <strong>{{ formatDate(reservation.dateArrivee) }}</strong>
-          </div>
-          <div class="summary-pill">
-            <span>Depart</span>
-            <strong>{{ formatDate(reservation.dateDepart) }}</strong>
-          </div>
-          <div class="summary-pill">
-            <span>Duree</span>
-            <strong>{{ getNuits() }} nuit{{ getNuits() > 1 ? 's' : '' }}</strong>
+            <span>Date</span>
+            <strong>{{ formatDate(reservation.dateReservation) }}</strong>
           </div>
           <div class="summary-pill">
             <span>Voyageurs</span>
-            <strong>{{ reservation.nombrePersonnes }} personne{{ (reservation.nombrePersonnes || 0) > 1 ? 's' : '' }}</strong>
+            <strong>{{ reservation.nombrePersonnes || 1 }} personne{{ (reservation.nombrePersonnes || 1) > 1 ? 's' : '' }}</strong>
+          </div>
+          <div class="summary-pill">
+            <span>Statut</span>
+            <strong>{{ reservation.statut || 'EN_ATTENTE' }}</strong>
           </div>
         </div>
 
@@ -71,15 +67,15 @@
           <div class="summary-card">
             <span>Voyageur</span>
             <strong>{{ getClientFullName() }}</strong>
-            <small>{{ reservation.emailClient }}</small>
-            <small *ngIf="reservation.telephoneClient">{{ reservation.telephoneClient }}</small>
+            <small>{{ reservation.email }}</small>
+            <small *ngIf="reservation.telephone">{{ reservation.telephone }}</small>
           </div>
 
           <div class="summary-card">
-            <span>Reservation</span>
-            <strong>{{ reservation.statut || 'EN_ATTENTE' }}</strong>
-            <small *ngIf="reservation.dateCreation">Creee le {{ formatDateTime(reservation.dateCreation) }}</small>
-            <small *ngIf="reservation.datePaiement">Reglee le {{ formatDateTime(reservation.datePaiement) }}</small>
+            <span>Dossier</span>
+            <strong>{{ reservation.circuitNom || 'Circuit' }}</strong>
+            <small *ngIf="reservation.datePaiement">Regle le {{ formatDateTime(reservation.datePaiement) }}</small>
+            <small *ngIf="reservation.commentaires">{{ reservation.commentaires }}</small>
           </div>
         </div>
 
@@ -114,8 +110,8 @@
           <span class="payment-card__eyebrow">Paiement</span>
           <h2>Finalisez votre paiement</h2>
           <p *ngIf="!isPaid">
-            Utilisez le module PayPal ci-dessous pour regler votre reservation en toute securite.
-            Une fois le paiement confirme, votre dossier sera automatiquement mis a jour dans votre espace client.
+            Utilisez le module PayPal ci-dessous pour regler ce circuit en toute securite.
+            Une fois le paiement confirme, votre espace client sera mis a jour automatiquement.
           </p>
           <p *ngIf="isPaid">
             Le paiement est deja confirme. Vous pouvez revenir a votre espace client a tout moment.
@@ -132,8 +128,8 @@
             <span>Confirmation immediate</span>
           </div>
           <div class="checkout-banner__item">
-            <i class="ri-file-list-3-line"></i>
-            <span>Reservation conservee</span>
+            <i class="ri-route-line"></i>
+            <span>Circuit conserve</span>
           </div>
         </div>
 
@@ -148,8 +144,8 @@
         <div class="checkout-shell" [class.checkout-shell--done]="isPaid">
           <div class="checkout-shell__top">
             <div>
-              <span class="checkout-shell__label">Paiement de votre sejour</span>
-              <strong>{{ reservation.hebergementNom || 'Reservation hebergement' }}</strong>
+              <span class="checkout-shell__label">Paiement de votre circuit</span>
+              <strong>{{ reservation.circuitNom || 'Reservation circuit' }}</strong>
             </div>
             <span class="checkout-shell__secure">
               <i class="ri-shield-keyhole-line"></i>

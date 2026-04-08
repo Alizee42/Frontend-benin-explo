@@ -6,13 +6,16 @@
       <img src="assets/logos/BeninExplo.png" alt="Logo Benin Explo" class="brand-image" />
     </a>
 
+    <!-- Nav desktop -->
     <nav class="site-nav" aria-label="Navigation principale">
+
       <a class="nav-link"
          routerLink="/"
          routerLinkActive="active"
          [routerLinkActiveOptions]="{ exact: true }"
          (click)="closeMenu()">Accueil</a>
 
+      <!-- Nav publique : non connecté OU user/admin sur pages publiques -->
       <ng-container *ngIf="showPublicNavigation()">
         <div class="nav-dropdown" [class.open]="isCircuitsDropdownOpen">
           <button class="nav-link nav-dropdown__toggle" type="button" (click)="toggleCircuitsDropdown()">
@@ -23,25 +26,27 @@
             <li><a class="nav-dropdown__item" routerLink="/circuit-personnalise" (click)="closeMenu(); closeCircuitsDropdown()">Circuit personnalise</a></li>
           </ul>
         </div>
-
         <a class="nav-link" routerLink="/hebergements" routerLinkActive="active" (click)="closeMenu()">Hebergements</a>
         <a class="nav-link" routerLink="/" fragment="news" (click)="closeMenu()">Actualite</a>
         <a class="nav-link" routerLink="/" fragment="contact" (click)="closeMenu()">Contact</a>
       </ng-container>
 
-      <a class="nav-link" [routerLink]="getDashboardRoute()" routerLinkActive="active" (click)="closeMenu()" *ngIf="showDashboardLink()">
-        {{ getDashboardLabel() }}
-      </a>
+      <!-- Nav user privée : user connecté sur ses pages perso -->
+      <ng-container *ngIf="showUserPrivateNav()">
+        <a class="nav-link" routerLink="/dashboard" routerLinkActive="active" (click)="closeMenu()">Mon espace</a>
+        <a class="nav-link" routerLink="/mes-reservations" routerLinkActive="active" (click)="closeMenu()">Mes reservations</a>
+      </ng-container>
 
-      <a class="nav-link" routerLink="/mes-reservations" routerLinkActive="active" (click)="closeMenu()" *ngIf="showReservationsLink()">
-        Mes reservations
-      </a>
+      <!-- Nav admin compact : tableau de bord -->
+      <ng-container *ngIf="showAdminNav()">
+        <a class="nav-link" routerLink="/admin/dashboard" routerLinkActive="active" (click)="closeMenu()">Tableau de bord</a>
+      </ng-container>
+
     </nav>
 
-    <!-- Actions à droite (toujours visibles) -->
+    <!-- Actions à droite -->
     <div class="header-actions">
 
-      <!-- Bouton connexion (non connecté) -->
       <a *ngIf="!isLoggedIn" routerLink="/login" class="btn-connexion" (click)="closeMenu()">
         <i class="ri-user-line"></i>
         <span>Connexion</span>
@@ -57,7 +62,6 @@
         </button>
 
         <div class="user-panel" role="menu">
-          <!-- Info utilisateur -->
           <div class="user-panel__header">
             <div class="avatar avatar--lg" [class.avatar--admin]="isAdmin">
               <span>{{ getUserInitials() }}</span>
@@ -71,11 +75,14 @@
             </div>
           </div>
 
-          <!-- Liens -->
           <div class="user-panel__body">
-            <a class="panel-item" [routerLink]="getDashboardRoute()" (click)="closeUserDropdown()">
+            <a class="panel-item" routerLink="/dashboard" (click)="closeUserDropdown()" *ngIf="!isAdmin">
               <i class="ri-dashboard-line"></i>
-              <span>{{ getDashboardLabel() }}</span>
+              <span>Mon espace</span>
+            </a>
+            <a class="panel-item" routerLink="/admin/dashboard" (click)="closeUserDropdown()" *ngIf="isAdmin">
+              <i class="ri-dashboard-line"></i>
+              <span>Tableau de bord</span>
             </a>
             <a class="panel-item" routerLink="/profil" (click)="closeUserDropdown()">
               <i class="ri-user-3-line"></i>
@@ -87,7 +94,6 @@
             </a>
           </div>
 
-          <!-- Déconnexion -->
           <div class="user-panel__footer">
             <button class="panel-item panel-item--logout" type="button" (click)="logout(); closeUserDropdown()">
               <i class="ri-logout-box-r-line"></i>
@@ -112,9 +118,11 @@
     </div>
   </div>
 
+  <!-- Drawer mobile -->
   <nav class="mobile-drawer" [class.open]="menuOpen" aria-label="Menu mobile">
     <a class="drawer-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()">Accueil</a>
 
+    <!-- Nav publique -->
     <ng-container *ngIf="showPublicNavigation()">
       <a class="drawer-link" routerLink="/circuit" routerLinkActive="active" (click)="closeMenu()">Nos circuits</a>
       <a class="drawer-link" routerLink="/circuit-personnalise" routerLinkActive="active" (click)="closeMenu()">Circuit personnalise</a>
@@ -123,10 +131,22 @@
       <a class="drawer-link" routerLink="/" fragment="contact" (click)="closeMenu()">Contact</a>
     </ng-container>
 
-    <ng-container *ngIf="isLoggedIn">
-      <a class="drawer-link" [routerLink]="getDashboardRoute()" routerLinkActive="active" (click)="closeMenu()" *ngIf="showDashboardLink()">{{ getDashboardLabel() }}</a>
-      <a class="drawer-link" routerLink="/mes-reservations" routerLinkActive="active" (click)="closeMenu()" *ngIf="showReservationsLink()">Mes reservations</a>
-      <button class="drawer-link drawer-link--button drawer-link--logout" type="button" (click)="logout()">Deconnexion</button>
+    <!-- Nav user privée -->
+    <ng-container *ngIf="showUserPrivateNav()">
+      <a class="drawer-link" routerLink="/dashboard" routerLinkActive="active" (click)="closeMenu()">Mon espace</a>
+      <a class="drawer-link" routerLink="/mes-reservations" routerLinkActive="active" (click)="closeMenu()">Mes reservations</a>
+      <a class="drawer-link" routerLink="/profil" routerLinkActive="active" (click)="closeMenu()">Mon profil</a>
     </ng-container>
+
+    <!-- Nav admin compact -->
+    <ng-container *ngIf="showAdminNav()">
+      <a class="drawer-link" routerLink="/admin/dashboard" routerLinkActive="active" (click)="closeMenu()">Tableau de bord</a>
+    </ng-container>
+
+    <!-- Profil dans le drawer (connecté) -->
+    <a class="drawer-link" routerLink="/profil" routerLinkActive="active" (click)="closeMenu()" *ngIf="isLoggedIn && !isAdmin && !showAdminNav()">Mon profil</a>
+
+    <!-- Déconnexion mobile -->
+    <button *ngIf="isLoggedIn" class="drawer-link drawer-link--button drawer-link--logout" type="button" (click)="logout()">Deconnexion</button>
   </nav>
 </header>

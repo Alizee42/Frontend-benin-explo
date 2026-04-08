@@ -17,7 +17,10 @@ import { EUR_TO_XOF_RATE } from '../../../shared/constants/currency.constants';
 })
 export class CircuitsPersonnalisesAdminComponent implements OnInit {
   demandes: CircuitPersonnaliseDTO[] = [];
+  filteredDemandes: CircuitPersonnaliseDTO[] = [];
   isLoading = true;
+  statusFilter = '';
+  searchTerm = '';
 
   emailTemplates = {
     approbation: {
@@ -78,15 +81,19 @@ Telephone : {telephone}`
   emailSubject = '';
   emailBody = '';
   refusalReason = '';
+  approvedQuoteAmount: number | null = null;
   isSendingDecision = false;
   modalError = '';
   modalSuccess = '';
 
   tableColumns = [
+    { key: 'referenceReservation', label: 'Reference', sortable: true },
     { key: 'nomClient', label: 'Nom', sortable: true },
     { key: 'emailClient', label: 'Email', sortable: false },
     { key: 'telephoneClient', label: 'Telephone', sortable: false },
     { key: 'dateCreationDisplay', label: 'Date', sortable: true },
+    { key: 'prixFinal', label: 'Devis valide', sortable: true, formatter: (value: number) => this.formatQuoteAmount(value) },
+    { key: 'statutPaiement', label: 'Paiement', sortable: true, type: 'status' as const, formatter: (value: string) => this.getPaymentStatusLabel(value) },
     { key: 'statut', label: 'Statut', sortable: true, type: 'status' as const, formatter: (value: string) => this.getStatusLabel(value) },
     { key: 'actions', label: 'Actions', type: 'actions' as const }
   ];
@@ -131,6 +138,7 @@ Telephone : {telephone}`
           ...d,
           dateCreationDisplay: d.dateCreation ? this.formatDate(d.dateCreation) : undefined
         }));
+        this.applyFilters();
         this.isLoading = false;
       },
       error: (error) => {
@@ -196,11 +204,15 @@ Telephone : ${demande.telephoneClient}`;
     this.currentEmailAction = action;
     this.currentDemande = demande;
     this.refusalReason = '';
+    this.approvedQuoteAmount = null;
     this.modalError = '';
     this.modalSuccess = '';
     this.isSendingDecision = false;
 
     const template = this.emailTemplates[action];
+    this.approvedQuoteAmount = action === 'approbation'
+      ? (demande.prixFinal ?? demande.prixEstime ?? null)
+      : null;
     this.emailSubject = this.replacePlaceholders(template.subject, demande);
     this.emailBody = this.replacePlaceholders(template.body, demande);
 
@@ -214,6 +226,7 @@ Telephone : ${demande.telephoneClient}`;
     this.emailSubject = '';
     this.emailBody = '';
     this.refusalReason = '';
+    this.approvedQuoteAmount = null;
     this.modalError = '';
     this.modalSuccess = '';
     this.isSendingDecision = false;
@@ -227,6 +240,13 @@ Telephone : ${demande.telephoneClient}`;
     this.isSendingDecision = true;
 
     const newStatus = this.currentEmailAction === 'approbation' ? 'ACCEPTE' : 'REFUSE';
+    const finalQuote = this.currentEmailAction === 'approbation' ? (this.approvedQuoteAmount ?? undefined) : undefined;
+
+    if (this.currentEmailAction === 'approbation' && (!finalQuote || finalQuote <= 0)) {
+      this.isSendingDecision = false;
+      this.modalError = 'Indique un montant final valide avant de valider ce devis.';
+      return;
+    }
 
     const commentaireAdmin = this.currentEmailAction === 'approbation'
       ? 'Validation envoyee depuis le module admin.'
@@ -235,7 +255,7 @@ Telephone : ${demande.telephoneClient}`;
     this.circuitsPersonnalisesService.updateStatut(
       this.currentDemande.id!,
       newStatus,
-      undefined,
+      finalQuote,
       commentaireAdmin,
       this.currentEmailAction === 'refus' ? this.refusalReason.trim() : undefined,
       this.emailSubject,
@@ -261,6 +281,13 @@ Telephone : ${demande.telephoneClient}`;
     }
   }
 
+  onApprovedQuoteAmountChange() {
+    if (this.currentDemande && this.currentEmailAction === 'approbation') {
+      const template = this.emailTemplates.approbation;
+      this.emailBody = this.replacePlaceholders(template.body, this.currentDemande);
+    }
+  }
+
   replacePlaceholders(text: string, demande: CircuitPersonnaliseDTO): string {
     const zonesStr = demande.jours.map(j => j.zoneNom).filter(z => z).join(', ') || 'N/A';
     const activitesStr = demande.jours.flatMap(j => j.activiteNoms || []).join(', ') || 'N/A';
@@ -275,13 +302,13 @@ Telephone : ${demande.telephoneClient}`;
       .replace(/{hebergement}/g, this.getHebergementSummary(demande))
       .replace(/{transport}/g, demande.avecTransport ? `Transport inclus (${demande.typeTransport || ''})` : 'Sans transport')
       .replace(/{extras}/g, '')
-      .replace(/{prix}/g, this.formatEstimatedPrice(demande))
+      .replace(/{prix}/g, this.formatEstimatedPrice(demande, this.currentEmailAction === 'approbation' ? this.approvedQuoteAmount : undefined))
       .replace(/{telephone}/g, demande.telephoneClient)
       .replace(/{motif}/g, this.refusalReason);
   }
 
-  private formatEstimatedPrice(demande: CircuitPersonnaliseDTO): string {
-    const amount = demande.prixEstime;
+  private formatEstimatedPrice(demande: CircuitPersonnaliseDTO, overrideAmount?: number | null): string {
+    const amount = overrideAmount ?? demande.prixFinal ?? demande.prixEstime;
     if (amount === undefined || amount === null || Number.isNaN(amount)) {
       return 'A determiner';
     }
@@ -325,8 +352,26 @@ Telephone : ${demande.telephoneClient}`;
     return this.demandes.filter(d => d.statut === 'ACCEPTE').length;
   }
 
+  get demandesPayees(): number {
+    return this.demandes.filter(d => (d.statutPaiement || '').toUpperCase() === 'PAYE').length;
+  }
+
   get demandesRefusees(): number {
     return this.demandes.filter(d => d.statut === 'REFUSE').length;
+  }
+
+  applyFilters(): void {
+    const term = (this.searchTerm || '').trim().toLowerCase();
+    this.filteredDemandes = this.demandes.filter((demande) => {
+      const matchesStatus = !this.statusFilter || (demande.statut || 'EN_ATTENTE').toUpperCase() === this.statusFilter;
+      const matchesSearch = !term
+        || (demande.referenceReservation || '').toLowerCase().includes(term)
+        || (demande.nomClient || '').toLowerCase().includes(term)
+        || (demande.prenomClient || '').toLowerCase().includes(term)
+        || (demande.emailClient || '').toLowerCase().includes(term)
+        || (demande.telephoneClient || '').toLowerCase().includes(term);
+      return matchesStatus && matchesSearch;
+    });
   }
 
   formatDate(date: string): string {
@@ -339,6 +384,26 @@ Telephone : ${demande.telephoneClient}`;
     if (normalized === 'EN_TRAITEMENT') return 'En traitement';
     if (normalized === 'ACCEPTE') return 'Acceptee';
     if (normalized === 'REFUSE') return 'Refusee';
+    if (normalized === 'TERMINE') return 'Terminee';
     return normalized || '-';
+  }
+
+  getPaymentStatusLabel(statut?: string): string {
+    const normalized = String(statut || '').trim().toUpperCase();
+    if (normalized === 'PAYE') return 'Paye';
+    if (normalized === 'EN_COURS') return 'En cours';
+    if (normalized === 'ECHEC') return 'Echec';
+    if (normalized === 'REMBOURSE') return 'Rembourse';
+    return 'A payer';
+  }
+
+  private formatQuoteAmount(value?: number): string {
+    if (value === undefined || value === null || Number.isNaN(value)) {
+      return '-';
+    }
+    return `${new Intl.NumberFormat('fr-FR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value)} EUR`;
   }
 }

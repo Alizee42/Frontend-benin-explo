@@ -2,30 +2,30 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angula
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { ReservationHebergementDTO } from '../../../../models/reservation-hebergement.dto';
-import { ReservationHebergementService } from '../../../../services/reservation-hebergement.service';
 import {
-  HebergementPaymentService,
-  HebergementPayPalConfigDTO
-} from '../../../../services/hebergement-payment.service';
+  CircuitPersonnaliseDTO,
+  CircuitsPersonnalisesService
+} from '../../../../services/circuits-personnalises.service';
+import { CircuitPersonnalisePaymentService } from '../../../../services/circuit-personnalise-payment.service';
 import {
   PayPalButtonsInstance,
+  PayPalClientConfig,
   PayPalNamespace,
   PayPalSdkService
 } from '../../../../services/paypal-sdk.service';
 
 @Component({
-  selector: 'app-paiement-hebergement',
+  selector: 'app-paiement-circuit-personnalise',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './paiement-hebergement.component.html',
-  styleUrls: ['./paiement-hebergement.component.scss']
+  templateUrl: './paiement-circuit-personnalise.component.html',
+  styleUrls: ['../paiement-hebergement/paiement-hebergement.component.scss']
 })
-export class PaiementHebergementComponent implements OnInit, AfterViewInit {
+export class PaiementCircuitPersonnaliseComponent implements OnInit, AfterViewInit {
   @ViewChild('paypalButtonsContainer') paypalButtonsContainer?: ElementRef<HTMLDivElement>;
 
-  reservation: ReservationHebergementDTO | null = null;
-  payPalConfig: HebergementPayPalConfigDTO | null = null;
+  demande: CircuitPersonnaliseDTO | null = null;
+  payPalConfig: PayPalClientConfig | null = null;
 
   loading = true;
   sdkLoading = false;
@@ -43,23 +43,23 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private reservationService: ReservationHebergementService,
-    private paymentService: HebergementPaymentService,
+    private circuitsPersonnalisesService: CircuitsPersonnalisesService,
+    private paymentService: CircuitPersonnalisePaymentService,
     private payPalSdkService: PayPalSdkService
   ) {}
 
   ngOnInit(): void {
-    const reservationId = Number(this.route.snapshot.paramMap.get('reservationId'));
+    const demandeId = Number(this.route.snapshot.paramMap.get('demandeId'));
     this.returnOrderToken = this.route.snapshot.queryParamMap.get('token') || '';
     this.wasCancelledByPayPal = (this.route.snapshot.queryParamMap.get('paypal') || '').toLowerCase() === 'cancel';
 
-    if (!Number.isFinite(reservationId) || reservationId <= 0) {
-      this.errorMessage = 'Reservation introuvable pour ce paiement.';
+    if (!Number.isFinite(demandeId) || demandeId <= 0) {
+      this.errorMessage = 'Devis introuvable pour ce paiement.';
       this.loading = false;
       return;
     }
 
-    this.loadReservation(reservationId);
+    this.loadDemande(demandeId);
   }
 
   ngAfterViewInit(): void {
@@ -67,38 +67,34 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
   }
 
   get isPaid(): boolean {
-    return (this.reservation?.statutPaiement || '').toUpperCase() === 'PAYE';
+    return (this.demande?.statutPaiement || '').toUpperCase() === 'PAYE';
   }
 
   get canAttemptPayment(): boolean {
-    if (!this.reservation?.id) {
+    if (!this.demande?.id) {
       return false;
     }
-    const paymentStatus = (this.reservation.statutPaiement || '').toUpperCase();
-    const reservationStatus = (this.reservation.statut || 'EN_ATTENTE').toUpperCase();
-    return reservationStatus !== 'ANNULEE' && paymentStatus !== 'PAYE' && paymentStatus !== 'REMBOURSE';
+    const paymentStatus = (this.demande.statutPaiement || '').toUpperCase();
+    const demandeStatus = (this.demande.statut || 'EN_ATTENTE').toUpperCase();
+    return demandeStatus === 'ACCEPTE' && paymentStatus !== 'PAYE' && paymentStatus !== 'REMBOURSE' && this.getTotalPrice() > 0;
   }
 
   getTotalPrice(): number {
-    return this.reservation?.prixTotal || 0;
+    return this.demande?.prixFinal || 0;
   }
 
   getCfaEstimate(): number {
     return this.getTotalPrice() * 655.957;
   }
 
-  getNuits(): number {
-    return this.reservation?.nombreNuits || 0;
-  }
-
   getClientFullName(): string {
-    const prenom = this.reservation?.prenomClient?.trim() || '';
-    const nom = this.reservation?.nomClient?.trim() || '';
+    const prenom = this.demande?.prenomClient?.trim() || '';
+    const nom = this.demande?.nomClient?.trim() || '';
     return `${prenom} ${nom}`.trim() || 'Voyageur';
   }
 
   getReservationReference(): string {
-    return this.reservation?.referenceReservation || 'Reservation';
+    return this.demande?.referenceReservation || 'Devis';
   }
 
   get payPalCurrency(): string {
@@ -119,8 +115,6 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
         return 'Echec';
       case 'REMBOURSE':
         return 'Rembourse';
-      case 'A_PAYER':
-        return 'A payer';
       default:
         return 'A payer';
     }
@@ -182,7 +176,7 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
     this.buttonsRendered = false;
     this.buttonsUnavailable = false;
 
-    if (!this.reservation?.id) {
+    if (!this.demande?.id) {
       return;
     }
 
@@ -190,13 +184,13 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
     setTimeout(() => this.tryRenderButtons(true));
   }
 
-  private loadReservation(reservationId: number): void {
+  private loadDemande(demandeId: number): void {
     this.loading = true;
     this.errorMessage = '';
 
-    this.reservationService.getMineById(reservationId).subscribe({
-      next: async (reservation) => {
-        this.reservation = reservation;
+    this.circuitsPersonnalisesService.getMineDemandeById(demandeId).subscribe({
+      next: async (demande) => {
+        this.demande = demande;
         this.loading = false;
 
         if (this.wasCancelledByPayPal) {
@@ -217,7 +211,7 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
         setTimeout(() => this.tryRenderButtons());
       },
       error: () => {
-        this.errorMessage = 'Impossible de charger cette reservation pour le paiement.';
+        this.errorMessage = 'Impossible de charger ce devis pour le paiement.';
         this.loading = false;
       }
     });
@@ -237,7 +231,7 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
       }
 
       this.payPalNamespace = await this.payPalSdkService.load(this.payPalConfig);
-    } catch (error) {
+    } catch {
       this.errorMessage = 'Impossible de charger PayPal pour le moment.';
     } finally {
       this.sdkLoading = false;
@@ -249,7 +243,7 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    if (!this.payPalNamespace || !this.paypalButtonsContainer?.nativeElement || !this.reservation?.id || !this.canAttemptPayment) {
+    if (!this.payPalNamespace || !this.paypalButtonsContainer?.nativeElement || !this.demande?.id || !this.canAttemptPayment) {
       return;
     }
 
@@ -264,7 +258,7 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
         try {
           const response = await firstValueFrom(
             this.paymentService.createOrder(
-              this.reservation!.id!,
+              this.demande!.id!,
               this.buildPayPalReturnUrl('success'),
               this.buildPayPalReturnUrl('cancel')
             )
@@ -284,10 +278,10 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
         this.errorMessage = '';
         try {
           const response = await firstValueFrom(
-            this.paymentService.captureOrder(this.reservation!.id!, data.orderID)
+            this.paymentService.captureOrder(this.demande!.id!, data.orderID)
           );
-          this.reservation = response.reservation;
-          this.successMessage = 'Paiement valide avec succes. Votre reservation reste visible dans votre espace client.';
+          this.demande = response.demande;
+          this.successMessage = 'Paiement valide avec succes. Votre devis reste visible dans votre espace client.';
           this.buttonsRendered = false;
           container.innerHTML = '';
         } catch (err: any) {
@@ -327,7 +321,7 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
   }
 
   private async captureReturnedOrder(orderId: string): Promise<void> {
-    if (!this.reservation?.id) {
+    if (!this.demande?.id) {
       return;
     }
 
@@ -337,12 +331,12 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
 
     try {
       const response = await firstValueFrom(
-        this.paymentService.captureOrder(this.reservation.id, orderId)
+        this.paymentService.captureOrder(this.demande.id, orderId)
       );
-      this.reservation = response.reservation;
-      this.successMessage = 'Paiement valide avec succes. Votre reservation reste visible dans votre espace client.';
+      this.demande = response.demande;
+      this.successMessage = 'Paiement valide avec succes. Votre devis reste visible dans votre espace client.';
       this.clearPayPalReturnQueryParams();
-    } catch (error) {
+    } catch {
       this.errorMessage = 'Le paiement a ete approuve par PayPal, mais sa confirmation locale a echoue. Vous pouvez reessayer.';
     } finally {
       this.paymentProcessing = false;
@@ -350,12 +344,12 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
   }
 
   private buildPayPalReturnUrl(kind: 'success' | 'cancel'): string {
-    if (!this.reservation?.id) {
+    if (!this.demande?.id) {
       return window.location.href;
     }
 
     const tree = this.router.createUrlTree(
-      ['/paiement/hebergement', this.reservation.id],
+      ['/paiement/circuit-personnalise', this.demande.id],
       { queryParams: { paypal: kind } }
     );
 

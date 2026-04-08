@@ -28,10 +28,6 @@
         Chargement des indicateurs...
       </div>
 
-      <div *ngIf="!isLoading && hasDataWarning" class="dashboard-state dashboard-state-warning">
-        Certaines donnees n'ont pas pu etre chargees. Les compteurs affiches peuvent etre partiels.
-      </div>
-
       <div class="kpi-grid">
         <article class="kpi-card">
           <div class="kpi-icon"><i class="ri-route-line"></i></div>
@@ -45,9 +41,9 @@
         <article class="kpi-card">
           <div class="kpi-icon"><i class="ri-hotel-bed-line"></i></div>
           <div class="kpi-content">
-            <p class="kpi-label">Reservations hebergement</p>
-            <p class="kpi-value">{{ reservationsCount }}</p>
-            <p class="kpi-hint">Volume global des reservations hebergement.</p>
+            <p class="kpi-label">Reservations clients</p>
+            <p class="kpi-value">{{ clientReservationsCount }}</p>
+            <p class="kpi-hint">Hebergements et demandes sur mesure reunis.</p>
           </div>
         </article>
 
@@ -124,15 +120,6 @@
           </div>
         </a>
 
-        <a routerLink="/admin/circuits-personnalises" class="module-card">
-          <span class="module-icon"><i class="ri-user-star-line"></i></span>
-          <div class="module-content">
-            <p class="module-title">Circuits personnalises</p>
-            <p class="module-subtitle">Traiter les demandes sur mesure.</p>
-          </div>
-          <span class="module-count">{{ demandesCount }}</span>
-        </a>
-
         <a routerLink="/admin/tarifs-circuit-personnalise" class="module-card">
           <span class="module-icon"><i class="ri-money-euro-circle-line"></i></span>
           <div class="module-content">
@@ -151,13 +138,13 @@
           <span class="module-count">{{ hebergementsCount }}</span>
         </a>
 
-        <a routerLink="/admin/reservations-hebergement" class="module-card">
-          <span class="module-icon"><i class="ri-calendar-todo-line"></i></span>
+        <a routerLink="/admin/reservations-clients" class="module-card">
+          <span class="module-icon"><i class="ri-folders-line"></i></span>
           <div class="module-content">
-            <p class="module-title">Reservations hebergement</p>
-            <p class="module-subtitle">Suivre et confirmer les reservations.</p>
+            <p class="module-title">Reservations clients</p>
+            <p class="module-subtitle">Hebergements, circuits catalogue et sur mesure en une seule vue.</p>
           </div>
-          <span class="module-count">{{ reservationsCount }}</span>
+          <span class="module-count">{{ clientReservationsCount }}</span>
         </a>
       </div>
     </section>

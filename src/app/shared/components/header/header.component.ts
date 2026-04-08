@@ -126,28 +126,32 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return 'U';
   }
 
+  // Nav publique : masquée uniquement sur les pages perso du user connecté
   showPublicNavigation(): boolean {
-    if (this.isAdmin) {
-      return this.mode !== 'compact';
-    }
-
-    return !this.isUserSpaceRoute();
+    if (this.mode === 'compact') return false;
+    if (this.isLoggedIn && this.isUserSpaceRoute()) return false;
+    return true;
   }
 
-  showReservationsLink(): boolean {
-    return this.isUserSpaceRoute();
+  // Liens Mon espace + Mes réservations : toujours visibles quand user connecté (non admin)
+  showUserPrivateNav(): boolean {
+    return this.isLoggedIn && !this.isAdmin && this.mode !== 'compact';
   }
 
-  showDashboardLink(): boolean {
-    if (!this.isLoggedIn) {
-      return false;
-    }
+  // Nav admin compact : tableau de bord
+  showAdminNav(): boolean {
+    return this.mode === 'compact' && this.isAdmin;
+  }
 
-    if (this.isAdmin) {
-      return true;
-    }
-
-    return this.isDashboardRoute();
+  private isUserSpaceRoute(): boolean {
+    return [
+      '/dashboard',
+      '/mes-reservations',
+      '/profil',
+      '/parametres',
+      '/reservation-hebergement',
+      '/paiement',
+    ].some(prefix => this.currentPath.startsWith(prefix));
   }
 
   private syncAuthState(): void {
@@ -160,27 +164,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  private isUserSpaceRoute(): boolean {
-    if (!this.isLoggedIn || this.isAdmin) {
-      return false;
-    }
-
-    return [
-      '/dashboard',
-      '/mes-reservations',
-      '/profil',
-      '/parametres',
-      '/reservation-hebergement',
-      '/paiement/hebergement'
-    ].some(prefix => this.currentPath.startsWith(prefix));
-  }
-
-  private isDashboardRoute(): boolean {
-    return this.currentPath === '/dashboard';
-  }
-
   private normalizePath(url: string): string {
-    return url.split('?')[0].split('#')[0] || '/';
+    return (url || '/').split('?')[0].split('#')[0] || '/';
   }
 
 }

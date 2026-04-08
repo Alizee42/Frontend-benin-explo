@@ -66,6 +66,20 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
+  {
+    path: 'paiement/circuit/:reservationId',
+    loadComponent: () =>
+      import('./features/utilisateur/pages/paiement-circuit/paiement-circuit.component').then(m => m.PaiementCircuitComponent),
+    canActivate: [authGuard]
+  },
+
+  {
+    path: 'paiement/circuit-personnalise/:demandeId',
+    loadComponent: () =>
+      import('./features/utilisateur/pages/paiement-circuit-personnalise/paiement-circuit-personnalise.component').then(m => m.PaiementCircuitPersonnaliseComponent),
+    canActivate: [authGuard]
+  },
+
   /* RESERVATION HEBERGEMENT */
   {
     path: 'reservation-hebergement/:id',
@@ -142,6 +156,14 @@ export const routes: Routes = [
     path: 'admin/hebergements',
     loadComponent: () =>
       import('./features/admin/hebergements/hebergements-admin.component').then(m => m.HebergementsAdminComponent),
+    canActivate: [authGuard]
+  },
+
+  /* ADMIN RESERVATIONS HEBERGEMENTS */
+  {
+    path: 'admin/reservations-clients',
+    loadComponent: () =>
+      import('./features/admin/reservations-clients/reservations-clients-admin.component').then(m => m.ReservationsClientsAdminComponent),
     canActivate: [authGuard]
   },
 

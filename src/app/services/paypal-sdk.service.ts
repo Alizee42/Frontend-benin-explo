@@ -1,5 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HebergementPayPalConfigDTO } from './hebergement-payment.service';
+
+export interface PayPalClientConfig {
+  enabled: boolean;
+  sandbox: boolean;
+  clientId: string;
+  currency: string;
+  brandName: string;
+}
 
 export interface PayPalOrderApproveData {
   orderID: string;
@@ -33,7 +40,7 @@ export class PayPalSdkService {
   private loadPromise: Promise<PayPalNamespace> | null = null;
   private currentScriptUrl = '';
 
-  load(config: HebergementPayPalConfigDTO): Promise<PayPalNamespace> {
+  load(config: PayPalClientConfig): Promise<PayPalNamespace> {
     const scriptUrl = this.buildScriptUrl(config);
 
     if (window.paypal && this.currentScriptUrl === scriptUrl) {
@@ -70,7 +77,7 @@ export class PayPalSdkService {
     return this.loadPromise;
   }
 
-  private buildScriptUrl(config: HebergementPayPalConfigDTO): string {
+  private buildScriptUrl(config: PayPalClientConfig): string {
     const params = new URLSearchParams({
       'client-id': config.clientId,
       currency: config.currency || 'EUR',

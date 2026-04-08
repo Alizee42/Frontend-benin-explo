@@ -3,17 +3,17 @@
     <div class="payment-hero__content">
       <div class="payment-hero__copy">
         <span class="payment-hero__eyebrow">Paiement securise</span>
-        <h1>Reglez votre reservation</h1>
+        <h1>Reglez votre devis valide</h1>
         <p>
-          Finalisez votre sejour avec PayPal en une seule etape.
-          Votre reservation reste accessible dans votre espace client avant et apres le paiement.
+          Votre circuit sur mesure a ete valide par l'equipe.
+          Vous pouvez maintenant regler le montant final en toute securite avec PayPal.
         </p>
       </div>
 
-      <div class="payment-hero__meta" *ngIf="reservation">
+      <div class="payment-hero__meta" *ngIf="demande">
         <span>{{ getReservationReference() }}</span>
-        <span>{{ reservation.hebergementNom || 'Hebergement' }}</span>
-        <span>{{ formatDate(reservation.dateArrivee) }} - {{ formatDate(reservation.dateDepart) }}</span>
+        <span>{{ demande.nombreJours }} jour{{ demande.nombreJours > 1 ? 's' : '' }}</span>
+        <span>{{ demande.nombrePersonnes }} personne{{ demande.nombrePersonnes > 1 ? 's' : '' }}</span>
       </div>
     </div>
   </section>
@@ -21,7 +21,7 @@
   <main class="payment-shell">
     <div class="payment-state payment-state--loading" *ngIf="loading">
       <i class="ri-loader-4-line spin"></i>
-      <span>Chargement de votre reservation...</span>
+      <span>Chargement de votre devis...</span>
     </div>
 
     <div class="payment-state payment-state--error" *ngIf="!loading && errorMessage">
@@ -34,36 +34,36 @@
       <span>{{ successMessage }}</span>
     </div>
 
-    <div class="payment-layout" *ngIf="!loading && reservation">
+    <div class="payment-layout" *ngIf="!loading && demande">
       <aside class="payment-card payment-card--summary">
         <div class="payment-card__header payment-card__header--split">
           <div>
-            <span class="payment-card__eyebrow">Reservation</span>
-            <h2>{{ reservation.hebergementNom || 'Hebergement' }}</h2>
+            <span class="payment-card__eyebrow">Devis</span>
+            <h2>Circuit sur mesure</h2>
             <p>{{ getReservationReference() }}</p>
           </div>
 
-          <span class="status-badge" [ngClass]="getPaymentStatusClass(reservation.statutPaiement)">
-            {{ getPaymentStatusLabel(reservation.statutPaiement) }}
+          <span class="status-badge" [ngClass]="getPaymentStatusClass(demande.statutPaiement)">
+            {{ getPaymentStatusLabel(demande.statutPaiement) }}
           </span>
         </div>
 
         <div class="summary-pills">
           <div class="summary-pill">
-            <span>Arrivee</span>
-            <strong>{{ formatDate(reservation.dateArrivee) }}</strong>
-          </div>
-          <div class="summary-pill">
-            <span>Depart</span>
-            <strong>{{ formatDate(reservation.dateDepart) }}</strong>
-          </div>
-          <div class="summary-pill">
             <span>Duree</span>
-            <strong>{{ getNuits() }} nuit{{ getNuits() > 1 ? 's' : '' }}</strong>
+            <strong>{{ demande.nombreJours }} jour{{ demande.nombreJours > 1 ? 's' : '' }}</strong>
           </div>
           <div class="summary-pill">
             <span>Voyageurs</span>
-            <strong>{{ reservation.nombrePersonnes }} personne{{ (reservation.nombrePersonnes || 0) > 1 ? 's' : '' }}</strong>
+            <strong>{{ demande.nombrePersonnes }} personne{{ demande.nombrePersonnes > 1 ? 's' : '' }}</strong>
+          </div>
+          <div class="summary-pill">
+            <span>Date souhaitee</span>
+            <strong>{{ formatDate(demande.dateVoyageSouhaitee) }}</strong>
+          </div>
+          <div class="summary-pill">
+            <span>Statut</span>
+            <strong>{{ demande.statut || 'EN_ATTENTE' }}</strong>
           </div>
         </div>
 
@@ -71,20 +71,20 @@
           <div class="summary-card">
             <span>Voyageur</span>
             <strong>{{ getClientFullName() }}</strong>
-            <small>{{ reservation.emailClient }}</small>
-            <small *ngIf="reservation.telephoneClient">{{ reservation.telephoneClient }}</small>
+            <small>{{ demande.emailClient }}</small>
+            <small *ngIf="demande.telephoneClient">{{ demande.telephoneClient }}</small>
           </div>
 
           <div class="summary-card">
-            <span>Reservation</span>
-            <strong>{{ reservation.statut || 'EN_ATTENTE' }}</strong>
-            <small *ngIf="reservation.dateCreation">Creee le {{ formatDateTime(reservation.dateCreation) }}</small>
-            <small *ngIf="reservation.datePaiement">Reglee le {{ formatDateTime(reservation.datePaiement) }}</small>
+            <span>Configuration</span>
+            <strong>{{ demande.typeHebergement || 'Hebergement a definir' }}</strong>
+            <small>{{ demande.avecTransport ? ('Transport: ' + (demande.typeTransport || 'oui')) : 'Sans transport' }}</small>
+            <small>{{ demande.avecGuide ? 'Guide inclus' : 'Sans guide' }}</small>
           </div>
         </div>
 
         <div class="payment-total">
-          <span class="payment-total__label">Total a regler</span>
+          <span class="payment-total__label">Montant du devis valide</span>
           <strong>{{ formatAmount(getTotalPrice()) }}</strong>
           <small>Environ {{ getCfaEstimate() | number:'1.0-0' }} F CFA</small>
         </div>
@@ -97,14 +97,14 @@
           </span>
         </div>
 
-        <div class="payment-meta" *ngIf="reservation.paypalCaptureId || reservation.paypalOrderId">
-          <div class="payment-meta__item" *ngIf="reservation.paypalOrderId">
+        <div class="payment-meta" *ngIf="demande.paypalCaptureId || demande.paypalOrderId">
+          <div class="payment-meta__item" *ngIf="demande.paypalOrderId">
             <span>Commande PayPal</span>
-            <strong>{{ reservation.paypalOrderId }}</strong>
+            <strong>{{ demande.paypalOrderId }}</strong>
           </div>
-          <div class="payment-meta__item" *ngIf="reservation.paypalCaptureId">
+          <div class="payment-meta__item" *ngIf="demande.paypalCaptureId">
             <span>Capture PayPal</span>
-            <strong>{{ reservation.paypalCaptureId }}</strong>
+            <strong>{{ demande.paypalCaptureId }}</strong>
           </div>
         </div>
       </aside>
@@ -114,8 +114,8 @@
           <span class="payment-card__eyebrow">Paiement</span>
           <h2>Finalisez votre paiement</h2>
           <p *ngIf="!isPaid">
-            Utilisez le module PayPal ci-dessous pour regler votre reservation en toute securite.
-            Une fois le paiement confirme, votre dossier sera automatiquement mis a jour dans votre espace client.
+            Utilisez le module PayPal ci-dessous pour regler le montant final de votre devis en toute securite.
+            Une fois le paiement confirme, votre espace client sera mis a jour automatiquement.
           </p>
           <p *ngIf="isPaid">
             Le paiement est deja confirme. Vous pouvez revenir a votre espace client a tout moment.
@@ -128,12 +128,12 @@
             <span>Paiement PayPal securise</span>
           </div>
           <div class="checkout-banner__item">
-            <i class="ri-refresh-line"></i>
-            <span>Confirmation immediate</span>
+            <i class="ri-file-list-3-line"></i>
+            <span>Devis valide par l'equipe</span>
           </div>
           <div class="checkout-banner__item">
-            <i class="ri-file-list-3-line"></i>
-            <span>Reservation conservee</span>
+            <i class="ri-refresh-line"></i>
+            <span>Confirmation immediate</span>
           </div>
         </div>
 
@@ -148,8 +148,8 @@
         <div class="checkout-shell" [class.checkout-shell--done]="isPaid">
           <div class="checkout-shell__top">
             <div>
-              <span class="checkout-shell__label">Paiement de votre sejour</span>
-              <strong>{{ reservation.hebergementNom || 'Reservation hebergement' }}</strong>
+              <span class="checkout-shell__label">Paiement de votre circuit sur mesure</span>
+              <strong>{{ getReservationReference() }}</strong>
             </div>
             <span class="checkout-shell__secure">
               <i class="ri-shield-keyhole-line"></i>
@@ -164,12 +164,12 @@
 
           <div class="payment-state payment-state--success" *ngIf="isPaid">
             <i class="ri-shield-check-line"></i>
-            <span>Le paiement complet de cette reservation a bien ete valide.</span>
+            <span>Le paiement complet de ce devis a bien ete valide.</span>
           </div>
 
           <div class="payment-state payment-state--error" *ngIf="buttonsUnavailable && !isPaid">
             <i class="ri-close-circle-line"></i>
-            <span>PayPal n'est pas disponible pour cette reservation pour le moment.</span>
+            <span>PayPal n'est pas disponible pour ce devis pour le moment.</span>
           </div>
 
           <div class="paypal-buttons" #paypalButtonsContainer *ngIf="!isPaid && !sdkLoading && canAttemptPayment"></div>

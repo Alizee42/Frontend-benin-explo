@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../../../services/auth.service';
 import { ReservationHebergementDTO } from '../../../../models/reservation-hebergement.dto';
 import { ReservationHebergementService } from '../../../../services/reservation-hebergement.service';
@@ -9,9 +10,13 @@ import {
   ReservationCircuitDTO,
   ReservationsCircuitService
 } from '../../../../services/reservations-circuit.service';
+import {
+  CircuitPersonnaliseDTO,
+  CircuitsPersonnalisesService
+} from '../../../../services/circuits-personnalises.service';
 
 interface DashboardActivityItem {
-  kind: 'hebergement' | 'circuit';
+  kind: 'hebergement' | 'circuit' | 'sur-mesure';
   title: string;
   date: string;
   status?: string;
@@ -37,12 +42,14 @@ export class DashboardComponent implements OnInit {
 
   hebergementReservations: ReservationHebergementDTO[] = [];
   circuitReservations: ReservationCircuitDTO[] = [];
+  customCircuitDemandes: CircuitPersonnaliseDTO[] = [];
   recentActivity: DashboardActivityItem[] = [];
 
   constructor(
     private authService: AuthService,
     private reservationHebergementService: ReservationHebergementService,
-    private reservationsCircuitService: ReservationsCircuitService
+    private reservationsCircuitService: ReservationsCircuitService,
+    private circuitsPersonnalisesService: CircuitsPersonnalisesService
   ) {}
 
   ngOnInit(): void {
@@ -66,25 +73,29 @@ export class DashboardComponent implements OnInit {
     this.errorMessage = '';
 
     forkJoin({
-      hebergements: this.reservationHebergementService.getMine(),
-      circuits: this.reservationsCircuitService.getMine()
+      hebergements: this.reservationHebergementService.getMine().pipe(catchError(() => of([]))),
+      circuits: this.reservationsCircuitService.getMine().pipe(catchError(() => of([]))),
+      circuitsSurMesure: this.circuitsPersonnalisesService.getMineDemandes().pipe(catchError(() => of([])))
     }).subscribe({
-      next: ({ hebergements, circuits }) => {
+      next: ({ hebergements, circuits, circuitsSurMesure }) => {
         this.hebergementReservations = [...(hebergements || [])].sort((a, b) =>
           new Date(b.dateCreation || '').getTime() - new Date(a.dateCreation || '').getTime()
         );
         this.circuitReservations = [...(circuits || [])].sort((a, b) =>
           new Date(b.dateReservation || '').getTime() - new Date(a.dateReservation || '').getTime()
         );
+        this.customCircuitDemandes = [...(circuitsSurMesure || [])].sort((a, b) =>
+          new Date(b.dateCreation || '').getTime() - new Date(a.dateCreation || '').getTime()
+        );
         this.recentActivity = this.buildRecentActivity(
           this.hebergementReservations,
-          this.circuitReservations
+          this.circuitReservations,
+          this.customCircuitDemandes
         );
         this.loaded = true;
         this.loading = false;
       },
       error: () => {
-        this.errorMessage = 'Impossible de charger votre espace client pour le moment.';
         this.loaded = true;
         this.loading = false;
       }
@@ -92,7 +103,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get totalReservations(): number {
-    return this.hebergementReservations.length + this.circuitReservations.length;
+    return this.hebergementReservations.length + this.circuitReservations.length + this.customCircuitDemandes.length;
   }
 
   get totalHebergements(): number {
@@ -100,19 +111,27 @@ export class DashboardComponent implements OnInit {
   }
 
   get totalCircuits(): number {
-    return this.circuitReservations.length;
+    return this.circuitReservations.length + this.customCircuitDemandes.length;
   }
 
   get reservationsEnAttente(): number {
-    return [...this.hebergementReservations, ...this.circuitReservations]
+    const classicWaiting = [...this.hebergementReservations, ...this.circuitReservations]
       .filter(item => (item.statut || 'EN_ATTENTE').toUpperCase() === 'EN_ATTENTE')
       .length;
+    const customWaiting = this.customCircuitDemandes
+      .filter(item => ['EN_ATTENTE', 'EN_TRAITEMENT'].includes((item.statut || 'EN_ATTENTE').toUpperCase()))
+      .length;
+    return classicWaiting + customWaiting;
   }
 
   get reservationsConfirmees(): number {
-    return [...this.hebergementReservations, ...this.circuitReservations]
+    const classicConfirmed = [...this.hebergementReservations, ...this.circuitReservations]
       .filter(item => (item.statut || '').toUpperCase() === 'CONFIRMEE')
       .length;
+    const customConfirmed = this.customCircuitDemandes
+      .filter(item => (item.statut || '').toUpperCase() === 'ACCEPTE')
+      .length;
+    return classicConfirmed + customConfirmed;
   }
 
   getStatusLabel(statut?: string): string {
@@ -121,7 +140,14 @@ export class DashboardComponent implements OnInit {
         return 'Confirmee';
       case 'ANNULEE':
         return 'Annulee';
+      case 'ACCEPTE':
+        return 'Devis valide';
+      case 'REFUSE':
+        return 'Refuse';
+      case 'EN_TRAITEMENT':
+        return 'En traitement';
       case 'TERMINEE':
+      case 'TERMINE':
         return 'Terminee';
       default:
         return 'En attente';
@@ -134,7 +160,14 @@ export class DashboardComponent implements OnInit {
         return 'badge-success';
       case 'ANNULEE':
         return 'badge-danger';
+      case 'ACCEPTE':
+        return 'badge-success';
+      case 'REFUSE':
+        return 'badge-danger';
+      case 'EN_TRAITEMENT':
+        return 'badge-info';
       case 'TERMINEE':
+      case 'TERMINE':
         return 'badge-info';
       default:
         return 'badge-warning';
@@ -152,7 +185,8 @@ export class DashboardComponent implements OnInit {
 
   private buildRecentActivity(
     hebergements: ReservationHebergementDTO[],
-    circuits: ReservationCircuitDTO[]
+    circuits: ReservationCircuitDTO[],
+    customCircuits: CircuitPersonnaliseDTO[]
   ): DashboardActivityItem[] {
     const hebergementItems: DashboardActivityItem[] = hebergements.map(item => ({
       kind: 'hebergement',
@@ -172,7 +206,16 @@ export class DashboardComponent implements OnInit {
       sortDate: new Date(item.dateReservation || '').getTime() || 0
     }));
 
-    return [...hebergementItems, ...circuitItems]
+    const customCircuitItems: DashboardActivityItem[] = customCircuits.map(item => ({
+      kind: 'sur-mesure',
+      title: item.referenceReservation || 'Circuit sur mesure',
+      date: item.dateCreation || '',
+      status: item.statut,
+      details: `${item.nombreJours || 0} jour${(item.nombreJours || 0) > 1 ? 's' : ''} · ${item.nombrePersonnes || 1} voyageur${(item.nombrePersonnes || 1) > 1 ? 's' : ''}`,
+      sortDate: new Date(item.dateCreation || '').getTime() || 0
+    }));
+
+    return [...hebergementItems, ...circuitItems, ...customCircuitItems]
       .sort((a, b) => b.sortDate - a.sortDate)
       .slice(0, 4);
   }

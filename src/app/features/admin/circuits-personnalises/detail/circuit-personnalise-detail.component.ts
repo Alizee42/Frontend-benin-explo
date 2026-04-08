@@ -24,6 +24,7 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
   showDecisionModal = false;
   decisionType: 'approve' | 'reject' | null = null;
   refusalReason = '';
+  approvedQuoteAmount: number | null = null;
   emailSubject = '';
   emailBody = '';
   isSubmittingDecision = false;
@@ -62,6 +63,9 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
     if (!this.demande) return;
     this.decisionType = type;
     this.refusalReason = '';
+    this.approvedQuoteAmount = type === 'approve'
+      ? (this.demande.prixFinal ?? this.demande.prixEstime ?? null)
+      : null;
     this.emailSubject = type === 'approve'
       ? 'Votre demande de circuit personnalise a ete approuvee'
       : 'Votre demande de circuit personnalise';
@@ -73,6 +77,7 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
     this.showDecisionModal = false;
     this.decisionType = null;
     this.refusalReason = '';
+    this.approvedQuoteAmount = null;
     this.emailSubject = '';
     this.emailBody = '';
     this.isSubmittingDecision = false;
@@ -84,13 +89,17 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
       ? 'Votre demande de circuit personnalise a ete approuvee.'
       : 'Votre demande de circuit personnalise ne peut pas etre validee pour le moment.';
     const reasonLine = type === 'reject' ? '\nMotif: {motif}' : '';
+    const displayedPrice = type === 'approve'
+      ? this.formatPrix(this.approvedQuoteAmount ?? this.demande.prixFinal ?? this.demande.prixEstime, this.demande.devisePrixEstime)
+      : (this.demande.prixEstime ? this.formatPrix(this.demande.prixEstime, this.demande.devisePrixEstime) : 'A determiner');
 
-    return `Bonjour ${this.demande.prenomClient} ${this.demande.nomClient},\n\n${statusLine}${reasonLine}\n\nDetails:\n- Nombre de personnes: ${this.demande.nombrePersonnes}\n- Nombre de jours: ${this.demande.nombreJours}\n- Hebergement: ${this.getHebergementSummary(this.demande)}\n- Prix estime: ${this.demande.prixEstime ? this.formatPrix(this.demande.prixEstime, this.demande.devisePrixEstime) : 'A determiner'}\n\nL'equipe Benin Explo`;
+    return `Bonjour ${this.demande.prenomClient} ${this.demande.nomClient},\n\n${statusLine}${reasonLine}\n\nDetails:\n- Nombre de personnes: ${this.demande.nombrePersonnes}\n- Nombre de jours: ${this.demande.nombreJours}\n- Hebergement: ${this.getHebergementSummary(this.demande)}\n- Montant valide: ${displayedPrice}\n\nL'equipe Benin Explo`;
   }
 
   submitDecision(): void {
     if (!this.demande || !this.decisionType || this.isSubmittingDecision) return;
     if (this.decisionType === 'reject' && !this.refusalReason.trim()) return;
+    if (this.decisionType === 'approve' && (!this.approvedQuoteAmount || this.approvedQuoteAmount <= 0)) return;
 
     const status = this.decisionType === 'approve' ? 'ACCEPTE' : 'REFUSE';
     this.isSubmittingDecision = true;
@@ -106,7 +115,7 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
     this.circuitsPersonnalisesService.updateStatut(
       this.demande.id!,
       status,
-      undefined,
+      this.decisionType === 'approve' ? (this.approvedQuoteAmount ?? undefined) : undefined,
       commentaireAdmin,
       this.decisionType === 'reject' ? this.refusalReason.trim() : undefined,
       this.emailSubject,
@@ -158,6 +167,36 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
         return 'En attente';
       default:
         return statut;
+    }
+  }
+
+  getPaymentBadgeClass(statut?: string): string {
+    switch ((statut || '').toUpperCase()) {
+      case 'PAYE':
+        return 'payment-paid';
+      case 'EN_COURS':
+        return 'payment-processing';
+      case 'ECHEC':
+        return 'payment-failed';
+      case 'REMBOURSE':
+        return 'payment-refunded';
+      default:
+        return 'payment-pending';
+    }
+  }
+
+  getPaymentStatusLabel(statut?: string): string {
+    switch ((statut || '').toUpperCase()) {
+      case 'PAYE':
+        return 'Paye';
+      case 'EN_COURS':
+        return 'En cours';
+      case 'ECHEC':
+        return 'Echec';
+      case 'REMBOURSE':
+        return 'Rembourse';
+      default:
+        return 'A payer';
     }
   }
 
@@ -226,6 +265,12 @@ export class CircuitPersonnaliseDetailComponent implements OnInit {
 
   selectDay(index: number): void {
     this.selectedDayIndex = index;
+  }
+
+  onApprovedQuoteAmountChange(): void {
+    if (this.decisionType === 'approve') {
+      this.emailBody = this.buildDecisionEmailBody('approve');
+    }
   }
 
   get selectedDay() {

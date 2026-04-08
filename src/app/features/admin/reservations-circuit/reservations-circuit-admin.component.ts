@@ -30,11 +30,14 @@ export class ReservationsCircuitAdminComponent implements OnInit {
   errorMessage = '';
 
   columns: TableColumn[] = [
+    { key: 'referenceReservation', label: 'Reference', sortable: true, width: '140px' },
     { key: 'nom', label: 'Client', sortable: true, valueGetter: (item: any) => `${item.prenom || ''} ${item.nom || ''}`.trim() },
-    { key: 'telephone', label: 'Téléphone', sortable: true },
+    { key: 'telephone', label: 'Telephone', sortable: true },
     { key: 'circuitNom', label: 'Circuit', sortable: true },
     { key: 'dateReservation', label: 'Date', sortable: true, type: 'date' },
     { key: 'nombrePersonnes', label: 'Pers.', sortable: true, width: '70px' },
+    { key: 'statutPaiement', label: 'Paiement', sortable: true, type: 'status', formatter: (v: string) => this.getPaymentStatusLabel(v) },
+    { key: 'prixTotal', label: 'Prix', sortable: true, formatter: (v: any) => v != null ? `${Number(v).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} EUR` : '-' },
     { key: 'statut', label: 'Statut', sortable: true, type: 'status', formatter: (v: string) => this.getStatusLabel(v) },
     { key: 'actions', label: 'Actions', type: 'actions' }
   ];
@@ -57,7 +60,7 @@ export class ReservationsCircuitAdminComponent implements OnInit {
         this.loading = false;
       },
       error: () => {
-        this.errorMessage = 'Impossible de charger les réservations.';
+        this.errorMessage = 'Impossible de charger les reservations.';
         this.loading = false;
       }
     });
@@ -71,6 +74,7 @@ export class ReservationsCircuitAdminComponent implements OnInit {
         || (r.nom || '').toLowerCase().includes(term)
         || (r.prenom || '').toLowerCase().includes(term)
         || (r.circuitNom || '').toLowerCase().includes(term)
+        || (r.referenceReservation || '').toLowerCase().includes(term)
         || (r.email || '').toLowerCase().includes(term);
       return matchesStatus && matchesSearch;
     });
@@ -101,10 +105,10 @@ export class ReservationsCircuitAdminComponent implements OnInit {
         if (idx !== -1) this.reservations[idx] = updated;
         this.applyFilters();
         this.saving = false;
-        this.successMessage = 'Réservation mise à jour.';
+        this.successMessage = 'Reservation mise a jour.';
         this.showModal = false;
       },
-      error: () => { this.saving = false; this.errorMessage = 'Échec de la mise à jour.'; }
+      error: () => { this.saving = false; this.errorMessage = 'Echec de la mise a jour.'; }
     });
   }
 
@@ -117,7 +121,7 @@ export class ReservationsCircuitAdminComponent implements OnInit {
       next: () => {
         this.reservations = this.reservations.filter(r => r.id !== id);
         this.applyFilters();
-        this.successMessage = 'Réservation supprimée.';
+        this.successMessage = 'Reservation supprimee.';
       },
       error: () => { this.errorMessage = 'Suppression impossible.'; }
     });
@@ -127,13 +131,38 @@ export class ReservationsCircuitAdminComponent implements OnInit {
     return this.reservations.filter(r => (r.statut || 'EN_ATTENTE').toUpperCase() === statut).length;
   }
 
+  countByPaymentStatus(statut: string): number {
+    return this.reservations.filter(r => (r.statutPaiement || 'A_PAYER').toUpperCase() === statut).length;
+  }
+
   getStatusLabel(statut?: string): string {
     const s = (statut || 'EN_ATTENTE').toUpperCase();
-    if (s === 'CONFIRMEE') return 'Confirmée';
+    if (s === 'CONFIRMEE') return 'Confirmee';
     if (s === 'EN_ATTENTE') return 'En attente';
-    if (s === 'ANNULEE') return 'Annulée';
-    if (s === 'TERMINEE') return 'Terminée';
+    if (s === 'ANNULEE') return 'Annulee';
+    if (s === 'TERMINEE') return 'Terminee';
     return s;
+  }
+
+  getPaymentStatusLabel(statut?: string): string {
+    switch ((statut || '').toUpperCase()) {
+      case 'PAYE': return 'Paye';
+      case 'EN_COURS': return 'En cours';
+      case 'ECHEC': return 'Echec';
+      case 'REMBOURSE': return 'Rembourse';
+      default: return 'A payer';
+    }
+  }
+
+  getPaymentBadgeClass(statut?: string): string {
+    switch ((statut || '').toUpperCase()) {
+      case 'PAYE': return 'badge-success';
+      case 'EN_COURS': return 'badge-info';
+      case 'ECHEC': return 'badge-danger';
+      case 'REMBOURSE': return 'badge-secondary';
+      case 'A_PAYER': return 'badge-warning';
+      default: return 'badge-warning';
+    }
   }
 
   getStatusBadgeClass(statut?: string): string {
@@ -160,5 +189,19 @@ export class ReservationsCircuitAdminComponent implements OnInit {
     if (!d) return '';
     const date = new Date(d);
     return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('fr-FR');
+  }
+
+  formatDateTime(d?: string): string {
+    if (!d) return '';
+    const date = new Date(d);
+    return Number.isNaN(date.getTime())
+      ? ''
+      : date.toLocaleString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
   }
 }

@@ -1,5 +1,6 @@
 export interface ReservationHebergementDTO {
   id?: number;
+  referenceReservation?: string;
   hebergementId: number;
   hebergementNom?: string;
   nomClient: string;

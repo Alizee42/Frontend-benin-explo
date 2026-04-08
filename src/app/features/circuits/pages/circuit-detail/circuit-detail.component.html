@@ -99,6 +99,65 @@
           </div>
         </section>
 
+        <section class="content-section booking-section" *ngIf="circuit.prixIndicatif != null">
+          <h2 class="section-title">Reserver et payer</h2>
+          <div class="section-content booking-panel">
+            <div class="booking-panel__summary">
+              <span class="booking-label">Prix du circuit</span>
+              <strong>{{ circuit.prixIndicatif | number:'1.0-2' }} EUR</strong>
+              <small>Environ {{ circuit.prixIndicatif * 655.957 | number:'1.0-0' }} F CFA</small>
+              <p>Une reservation est creee sur votre compte, puis vous passez directement au paiement securise.</p>
+            </div>
+
+            <div class="booking-panel__form" *ngIf="isLoggedIn; else loginToReserve">
+              <div class="booking-grid">
+                <label class="booking-field">
+                  <span>Date souhaitee</span>
+                  <input type="date" [(ngModel)]="reservationDate" [min]="getTodayIsoDate()">
+                </label>
+
+                <label class="booking-field">
+                  <span>Voyageurs</span>
+                  <select [(ngModel)]="reservationNombrePersonnes">
+                    <option *ngFor="let n of [1,2,3,4,5,6,7,8,9,10]" [ngValue]="n">
+                      {{ n }} personne{{ n > 1 ? 's' : '' }}
+                    </option>
+                  </select>
+                </label>
+
+                <label class="booking-field booking-field--full">
+                  <span>Commentaires</span>
+                  <textarea rows="4" [(ngModel)]="reservationCommentaires" placeholder="Precisions utiles pour l'equipe Benin Explo"></textarea>
+                </label>
+              </div>
+
+              <div class="booking-account">
+                <span>Reservation rattachee a</span>
+                <strong>{{ currentUser?.prenom }} {{ currentUser?.nom }}</strong>
+                <small>{{ currentUser?.email }}</small>
+              </div>
+
+              <div class="booking-error" *ngIf="reservationError">{{ reservationError }}</div>
+
+              <div class="booking-actions">
+                <button type="button" class="booking-btn booking-btn--primary" (click)="submitReservation()" [disabled]="reservationSubmitting || !reservationDate">
+                  {{ reservationSubmitting ? 'Creation...' : 'Reserver et payer' }}
+                </button>
+              </div>
+            </div>
+
+            <ng-template #loginToReserve>
+              <div class="booking-panel__login">
+                <p>Connectez-vous pour reserver ce circuit et passer directement au paiement.</p>
+                <div class="booking-actions">
+                  <a class="booking-btn booking-btn--primary" [routerLink]="['/login']" [queryParams]="{ returnUrl: '/circuit/' + circuit.id }">Se connecter</a>
+                  <a class="booking-btn booking-btn--ghost" [routerLink]="['/register']" [queryParams]="{ returnUrl: '/circuit/' + circuit.id }">Creer un compte</a>
+                </div>
+              </div>
+            </ng-template>
+          </div>
+        </section>
+
         <section class="content-section" *ngIf="circuitProgramme.length > 0">
           <h2 class="section-title">Programme jour par jour</h2>
           <div class="section-content">

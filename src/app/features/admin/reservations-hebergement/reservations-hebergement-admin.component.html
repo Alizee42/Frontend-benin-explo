@@ -4,7 +4,48 @@
   <main class="page-content">
     <app-admin-actions-bar title="Reservations hebergements" icon="ri-calendar-check-line"></app-admin-actions-bar>
 
+    <section class="kpi-grid">
+      <article class="kpi-card total">
+        <div class="kpi-icon"><i class="ri-file-list-3-line"></i></div>
+        <div class="kpi-content">
+          <span class="kpi-label">Reservations totales</span>
+          <p class="kpi-value">{{ reservations.length }}</p>
+        </div>
+      </article>
+
+      <article class="kpi-card pending">
+        <div class="kpi-icon"><i class="ri-time-line"></i></div>
+        <div class="kpi-content">
+          <span class="kpi-label">En attente</span>
+          <p class="kpi-value">{{ countByStatus('EN_ATTENTE') }}</p>
+        </div>
+      </article>
+
+      <article class="kpi-card approved">
+        <div class="kpi-icon"><i class="ri-checkbox-circle-line"></i></div>
+        <div class="kpi-content">
+          <span class="kpi-label">Confirmees</span>
+          <p class="kpi-value">{{ countByStatus('CONFIRMEE') }}</p>
+        </div>
+      </article>
+
+      <article class="kpi-card paid">
+        <div class="kpi-icon"><i class="ri-bank-card-line"></i></div>
+        <div class="kpi-content">
+          <span class="kpi-label">Payees</span>
+          <p class="kpi-value">{{ countByPaymentStatus('PAYE') }}</p>
+        </div>
+      </article>
+    </section>
+
     <section class="admin-section">
+      <div class="section-header">
+        <div class="section-header-main">
+          <h2>Pilotage des sejours</h2>
+          <p>Retrouve en un coup d'oeil le client, le sejour, le statut de reservation et le paiement.</p>
+        </div>
+      </div>
+
       <div class="filters-section">
         <div class="filter-group">
           <label for="statusFilter"><i class="ri-filter-line"></i> Statut</label>
@@ -117,6 +158,10 @@
 
             <div class="resa-section">
               <h4 class="resa-section__title"><i class="ri-hotel-bed-line"></i> Hebergement</h4>
+              <div class="resa-field" *ngIf="selectedReservation.referenceReservation">
+                <span class="resa-field__label">Reference</span>
+                <span class="resa-field__value resa-field__value--strong">{{ selectedReservation.referenceReservation }}</span>
+              </div>
               <div class="resa-field">
                 <span class="resa-field__label">Etablissement</span>
                 <span class="resa-field__value resa-field__value--strong">{{ selectedReservation.hebergementNom }}</span>

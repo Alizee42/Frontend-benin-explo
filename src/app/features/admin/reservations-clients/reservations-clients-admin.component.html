@@ -1,0 +1,390 @@
+<div class="reservations-clients-admin">
+  <app-header mode="compact"></app-header>
+
+  <main class="page-content">
+    <app-admin-actions-bar
+      title="Reservations clients"
+      icon="ri-folders-line"
+      subtitle="Hebergements, circuits catalogue et circuits sur mesure regroupes dans une seule vue.">
+    </app-admin-actions-bar>
+
+    <section class="admin-section">
+      <div *ngIf="successMessage" class="state-banner state-banner--success">
+        {{ successMessage }}
+      </div>
+
+      <div *ngIf="errorMessage" class="state-banner state-banner--error">
+        {{ errorMessage }}
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn" [class.active]="activeTab === 'hebergements'" (click)="setTab('hebergements')">
+          <i class="ri-hotel-bed-line"></i> Hebergements
+          <span class="tab-count">{{ hebergementReservations.length }}</span>
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'circuits'" (click)="setTab('circuits')">
+          <i class="ri-route-line"></i> Circuits
+          <span class="tab-count">{{ circuitReservations.length }}</span>
+        </button>
+        <button class="tab-btn" [class.active]="activeTab === 'surMesure'" (click)="setTab('surMesure')">
+          <i class="ri-instance-line"></i> Circuits sur mesure
+          <span class="tab-count">{{ customCircuitDemandes.length }}</span>
+        </button>
+      </div>
+
+      <div class="filters-bar">
+        <div class="filter-group">
+          <label for="statusFilter"><i class="ri-filter-line"></i> Statut</label>
+          <select id="statusFilter" [(ngModel)]="statusFilter" class="filter-select">
+            <option *ngFor="let option of statusOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group filter-group--search">
+          <label for="searchTerm"><i class="ri-search-line"></i> Rechercher</label>
+          <input
+            type="text"
+            id="searchTerm"
+            [(ngModel)]="searchTerm"
+            placeholder="Reference, client, email..."
+            class="filter-input">
+        </div>
+
+        <div class="filter-summary">
+          <span class="summary-chip">{{ currentCount }} resultat{{ currentCount > 1 ? 's' : '' }}</span>
+          <span class="summary-chip summary-chip--pending">{{ pendingClientRequestsCount }} a traiter</span>
+        </div>
+      </div>
+
+      <div *ngIf="activeTab === 'hebergements'">
+        <app-data-table
+          [data]="filteredHebergements"
+          [columns]="hebergementColumns"
+          [loading]="loading"
+          [actions]="hebergementActions"
+          [iconOnlyActions]="true"
+          [autoPaginate]="true"
+          [autoPaginateThreshold]="6"
+          [pageSize]="8"
+          (actionClick)="onHebergementAction($event)"
+          emptyMessage="Aucune reservation hebergement">
+        </app-data-table>
+      </div>
+
+      <div *ngIf="activeTab === 'circuits'">
+        <app-data-table
+          [data]="filteredCircuits"
+          [columns]="circuitColumns"
+          [loading]="loading"
+          [actions]="circuitActions"
+          [iconOnlyActions]="true"
+          [autoPaginate]="true"
+          [autoPaginateThreshold]="6"
+          [pageSize]="8"
+          (actionClick)="onCircuitAction($event)"
+          emptyMessage="Aucune reservation circuit">
+        </app-data-table>
+      </div>
+
+      <div *ngIf="activeTab === 'surMesure'">
+        <app-data-table
+          [data]="filteredCustomCircuits"
+          [columns]="customColumns"
+          [loading]="loading"
+          [actions]="customActions"
+          [iconOnlyActions]="true"
+          [autoPaginate]="true"
+          [autoPaginateThreshold]="6"
+          [pageSize]="8"
+          (actionClick)="onCustomAction($event)"
+          emptyMessage="Aucune demande sur mesure">
+        </app-data-table>
+      </div>
+    </section>
+
+    <app-modal
+      [open]="hebergementModalOpen"
+      [title]="hebergementModalMode === 'view' ? 'Details de la reservation' : 'Modifier la reservation'"
+      [size]="'large'"
+      (close)="closeHebergementModal()">
+
+      <div *ngIf="selectedHebergement" class="resa-modal">
+        <div class="resa-modal__topbar">
+          <div class="resa-modal__status">
+            <span class="status-badge" [ngClass]="getStatusBadgeClass(selectedHebergement.statut)">
+              <i [class]="getStatusIcon(selectedHebergement.statut)"></i>
+              {{ getStatusLabel(selectedHebergement.statut) }}
+            </span>
+          </div>
+
+          <div class="resa-modal__quick-actions" *ngIf="hebergementModalMode === 'edit'">
+            <button class="qa-btn qa-btn--attente"
+              [class.active]="selectedHebergement.statut === 'EN_ATTENTE'"
+              (click)="quickSetHebergementStatus('EN_ATTENTE')" [disabled]="saving">
+              <i class="ri-time-line"></i> En attente
+            </button>
+            <button class="qa-btn qa-btn--confirm"
+              [class.active]="selectedHebergement.statut === 'CONFIRMEE'"
+              (click)="quickSetHebergementStatus('CONFIRMEE')" [disabled]="saving">
+              <i class="ri-checkbox-circle-line"></i> Confirmer
+            </button>
+            <button class="qa-btn qa-btn--done"
+              [class.active]="selectedHebergement.statut === 'TERMINEE'"
+              (click)="quickSetHebergementStatus('TERMINEE')" [disabled]="saving">
+              <i class="ri-flag-line"></i> Terminee
+            </button>
+            <button class="qa-btn qa-btn--cancel"
+              [class.active]="selectedHebergement.statut === 'ANNULEE'"
+              (click)="quickSetHebergementStatus('ANNULEE')" [disabled]="saving">
+              <i class="ri-close-circle-line"></i> Annuler
+            </button>
+          </div>
+        </div>
+
+        <div class="resa-modal__body">
+          <div class="resa-modal__col">
+            <div class="resa-section">
+              <h4 class="resa-section__title"><i class="ri-user-line"></i> Client</h4>
+              <div class="resa-field">
+                <span class="resa-field__label">Nom complet</span>
+                <span class="resa-field__value resa-field__value--strong">{{ selectedHebergement.prenomClient }} {{ selectedHebergement.nomClient }}</span>
+              </div>
+              <div class="resa-field">
+                <span class="resa-field__label">Email</span>
+                <a class="resa-field__value resa-field__value--link" [href]="'mailto:' + selectedHebergement.emailClient">{{ selectedHebergement.emailClient }}</a>
+              </div>
+              <div class="resa-field">
+                <span class="resa-field__label">Telephone</span>
+                <a class="resa-field__value resa-field__value--link" [href]="'tel:' + selectedHebergement.telephoneClient">{{ selectedHebergement.telephoneClient }}</a>
+              </div>
+            </div>
+
+            <div class="resa-section">
+              <h4 class="resa-section__title"><i class="ri-hotel-bed-line"></i> Hebergement</h4>
+              <div class="resa-field" *ngIf="selectedHebergement.referenceReservation">
+                <span class="resa-field__label">Reference</span>
+                <span class="resa-field__value resa-field__value--strong">{{ selectedHebergement.referenceReservation }}</span>
+              </div>
+              <div class="resa-field">
+                <span class="resa-field__label">Etablissement</span>
+                <span class="resa-field__value resa-field__value--strong">{{ selectedHebergement.hebergementNom }}</span>
+              </div>
+              <div class="resa-field">
+                <span class="resa-field__label">Reserve le</span>
+                <span class="resa-field__value">{{ formatDate(selectedHebergement.dateCreation) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="resa-modal__col">
+            <div class="resa-section">
+              <h4 class="resa-section__title"><i class="ri-calendar-line"></i> Sejour</h4>
+              <div class="resa-field">
+                <span class="resa-field__label">Arrivee</span>
+                <span class="resa-field__value">{{ formatDate(selectedHebergement.dateArrivee) }}</span>
+              </div>
+              <div class="resa-field">
+                <span class="resa-field__label">Depart</span>
+                <span class="resa-field__value">{{ formatDate(selectedHebergement.dateDepart) }}</span>
+              </div>
+              <div class="resa-field">
+                <span class="resa-field__label">Duree</span>
+                <span class="resa-field__value">{{ selectedHebergement.nombreNuits }} nuit{{ (selectedHebergement.nombreNuits || 0) > 1 ? 's' : '' }}</span>
+              </div>
+              <div class="resa-field">
+                <span class="resa-field__label">Voyageurs</span>
+                <span class="resa-field__value">{{ selectedHebergement.nombrePersonnes }} personne{{ (selectedHebergement.nombrePersonnes || 0) > 1 ? 's' : '' }}</span>
+              </div>
+            </div>
+
+            <div class="resa-section resa-section--price">
+              <h4 class="resa-section__title"><i class="ri-money-euro-circle-line"></i> Prix total</h4>
+              <div class="price-display">
+                <span class="price-eur">{{ selectedHebergement.prixTotal | number:'1.2-2' }} EUR</span>
+                <span class="price-fcfa">≈ {{ (selectedHebergement.prixTotal || 0) * 655.957 | number:'1.0-0' }} F CFA</span>
+              </div>
+            </div>
+
+            <div class="resa-section">
+              <h4 class="resa-section__title"><i class="ri-bank-card-line"></i> Paiement</h4>
+              <div class="resa-field">
+                <span class="resa-field__label">Statut paiement</span>
+                <span class="status-badge" [ngClass]="getPaymentBadgeClass(selectedHebergement.statutPaiement)">
+                  {{ getPaymentStatusLabel(selectedHebergement.statutPaiement) }}
+                </span>
+              </div>
+              <div class="resa-field" *ngIf="selectedHebergement.datePaiement">
+                <span class="resa-field__label">Date de paiement</span>
+                <span class="resa-field__value">{{ formatDateTime(selectedHebergement.datePaiement) }}</span>
+              </div>
+              <div class="resa-field" *ngIf="selectedHebergement.paypalOrderId">
+                <span class="resa-field__label">Commande PayPal</span>
+                <span class="resa-field__value">{{ selectedHebergement.paypalOrderId }}</span>
+              </div>
+              <div class="resa-field" *ngIf="selectedHebergement.paypalCaptureId">
+                <span class="resa-field__label">Capture PayPal</span>
+                <span class="resa-field__value">{{ selectedHebergement.paypalCaptureId }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="resa-section resa-section--comments" *ngIf="selectedHebergement.commentaires">
+          <h4 class="resa-section__title"><i class="ri-message-2-line"></i> Commentaires du client</h4>
+          <p class="comment-text">{{ selectedHebergement.commentaires }}</p>
+        </div>
+
+        <div class="resa-modal__footer">
+          <button type="button" class="btn btn-secondary" (click)="closeHebergementModal()">
+            <i class="ri-close-line"></i> Fermer
+          </button>
+          <button type="button" class="btn btn-primary" *ngIf="hebergementModalMode === 'edit'" (click)="saveHebergement()" [disabled]="saving">
+            <i class="ri-save-line"></i>
+            <span *ngIf="!saving">Enregistrer</span>
+            <span *ngIf="saving">Enregistrement...</span>
+          </button>
+        </div>
+      </div>
+    </app-modal>
+
+    <app-modal
+      [open]="circuitModalOpen"
+      title="Details de la reservation circuit"
+      [size]="'large'"
+      (close)="closeCircuitModal()">
+
+      <div *ngIf="selectedCircuitReservation" class="resa-modal">
+        <div class="resa-modal__topbar">
+          <div class="resa-modal__status">
+            <span class="status-badge" [ngClass]="getStatusBadgeClass(selectedCircuitReservation.statut)">
+              <i [class]="getStatusIcon(selectedCircuitReservation.statut)"></i>
+              {{ getStatusLabel(selectedCircuitReservation.statut) }}
+            </span>
+          </div>
+
+          <div class="resa-modal__quick-actions">
+            <button class="qa-btn qa-btn--attente"
+              [class.active]="selectedCircuitReservation.statut === 'EN_ATTENTE'"
+              (click)="quickSetCircuitStatus('EN_ATTENTE')" [disabled]="circuitSaving">
+              <i class="ri-time-line"></i> En attente
+            </button>
+            <button class="qa-btn qa-btn--confirm"
+              [class.active]="selectedCircuitReservation.statut === 'CONFIRMEE'"
+              (click)="quickSetCircuitStatus('CONFIRMEE')" [disabled]="circuitSaving">
+              <i class="ri-checkbox-circle-line"></i> Confirmer
+            </button>
+            <button class="qa-btn qa-btn--done"
+              [class.active]="selectedCircuitReservation.statut === 'TERMINEE'"
+              (click)="quickSetCircuitStatus('TERMINEE')" [disabled]="circuitSaving">
+              <i class="ri-flag-line"></i> Terminee
+            </button>
+            <button class="qa-btn qa-btn--cancel"
+              [class.active]="selectedCircuitReservation.statut === 'ANNULEE'"
+              (click)="quickSetCircuitStatus('ANNULEE')" [disabled]="circuitSaving">
+              <i class="ri-close-circle-line"></i> Annuler
+            </button>
+          </div>
+        </div>
+
+        <div class="resa-modal__body">
+          <div class="resa-modal__col">
+            <div class="resa-section">
+              <h4 class="resa-section__title"><i class="ri-user-line"></i> Client</h4>
+              <div class="resa-field">
+                <span class="resa-field__label">Nom complet</span>
+                <span class="resa-field__value resa-field__value--strong">{{ selectedCircuitReservation.prenom }} {{ selectedCircuitReservation.nom }}</span>
+              </div>
+              <div class="resa-field">
+                <span class="resa-field__label">Email</span>
+                <a class="resa-field__value resa-field__value--link" [href]="'mailto:' + selectedCircuitReservation.email">{{ selectedCircuitReservation.email }}</a>
+              </div>
+              <div class="resa-field">
+                <span class="resa-field__label">Telephone</span>
+                <a class="resa-field__value resa-field__value--link" [href]="'tel:' + selectedCircuitReservation.telephone">{{ selectedCircuitReservation.telephone }}</a>
+              </div>
+            </div>
+
+            <div class="resa-section">
+              <h4 class="resa-section__title"><i class="ri-file-list-3-line"></i> Dossier</h4>
+              <div class="resa-field" *ngIf="selectedCircuitReservation.referenceReservation">
+                <span class="resa-field__label">Reference</span>
+                <span class="resa-field__value resa-field__value--strong">{{ selectedCircuitReservation.referenceReservation }}</span>
+              </div>
+              <div class="resa-field">
+                <span class="resa-field__label">Prix a regler</span>
+                <span class="resa-field__value resa-field__value--strong">{{ formatPrice(selectedCircuitReservation.prixTotal) }}</span>
+              </div>
+              <div class="resa-field">
+                <span class="resa-field__label">Paiement</span>
+                <span class="status-badge" [ngClass]="getPaymentBadgeClass(selectedCircuitReservation.statutPaiement)">
+                  {{ getPaymentStatusLabel(selectedCircuitReservation.statutPaiement) }}
+                </span>
+              </div>
+              <div class="resa-field" *ngIf="selectedCircuitReservation.datePaiement">
+                <span class="resa-field__label">Date de paiement</span>
+                <span class="resa-field__value">{{ formatDateTime(selectedCircuitReservation.datePaiement) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="resa-modal__col">
+            <div class="resa-section">
+              <h4 class="resa-section__title"><i class="ri-route-line"></i> Circuit</h4>
+              <div class="resa-field">
+                <span class="resa-field__label">Circuit</span>
+                <span class="resa-field__value resa-field__value--strong">{{ selectedCircuitReservation.circuitNom }}</span>
+              </div>
+              <div class="resa-field">
+                <span class="resa-field__label">Date souhaitee</span>
+                <span class="resa-field__value">{{ formatDate(selectedCircuitReservation.dateReservation) }}</span>
+              </div>
+              <div class="resa-field">
+                <span class="resa-field__label">Voyageurs</span>
+                <span class="resa-field__value">{{ selectedCircuitReservation.nombrePersonnes || 1 }} personne{{ (selectedCircuitReservation.nombrePersonnes || 1) > 1 ? 's' : '' }}</span>
+              </div>
+            </div>
+
+            <div class="resa-section" *ngIf="selectedCircuitReservation.paypalOrderId || selectedCircuitReservation.paypalCaptureId">
+              <h4 class="resa-section__title"><i class="ri-bank-card-line"></i> Suivi PayPal</h4>
+              <div class="resa-field" *ngIf="selectedCircuitReservation.paypalOrderId">
+                <span class="resa-field__label">Commande</span>
+                <span class="resa-field__value">{{ selectedCircuitReservation.paypalOrderId }}</span>
+              </div>
+              <div class="resa-field" *ngIf="selectedCircuitReservation.paypalCaptureId">
+                <span class="resa-field__label">Capture</span>
+                <span class="resa-field__value">{{ selectedCircuitReservation.paypalCaptureId }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="resa-section resa-section--comments" *ngIf="selectedCircuitReservation.commentaires">
+          <h4 class="resa-section__title"><i class="ri-message-2-line"></i> Commentaires du client</h4>
+          <p class="comment-text">{{ selectedCircuitReservation.commentaires }}</p>
+        </div>
+
+        <div class="resa-modal__footer">
+          <button type="button" class="btn btn-secondary" (click)="closeCircuitModal()">
+            <i class="ri-close-line"></i> Fermer
+          </button>
+        </div>
+      </div>
+    </app-modal>
+
+    <app-modal title="Supprimer la reservation" [open]="confirmDeleteOpen" [closeOnBackdrop]="false" size="small" (close)="confirmDeleteOpen = false">
+      <p>Etes-vous sur de vouloir supprimer cette reservation hebergement ? Cette action est irreversible.</p>
+      <div class="modal-actions">
+        <be-button variant="secondary" label="Annuler" (click)="confirmDeleteOpen = false"></be-button>
+        <be-button variant="danger" label="Supprimer" (click)="executeDelete()"></be-button>
+      </div>
+    </app-modal>
+
+    <app-modal title="Supprimer la reservation" [open]="confirmCircuitDeleteOpen" [closeOnBackdrop]="false" size="small" (close)="confirmCircuitDeleteOpen = false">
+      <p>Etes-vous sur de vouloir supprimer cette reservation circuit ? Cette action est irreversible.</p>
+      <div class="modal-actions">
+        <be-button variant="secondary" label="Annuler" (click)="confirmCircuitDeleteOpen = false"></be-button>
+        <be-button variant="danger" label="Supprimer" (click)="executeCircuitDelete()"></be-button>
+      </div>
+    </app-modal>
+  </main>
+</div>

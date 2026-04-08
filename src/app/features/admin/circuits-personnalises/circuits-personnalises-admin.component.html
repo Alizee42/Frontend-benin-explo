@@ -24,16 +24,16 @@
       <article class="kpi-card approved">
         <div class="kpi-icon"><i class="ri-checkbox-circle-line"></i></div>
         <div class="kpi-content">
-          <span class="kpi-label">Demandes acceptees</span>
+          <span class="kpi-label">Devis valides</span>
           <p class="kpi-value">{{ demandesApprouvees }}</p>
         </div>
       </article>
 
-      <article class="kpi-card rejected">
-        <div class="kpi-icon"><i class="ri-close-circle-line"></i></div>
+      <article class="kpi-card paid">
+        <div class="kpi-icon"><i class="ri-bank-card-line"></i></div>
         <div class="kpi-content">
-          <span class="kpi-label">Demandes refusees</span>
-          <p class="kpi-value">{{ demandesRefusees }}</p>
+          <span class="kpi-label">Payees</span>
+          <p class="kpi-value">{{ demandesPayees }}</p>
         </div>
       </article>
     </section>
@@ -41,8 +41,39 @@
     <section class="table-panel">
       <header class="table-panel-head">
         <h2>Liste des demandes</h2>
-        <p>Suivi des demandes client et decisions administrateur.</p>
+        <p>Suivi des demandes client, validation du devis et etat du paiement.</p>
       </header>
+
+      <div class="filters-section" *ngIf="!isLoading && demandes.length > 0">
+        <div class="filter-group">
+          <label for="statusFilter"><i class="ri-filter-line"></i> Statut</label>
+          <select id="statusFilter" [(ngModel)]="statusFilter" (change)="applyFilters()" class="filter-select">
+            <option value="">Tous les statuts</option>
+            <option value="EN_ATTENTE">En attente</option>
+            <option value="EN_TRAITEMENT">En traitement</option>
+            <option value="ACCEPTE">Devis valide</option>
+            <option value="REFUSE">Refuse</option>
+            <option value="TERMINE">Termine</option>
+          </select>
+        </div>
+
+        <div class="filter-group filter-group--search">
+          <label for="searchTerm"><i class="ri-search-line"></i> Rechercher</label>
+          <input
+            type="text"
+            id="searchTerm"
+            [(ngModel)]="searchTerm"
+            (input)="applyFilters()"
+            placeholder="Reference, client, email, telephone..."
+            class="filter-input">
+        </div>
+
+        <div class="filter-stats">
+          <span class="stat-badge stat-badge--total">{{ demandes.length }} total</span>
+          <span class="stat-badge stat-badge--approved">{{ demandesApprouvees }} valides</span>
+          <span class="stat-badge stat-badge--rejected">{{ demandesRefusees }} refusees</span>
+        </div>
+      </div>
 
       <div *ngIf="isLoading" class="loading-container">
         <div class="spinner"></div>
@@ -55,7 +86,7 @@
 
       <div *ngIf="!isLoading && demandes.length > 0" class="data-table-container">
         <app-data-table
-          [data]="demandes"
+          [data]="filteredDemandes"
           [columns]="tableColumns"
           [actions]="tableActions"
           [pageable]="true"
@@ -101,6 +132,20 @@
         ></textarea>
       </div>
 
+      <div class="form-group" *ngIf="currentEmailAction === 'approbation'">
+        <label for="approved-quote-amount">Montant final du devis *</label>
+        <input
+          type="number"
+          id="approved-quote-amount"
+          [(ngModel)]="approvedQuoteAmount"
+          (input)="onApprovedQuoteAmountChange()"
+          class="form-control"
+          min="0"
+          step="0.01"
+          placeholder="Ex: 950"
+        >
+      </div>
+
       <div class="form-group">
         <label for="email-body">Corps de l'email</label>
         <textarea
@@ -122,7 +167,7 @@
         type="button"
         class="btn-send"
         (click)="sendEmail()"
-        [disabled]="isSendingDecision || !emailSubject.trim() || !emailBody.trim() || (currentEmailAction === 'refus' && !refusalReason.trim())"
+        [disabled]="isSendingDecision || !emailSubject.trim() || !emailBody.trim() || (currentEmailAction === 'refus' && !refusalReason.trim()) || (currentEmailAction === 'approbation' && (!approvedQuoteAmount || approvedQuoteAmount <= 0))"
       >
         {{ isSendingDecision ? 'Envoi...' : 'Confirmer et envoyer' }}
       </button>

@@ -15,6 +15,14 @@ export interface ReservationCircuitDTO {
   nombrePersonnes?: number;
   utilisateurId?: number;
   commentaires?: string;
+  referenceReservation?: string;
+  prixTotal?: number;
+  statutPaiement?: string;
+  montantPaye?: number;
+  devisePaiement?: string;
+  paypalOrderId?: string;
+  paypalCaptureId?: string;
+  datePaiement?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -29,6 +37,14 @@ export class ReservationsCircuitService {
 
   getMine(): Observable<ReservationCircuitDTO[]> {
     return this.http.get<ReservationCircuitDTO[]>(`${this.apiUrl}/me`);
+  }
+
+  getMineById(id: number): Observable<ReservationCircuitDTO> {
+    return this.http.get<ReservationCircuitDTO>(`${this.apiUrl}/me/${id}`);
+  }
+
+  create(dto: ReservationCircuitDTO): Observable<ReservationCircuitDTO> {
+    return this.http.post<ReservationCircuitDTO>(this.apiUrl, dto);
   }
 
   update(id: number, dto: ReservationCircuitDTO): Observable<ReservationCircuitDTO> {

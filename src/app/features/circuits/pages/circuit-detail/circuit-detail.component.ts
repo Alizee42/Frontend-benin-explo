@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { CircuitService } from '../../../../services/circuit.service';
@@ -8,6 +9,8 @@ import { ActivitesService, Activite } from '../../../../services/activites.servi
 import { VillesService, VilleDTO } from '../../../../services/villes.service';
 import { ZonesService, Zone } from '../../../../services/zones.service';
 import { CircuitDTO } from '../../../../models/circuit.dto';
+import { AuthService } from '../../../../services/auth.service';
+import { ReservationsCircuitService } from '../../../../services/reservations-circuit.service';
 
 type CircuitProgrammeItem = {
   day: number;
@@ -23,7 +26,7 @@ type CircuitProgrammeItem = {
 @Component({
   standalone: true,
   selector: 'app-circuit-detail',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './circuit-detail.component.html',
   styleUrls: ['./circuit-detail.component.scss'],
 })
@@ -38,16 +41,25 @@ export class CircuitDetailComponent implements OnInit {
   openProgrammeIndex = 0;
   availableActivites: Array<{ id: number; nom: string; zoneId?: number }> = [];
   availableVilles: Array<{ id: number; nom: string; zoneId?: number }> = [];
+  reservationDate = '';
+  reservationNombrePersonnes = 1;
+  reservationCommentaires = '';
+  reservationSubmitting = false;
+  reservationError = '';
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private circuitService: CircuitService,
     private activitesService: ActivitesService,
     private villesService: VillesService,
-    private zonesService: ZonesService
+    private zonesService: ZonesService,
+    private authService: AuthService,
+    private reservationsCircuitService: ReservationsCircuitService
   ) {}
 
   ngOnInit(): void {
+    this.reservationDate = this.getTodayIsoDate();
     const idParam = this.route.snapshot.paramMap.get('id');
     const id = idParam ? Number(idParam) : NaN;
 
@@ -240,5 +252,63 @@ export class CircuitDetailComponent implements OnInit {
     }
 
     return Array.from(cities);
+  }
+
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
+  get currentUser() {
+    return this.authService.getUser();
+  }
+
+  submitReservation(): void {
+    if (!this.circuit) {
+      return;
+    }
+
+    if (!this.isLoggedIn) {
+      const currentUrl = `/circuit/${this.circuit.id}`;
+      this.router.navigate(['/login'], { queryParams: { returnUrl: currentUrl } });
+      return;
+    }
+
+    const user = this.currentUser;
+    if (!user?.nom || !user?.prenom || !user?.email || !user?.telephone) {
+      this.reservationError = 'Votre compte doit contenir nom, prenom, email et telephone avant de reserver ce circuit.';
+      return;
+    }
+
+    this.reservationSubmitting = true;
+    this.reservationError = '';
+
+    this.reservationsCircuitService.create({
+      nom: user.nom,
+      prenom: user.prenom,
+      email: user.email,
+      telephone: user.telephone,
+      dateReservation: this.reservationDate,
+      circuitId: this.circuit.id,
+      nombrePersonnes: this.reservationNombrePersonnes,
+      commentaires: this.reservationCommentaires.trim() || undefined
+    }).subscribe({
+      next: (reservation) => {
+        this.reservationSubmitting = false;
+        if (reservation.id) {
+          this.router.navigate(['/paiement/circuit', reservation.id]);
+        }
+      },
+      error: (error) => {
+        this.reservationSubmitting = false;
+        this.reservationError =
+          error?.error?.message ||
+          error?.message ||
+          'Impossible de lancer la reservation pour le moment.';
+      }
+    });
+  }
+
+  getTodayIsoDate(): string {
+    return new Date().toISOString().slice(0, 10);
   }
 }

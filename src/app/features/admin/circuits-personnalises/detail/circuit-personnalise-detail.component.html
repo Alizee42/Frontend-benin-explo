@@ -28,6 +28,7 @@
         <section class="info-section">
           <h3>Details du circuit</h3>
           <div class="info-grid">
+            <div class="info-item" *ngIf="demande.referenceReservation"><label>Reference</label><span>{{ demande.referenceReservation }}</span></div>
             <div class="info-item"><label>Nombre de personnes</label><span>{{ demande.nombrePersonnes }}</span></div>
             <div class="info-item"><label>Nombre de jours</label><span>{{ demande.nombreJours }}</span></div>
             <div class="info-item"><label>Hebergement</label><span>{{ getHebergementSummary(demande) }}</span></div>
@@ -53,6 +54,34 @@
             <div class="info-item"><label>Chauffeur</label><span class="prix">{{ formatPrix(demande.prixChauffeurEstime, demande.devisePrixEstime) }}</span></div>
             <div class="info-item"><label>Pension complete</label><span class="prix">{{ formatPrix(demande.prixPensionCompleteEstime, demande.devisePrixEstime) }}</span></div>
             <div class="info-item"><label>Total estime</label><span class="prix">{{ formatPrix(demande.prixEstime, demande.devisePrixEstime) }}</span></div>
+          </div>
+        </section>
+
+        <section class="info-section" *ngIf="demande.prixFinal || demande.statutPaiement || demande.paypalOrderId || demande.paypalCaptureId">
+          <h3>Suivi paiement</h3>
+          <div class="info-grid">
+            <div class="info-item" *ngIf="demande.prixFinal != null">
+              <label>Montant final</label>
+              <span class="prix">{{ formatPrix(demande.prixFinal, demande.devisePrixEstime) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Statut paiement</label>
+              <span class="payment-badge" [ngClass]="getPaymentBadgeClass(demande.statutPaiement)">
+                {{ getPaymentStatusLabel(demande.statutPaiement) }}
+              </span>
+            </div>
+            <div class="info-item" *ngIf="demande.datePaiement">
+              <label>Date de paiement</label>
+              <span>{{ formatDate(demande.datePaiement) }}</span>
+            </div>
+            <div class="info-item" *ngIf="demande.paypalOrderId">
+              <label>Commande PayPal</label>
+              <span>{{ demande.paypalOrderId }}</span>
+            </div>
+            <div class="info-item" *ngIf="demande.paypalCaptureId">
+              <label>Capture PayPal</label>
+              <span>{{ demande.paypalCaptureId }}</span>
+            </div>
           </div>
         </section>
 
@@ -116,6 +145,18 @@
             <label for="emailBody">Corps de l'email</label>
             <textarea id="emailBody" rows="6" [(ngModel)]="emailBody"></textarea>
 
+            <label for="approvedQuoteAmount" *ngIf="decisionType === 'approve'">Montant final du devis</label>
+            <input
+              *ngIf="decisionType === 'approve'"
+              id="approvedQuoteAmount"
+              type="number"
+              min="0"
+              step="0.01"
+              [(ngModel)]="approvedQuoteAmount"
+              (input)="onApprovedQuoteAmountChange()"
+              placeholder="Ex: 950"
+            />
+
             <label for="refusalReason" *ngIf="decisionType === 'reject'">Motif du refus</label>
             <textarea
               *ngIf="decisionType === 'reject'"
@@ -128,7 +169,7 @@
           </div>
           <div class="decision-modal-footer">
             <button type="button" class="btn-secondary" (click)="closeDecisionModal()">Annuler</button>
-            <button type="button" class="btn-primary" [disabled]="isSubmittingDecision || !emailSubject.trim() || !emailBody.trim() || (decisionType === 'reject' && !refusalReason.trim())" (click)="submitDecision()">
+            <button type="button" class="btn-primary" [disabled]="isSubmittingDecision || !emailSubject.trim() || !emailBody.trim() || (decisionType === 'reject' && !refusalReason.trim()) || (decisionType === 'approve' && (!approvedQuoteAmount || approvedQuoteAmount <= 0))" (click)="submitDecision()">
               {{ isSubmittingDecision ? 'Traitement...' : 'Confirmer et envoyer' }}
             </button>
           </div>

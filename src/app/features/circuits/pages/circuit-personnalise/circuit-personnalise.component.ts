@@ -10,6 +10,7 @@ import { ActivitesService, Activite } from '../../../../services/activites.servi
 import { VillesService, VilleDTO } from '../../../../services/villes.service';
 import { HebergementsService, HebergementDTO } from '../../../../services/hebergements.service';
 import { TarifsCircuitPersonnaliseDTO, TarifsCircuitPersonnaliseService } from '../../../../services/tarifs-circuit-personnalise.service';
+import { AuthService } from '../../../../services/auth.service';
 
 import { Jour, OptionsGenerales, HebergementState, ContactInfo } from './circuit-personnalise.types';
 import { calculerPrixActivites, calculerPrixHebergement, calculerPrixTransport, calculerPrixGuide, calculerPrixChauffeur, calculerPrixPensionComplete, getPricingCurrencyLabel } from './circuit-personnalise.utils';
@@ -42,6 +43,7 @@ export class CircuitPersonnaliseComponent {
   private villesService = inject(VillesService);
   private hebergementsService = inject(HebergementsService);
   private tarifsCircuitPersonnaliseService = inject(TarifsCircuitPersonnaliseService);
+  private authService = inject(AuthService);
 
   // Navigation
   etape = 1;
@@ -70,6 +72,16 @@ export class CircuitPersonnaliseComponent {
   submitErrorMessage = '';
 
   constructor() {
+    const user = this.authService.getUser();
+    if (user) {
+      this.contact = {
+        ...this.contact,
+        nom: user.nom || '',
+        prenom: user.prenom || '',
+        email: user.email || '',
+        telephone: user.telephone || ''
+      };
+    }
     this.chargerDonnees();
   }
 

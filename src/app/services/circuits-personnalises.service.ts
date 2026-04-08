@@ -56,9 +56,17 @@ export interface CircuitPersonnaliseDTO {
   prixEstime?: number;
   devisePrixEstime?: string;
   prixFinal?: number;
+  referenceReservation?: string;
   
   // Statut
   statut?: string;
+  utilisateurId?: number;
+  statutPaiement?: string;
+  montantPaye?: number;
+  devisePaiement?: string;
+  paypalOrderId?: string;
+  paypalCaptureId?: string;
+  datePaiement?: string;
   dateTraitement?: string;
   commentaireAdmin?: string;
   motifRefus?: string;
@@ -109,6 +117,14 @@ export class CircuitsPersonnalisesService {
 
   getDemandeById(id: number): Observable<CircuitPersonnaliseDTO> {
     return this.http.get<CircuitPersonnaliseDTO>(`${this.apiUrl}/${id}`);
+  }
+
+  getMineDemandes(): Observable<CircuitPersonnaliseDTO[]> {
+    return this.http.get<CircuitPersonnaliseDTO[]>(`${this.apiUrl}/me`);
+  }
+
+  getMineDemandeById(id: number): Observable<CircuitPersonnaliseDTO> {
+    return this.http.get<CircuitPersonnaliseDTO>(`${this.apiUrl}/me/${id}`);
   }
 
   createDemande(demande: CircuitPersonnaliseDTO): Observable<CircuitPersonnaliseDTO> {

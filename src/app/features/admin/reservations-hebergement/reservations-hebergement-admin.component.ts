@@ -35,6 +35,7 @@ export class ReservationsHebergementAdminComponent implements OnInit {
   errorMessage = '';
 
   columns: TableColumn[] = [
+    { key: 'referenceReservation', label: 'Reference', sortable: true, width: '145px' },
     { key: 'nomClient', label: 'Client', sortable: true, valueGetter: (item: any) => `${item.prenomClient || ''} ${item.nomClient || ''}`.trim() },
     { key: 'telephoneClient', label: 'Telephone', sortable: true },
     { key: 'hebergementNom', label: 'Hebergement', sortable: true },
@@ -80,6 +81,7 @@ export class ReservationsHebergementAdminComponent implements OnInit {
     this.filteredReservations = this.reservations.filter((reservation) => {
       const matchesStatus = !this.statusFilter || (reservation.statut || '').toUpperCase() === this.statusFilter;
       const matchesSearch = !term
+        || (reservation.referenceReservation || '').toLowerCase().includes(term)
         || (reservation.nomClient || '').toLowerCase().includes(term)
         || (reservation.prenomClient || '').toLowerCase().includes(term)
         || (reservation.hebergementNom || '').toLowerCase().includes(term)
@@ -173,6 +175,10 @@ export class ReservationsHebergementAdminComponent implements OnInit {
 
   countByStatus(statut: string): number {
     return this.reservations.filter((reservation) => (reservation.statut || '').toUpperCase() === statut).length;
+  }
+
+  countByPaymentStatus(statut: string): number {
+    return this.reservations.filter((reservation) => (reservation.statutPaiement || 'A_PAYER').toUpperCase() === statut).length;
   }
 
   getStatusBadgeClass(statut?: string): string {

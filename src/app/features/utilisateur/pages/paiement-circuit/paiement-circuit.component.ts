@@ -2,30 +2,30 @@ import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angula
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { ReservationHebergementDTO } from '../../../../models/reservation-hebergement.dto';
-import { ReservationHebergementService } from '../../../../services/reservation-hebergement.service';
 import {
-  HebergementPaymentService,
-  HebergementPayPalConfigDTO
-} from '../../../../services/hebergement-payment.service';
+  ReservationCircuitDTO,
+  ReservationsCircuitService
+} from '../../../../services/reservations-circuit.service';
+import { CircuitPaymentService } from '../../../../services/circuit-payment.service';
 import {
   PayPalButtonsInstance,
+  PayPalClientConfig,
   PayPalNamespace,
   PayPalSdkService
 } from '../../../../services/paypal-sdk.service';
 
 @Component({
-  selector: 'app-paiement-hebergement',
+  selector: 'app-paiement-circuit',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './paiement-hebergement.component.html',
-  styleUrls: ['./paiement-hebergement.component.scss']
+  templateUrl: './paiement-circuit.component.html',
+  styleUrls: ['../paiement-hebergement/paiement-hebergement.component.scss']
 })
-export class PaiementHebergementComponent implements OnInit, AfterViewInit {
+export class PaiementCircuitComponent implements OnInit, AfterViewInit {
   @ViewChild('paypalButtonsContainer') paypalButtonsContainer?: ElementRef<HTMLDivElement>;
 
-  reservation: ReservationHebergementDTO | null = null;
-  payPalConfig: HebergementPayPalConfigDTO | null = null;
+  reservation: ReservationCircuitDTO | null = null;
+  payPalConfig: PayPalClientConfig | null = null;
 
   loading = true;
   sdkLoading = false;
@@ -43,8 +43,8 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private reservationService: ReservationHebergementService,
-    private paymentService: HebergementPaymentService,
+    private reservationsCircuitService: ReservationsCircuitService,
+    private paymentService: CircuitPaymentService,
     private payPalSdkService: PayPalSdkService
   ) {}
 
@@ -87,13 +87,9 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
     return this.getTotalPrice() * 655.957;
   }
 
-  getNuits(): number {
-    return this.reservation?.nombreNuits || 0;
-  }
-
   getClientFullName(): string {
-    const prenom = this.reservation?.prenomClient?.trim() || '';
-    const nom = this.reservation?.nomClient?.trim() || '';
+    const prenom = this.reservation?.prenom?.trim() || '';
+    const nom = this.reservation?.nom?.trim() || '';
     return `${prenom} ${nom}`.trim() || 'Voyageur';
   }
 
@@ -119,8 +115,6 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
         return 'Echec';
       case 'REMBOURSE':
         return 'Rembourse';
-      case 'A_PAYER':
-        return 'A payer';
       default:
         return 'A payer';
     }
@@ -194,7 +188,7 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.errorMessage = '';
 
-    this.reservationService.getMineById(reservationId).subscribe({
+    this.reservationsCircuitService.getMineById(reservationId).subscribe({
       next: async (reservation) => {
         this.reservation = reservation;
         this.loading = false;
@@ -237,7 +231,7 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
       }
 
       this.payPalNamespace = await this.payPalSdkService.load(this.payPalConfig);
-    } catch (error) {
+    } catch {
       this.errorMessage = 'Impossible de charger PayPal pour le moment.';
     } finally {
       this.sdkLoading = false;
@@ -287,7 +281,7 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
             this.paymentService.captureOrder(this.reservation!.id!, data.orderID)
           );
           this.reservation = response.reservation;
-          this.successMessage = 'Paiement valide avec succes. Votre reservation reste visible dans votre espace client.';
+          this.successMessage = 'Paiement valide avec succes. Votre circuit reste visible dans votre espace client.';
           this.buttonsRendered = false;
           container.innerHTML = '';
         } catch (err: any) {
@@ -340,9 +334,9 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
         this.paymentService.captureOrder(this.reservation.id, orderId)
       );
       this.reservation = response.reservation;
-      this.successMessage = 'Paiement valide avec succes. Votre reservation reste visible dans votre espace client.';
+      this.successMessage = 'Paiement valide avec succes. Votre circuit reste visible dans votre espace client.';
       this.clearPayPalReturnQueryParams();
-    } catch (error) {
+    } catch {
       this.errorMessage = 'Le paiement a ete approuve par PayPal, mais sa confirmation locale a echoue. Vous pouvez reessayer.';
     } finally {
       this.paymentProcessing = false;
@@ -355,7 +349,7 @@ export class PaiementHebergementComponent implements OnInit, AfterViewInit {
     }
 
     const tree = this.router.createUrlTree(
-      ['/paiement/hebergement', this.reservation.id],
+      ['/paiement/circuit', this.reservation.id],
       { queryParams: { paypal: kind } }
     );
 

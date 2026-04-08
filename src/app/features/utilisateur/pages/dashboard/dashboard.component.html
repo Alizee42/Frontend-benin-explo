@@ -57,7 +57,7 @@
             <div class="kpi-content">
               <p class="kpi-label">Circuits</p>
               <p class="kpi-value">{{ totalCircuits }}</p>
-              <p class="kpi-hint">Reservations de circuits touristiques.</p>
+              <p class="kpi-hint">Catalogue et sur mesure confondus.</p>
             </div>
           </article>
 
@@ -146,8 +146,8 @@
 
           <div class="activity-list" *ngIf="recentActivity.length > 0">
             <article class="activity-item" *ngFor="let item of recentActivity">
-              <div class="activity-item__icon" [class.activity-item__icon--circuit]="item.kind === 'circuit'">
-                <i [class]="item.kind === 'hebergement' ? 'ri-hotel-bed-line' : 'ri-route-line'"></i>
+              <div class="activity-item__icon" [class.activity-item__icon--circuit]="item.kind !== 'hebergement'">
+                <i [class]="item.kind === 'hebergement' ? 'ri-hotel-bed-line' : (item.kind === 'sur-mesure' ? 'ri-instance-line' : 'ri-route-line')"></i>
               </div>
               <div class="activity-item__content">
                 <div class="activity-item__top">
