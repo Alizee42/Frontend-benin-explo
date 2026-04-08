@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CircuitService } from '../../services/circuit.service';
 import { CircuitDTO } from '../../models/circuit.dto';
+import { ActualiteDTO, ActualitesService } from '../../services/actualites.service';
 import { ParametresSiteDTO, ParametresSiteService } from '../../services/parametres-site.service';
 
 export interface Circuit {
@@ -13,14 +14,9 @@ export interface Circuit {
   img: string;
 }
 
-export interface Article {
-  title: string;
-  img: string;
-  excerpt?: string;
-}
-
 type FeaturedState = 'loading' | 'ready' | 'fallback' | 'empty';
 type ContactState = 'loading' | 'ready' | 'unavailable';
+type ActualitesState = 'loading' | 'ready' | 'empty' | 'error';
 
 @Component({
   selector: 'app-home',
@@ -54,35 +50,23 @@ export class HomeComponent implements OnInit, OnDestroy {
     { icon: 'assets/icons/booking.svg', title: 'Reservations faciles', text: 'Paiement et support fluide.' }
   ];
 
-  news: Article[] = [
-    {
-      title: 'Ouidah, entre memoire et littoral',
-      img: 'assets/images/village.jpg',
-      excerpt: 'Idees de parcours pour meler culture, artisanat et respiration oceanique.'
-    },
-    {
-      title: 'Festivals et saisons culturelles',
-      img: 'assets/images/culture.jpg',
-      excerpt: 'Quelques temps forts pour organiser un voyage plus vivant et plus local.'
-    },
-    {
-      title: 'Pendjari, nature et rythme juste',
-      img: 'assets/images/elephant.jpg',
-      excerpt: 'Quand partir, combien de jours prevoir et comment equilibrer safari et decouverte.'
-    }
-  ];
+  actualitesPreview: ActualiteDTO[] = [];
+  actualitesState: ActualitesState = 'loading';
+  actualitesNotice = '';
 
   contactState: ContactState = 'loading';
   contactDetails: ParametresSiteDTO | null = null;
 
   constructor(
     private circuitService: CircuitService,
+    private actualitesService: ActualitesService,
     private parametresSiteService: ParametresSiteService
   ) {}
 
   ngOnInit(): void {
     this._timer = setInterval(() => this.nextHero(), 5000);
     this.loadFeaturedCircuits();
+    this.loadActualitesPreview();
     this.loadContactDetails();
   }
 
@@ -173,6 +157,49 @@ export class HomeComponent implements OnInit, OnDestroy {
       return value;
     }
     return value.startsWith('/') ? value : `/${value}`;
+  }
+
+  private loadActualitesPreview(): void {
+    this.actualitesState = 'loading';
+    this.actualitesNotice = '';
+
+    this.actualitesService.getPublished().subscribe({
+      next: (items) => {
+        this.actualitesPreview = (items || []).slice(0, 3);
+        this.actualitesState = this.actualitesPreview.length > 0 ? 'ready' : 'empty';
+        if (this.actualitesState === 'empty') {
+          this.actualitesNotice = 'Aucune actualite n est publiee pour le moment.';
+        }
+      },
+      error: () => {
+        this.actualitesPreview = [];
+        this.actualitesState = 'error';
+        this.actualitesNotice = 'Les actualites ne sont pas disponibles pour le moment.';
+      }
+    });
+  }
+
+  formatActualiteDate(value?: string | null): string {
+    if (!value) {
+      return '';
+    }
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return '';
+    }
+    return parsed.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  }
+
+  getActualiteExcerpt(actualite: ActualiteDTO, maxLength = 120): string {
+    const source = (actualite.resume || actualite.contenu || '').trim();
+    if (source.length <= maxLength) {
+      return source;
+    }
+    return `${source.slice(0, maxLength).trim()}...`;
   }
 
   get contactEmailHref(): string | null {

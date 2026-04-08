@@ -153,18 +153,38 @@
     <div class="section-header">
       <span class="section-kicker">Inspiration & conseils</span>
       <h2 class="section-title">Actualites & inspirations</h2>
-    </div>
-    <div class="row mt-3">
-      <div class="col-12 col-md-4" *ngFor="let a of news">
-        <div class="card mb-3 news-card">
-          <img [src]="a.img" class="card-img-top" [alt]="a.title">
-          <div class="card-body">
-            <h5 class="card-title">{{ a.title }}</h5>
-            <p class="news-excerpt" *ngIf="a.excerpt">{{ a.excerpt }}</p>
-            <a routerLink="/circuit" class="btn btn-link">Explorer les circuits</a>
-          </div>
-        </div>
+      <p class="section-subtitle">
+        Les dernieres nouvelles de Benin Explo, nos conseils de voyage et les inspirations a suivre avant de partir.
+      </p>
+      <div class="news-header-actions">
+        <a routerLink="/actualites" class="btn-main">Voir toutes les actualites</a>
       </div>
+    </div>
+
+    <div class="section-status" *ngIf="actualitesState === 'loading'">
+      <div class="status-spinner" aria-hidden="true"></div>
+      <p>Chargement des actualites...</p>
+    </div>
+
+    <div class="section-empty" *ngIf="actualitesState === 'empty' || actualitesState === 'error'">
+      <p>{{ actualitesNotice }}</p>
+      <a routerLink="/actualites" class="btn-main">Voir la page actualites</a>
+    </div>
+
+    <div class="news-grid" *ngIf="actualitesState === 'ready'">
+      <article class="news-card" *ngFor="let actualite of actualitesPreview">
+        <div class="news-card__media">
+          <img [src]="actualite.imageUrl" [alt]="actualite.titre">
+          <span class="news-card__badge" *ngIf="actualite.aLaUne">A la une</span>
+        </div>
+
+        <div class="news-card__body">
+          <p class="news-card__date">{{ formatActualiteDate(actualite.datePublication) }}</p>
+          <h3>{{ actualite.titre }}</h3>
+          <p class="news-excerpt">{{ getActualiteExcerpt(actualite) }}</p>
+          <a routerLink="/actualites" class="news-card__link">Lire l actualite</a>
+        </div>
+      </article>
     </div>
   </div>
 </section>

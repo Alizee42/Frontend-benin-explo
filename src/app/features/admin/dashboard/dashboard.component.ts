@@ -5,6 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { forkJoin, Observable, of } from 'rxjs';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { AuthService } from '../../../services/auth.service';
+import { ActualitesService } from '../../../services/actualites.service';
 import { CircuitService } from '../../../services/circuit.service';
 import { HebergementsService } from '../../../services/hebergements.service';
 import { ReservationHebergementService } from '../../../services/reservation-hebergement.service';
@@ -36,6 +37,7 @@ export class DashboardComponent implements OnInit {
   activitesCount = 0;
   demandesCount = 0;
   hebergementsCount = 0;
+  actualitesCount = 0;
 
   get clientReservationsCount(): number {
     return this.reservationsCount + this.circuitReservationsCount + this.demandesCount;
@@ -44,6 +46,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private router: Router,
     private authService: AuthService,
+    private actualitesService: ActualitesService,
     private circuitService: CircuitService,
     private hebergementsService: HebergementsService,
     private reservationHebergementService: ReservationHebergementService,
@@ -85,6 +88,7 @@ export class DashboardComponent implements OnInit {
 
     forkJoin({
       circuits: withFallback(this.circuitService.getAllCircuits()),
+      actualites: withFallback(this.actualitesService.getAllAdmin()),
       hebergements: withFallback(this.hebergementsService.getAll()),
       reservations: withFallback(this.reservationHebergementService.getAll()),
       reservationsCircuits: withFallback(this.reservationsCircuitService.getAll()),
@@ -92,7 +96,7 @@ export class DashboardComponent implements OnInit {
       activites: withFallback(this.activitesService.getAllActivites()),
       zones: withFallback(this.zonesAdminService.getAll()),
       villes: withFallback(this.villesService.getAll())
-    }).subscribe(({ circuits, hebergements, reservations, reservationsCircuits, demandes, activites, zones, villes }) => {
+    }).subscribe(({ circuits, actualites, hebergements, reservations, reservationsCircuits, demandes, activites, zones, villes }) => {
       const circuitsActifs = circuits.filter((c: any) => c?.actif === true).length;
       const demandesEnAttente = demandes.filter((d: any) =>
         String(d?.statut ?? '').toLowerCase().includes('attente')
@@ -110,6 +114,7 @@ export class DashboardComponent implements OnInit {
       this.pendingRequestsCount = demandesEnAttente + reservationsEnAttente + reservationsCircuitsEnAttente;
       this.catalogueActifCount = circuitsActifs + activites.length + hebergements.length;
 
+      this.actualitesCount = actualites.length;
       this.zonesCount = zones.length;
       this.villesCount = villes.length;
       this.activitesCount = activites.length;

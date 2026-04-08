@@ -1,0 +1,92 @@
+<section class="actualites-page">
+  <div class="actualites-hero">
+    <div class="container">
+      <span class="hero-kicker">Journal Benin Explo</span>
+      <h1>Actualites, conseils et inspirations de voyage</h1>
+      <p>
+        Retrouvez les nouvelles du moment, nos mises en avant et des idees concretes pour preparer votre prochain sejour au Benin.
+      </p>
+    </div>
+  </div>
+
+  <div class="container actualites-content">
+    <div class="section-status" *ngIf="state === 'loading'">
+      <div class="status-spinner" aria-hidden="true"></div>
+      <p>Chargement des actualites...</p>
+    </div>
+
+    <div class="section-empty" *ngIf="state === 'error'">
+      <p>{{ errorMessage }}</p>
+      <a routerLink="/" class="btn-main">Retour a l accueil</a>
+    </div>
+
+    <div class="section-empty" *ngIf="state === 'empty'">
+      <p>Aucune actualite n est publiee pour le moment.</p>
+      <a routerLink="/" class="btn-main">Retour a l accueil</a>
+    </div>
+
+    <ng-container *ngIf="state === 'ready' && featuredActualite as featured">
+      <article class="featured-article">
+        <div class="featured-media">
+          <img [src]="featured.imageUrl" [alt]="featured.titre">
+        </div>
+
+        <div class="featured-copy">
+          <span class="featured-badge" *ngIf="featured.aLaUne">A la une</span>
+          <p class="featured-date">{{ formatDate(featured.datePublication) }}</p>
+          <h2>{{ featured.titre }}</h2>
+          <p class="featured-text">{{ featured.resume || getExcerpt(featured, 280) }}</p>
+          <div class="featured-meta">
+            <span *ngIf="featured.auteurNom">{{ featured.auteurNom }}</span>
+          </div>
+          <button type="button" class="btn-main" (click)="openActualite(featured)">
+            Lire l actualite
+          </button>
+        </div>
+      </article>
+
+      <section class="articles-section">
+        <div class="section-header">
+          <span class="section-kicker">Toutes les actualites</span>
+          <h2 class="section-title">Les dernieres publications</h2>
+        </div>
+
+        <div class="articles-grid">
+          <article class="article-card" *ngFor="let actualite of actualites">
+            <div class="article-card__media">
+              <img [src]="actualite.imageUrl" [alt]="actualite.titre">
+              <span class="article-card__badge" *ngIf="actualite.aLaUne">A la une</span>
+            </div>
+            <div class="article-card__body">
+              <p class="article-card__date">{{ formatDate(actualite.datePublication) }}</p>
+              <h3>{{ actualite.titre }}</h3>
+              <p>{{ getExcerpt(actualite) }}</p>
+              <button type="button" class="article-link" (click)="openActualite(actualite)">
+                Lire l actualite
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+    </ng-container>
+  </div>
+</section>
+
+<app-modal
+  [open]="detailOpen"
+  [size]="'large'"
+  [title]="selectedActualite?.titre || 'Actualite'"
+  (close)="closeActualite()">
+  <article *ngIf="selectedActualite" class="actualite-detail">
+    <img class="actualite-detail__image" [src]="selectedActualite.imageUrl" [alt]="selectedActualite.titre">
+
+    <div class="actualite-detail__meta">
+      <span>{{ formatDate(selectedActualite.datePublication) }}</span>
+      <span *ngIf="selectedActualite.auteurNom">{{ selectedActualite.auteurNom }}</span>
+      <span *ngIf="selectedActualite.aLaUne">A la une</span>
+    </div>
+
+    <p class="actualite-detail__resume" *ngIf="selectedActualite.resume">{{ selectedActualite.resume }}</p>
+    <div class="actualite-detail__content">{{ selectedActualite.contenu }}</div>
+  </article>
+</app-modal>

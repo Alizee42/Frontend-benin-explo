@@ -11,6 +11,12 @@ export const routes: Routes = [
       import('./features/home/home.component').then(m => m.HomeComponent)
   },
 
+  {
+    path: 'actualites',
+    loadComponent: () =>
+      import('./features/actualites/pages/actualites-list/actualites-list.component').then(m => m.ActualitesListComponent)
+  },
+
   /* LISTE CIRCUITS */
   {
     path: 'circuit',
@@ -108,6 +114,13 @@ export const routes: Routes = [
     path: 'admin/dashboard',
     loadComponent: () =>
       import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [authGuard]
+  },
+
+  {
+    path: 'admin/actualites',
+    loadComponent: () =>
+      import('./features/admin/actualites/actualites-admin.component').then(m => m.ActualitesAdminComponent),
     canActivate: [authGuard]
   },
 

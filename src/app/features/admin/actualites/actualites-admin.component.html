@@ -1,0 +1,190 @@
+<div class="actualites-admin">
+  <app-header mode="compact"></app-header>
+
+  <main class="page-content">
+    <app-admin-actions-bar title="Actualites" icon="ri-newspaper-line" subtitle="Contenus visibles sur la home et la page actualites.">
+      <div bar-right class="actions-right">
+        <label class="search-field">
+          <i class="ri-search-line"></i>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Rechercher un titre ou un contenu"
+            aria-label="Rechercher une actualite">
+        </label>
+
+        <label class="sort-field">
+          <i class="ri-filter-3-line"></i>
+          <select [(ngModel)]="sortOption" aria-label="Trier les actualites">
+            <option value="date-desc">Plus recentes</option>
+            <option value="date-asc">Plus anciennes</option>
+            <option value="titre-asc">Titre A-Z</option>
+            <option value="titre-desc">Titre Z-A</option>
+          </select>
+        </label>
+
+        <be-button
+          variant="primary"
+          iconLeft="ri-add-line"
+          label="Ajouter une actualite"
+          (click)="openAddModal()">
+        </be-button>
+      </div>
+    </app-admin-actions-bar>
+
+    <div *ngIf="successMessage" class="state-banner state-banner--success">
+      {{ successMessage }}
+    </div>
+
+    <div class="table-meta" *ngIf="!loading">
+      {{ filteredActualites.length }} actualite{{ filteredActualites.length > 1 ? 's' : '' }}
+    </div>
+
+    <div class="load-error" *ngIf="!loading && loadError">
+      <i class="ri-error-warning-line"></i>
+      <span>{{ loadError }}</span>
+    </div>
+
+    <div class="table-card" *ngIf="loading || filteredActualites.length > 0">
+      <app-data-table
+        [columns]="tableColumns"
+        [data]="filteredActualites"
+        [loading]="loading"
+        [actions]="tableActions"
+        [iconOnlyActions]="true"
+        [rowClickable]="true"
+        (actionClick)="onTableAction($event)"
+        (rowClick)="onRowClick($event)"
+        emptyMessage="Aucune actualite trouvee">
+      </app-data-table>
+    </div>
+
+    <div class="empty-state" *ngIf="!loading && !loadError && filteredActualites.length === 0">
+      <div class="empty-icon"><i class="ri-newspaper-line"></i></div>
+      <h2>Aucune actualite trouvee</h2>
+      <p>Creer une actualite ici l affichera ensuite sur la home et sur la page actualites.</p>
+      <button class="btn-add ghost" (click)="openAddModal()">
+        <i class="ri-add-line"></i>
+        Ajouter une actualite
+      </button>
+    </div>
+  </main>
+</div>
+
+<app-modal
+  [title]="isEditing ? 'Modifier l actualite' : 'Ajouter une actualite'"
+  [open]="showModal"
+  [size]="'large'"
+  (close)="closeModal()">
+  <form (ngSubmit)="save()" #actualiteForm="ngForm" class="actualite-form">
+    <div class="form-error" *ngIf="formError">
+      <i class="ri-error-warning-line"></i>
+      {{ formError }}
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group form-group--full">
+        <label for="titre">Titre *</label>
+        <input
+          id="titre"
+          name="titre"
+          type="text"
+          [(ngModel)]="current.titre"
+          required
+          maxlength="255"
+          placeholder="Ex : Nouvelle saison culturelle au Benin">
+      </div>
+
+      <div class="form-group form-group--full">
+        <label for="resume">Resume</label>
+        <textarea
+          id="resume"
+          name="resume"
+          [(ngModel)]="current.resume"
+          rows="3"
+          maxlength="600"
+          placeholder="Petit texte d accroche visible dans les cartes."></textarea>
+      </div>
+
+      <div class="form-group form-group--full">
+        <label for="contenu">Contenu *</label>
+        <textarea
+          id="contenu"
+          name="contenu"
+          [(ngModel)]="current.contenu"
+          required
+          rows="10"
+          maxlength="20000"
+          placeholder="Racontez l actualite en detail."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="datePublication">Date de publication</label>
+        <input
+          id="datePublication"
+          name="datePublication"
+          type="datetime-local"
+          [(ngModel)]="current.datePublication">
+      </div>
+
+      <div class="form-group form-group--toggles">
+        <label class="toggle-card">
+          <input type="checkbox" name="publiee" [(ngModel)]="current.publiee">
+          <span>
+            <strong>Publiee</strong>
+            <small>Visible sur le site public</small>
+          </span>
+        </label>
+
+        <label class="toggle-card">
+          <input type="checkbox" name="aLaUne" [(ngModel)]="current.aLaUne">
+          <span>
+            <strong>A la une</strong>
+            <small>Mise en avant dans les listes</small>
+          </span>
+        </label>
+      </div>
+
+      <div class="form-group form-group--full">
+        <label>Image principale</label>
+        <div class="image-card">
+          <div class="image-card__preview" *ngIf="current.imagePreview; else noImage">
+            <img [src]="current.imagePreview" [alt]="current.titre || 'Apercu actualite'">
+          </div>
+          <ng-template #noImage>
+            <div class="image-card__placeholder">
+              <i class="ri-image-line"></i>
+              <span>Aucune image selectionnee</span>
+            </div>
+          </ng-template>
+
+          <div class="image-card__actions">
+            <input type="file" accept="image/*" (change)="onFileSelected($event)">
+            <div class="image-hints">
+              <span *ngIf="uploading">Upload en cours...</span>
+              <span *ngIf="uploadError" class="text-danger">{{ uploadError }}</span>
+            </div>
+            <button type="button" class="btn-secondary btn-secondary--small" *ngIf="current.imagePreview" (click)="removeImage()">
+              Retirer l image
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
+      <button type="submit" class="btn-primary" [disabled]="!actualiteForm.form.valid || saving || uploading">
+        {{ saving ? 'Enregistrement...' : (isEditing ? 'Mettre a jour' : 'Publier l actualite') }}
+      </button>
+    </div>
+  </form>
+</app-modal>
+
+<app-modal title="Supprimer l actualite" [open]="confirmDeleteOpen" [closeOnBackdrop]="false" size="small" (close)="confirmDeleteOpen = false">
+  <p>Etes-vous sur de vouloir supprimer cette actualite ? Cette action est irreversible.</p>
+  <div class="modal-actions">
+    <be-button variant="secondary" label="Annuler" (click)="confirmDeleteOpen = false"></be-button>
+    <be-button variant="danger" label="Supprimer" (click)="executeDelete()"></be-button>
+  </div>
+</app-modal>
