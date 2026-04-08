@@ -1,28 +1,18 @@
 <div class="mes-reservations-page">
   <div class="page-hero">
     <h1><i class="ri-calendar-check-2-line"></i> Mes reservations</h1>
-    <p>Retrouvez automatiquement les reservations liees a votre compte Benin Explo.</p>
+    <p>Retrouvez toutes vos reservations liees a votre compte Benin Explo.</p>
   </div>
 
   <div class="page-body">
-    <div class="account-card">
-      <div class="account-card__identity">
-        <span class="account-card__label">Compte connecte</span>
-        <strong>{{ accountDisplayName || 'Espace client Benin Explo' }}</strong>
-        <span class="account-card__email">{{ accountEmail }}</span>
-      </div>
-
-      <button class="search-btn" (click)="loadReservations()" [disabled]="loading">
-        <span *ngIf="!loading"><i class="ri-refresh-line"></i> Actualiser</span>
-        <span *ngIf="loading"><i class="ri-loader-4-line spin"></i> Chargement...</span>
-      </button>
-    </div>
 
     <div class="search-error" *ngIf="errorMessage">
       <i class="ri-error-warning-line"></i> {{ errorMessage }}
     </div>
 
-    <div class="results" *ngIf="loaded">
+    <div *ngIf="loaded">
+
+      <!-- Etat vide -->
       <div class="empty-state" *ngIf="!loading && totalReservations === 0">
         <i class="ri-inbox-2-line"></i>
         <p>Aucune reservation trouvee pour ce compte.</p>
@@ -30,121 +20,60 @@
       </div>
 
       <div *ngIf="totalReservations > 0">
-        <p class="results-count">{{ totalReservations }} reservation{{ totalReservations > 1 ? 's' : '' }} liee{{ totalReservations > 1 ? 's' : '' }} a votre compte</p>
 
-        <div class="reservation-section" *ngIf="hebergementReservations.length > 0">
-          <div class="section-title">
-            <i class="ri-hotel-bed-line"></i>
-            <span>Hebergements</span>
-          </div>
-
-          <div class="resa-list">
-            <div class="resa-card" *ngFor="let r of hebergementReservations">
-              <div class="resa-card__header">
-                <div class="resa-card__hotel">
-                  <i class="ri-hotel-bed-line"></i>
-                  <strong>{{ r.hebergementNom }}</strong>
-                </div>
-                <div class="resa-card__badges">
-                  <span class="status-badge" [ngClass]="getStatusClass(r.statut)">
-                    {{ getStatusLabel(r.statut) }}
-                  </span>
-                  <span class="status-badge" [ngClass]="getPaymentStatusClass(r.statutPaiement)">
-                    {{ getPaymentStatusLabel(r.statutPaiement) }}
-                  </span>
-                </div>
-              </div>
-
-              <div class="resa-card__details">
-                <div class="resa-detail">
-                  <span class="resa-detail__label"><i class="ri-calendar-check-line"></i> Arrivee</span>
-                  <span class="resa-detail__value">{{ formatDate(r.dateArrivee) }}</span>
-                </div>
-                <div class="resa-detail">
-                  <span class="resa-detail__label"><i class="ri-calendar-2-line"></i> Depart</span>
-                  <span class="resa-detail__value">{{ formatDate(r.dateDepart) }}</span>
-                </div>
-                <div class="resa-detail">
-                  <span class="resa-detail__label"><i class="ri-moon-line"></i> Duree</span>
-                  <span class="resa-detail__value">{{ getNuits(r) }} nuit{{ getNuits(r) > 1 ? 's' : '' }}</span>
-                </div>
-                <div class="resa-detail">
-                  <span class="resa-detail__label"><i class="ri-group-line"></i> Voyageurs</span>
-                  <span class="resa-detail__value">{{ r.nombrePersonnes }} personne{{ (r.nombrePersonnes || 0) > 1 ? 's' : '' }}</span>
-                </div>
-                <div class="resa-detail resa-detail--price">
-                  <span class="resa-detail__label"><i class="ri-money-euro-circle-line"></i> Total</span>
-                  <span class="resa-detail__value price-val">{{ r.prixTotal | number:'1.2-2' }} EUR
-                    <small>~ {{ (r.prixTotal || 0) * 655.957 | number:'1.0-0' }} F CFA</small>
-                  </span>
-                </div>
-              </div>
-
-              <div class="resa-card__comments" *ngIf="r.commentaires">
-                <i class="ri-message-2-line"></i> {{ r.commentaires }}
-              </div>
-
-              <div class="resa-card__payment-meta" *ngIf="r.datePaiement || r.paypalCaptureId">
-                <span *ngIf="r.datePaiement">Paye le {{ formatDateTime(r.datePaiement) }}</span>
-                <span *ngIf="r.paypalCaptureId">Capture PayPal: {{ r.paypalCaptureId }}</span>
-              </div>
-
-              <div class="resa-card__footer">
-                <span class="resa-date-created">Reserve le {{ formatDate(r.dateCreation) }}</span>
-                <a
-                  *ngIf="canPayReservation(r)"
-                  class="pay-link"
-                  [routerLink]="['/paiement/hebergement', r.id]">
-                  Payer maintenant
-                </a>
-              </div>
-            </div>
-          </div>
+        <!-- Onglets -->
+        <div class="tabs">
+          <button class="tab-btn" [class.active]="activeTab === 'hebergements'" (click)="setTab('hebergements')">
+            <i class="ri-hotel-bed-line"></i> Hebergements
+            <span class="tab-count">{{ hebergementReservations.length }}</span>
+          </button>
+          <button class="tab-btn" [class.active]="activeTab === 'circuits'" (click)="setTab('circuits')">
+            <i class="ri-route-line"></i> Circuits
+            <span class="tab-count">{{ circuitReservations.length }}</span>
+          </button>
         </div>
 
-        <div class="reservation-section" *ngIf="circuitReservations.length > 0">
-          <div class="section-title">
-            <i class="ri-route-line"></i>
-            <span>Circuits</span>
-          </div>
-
-          <div class="resa-list">
-            <div class="resa-card resa-card--circuit" *ngFor="let r of circuitReservations">
-              <div class="resa-card__header">
-                <div class="resa-card__hotel">
-                  <i class="ri-route-line"></i>
-                  <strong>{{ r.circuitNom }}</strong>
-                </div>
-                <span class="status-badge" [ngClass]="getStatusClass(r.statut)">
-                  {{ getStatusLabel(r.statut) }}
-                </span>
-              </div>
-
-              <div class="resa-card__details">
-                <div class="resa-detail">
-                  <span class="resa-detail__label"><i class="ri-calendar-check-line"></i> Date</span>
-                  <span class="resa-detail__value">{{ formatDate(r.dateReservation) }}</span>
-                </div>
-                <div class="resa-detail">
-                  <span class="resa-detail__label"><i class="ri-group-line"></i> Voyageurs</span>
-                  <span class="resa-detail__value">{{ r.nombrePersonnes || 1 }} personne{{ (r.nombrePersonnes || 1) > 1 ? 's' : '' }}</span>
-                </div>
-                <div class="resa-detail">
-                  <span class="resa-detail__label"><i class="ri-mail-line"></i> Email</span>
-                  <span class="resa-detail__value">{{ r.email }}</span>
-                </div>
-                <div class="resa-detail">
-                  <span class="resa-detail__label"><i class="ri-phone-line"></i> Telephone</span>
-                  <span class="resa-detail__value">{{ r.telephone }}</span>
-                </div>
-              </div>
-
-              <div class="resa-card__comments" *ngIf="r.commentaires">
-                <i class="ri-message-2-line"></i> {{ r.commentaires }}
-              </div>
-            </div>
-          </div>
+        <!-- Filtre statut -->
+        <div class="filter-bar">
+          <select class="filter-select" [(ngModel)]="statusFilter">
+            <option value="">Tous les statuts</option>
+            <option value="EN_ATTENTE">En attente</option>
+            <option value="CONFIRMEE">Confirmee</option>
+            <option value="TERMINEE">Terminee</option>
+            <option value="ANNULEE">Annulee</option>
+          </select>
+          <span class="filter-count">{{ currentCount }} resultat{{ currentCount > 1 ? 's' : '' }}</span>
         </div>
+
+        <!-- Tableau hebergements -->
+        <div *ngIf="activeTab === 'hebergements'">
+          <app-data-table
+            [data]="filteredHebergements"
+            [columns]="hebergementColumns"
+            [loading]="loading"
+            [actions]="hebergementActions"
+            [iconOnlyActions]="false"
+            [autoPaginate]="true"
+            [autoPaginateThreshold]="5"
+            [pageSize]="8"
+            (actionClick)="onTableAction($event)"
+            emptyMessage="Aucune reservation d'hebergement">
+          </app-data-table>
+        </div>
+
+        <!-- Tableau circuits -->
+        <div *ngIf="activeTab === 'circuits'">
+          <app-data-table
+            [data]="filteredCircuits"
+            [columns]="circuitColumns"
+            [loading]="loading"
+            [autoPaginate]="true"
+            [autoPaginateThreshold]="5"
+            [pageSize]="8"
+            emptyMessage="Aucune reservation de circuit">
+          </app-data-table>
+        </div>
+
       </div>
     </div>
   </div>

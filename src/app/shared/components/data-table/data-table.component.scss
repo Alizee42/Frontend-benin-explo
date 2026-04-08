@@ -566,7 +566,12 @@
   &.status-REFUSE,
   &.status-CONFIRMEE,
   &.status-ANNULEE,
-  &.status-TERMINEE {
+  &.status-TERMINEE,
+  &.status-PAYE,
+  &.status-A_PAYER,
+  &.status-EN_COURS,
+  &.status-ECHEC,
+  &.status-REMBOURSE {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -619,5 +624,35 @@
     background: #d4edda;
     color: #155724;
     border-color: rgba(21, 87, 36, 0.22);
+  }
+
+  &.status-PAYE {
+    background: #d4edda;
+    color: #155724;
+    border-color: rgba(21, 87, 36, 0.22);
+  }
+
+  &.status-A_PAYER {
+    background: #fff3cd;
+    color: #7a5a00;
+    border-color: rgba(133, 100, 4, 0.25);
+  }
+
+  &.status-EN_COURS {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: rgba(30, 64, 175, 0.2);
+  }
+
+  &.status-ECHEC {
+    background: #f8d7da;
+    color: #721c24;
+    border-color: rgba(114, 28, 36, 0.22);
+  }
+
+  &.status-REMBOURSE {
+    background: #e2e3e5;
+    color: #383d41;
+    border-color: rgba(56, 61, 65, 0.2);
   }
 }

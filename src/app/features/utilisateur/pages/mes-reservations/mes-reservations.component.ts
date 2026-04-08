@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ReservationHebergementService } from '../../../../services/reservation-hebergement.service';
 import { ReservationHebergementDTO } from '../../../../models/reservation-hebergement.dto';
@@ -9,11 +10,12 @@ import {
   ReservationCircuitDTO,
   ReservationsCircuitService
 } from '../../../../services/reservations-circuit.service';
+import { DataTableComponent, TableAction, TableColumn } from '../../../../shared/components/data-table/data-table.component';
 
 @Component({
   selector: 'app-mes-reservations',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, FormsModule, DataTableComponent],
   templateUrl: './mes-reservations.component.html',
   styleUrls: ['./mes-reservations.component.scss']
 })
@@ -26,10 +28,43 @@ export class MesReservationsComponent implements OnInit {
   loaded = false;
   errorMessage = '';
 
+  activeTab: 'hebergements' | 'circuits' = 'hebergements';
+  statusFilter = '';
+
+  hebergementColumns: TableColumn[] = [
+    { key: 'hebergementNom', label: 'Hebergement', sortable: true },
+    { key: 'dateArrivee', label: 'Arrivee', sortable: true, type: 'date' },
+    { key: 'dateDepart', label: 'Depart', sortable: true, type: 'date' },
+    { key: 'nombreNuits', label: 'Nuits', sortable: true, width: '100px' },
+    { key: 'statutPaiement', label: 'Paiement', sortable: true, type: 'status', formatter: (v) => this.getPaymentStatusLabel(v) },
+    { key: 'prixTotal', label: 'Prix', sortable: true, formatter: (v) => v != null ? `${Number(v).toLocaleString('fr-FR', { minimumFractionDigits: 2 })} EUR` : '-' },
+    { key: 'statut', label: 'Statut', sortable: true, type: 'status', formatter: (v) => this.getStatusLabel(v) },
+    { key: 'actions', label: '', type: 'actions' }
+  ];
+
+  hebergementActions: TableAction[] = [
+    {
+      label: 'Payer',
+      icon: 'ri-bank-card-line',
+      action: 'pay',
+      class: 'btn-success',
+      condition: (item: ReservationHebergementDTO) => this.canPayReservation(item)
+    }
+  ];
+
+  circuitColumns: TableColumn[] = [
+    { key: 'circuitNom', label: 'Circuit', sortable: true },
+    { key: 'dateReservation', label: 'Date', sortable: true, type: 'date' },
+    { key: 'nombrePersonnes', label: 'Pers.', sortable: true, width: '65px' },
+    { key: 'email', label: 'Email', sortable: true },
+    { key: 'statut', label: 'Statut', sortable: true, type: 'status', formatter: (v) => this.getStatusLabel(v) }
+  ];
+
   constructor(
     private reservationService: ReservationHebergementService,
     private reservationsCircuitService: ReservationsCircuitService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -44,7 +79,7 @@ export class MesReservationsComponent implements OnInit {
 
     this.accountEmail = email;
     this.accountDisplayName = [user?.prenom, user?.nom]
-      .map((value) => value?.trim() || '')
+      .map((v) => v?.trim() || '')
       .filter(Boolean)
       .join(' ');
 
@@ -68,6 +103,8 @@ export class MesReservationsComponent implements OnInit {
         );
         this.loaded = true;
         this.loading = false;
+        this.activeTab = this.hebergementReservations.length > 0 ? 'hebergements' : 'circuits';
+        this.statusFilter = '';
       },
       error: () => {
         this.errorMessage = 'Impossible de recuperer les reservations liees a votre compte.';
@@ -81,6 +118,37 @@ export class MesReservationsComponent implements OnInit {
     return this.hebergementReservations.length + this.circuitReservations.length;
   }
 
+  get filteredHebergements(): ReservationHebergementDTO[] {
+    if (!this.statusFilter) return this.hebergementReservations;
+    return this.hebergementReservations.filter(
+      (r) => (r.statut || 'EN_ATTENTE').toUpperCase() === this.statusFilter
+    );
+  }
+
+  get filteredCircuits(): ReservationCircuitDTO[] {
+    if (!this.statusFilter) return this.circuitReservations;
+    return this.circuitReservations.filter(
+      (r) => (r.statut || 'EN_ATTENTE').toUpperCase() === this.statusFilter
+    );
+  }
+
+  get currentCount(): number {
+    return this.activeTab === 'hebergements'
+      ? this.filteredHebergements.length
+      : this.filteredCircuits.length;
+  }
+
+  setTab(tab: 'hebergements' | 'circuits'): void {
+    this.activeTab = tab;
+    this.statusFilter = '';
+  }
+
+  onTableAction(event: { action: string; item: ReservationHebergementDTO }): void {
+    if (event.action === 'pay' && event.item.id) {
+      this.router.navigate(['/paiement/hebergement', event.item.id]);
+    }
+  }
+
   getStatusLabel(statut?: string): string {
     const s = (statut || 'EN_ATTENTE').toUpperCase();
     if (s === 'CONFIRMEE') return 'Confirmee';
@@ -90,59 +158,13 @@ export class MesReservationsComponent implements OnInit {
     return s;
   }
 
-  getStatusClass(statut?: string): string {
-    switch ((statut || 'EN_ATTENTE').toUpperCase()) {
-      case 'CONFIRMEE': return 'badge-success';
-      case 'EN_ATTENTE': return 'badge-warning';
-      case 'ANNULEE': return 'badge-danger';
-      case 'TERMINEE': return 'badge-info';
-      default: return 'badge-secondary';
-    }
-  }
-
-  formatDate(d?: string): string {
-    if (!d) return '';
-    const date = new Date(d);
-    return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('fr-FR');
-  }
-
-  formatDateTime(d?: string): string {
-    if (!d) return '';
-    const date = new Date(d);
-    return Number.isNaN(date.getTime())
-      ? ''
-      : date.toLocaleString('fr-FR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-  }
-
-  getNuits(r: ReservationHebergementDTO): number {
-    return r.nombreNuits || 0;
-  }
-
   getPaymentStatusLabel(statut?: string): string {
     switch ((statut || '').toUpperCase()) {
       case 'PAYE': return 'Paye';
       case 'EN_COURS': return 'En cours';
       case 'ECHEC': return 'Echec';
       case 'REMBOURSE': return 'Rembourse';
-      case 'A_PAYER': return 'A payer';
-      default: return 'Non renseigne';
-    }
-  }
-
-  getPaymentStatusClass(statut?: string): string {
-    switch ((statut || '').toUpperCase()) {
-      case 'PAYE': return 'badge-success';
-      case 'EN_COURS': return 'badge-info';
-      case 'ECHEC': return 'badge-danger';
-      case 'REMBOURSE': return 'badge-secondary';
-      case 'A_PAYER': return 'badge-warning';
-      default: return 'badge-secondary';
+      default: return 'A payer';
     }
   }
 
