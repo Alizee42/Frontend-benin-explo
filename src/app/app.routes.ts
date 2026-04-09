@@ -17,6 +17,12 @@ export const routes: Routes = [
       import('./features/actualites/pages/actualites-list/actualites-list.component').then(m => m.ActualitesListComponent)
   },
 
+  {
+    path: 'contact',
+    loadComponent: () =>
+      import('./features/contact/contact.component').then(m => m.ContactComponent)
+  },
+
   /* LISTE CIRCUITS */
   {
     path: 'circuit',

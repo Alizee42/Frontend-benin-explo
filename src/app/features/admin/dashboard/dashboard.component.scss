@@ -5,7 +5,7 @@
 
 .admin-layout {
   margin: 0 auto;
-  padding: 1.6rem 0 2.4rem;
+  padding: 0.9rem 0.7rem 1.8rem;
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
@@ -17,6 +17,7 @@
   padding: 1.3rem 1.4rem;
   color: #fff;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   gap: 1rem;
   box-shadow: 0 14px 30px rgba(0, 77, 64, 0.32);
@@ -46,7 +47,7 @@
 .admin-hero-meta {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 0.5rem;
 }
 
@@ -279,17 +280,16 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (min-width: 769px) {
   .admin-layout {
-    width: 100%;
-    padding: 0.9rem 0.7rem 1.8rem;
+    padding: 1.6rem 0 2.4rem;
   }
 
   .admin-hero {
-    flex-direction: column;
+    flex-direction: row;
   }
 
   .admin-hero-meta {
-    align-items: flex-start;
+    align-items: flex-end;
   }
 }

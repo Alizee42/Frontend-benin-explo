@@ -2,7 +2,33 @@
   <app-header mode="compact"></app-header>
 
   <main class="page-content">
-    <app-admin-actions-bar title="Circuits personnalises" icon="ri-route-line"></app-admin-actions-bar>
+    <app-admin-actions-bar
+      title="Circuits personnalises"
+      icon="ri-route-line"
+      subtitle="Suit les demandes sur mesure, filtre les statuts et retrouve rapidement chaque dossier client.">
+      <div bar-right class="actions-right" *ngIf="!isLoading && demandes.length > 0">
+        <label class="sort-field">
+          <i class="ri-filter-3-line"></i>
+          <select [(ngModel)]="statusFilter" (change)="applyFilters()" aria-label="Filtrer les demandes">
+            <option value="">Tous les statuts</option>
+            <option value="EN_ATTENTE">En attente</option>
+            <option value="EN_TRAITEMENT">En traitement</option>
+            <option value="ACCEPTE">Devis valide</option>
+            <option value="REFUSE">Refuse</option>
+            <option value="TERMINE">Termine</option>
+          </select>
+        </label>
+
+        <label class="search-field">
+          <i class="ri-search-line"></i>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (input)="applyFilters()"
+            placeholder="Rechercher">
+        </label>
+      </div>
+    </app-admin-actions-bar>
 
     <section class="kpi-grid">
       <article class="kpi-card total">
@@ -44,35 +70,10 @@
         <p>Suivi des demandes client, validation du devis et etat du paiement.</p>
       </header>
 
-      <div class="filters-section" *ngIf="!isLoading && demandes.length > 0">
-        <div class="filter-group">
-          <label for="statusFilter"><i class="ri-filter-line"></i> Statut</label>
-          <select id="statusFilter" [(ngModel)]="statusFilter" (change)="applyFilters()" class="filter-select">
-            <option value="">Tous les statuts</option>
-            <option value="EN_ATTENTE">En attente</option>
-            <option value="EN_TRAITEMENT">En traitement</option>
-            <option value="ACCEPTE">Devis valide</option>
-            <option value="REFUSE">Refuse</option>
-            <option value="TERMINE">Termine</option>
-          </select>
-        </div>
-
-        <div class="filter-group filter-group--search">
-          <label for="searchTerm"><i class="ri-search-line"></i> Rechercher</label>
-          <input
-            type="text"
-            id="searchTerm"
-            [(ngModel)]="searchTerm"
-            (input)="applyFilters()"
-            placeholder="Reference, client, email, telephone..."
-            class="filter-input">
-        </div>
-
-        <div class="filter-stats">
-          <span class="stat-badge stat-badge--total">{{ demandes.length }} total</span>
-          <span class="stat-badge stat-badge--approved">{{ demandesApprouvees }} valides</span>
-          <span class="stat-badge stat-badge--rejected">{{ demandesRefusees }} refusees</span>
-        </div>
+      <div class="filter-stats" *ngIf="!isLoading && demandes.length > 0">
+        <span class="stat-badge stat-badge--total">{{ demandes.length }} total</span>
+        <span class="stat-badge stat-badge--approved">{{ demandesApprouvees }} valides</span>
+        <span class="stat-badge stat-badge--rejected">{{ demandesRefusees }} refusees</span>
       </div>
 
       <div *ngIf="isLoading" class="loading-container">

@@ -2,14 +2,17 @@
   <app-header mode="compact"></app-header>
 
   <main class="page-content">
-    <app-admin-actions-bar title="Gestion des activites" icon="ri-calendar-event-line">
+    <app-admin-actions-bar
+      title="Gestion des activites"
+      icon="ri-calendar-event-line"
+      subtitle="Administre les experiences proposees sur le site avec tri par ville, zone et categorie.">
       <div bar-right class="actions-right">
         <div class="search-field">
           <i class="ri-search-line"></i>
           <input
             type="text"
             [(ngModel)]="searchTerm"
-            placeholder="Rechercher une activite..."
+            placeholder="Rechercher"
             aria-label="Rechercher une activite"
           />
         </div>

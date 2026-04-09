@@ -3,20 +3,48 @@
 
   <main class="page-content">
     <div class="admin-container">
-      <app-admin-actions-bar title="Gestion des hebergements" icon="ri-hotel-bed-line">
-        <be-button
-          bar-right
-          variant="primary"
-          iconLeft="ri-add-line"
-          label="Ajouter un hebergement"
-          (click)="openAddModal()">
-        </be-button>
+      <app-admin-actions-bar
+        title="Gestion des hebergements"
+        icon="ri-hotel-bed-line"
+        subtitle="Pilote les offres d hebergement visibles sur le site et dans les reservations client.">
+        <div bar-right class="actions-right">
+          <label class="search-field">
+            <i class="ri-search-line"></i>
+            <input
+              type="text"
+              [(ngModel)]="searchTerm"
+              placeholder="Rechercher"
+              aria-label="Rechercher un hebergement">
+          </label>
+
+          <label class="sort-field">
+            <i class="ri-filter-3-line"></i>
+            <select [(ngModel)]="sortOption" aria-label="Trier les hebergements">
+              <option value="nom-asc">Nom A-Z</option>
+              <option value="nom-desc">Nom Z-A</option>
+              <option value="type-asc">Type</option>
+              <option value="prix-asc">Prix croissant</option>
+              <option value="prix-desc">Prix decroissant</option>
+            </select>
+          </label>
+
+          <be-button
+            variant="primary"
+            iconLeft="ri-add-line"
+            label="Ajouter un hebergement"
+            (click)="openAddModal()">
+          </be-button>
+        </div>
       </app-admin-actions-bar>
+
+      <div class="table-meta" *ngIf="!loading">
+        {{ filteredHebergements.length }} hebergement{{ filteredHebergements.length > 1 ? 's' : '' }}
+      </div>
 
       <div class="admin-content">
         <app-data-table
           [columns]="tableColumns"
-          [data]="hebergements"
+          [data]="filteredHebergements"
           [actions]="tableActions"
           [loading]="loading"
           [pageable]="true"

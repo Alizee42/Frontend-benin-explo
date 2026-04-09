@@ -17,33 +17,6 @@
   justify-content: flex-end;
 }
 
-.search-field,
-.sort-field {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.65rem;
-  min-height: 46px;
-  padding: 0 0.95rem;
-  border-radius: 14px;
-  border: 1px solid #dbe2ea;
-  background: #fff;
-
-  i {
-    color: #6b7280;
-    font-size: 1rem;
-  }
-
-  input,
-  select {
-    border: 0;
-    background: transparent;
-    min-height: 44px;
-    color: #1f2937;
-    min-width: 180px;
-    outline: none;
-  }
-}
-
 .table-meta {
   color: #66726b;
   font-size: 0.92rem;
@@ -310,10 +283,5 @@
 
   .actions-right {
     justify-content: stretch;
-  }
-
-  .search-field,
-  .sort-field {
-    width: 100%;
   }
 }

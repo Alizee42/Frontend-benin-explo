@@ -2,14 +2,17 @@
   <app-header mode="compact"></app-header>
 
   <main class="page-content">
-    <app-admin-actions-bar title="Catégories d'activités" icon="ri-price-tag-3-line">
+    <app-admin-actions-bar
+      title="Categories d activites"
+      icon="ri-price-tag-3-line"
+      subtitle="Structure les themes utilises pour classer les activites dans le catalogue.">
       <div bar-right class="actions-right">
         <div class="search-field">
           <i class="ri-search-line"></i>
           <input
             type="text"
             [(ngModel)]="searchTerm"
-            placeholder="Rechercher une catégorie..."
+            placeholder="Rechercher"
             aria-label="Rechercher une catégorie"
           />
         </div>

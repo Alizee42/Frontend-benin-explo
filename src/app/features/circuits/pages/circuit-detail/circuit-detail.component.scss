@@ -16,11 +16,11 @@
 
 .booking-panel {
   display: grid;
-  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 
-  @media (max-width: 960px) {
-    grid-template-columns: 1fr;
+  @media (min-width: 960px) {
+    grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
   }
 }
 
@@ -66,11 +66,11 @@
 
 .booking-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 1rem;
 
-  @media (max-width: 720px) {
-    grid-template-columns: 1fr;
+  @media (min-width: 720px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -193,7 +193,7 @@
 .page-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 3.25rem 1.5rem 4rem;
+  padding: 1.5rem 1rem 3rem;
 }
 
 .state-panel {
@@ -304,10 +304,10 @@
 
 .hero {
   position: relative;
-  border-radius: 26px;
+  border-radius: 18px;
   overflow: hidden;
-  padding: 2.5rem;
-  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
   background-color: #1e2a24;
   background-size: cover;
   background-position: center;
@@ -401,7 +401,7 @@
 }
 
 .hero-title {
-  font-size: 2.6rem;
+  font-size: 1.8rem;
   margin: 1rem 0 0.6rem;
   color: var(--detail-ink);
 }
@@ -472,7 +472,7 @@
 .info-grid {
   display: grid;
   gap: 1rem 2rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
 }
 
 .info-item label {
@@ -493,16 +493,17 @@
 
  .programme-grid {
   display: grid;
-  grid-template-columns: minmax(140px, 220px) 1fr;
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   align-items: start;
  }
 
  .day-list {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  max-height: 520px;
+  max-height: unset;
   overflow: auto;
   padding-right: 0.25rem;
  }
@@ -566,7 +567,7 @@
 
 .panel-body {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   align-items: start;
 }
@@ -693,7 +694,7 @@
 
 .content-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 2rem;
 }
 
@@ -732,44 +733,57 @@
   font-weight: 600;
 }
 
-@media (max-width: 900px) {
-  .hero-card {
-    max-width: 100%;
-  }
-
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .content-row {
-    grid-template-columns: 1fr;
-  }
-
-  .panel-body {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 600px) {
+/* ── Responsive mobile-first (min-width) ── */
+@media (min-width: 600px) {
   .page-content {
-    padding: 1.5rem 1rem 3rem;
+    padding: 2rem 1.25rem 3.5rem;
   }
 
   .hero {
-    padding: 1.5rem;
+    padding: 2rem;
+    border-radius: 22px;
+    margin-bottom: 2rem;
   }
 
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
 
   .programme-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(140px, 220px) 1fr;
   }
 
   .day-list {
-    flex-direction: row;
-    flex-wrap: wrap;
-    max-height: unset;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    max-height: 520px;
+  }
+}
+
+@media (min-width: 900px) {
+  .page-content {
+    padding: 3.25rem 1.5rem 4rem;
+  }
+
+  .hero {
+    padding: 2.5rem;
+    border-radius: 26px;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-title {
+    font-size: 2.6rem;
+  }
+
+  .info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .content-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .panel-body {
+    grid-template-columns: 1.4fr 1fr;
   }
 }

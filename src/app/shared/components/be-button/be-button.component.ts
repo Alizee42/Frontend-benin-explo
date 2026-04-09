@@ -5,6 +5,10 @@ import { CommonModule } from '@angular/common';
   selector: 'be-button',
   standalone: true,
   imports: [CommonModule],
+  host: {
+    'class': 'be-button-host',
+    '[class.be-button-host-full]': 'fullWidth'
+  },
   template: `
     <button
       [type]="type"

@@ -1,41 +1,104 @@
 /* HERO SECTION */
 .hero-section {
   position: relative;
-  min-height: 160px;
-  background: var(--be-green);
+  min-height: 380px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
+  overflow: hidden;
 }
 
-@media (min-width: 768px) {
-  .hero-section {
-    min-height: 220px;
-  }
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(900px 450px at 15% 15%, rgba(201, 168, 106, 0.32), transparent 55%),
+    linear-gradient(135deg, rgba(0, 40, 30, 0.92), rgba(0, 90, 70, 0.72)),
+    url('/assets/images/esclaves.jpg');
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.03);
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: linear-gradient(180deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.45) 70%, rgba(0,0,0,0.65) 100%);
 }
 
 .hero-content {
   position: relative;
   z-index: 1;
-  text-align: center;
-  color: white;
-  margin: 2.2rem auto;
+  color: #fff;
+  padding: 2.5rem 1.25rem 5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
 
-  h1 {
-    font-size: clamp(1.5rem, 5vw, 2.2rem);
-    font-weight: 800;
-    margin-bottom: 0.35rem;
-  }
+.hero-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #C9A86A;
+}
 
-  p {
-    font-size: 1rem;
-    opacity: 0.9;
+.hero-section h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  font-weight: 900;
+  line-height: 1.08;
+  color: #fff;
+}
+
+.hero-accent {
+  color: #C9A86A;
+}
+
+.hero-section p {
+  margin: 0 0 1.25rem;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  opacity: 0.88;
+  max-width: 520px;
+}
+
+.hero-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  padding: 0.36rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.24);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  backdrop-filter: blur(6px);
+}
+
+.hero-wave {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  line-height: 0;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 72px;
   }
 }
 
@@ -83,11 +146,17 @@
 .progress-bar {
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  gap: 0.35rem;
+  justify-content: space-between;
+  gap: 0.2rem;
   max-width: 100%;
   margin: 0 auto;
-  padding: 0 0.25rem;
+  padding: 0 0.5rem;
+
+  @media (min-width: 481px) {
+    gap: 0.35rem;
+    justify-content: center;
+    padding: 0 0.25rem;
+  }
 
   @media (min-width: 769px) {
     gap: 1rem;
@@ -222,10 +291,17 @@
 
 .progress-step {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.2rem;
+  text-align: center;
   opacity: 0.4;
+
+  @media (min-width: 481px) {
+    flex-direction: row;
+    gap: 0.5rem;
+    text-align: left;
+  }
 
   &.active {
     opacity: 1;
@@ -242,8 +318,8 @@
 }
 
 .step-number {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: var(--be-gold);
   color: white;
@@ -251,8 +327,14 @@
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   flex-shrink: 0;
+
+  @media (min-width: 481px) {
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
+  }
 
   @media (min-width: 769px) {
     width: 36px;
@@ -262,38 +344,20 @@
 }
 
 .step-label {
-  font-size: 0.75rem;
+  font-size: 0.62rem;
   font-weight: 600;
   color: var(--be-dark);
+
+  @media (min-width: 481px) {
+    font-size: 0.75rem;
+  }
 
   @media (min-width: 769px) {
     font-size: 0.84rem;
   }
 }
 
-@media (max-width: 480px) {
-  .progress-bar {
-    gap: 0.2rem;
-    justify-content: space-between;
-    padding: 0 0.5rem;
-  }
-
-  .progress-step {
-    flex-direction: column;
-    gap: 0.2rem;
-    text-align: center;
-  }
-
-  .step-number {
-    width: 24px;
-    height: 24px;
-    font-size: 0.75rem;
-  }
-
-  .step-label {
-    font-size: 0.62rem;
-  }
-}
+/* Styles mobile-first déplacés dans les sélecteurs ci-dessus */
 
 /* STEP CONTAINER */
 .step-container {

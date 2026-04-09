@@ -23,6 +23,8 @@ export class HebergementsAdminComponent implements OnInit {
   confirmDeleteOpen = false;
   pendingDeleteId: number | null = null;
   error = '';
+  searchTerm = '';
+  sortOption = 'nom-asc';
 
   hebergements: HebergementDTO[] = [];
   loading = true;
@@ -86,6 +88,38 @@ export class HebergementsAdminComponent implements OnInit {
         this.villes = data;
       },
       error: (err) => {
+      }
+    });
+  }
+
+  get filteredHebergements(): HebergementDTO[] {
+    const normalizedSearch = this.searchTerm.trim().toLowerCase();
+    const filtered = this.hebergements.filter((heb) => {
+      if (!normalizedSearch) {
+        return true;
+      }
+
+      return [
+        heb.nom,
+        heb.type,
+        heb.localisation,
+        heb.description
+      ].some((value) => (value ?? '').toLowerCase().includes(normalizedSearch));
+    });
+
+    return filtered.sort((a, b) => {
+      switch (this.sortOption) {
+        case 'nom-desc':
+          return b.nom.localeCompare(a.nom, 'fr', { sensitivity: 'base' });
+        case 'type-asc':
+          return a.type.localeCompare(b.type, 'fr', { sensitivity: 'base' });
+        case 'prix-asc':
+          return (a.prixParNuit ?? 0) - (b.prixParNuit ?? 0);
+        case 'prix-desc':
+          return (b.prixParNuit ?? 0) - (a.prixParNuit ?? 0);
+        case 'nom-asc':
+        default:
+          return a.nom.localeCompare(b.nom, 'fr', { sensitivity: 'base' });
       }
     });
   }

@@ -2,30 +2,22 @@
   <app-header mode="compact"></app-header>
 
   <main class="page-content">
-    <app-admin-actions-bar title="Gestion des circuits" icon="ri-route-line">
-      <be-button
-        bar-right
-        variant="primary"
-        size="md"
-        iconLeft="ri-add-line"
-        label="Ajouter un circuit"
-        (click)="addCircuit()">
-      </be-button>
-    </app-admin-actions-bar>
-
-    <section class="toolbar-card">
-      <div class="toolbar-main">
-        <label class="search-box">
+    <app-admin-actions-bar
+      title="Gestion des circuits"
+      icon="ri-route-line"
+      subtitle="Gere le catalogue public des circuits avec recherche rapide, tri et creation de nouveaux parcours.">
+      <div bar-right class="actions-right">
+        <label class="search-field">
           <i class="ri-search-line"></i>
           <input
             type="text"
             [(ngModel)]="searchTerm"
-            placeholder="Rechercher un circuit, une ville ou une formule">
+            placeholder="Rechercher">
         </label>
 
-        <label class="sort-box">
-          <span>Trier</span>
-          <select [(ngModel)]="sortBy">
+        <label class="sort-field">
+          <i class="ri-filter-3-line"></i>
+          <select [(ngModel)]="sortBy" aria-label="Trier les circuits">
             <option value="recent">Plus recents</option>
             <option value="title-asc">Titre A-Z</option>
             <option value="title-desc">Titre Z-A</option>
@@ -33,12 +25,20 @@
             <option value="price-desc">Prix decroissant</option>
           </select>
         </label>
-      </div>
 
-      <div class="toolbar-meta">
-        <span>{{ filteredCircuits.length }} circuit{{ filteredCircuits.length > 1 ? 's' : '' }}</span>
+        <be-button
+          variant="primary"
+          size="md"
+          iconLeft="ri-add-line"
+          label="Ajouter un circuit"
+          (click)="addCircuit()">
+        </be-button>
       </div>
-    </section>
+    </app-admin-actions-bar>
+
+    <div class="table-meta">
+      {{ filteredCircuits.length }} circuit{{ filteredCircuits.length > 1 ? 's' : '' }}
+    </div>
 
     <div *ngIf="loadError" class="page-alert warning">
       <i class="ri-error-warning-line"></i>

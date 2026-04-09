@@ -23,7 +23,7 @@ $dark:   #0f1f1a;
    ================================================================ */
 .hero {
   position: relative;
-  min-height: 460px;
+  min-height: 340px;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -54,7 +54,7 @@ $dark:   #0f1f1a;
 .hero-inner {
   position: relative;
   z-index: 1;
-  padding: 3rem 0 5rem;
+  padding: 2rem 0 4.5rem;
   color: #fff;
 }
 
@@ -170,7 +170,7 @@ $dark:   #0f1f1a;
 
 .contact-layout {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: 1fr;
   gap: 2rem;
   align-items: start;
 }
@@ -181,11 +181,10 @@ $dark:   #0f1f1a;
 .infos-panel {
   background: linear-gradient(160deg, #003830 0%, #004D40 55%, #005a49 100%);
   border-radius: 28px;
-  padding: 2.25rem 1.85rem;
+  padding: 1.75rem 1.25rem;
   color: #fff;
   box-shadow: 0 24px 56px rgba(0, 60, 50, 0.32);
-  position: sticky;
-  top: 90px;
+  position: static;
 }
 
 .infos-panel__header {
@@ -313,7 +312,7 @@ $dark:   #0f1f1a;
 .form-panel {
   background: #fff;
   border-radius: 28px;
-  padding: 2.5rem 2.25rem;
+  padding: 1.75rem 1.25rem;
   box-shadow: 0 8px 32px rgba(15,23,42,0.08);
   border: 1px solid rgba(15,23,42,0.05);
 }
@@ -358,7 +357,7 @@ $dark:   #0f1f1a;
 
 .form-row-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1.1rem;
 }
 
@@ -440,11 +439,15 @@ textarea {
 
 .form-footer {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 1rem;
-  flex-wrap: wrap;
   margin-top: 0.5rem;
+}
+
+.form-footer .btn-main {
+  width: 100%;
+  justify-content: center;
 }
 
 .form-note {
@@ -577,20 +580,9 @@ textarea {
 }
 
 /* ================================================================
-   Responsive
+   Responsive — mobile-first (min-width)
    ================================================================ */
-@media (max-width: 1024px) {
-  .contact-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .infos-panel {
-    position: static;
-    max-width: 600px;
-  }
-}
-
-@media (max-width: 640px) {
+@media (min-width: 640px) {
   .hero {
     min-height: 400px;
   }
@@ -599,23 +591,42 @@ textarea {
     font-size: 2.2rem;
   }
 
-  .hero-inner {
-    padding-bottom: 4.5rem;
-  }
-
-  .form-panel,
-  .infos-panel {
-    padding: 1.75rem 1.25rem;
-  }
-
   .form-row-2 {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .form-footer {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
 
-    .btn-main { width: 100%; justify-content: center; }
+  .form-footer .btn-main {
+    width: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    min-height: 460px;
+  }
+
+  .hero-inner {
+    padding: 3rem 0 5rem;
+  }
+
+  .contact-layout {
+    grid-template-columns: 360px 1fr;
+  }
+
+  .infos-panel {
+    position: sticky;
+    top: 90px;
+    padding: 2.25rem 1.85rem;
+  }
+
+  .form-panel {
+    padding: 2.5rem 2.25rem;
   }
 }

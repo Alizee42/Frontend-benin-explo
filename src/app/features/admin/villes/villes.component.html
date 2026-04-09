@@ -2,14 +2,17 @@
   <app-header mode="compact"></app-header>
 
   <main class="page-content">
-    <app-admin-actions-bar title="Gestion des villes" icon="ri-building-4-line">
+    <app-admin-actions-bar
+      title="Gestion des villes"
+      icon="ri-building-4-line"
+      subtitle="Centralise les villes rattachees aux zones pour les circuits, activites et hebergements.">
       <div bar-right class="actions-right">
         <div class="search-field">
           <i class="ri-search-line"></i>
           <input
             type="text"
             [(ngModel)]="searchTerm"
-            placeholder="Rechercher une ville..."
+            placeholder="Rechercher"
             aria-label="Rechercher une ville"
           />
         </div>

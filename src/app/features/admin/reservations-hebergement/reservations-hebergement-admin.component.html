@@ -2,7 +2,32 @@
   <app-header mode="compact"></app-header>
 
   <main class="page-content">
-    <app-admin-actions-bar title="Reservations hebergements" icon="ri-calendar-check-line"></app-admin-actions-bar>
+    <app-admin-actions-bar
+      title="Reservations hebergements"
+      icon="ri-calendar-check-line"
+      subtitle="Centralise les sejours client avec filtres de statut, recherche et suivi du paiement.">
+      <div bar-right class="actions-right">
+        <label class="sort-field">
+          <i class="ri-filter-3-line"></i>
+          <select [(ngModel)]="statusFilter" (change)="onStatusFilterChange()" aria-label="Filtrer les reservations hebergements">
+            <option value="">Tous les statuts</option>
+            <option value="EN_ATTENTE">En attente</option>
+            <option value="CONFIRMEE">Confirmee</option>
+            <option value="ANNULEE">Annulee</option>
+            <option value="TERMINEE">Terminee</option>
+          </select>
+        </label>
+
+        <label class="search-field">
+          <i class="ri-search-line"></i>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()"
+            placeholder="Rechercher">
+        </label>
+      </div>
+    </app-admin-actions-bar>
 
     <section class="kpi-grid">
       <article class="kpi-card total">
@@ -46,34 +71,10 @@
         </div>
       </div>
 
-      <div class="filters-section">
-        <div class="filter-group">
-          <label for="statusFilter"><i class="ri-filter-line"></i> Statut</label>
-          <select id="statusFilter" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()" class="filter-select">
-            <option value="">Tous les statuts</option>
-            <option value="EN_ATTENTE">En attente</option>
-            <option value="CONFIRMEE">Confirmee</option>
-            <option value="ANNULEE">Annulee</option>
-            <option value="TERMINEE">Terminee</option>
-          </select>
-        </div>
-
-        <div class="filter-group filter-group--search">
-          <label for="searchTerm"><i class="ri-search-line"></i> Rechercher</label>
-          <input
-            type="text"
-            id="searchTerm"
-            [(ngModel)]="searchTerm"
-            (input)="onSearchChange()"
-            placeholder="Nom, hebergement, email..."
-            class="filter-input">
-        </div>
-
-        <div class="filter-stats">
-          <span class="stat-badge stat-badge--total">{{ reservations.length }} total</span>
-          <span class="stat-badge stat-badge--attente">{{ countByStatus('EN_ATTENTE') }} en attente</span>
-          <span class="stat-badge stat-badge--confirmee">{{ countByStatus('CONFIRMEE') }} confirmees</span>
-        </div>
+      <div class="filter-stats">
+        <span class="stat-badge stat-badge--total">{{ reservations.length }} total</span>
+        <span class="stat-badge stat-badge--attente">{{ countByStatus('EN_ATTENTE') }} en attente</span>
+        <span class="stat-badge stat-badge--confirmee">{{ countByStatus('CONFIRMEE') }} confirmees</span>
       </div>
 
       <div class="table-container">

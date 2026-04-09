@@ -1,3 +1,16 @@
+:host {
+  display: inline-flex;
+  max-width: 100%;
+  vertical-align: middle;
+  flex: 0 0 auto;
+}
+
+:host(.be-button-host-full) {
+  display: flex;
+  width: 100%;
+  flex: 1 1 100%;
+}
+
 .be-btn {
   cursor: pointer;
   border-radius: 10px;
@@ -9,6 +22,10 @@
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
+  width: 100%;
+  max-width: 100%;
+  white-space: nowrap;
+  line-height: 1.1;
   transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
