@@ -1,0 +1,188 @@
+<section class="contact-page">
+
+  <!-- ── Hero ── -->
+  <header class="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-overlay" aria-hidden="true"></div>
+    <div class="container hero-inner">
+      <p class="hero-kicker"><i class="ri-map-pin-2-line"></i>&nbsp;Bénin Explo — Cotonou</p>
+      <h1 class="hero-title">Parlons de<br><span class="hero-title__accent">votre voyage</span></h1>
+      <p class="hero-subtitle">
+        Une question, un projet ou une envie de partir au Bénin ?<br>
+        Notre équipe locale répond sous 24h.
+      </p>
+      <div class="hero-pills">
+        <span class="hero-pill hero-pill--green"><i class="ri-customer-service-2-line"></i>Équipe locale</span>
+        <span class="hero-pill"><i class="ri-mail-send-line"></i>Réponse sous 24h</span>
+        <span class="hero-pill"><i class="ri-shield-check-line"></i>Accompagnement personnalisé</span>
+      </div>
+    </div>
+
+    <!-- Wave séparateur -->
+    <div class="hero-wave" aria-hidden="true">
+      <svg viewBox="0 0 1440 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,40 C360,80 1080,0 1440,40 L1440,72 L0,72 Z" fill="#f6f7f9"/>
+      </svg>
+    </div>
+  </header>
+
+  <!-- ── Loading ── -->
+  <div class="section-status" *ngIf="loading">
+    <div class="status-spinner" aria-hidden="true"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <!-- ── Contenu ── -->
+  <main class="contact-content" *ngIf="!loading">
+    <div class="container">
+      <div class="contact-layout">
+
+        <!-- ── Panneau infos ── -->
+        <aside class="infos-panel">
+          <div class="infos-panel__header">
+            <span class="panel-kicker"><i class="ri-map-pin-line"></i>Nous trouver</span>
+            <h2>Nos coordonnées</h2>
+            <p>Contactez-nous directement ou via le formulaire.</p>
+          </div>
+
+          <ul class="info-list">
+
+            <li class="info-item" *ngIf="parametres?.emailContact">
+              <div class="info-item__icon info-item__icon--gold">
+                <i class="ri-mail-send-line"></i>
+              </div>
+              <div class="info-item__body">
+                <span class="info-item__label">Email</span>
+                <a class="info-item__value" [href]="'mailto:' + parametres!.emailContact">
+                  {{ parametres!.emailContact }}
+                </a>
+              </div>
+            </li>
+
+            <li class="info-item" *ngIf="parametres?.telephoneContact">
+              <div class="info-item__icon info-item__icon--green">
+                <i class="ri-whatsapp-line"></i>
+              </div>
+              <div class="info-item__body">
+                <span class="info-item__label">Téléphone / WhatsApp</span>
+                <a class="info-item__value" [href]="'tel:' + parametres!.telephoneContact">
+                  {{ parametres!.telephoneContact }}
+                </a>
+              </div>
+            </li>
+
+            <li class="info-item" *ngIf="parametres?.adresseAgence">
+              <div class="info-item__icon info-item__icon--teal">
+                <i class="ri-map-pin-2-line"></i>
+              </div>
+              <div class="info-item__body">
+                <span class="info-item__label">Adresse</span>
+                <span class="info-item__value">{{ parametres!.adresseAgence }}</span>
+              </div>
+            </li>
+
+            <li class="info-item">
+              <div class="info-item__icon info-item__icon--slate">
+                <i class="ri-time-line"></i>
+              </div>
+              <div class="info-item__body">
+                <span class="info-item__label">Horaires d'ouverture</span>
+                <span class="info-item__value">
+                  Lun – Ven : 8h – 18h<br>Sam : 9h – 14h
+                </span>
+              </div>
+            </li>
+
+          </ul>
+
+          <div class="social-row">
+            <a class="social-btn" href="https://facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+              <i class="ri-facebook-fill"></i>
+            </a>
+            <a class="social-btn" href="https://instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <i class="ri-instagram-fill"></i>
+            </a>
+            <a class="social-btn" href="https://wa.me/" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+              <i class="ri-whatsapp-line"></i>
+            </a>
+          </div>
+        </aside>
+
+        <!-- ── Formulaire ── -->
+        <div class="form-panel">
+
+          <!-- Succès -->
+          <div class="form-success" *ngIf="sent">
+            <div class="success-glow">
+              <div class="success-icon"><i class="ri-check-line"></i></div>
+            </div>
+            <h3>Message envoyé !</h3>
+            <p>Votre client mail s'est ouvert avec votre message pré-rempli. Nous vous répondrons dès que possible.</p>
+            <button type="button" class="btn-main" (click)="resetForm()">
+              <i class="ri-refresh-line"></i>Nouveau message
+            </button>
+          </div>
+
+          <!-- Formulaire -->
+          <form class="contact-form" (ngSubmit)="submitForm()" *ngIf="!sent" novalidate>
+
+            <div class="form-head">
+              <span class="form-kicker"><i class="ri-edit-2-line"></i>Écrivez-nous</span>
+              <h2>Envoyez un message</h2>
+            </div>
+
+            <div class="form-error" *ngIf="formError" role="alert">
+              <i class="ri-error-warning-line"></i>{{ formError }}
+            </div>
+
+            <div class="form-row-2">
+              <div class="field">
+                <label for="c-nom">Nom <abbr title="obligatoire">*</abbr></label>
+                <div class="field__input-wrap">
+                  <i class="ri-user-3-line field__icon"></i>
+                  <input id="c-nom" type="text" [(ngModel)]="form.nom" name="nom"
+                    placeholder="Votre nom" autocomplete="family-name">
+                </div>
+              </div>
+              <div class="field">
+                <label for="c-email">Email <abbr title="obligatoire">*</abbr></label>
+                <div class="field__input-wrap">
+                  <i class="ri-mail-line field__icon"></i>
+                  <input id="c-email" type="email" [(ngModel)]="form.email" name="email"
+                    placeholder="votre@email.com" autocomplete="email">
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="c-sujet">Sujet</label>
+              <div class="field__input-wrap">
+                <i class="ri-chat-1-line field__icon"></i>
+                <input id="c-sujet" type="text" [(ngModel)]="form.sujet" name="sujet"
+                  placeholder="Ex : Circuit personnalisé, Question sur un séjour...">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="c-message">Message <abbr title="obligatoire">*</abbr></label>
+              <textarea id="c-message" [(ngModel)]="form.message" name="message" rows="5"
+                placeholder="Décrivez votre projet, votre question ou votre demande..."></textarea>
+            </div>
+
+            <div class="form-footer">
+              <p class="form-note"><i class="ri-lock-line"></i>Vos données sont utilisées uniquement pour traiter votre demande.</p>
+              <button type="submit" class="btn-main" [disabled]="sending">
+                <span *ngIf="sending" class="btn-spinner" aria-hidden="true"></span>
+                <i *ngIf="!sending" class="ri-send-plane-fill"></i>
+                {{ sending ? 'Envoi en cours...' : 'Envoyer le message' }}
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+</section>
