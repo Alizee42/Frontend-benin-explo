@@ -673,53 +673,64 @@
 }
 
 /* ==========================================
-   CUSTOM CIRCUIT SECTION
+   TEASER VOYAGE SUR MESURE (dans section circuits)
    ========================================== */
 
-.custom-circuit {
-  padding: 5rem 0;
-  background: #F5F5F5; /* Gris clair */
-  color: var(--be-dark);
+.custom-circuit-teaser {
+  margin-top: 1rem;
+  border-radius: 16px;
+  background: linear-gradient(90deg, var(--be-green) 0%, #1a5c3a 100%);
+  padding: 1.25rem 2rem;
 }
 
-.custom-circuit .section-kicker {
-  color: var(--be-green);
+.teaser-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.teaser-text {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+}
+
+.teaser-kicker {
+  font-size: .8rem;
   font-weight: 700;
   text-transform: uppercase;
-  font-size: .9rem;
   letter-spacing: 1.5px;
+  color: var(--be-gold);
+  display: flex;
+  align-items: center;
+  gap: .35rem;
 }
 
-.custom-circuit .section-title {
-  font-size: clamp(1.4rem, 3.5vw, 2.3rem);
-  font-weight: 800;
-  margin-top: .5rem;
-  color: var(--be-dark);
+.teaser-text p {
+  margin: 0;
+  color: rgba(255,255,255,.9);
+  font-size: 1rem;
+  font-weight: 500;
 }
 
-.custom-circuit .section-subtitle {
-  max-width: 620px;
-  margin: .6rem auto;
-  color: var(--be-dark);
-  opacity: .75;
-  font-size: 1.05rem;
-}
-
-.btn-custom-circuit {
+.btn-teaser-cta {
   background: var(--be-gold);
-  color: var(--be-light);
+  color: var(--be-dark);
   font-weight: 700;
   border-radius: 10px;
-  padding: 1rem 2rem;
-  border: none;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.22);
-  transition: 0.25s ease;
-}
+  padding: .65rem 1.5rem;
+  font-size: .95rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .2s ease, transform .2s ease;
 
-.btn-custom-circuit:hover {
-  background: #9C7F4A;
-  color: var(--be-light);
-  transform: translateY(-3px);
+  &:hover {
+    background: #9C7F4A;
+    color: var(--be-light);
+    transform: translateY(-2px);
+  }
 }
 
 /* ==========================================

@@ -115,20 +115,16 @@
         </div>
       </div>
     </div>
-  </div>
-</section>
 
-<section class="custom-circuit">
-  <div class="container text-center">
-    <span class="section-kicker">Voyage sur mesure</span>
-    <h2 class="section-title">Creez votre circuit personnalise</h2>
-    <p class="section-subtitle">
-      Choisissez vos activites, vos etapes, votre rythme.
-      Benin Explo vous accompagne pour construire le circuit qui vous ressemble.
-    </p>
-    <a routerLink="/circuit-personnalise" class="btn btn-outline-light btn-lg btn-custom-circuit">
-      Creer mon circuit
-    </a>
+    <div class="custom-circuit-teaser" *ngIf="featuredState === 'ready' || featuredState === 'fallback' || featuredState === 'empty'">
+      <div class="teaser-content">
+        <div class="teaser-text">
+          <span class="teaser-kicker"><i class="ri-map-2-line"></i> Voyage sur mesure</span>
+          <p>Vous ne trouvez pas votre bonheur ? Construisez votre propre circuit, a votre rythme.</p>
+        </div>
+        <a routerLink="/circuit-personnalise" class="btn-teaser-cta">Creer mon circuit</a>
+      </div>
+    </div>
   </div>
 </section>
 
