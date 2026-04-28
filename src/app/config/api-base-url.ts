@@ -15,7 +15,7 @@ export function getApiBaseUrl(): string {
     return '';
   }
 
-  return 'http://217.160.69.180:8081';
+  return '';
 }
 
 export function resolveApiUrl(url: string): string {
