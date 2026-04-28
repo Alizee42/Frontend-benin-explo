@@ -15,7 +15,7 @@ export function getApiBaseUrl(): string {
     return '';
   }
 
-  return 'https://benin-explo-backend.onrender.com';
+  return 'http://217.160.69.180:8081';
 }
 
 export function resolveApiUrl(url: string): string {
