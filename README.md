@@ -1,126 +1,79 @@
 # Bénin Explo — Frontend
 
-Application web du projet **Bénin Explo**, une plateforme de tourisme dédiée au Bénin. Découverte de circuits, hébergements, réservation en ligne et paiement PayPal.
-
----
+Application web Angular pour la plateforme de tourisme **Bénin Explo**, dédiée à la découverte du Bénin (Afrique de l'Ouest). Permet aux visiteurs de parcourir et réserver des circuits et hébergements, avec paiement PayPal intégré. Un back-office complet permet aux administrateurs de gérer l'ensemble du contenu.
 
 ## Stack technique
 
 | Technologie | Version |
 |---|---|
-| Angular | 19.2 |
+| Angular | 19.2 (standalone components) |
 | TypeScript | 5.7 |
-| Bootstrap | 5.3 |
+| Bootstrap | 5.3.8 |
 | Remixicon | 4.7 |
-
-Architecture : **standalone components**, routes lazy-loadées, guards d'authentification.
-
----
+| RxJS | 7.8 |
+| Angular CLI | 19.2.19 |
 
 ## Prérequis
 
 - Node.js 20+
 - npm 10+
-- Angular CLI 19 : `npm install -g @angular/cli`
+- Angular CLI 19 (`npm install -g @angular/cli`)
+- Backend `benin-explo-backend` démarré sur `localhost:8080`
 
----
-
-## Installation locale
-
-### 1. Cloner le dépôt
+## Installation et lancement
 
 ```bash
 git clone <url-du-repo>
 cd Frontend-benin-explo
-```
-
-### 2. Installer les dépendances
-
-```bash
 npm install
-```
 
-### 3. Configurer l'environnement
+# Vérifier l'URL de l'API dans src/environments/environment.ts
+# apiUrl: 'http://localhost:8080'
 
-Vérifier le fichier `src/environments/environment.ts` et s'assurer que l'URL de l'API pointe vers le backend local :
-
-```typescript
-export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:8080'
-};
-```
-
-### 4. Lancer le serveur de développement
-
-```bash
 ng serve
+# Application disponible sur http://localhost:4200
 ```
 
-L'application est accessible sur `http://localhost:4200`.
+## Pages et fonctionnalités
 
-> Le backend doit être démarré pour que les données s'affichent.
-
----
-
-## Pages publiques
+### Pages publiques
 
 | Route | Description |
 |---|---|
 | `/` | Accueil |
 | `/circuit` | Liste des circuits |
 | `/circuit/:id` | Détail d'un circuit |
-| `/circuit-personnalise` | Formulaire de circuit sur mesure |
+| `/circuit-personnalise` | Formulaire de circuit sur mesure (5 étapes) |
 | `/hebergements` | Liste des hébergements |
 | `/actualites` | Actualités |
 | `/contact` | Formulaire de contact |
 | `/login` | Connexion |
 | `/register` | Inscription |
 
-## Espace utilisateur (connecté)
+### Espace utilisateur (connecté)
 
 | Route | Description |
 |---|---|
 | `/dashboard` | Tableau de bord |
 | `/mes-reservations` | Historique des réservations |
 | `/reservation-hebergement/:id` | Réserver un hébergement |
-| `/paiement/circuit/:id` | Payer un circuit |
-| `/paiement/hebergement/:id` | Payer un hébergement |
-| `/paiement/circuit-personnalise/:id` | Payer un circuit personnalisé |
-| `/profil` | Profil utilisateur |
+| `/paiement/circuit/:id` | Payer un circuit (PayPal) |
+| `/paiement/hebergement/:id` | Payer un hébergement (PayPal) |
+| `/paiement/circuit-personnalise/:id` | Payer un circuit personnalisé (PayPal) |
+| `/profil` | Profil et paramètres |
 
-## Espace admin (`/admin/*`)
+### Espace admin (`/admin/*`)
 
 Accessible uniquement avec le rôle `ADMIN`.
 
-- Tableau de bord avec KPIs
-- Gestion circuits, hébergements, actualités
-- Gestion réservations (circuits, hébergements, circuits personnalisés)
-- Gestion zones géographiques, villes, activités
-- Tarifs circuits personnalisés
+- Dashboard avec KPIs
+- Gestion : circuits, hébergements, actualités
+- Gestion : réservations (circuits, hébergements, circuits personnalisés)
+- Gestion : zones géographiques, villes, activités, catégories d'activités
+- Tarifs des circuits personnalisés
 - Paramètres du site
 
----
-
-## Build de production
-
-```bash
-ng build --configuration production
-```
-
-Les fichiers générés se trouvent dans `dist/`. Déployable sur **Netlify**, Vercel, ou tout serveur statique.
-
-### Déploiement Netlify
-
-Ajouter un fichier `public/_redirects` pour gérer le routing Angular :
-
-```
-/*    /index.html   200
-```
-
----
-
-## Structure du projet
+## Architecture
 
 ```
 src/
@@ -138,6 +91,21 @@ src/
 │   │   ├── components/     # Header, footer, modal, data-table
 │   │   ├── guards/         # authGuard, adminGuard
 │   │   └── services/       # Services HTTP partagés
-│   └── app.routes.ts       # Routing principal
+│   └── app.routes.ts
 └── environments/           # Configuration dev / prod
 ```
+
+## Build et déploiement
+
+```bash
+ng build --configuration production
+# Fichiers générés dans dist/
+```
+
+Déployable sur Netlify, Vercel ou tout serveur statique. Ajouter un fichier `public/_redirects` pour le routing Angular :
+
+```
+/*    /index.html   200
+```
+
+Docker disponible : build multi-étapes (Node 18 → Nginx Alpine).
