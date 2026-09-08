@@ -47,6 +47,10 @@
     <!-- Actions à droite -->
     <div class="header-actions">
 
+      <button class="currency-toggle" type="button" (click)="toggleCurrency()" [attr.aria-label]="'Afficher les prix en ' + (currency() === 'EUR' ? 'FCFA' : 'euros')">
+        {{ currency() === 'EUR' ? '€ EUR' : 'F CFA' }}
+      </button>
+
       @if (!isLoggedIn) {
         <a routerLink="/login" class="btn-connexion" (click)="closeMenu()">
           <i class="ri-user-line"></i>
@@ -125,6 +129,9 @@
 
   <!-- Drawer mobile -->
   <nav class="mobile-drawer" [class.open]="menuOpen" aria-label="Menu mobile">
+    <button class="drawer-link drawer-link--button" type="button" (click)="toggleCurrency()">
+      Devise : {{ currency() === 'EUR' ? '€ EUR' : 'F CFA' }}
+    </button>
     <a class="drawer-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="closeMenu()">Accueil</a>
 
     <!-- Nav publique -->

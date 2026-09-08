@@ -160,7 +160,7 @@
                   <div class="resa-field">
                     <span class="resa-field__label">Prix a regler</span>
                     <span class="resa-field__value resa-field__value--strong">
-                      {{ selectedReservation.prixTotal != null ? (selectedReservation.prixTotal | number:'1.2-2') + ' EUR' : '-' }}
+                      {{ selectedReservation.prixTotal != null ? (selectedReservation.prixTotal | price) : '-' }}
                     </span>
                   </div>
                   <div class="resa-field">

@@ -9,6 +9,7 @@ import {
 import { HebergementsService, HebergementDTO } from '../../../../services/hebergements.service';
 import { ReservationHebergementDTO } from '../../../../models/reservation-hebergement.dto';
 import { AuthService } from '../../../../services/auth.service';
+import { PricePipe } from '../../../../shared/pipes/price.pipe';
 
 interface CalendarMonthView {
   label: string;
@@ -19,7 +20,7 @@ interface CalendarMonthView {
 @Component({
   selector: 'app-reservation-hebergement',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PricePipe],
   templateUrl: './reservation-hebergement.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./reservation-hebergement.component.v2.scss']

@@ -90,7 +90,7 @@
               <div class="card-badges">
                 <span class="badge duration"><i class="ri-time-line"></i> {{ c.dureeIndicative }}</span>
                 @if (c.prixIndicatif != null) {
-                  <span class="badge price">{{ c.prixIndicatif | number:'1.0-2' }} €</span>
+                  <span class="badge price">{{ c.prixIndicatif | price }}</span>
                 }
               </div>
             </a>

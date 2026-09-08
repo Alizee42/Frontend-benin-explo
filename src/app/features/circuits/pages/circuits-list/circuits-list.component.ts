@@ -4,11 +4,12 @@ import { RouterModule } from '@angular/router';
 import { CircuitService } from '../../../../services/circuit.service';
 import { ZonesService, Zone } from '../../../../services/zones.service';
 import { CircuitDTO } from '../../../../models/circuit.dto';
+import { PricePipe } from '../../../../shared/pipes/price.pipe';
 
 @Component({
   selector: 'app-circuits-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, PricePipe],
   templateUrl: './circuits-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./circuits-list.component.scss']

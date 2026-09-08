@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, Input, HostListener, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, HostListener, ElementRef, ChangeDetectionStrategy, inject } from '@angular/core';
 
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { AuthService, User } from '../../../services/auth.service';
+import { CurrencyPreferenceService } from '../../../services/currency-preference.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -26,11 +27,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
   public isAdmin = false;
   public user: User | null = null;
 
+  private readonly currencyPreference = inject(CurrencyPreferenceService);
+  readonly currency = this.currencyPreference.currency;
+
   constructor(
     private elementRef: ElementRef<HTMLElement>,
     private router: Router,
     private authService: AuthService
   ) {}
+
+  toggleCurrency(): void {
+    this.currencyPreference.toggle();
+  }
 
   ngOnInit(): void {
     this.currentPath = this.normalizePath(this.router.url);

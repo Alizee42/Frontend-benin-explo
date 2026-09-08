@@ -64,8 +64,7 @@
                 @if (circuit.prixIndicatif != null) {
                   <span class="meta-chip price">
                     <i class="ri-money-euro-circle-line"></i>
-                    {{ circuit.prixIndicatif | number:'1.0-2' }} €
-                    <small class="price-fcfa">≈ {{ circuit.prixIndicatif * 655.957 | number:'1.0-0' }} F CFA</small>
+                    {{ circuit.prixIndicatif | price }}
                   </span>
                 }
               </div>
@@ -120,8 +119,7 @@
               <div class="section-content booking-panel">
                 <div class="booking-panel__summary">
                   <span class="booking-label">Prix du circuit</span>
-                  <strong>{{ circuit.prixIndicatif | number:'1.0-2' }} EUR</strong>
-                  <small>Environ {{ circuit.prixIndicatif * 655.957 | number:'1.0-0' }} F CFA</small>
+                  <strong>{{ circuit.prixIndicatif | price }}</strong>
                   <p>Une reservation est creee sur votre compte, puis vous passez directement au paiement securise.</p>
                 </div>
                 @if (isLoggedIn) {

@@ -16,6 +16,7 @@ import { AdminActionsBarComponent } from '../../../shared/components/admin-actio
 import { DataTableComponent, TableAction, TableColumn } from '../../../shared/components/data-table/data-table.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { BeButtonComponent } from '../../../shared/components/be-button/be-button.component';
+import { PricePipe } from '../../../shared/pipes/price.pipe';
 
 @Component({
   selector: 'app-reservations-clients-admin',
@@ -27,7 +28,8 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
     AdminActionsBarComponent,
     DataTableComponent,
     ModalComponent,
-    BeButtonComponent
+    BeButtonComponent,
+    PricePipe
   ],
   templateUrl: './reservations-clients-admin.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

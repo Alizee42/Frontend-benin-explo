@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { HebergementsService, HebergementDTO } from '../../../../services/hebergements.service';
+import { PricePipe } from '../../../../shared/pipes/price.pipe';
 
 @Component({
   standalone: true,
   selector: 'app-hebergements-list',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, PricePipe],
   templateUrl: './hebergements-list.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./hebergements-list.component.scss']

@@ -81,7 +81,7 @@
               </div>
               <div class="summary-row">
                 <span>Prix/nuit</span>
-                <span>{{ h.prixParNuit | number:'1.0-2' }} €</span>
+                <span>{{ h.prixParNuit | price }}</span>
               </div>
               @if (prixHebergement() > 0) {
                 <div class="summary-row">

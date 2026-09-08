@@ -210,8 +210,7 @@
                 <div class="resa-section resa-section--price">
                   <h4 class="resa-section__title"><i class="ri-money-euro-circle-line"></i> Prix total</h4>
                   <div class="price-display">
-                    <span class="price-eur">{{ selectedHebergement.prixTotal | number:'1.2-2' }} EUR</span>
-                    <span class="price-fcfa">≈ {{ (selectedHebergement.prixTotal || 0) * 655.957 | number:'1.0-0' }} F CFA</span>
+                    <span class="price-eur">{{ selectedHebergement.prixTotal | price }}</span>
                   </div>
                 </div>
                 <div class="resa-section">

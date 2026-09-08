@@ -52,9 +52,7 @@
               <div class="stay-title-row">
                 <h2 class="stay-title">{{ hebergement.nom }}</h2>
                 <div class="stay-price">
-                  <span class="price">{{ hebergement.prixParNuit | number:'1.0-2' }} €
-                    <small class="price-fcfa">≈ {{ hebergement.prixParNuit * 655.957 | number:'1.0-0' }} F CFA</small>
-                  </span>
+                  <span class="price">{{ hebergement.prixParNuit | price }}</span>
                   <span class="period">/ nuit</span>
                 </div>
               </div>
@@ -276,13 +274,11 @@
                         </div>
                         <div class="breakdown-item">
                           <span>Prix / nuit</span>
-                          <strong>{{ hebergement.prixParNuit | number:'1.0-2' }} €</strong>
+                          <strong>{{ hebergement.prixParNuit | price }}</strong>
                         </div>
                         <div class="breakdown-item total">
                           <span>Total estime</span>
-                          <strong>{{ getTotalPrice() | number:'1.0-2' }} €
-                            <small class="price-fcfa">(≈ {{ getTotalPrice() * 655.957 | number:'1.0-0' }} F CFA)</small>
-                          </strong>
+                          <strong>{{ getTotalPrice() | price }}</strong>
                         </div>
                       </div>
                     }
@@ -399,7 +395,7 @@
                 </div>
                 <div class="confirm-summary__item">
                   <span>Total estime</span>
-                  <strong>{{ getTotalPrice() | number:'1.0-2' }} €</strong>
+                  <strong>{{ getTotalPrice() | price }}</strong>
                 </div>
               </div>
             }

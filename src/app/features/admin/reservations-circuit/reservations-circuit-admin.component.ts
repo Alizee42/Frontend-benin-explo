@@ -7,11 +7,12 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { AdminActionsBarComponent } from '../../../shared/components/admin-actions-bar/admin-actions-bar.component';
 import { BeButtonComponent } from '../../../shared/components/be-button/be-button.component';
+import { PricePipe } from '../../../shared/pipes/price.pipe';
 
 @Component({
   selector: 'app-reservations-circuit-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, DataTableComponent, ModalComponent, HeaderComponent, AdminActionsBarComponent, BeButtonComponent],
+  imports: [CommonModule, FormsModule, DataTableComponent, ModalComponent, HeaderComponent, AdminActionsBarComponent, BeButtonComponent, PricePipe],
   templateUrl: './reservations-circuit-admin.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./reservations-circuit-admin.component.scss']

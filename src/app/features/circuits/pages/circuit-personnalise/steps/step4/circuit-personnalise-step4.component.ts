@@ -10,11 +10,12 @@ import {
   calculerPrixGuide, calculerPrixChauffeur, calculerPrixPensionComplete,
   getNombreNuits, formatDateLabel
 } from '../../circuit-personnalise.utils';
+import { PricePipe } from '../../../../../../shared/pipes/price.pipe';
 
 @Component({
   standalone: true,
   selector: 'app-circuit-step4',
-  imports: [CommonModule],
+  imports: [CommonModule, PricePipe],
   templateUrl: './circuit-personnalise-step4.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: '../../circuit-personnalise-steps.scss'

@@ -11,6 +11,7 @@ import { ZonesService, Zone } from '../../../../services/zones.service';
 import { CircuitDTO } from '../../../../models/circuit.dto';
 import { AuthService } from '../../../../services/auth.service';
 import { ReservationsCircuitService } from '../../../../services/reservations-circuit.service';
+import { PricePipe } from '../../../../shared/pipes/price.pipe';
 
 type CircuitProgrammeItem = {
   day: number;
@@ -26,7 +27,7 @@ type CircuitProgrammeItem = {
 @Component({
   standalone: true,
   selector: 'app-circuit-detail',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, PricePipe],
   templateUrl: './circuit-detail.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./circuit-detail.component.scss'],

@@ -6,11 +6,12 @@ import { CircuitDTO, ProgrammeDay } from '../../../../models/circuit.dto';
 import { CircuitService } from '../../../../services/circuit.service';
 import { ActivitesService, Activite } from '../../../../services/activites.service';
 import { ZonesService, Zone } from '../../../../services/zones.service';
+import { PricePipe } from '../../../../shared/pipes/price.pipe';
 
 @Component({
   selector: 'app-circuit-details',
   standalone: true,
-  imports: [CommonModule, HeaderComponent],
+  imports: [CommonModule, HeaderComponent, PricePipe],
   templateUrl: './circuit-details.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./circuit-details.component.scss']

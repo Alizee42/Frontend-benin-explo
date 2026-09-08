@@ -13,11 +13,12 @@ import {
   getTarifValue, getTransportDailyRate, getPricingCurrencyLabel, getTransportLabel,
   getNombreNuits, toIsoDate, formatDateLabel, parseDate
 } from '../../circuit-personnalise.utils';
+import { PricePipe } from '../../../../../../shared/pipes/price.pipe';
 
 @Component({
   standalone: true,
   selector: 'app-circuit-step3',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PricePipe],
   templateUrl: './circuit-personnalise-step3.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: '../../circuit-personnalise-steps.scss'

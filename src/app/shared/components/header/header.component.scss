@@ -167,6 +167,27 @@
   flex-shrink: 0;
 }
 
+/* ── Bouton devise ── */
+.currency-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.55rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--be-green, #004d40);
+  color: var(--be-green, #004d40);
+  font-weight: 700;
+  font-size: 0.8rem;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  line-height: 1;
+}
+
+.currency-toggle:hover {
+  background: var(--be-green, #004d40);
+  color: #fff;
+}
+
 /* ── Bouton Connexion ── */
 .btn-connexion {
   display: inline-flex;

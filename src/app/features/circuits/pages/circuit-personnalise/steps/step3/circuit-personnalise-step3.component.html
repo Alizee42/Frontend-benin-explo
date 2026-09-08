@@ -42,7 +42,7 @@
                 <option [ngValue]="null">Choisir un hébergement...</option>
                 @for (h of hebergements; track h) {
                   <option [ngValue]="h.id">
-                    {{ h.nom }} - {{ h.localisation }} ({{ h.prixParNuit | number:'1.0-2' }} €/nuit)
+                    {{ h.nom }} - {{ h.localisation }} ({{ h.prixParNuit | price }}/nuit)
                   </option>
                 }
               </select>
@@ -71,7 +71,7 @@
                             <span>- {{ h.type }}</span>
                           }</p>
                         </div>
-                        <strong>{{ h.prixParNuit | number:'1.0-2' }} €/nuit</strong>
+                        <strong>{{ h.prixParNuit | price }}/nuit</strong>
                       </div>
                       <p class="selected-hebergement-meta">{{ getDateRangeLabel() }}</p>
                     </div>
