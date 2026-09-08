@@ -10,182 +10,203 @@
         </p>
       </div>
 
-      <div class="payment-hero__meta" *ngIf="demande">
-        <span>{{ getReservationReference() }}</span>
-        <span>{{ demande.nombreJours }} jour{{ demande.nombreJours > 1 ? 's' : '' }}</span>
-        <span>{{ demande.nombrePersonnes }} personne{{ demande.nombrePersonnes > 1 ? 's' : '' }}</span>
-      </div>
+      @if (demande) {
+        <div class="payment-hero__meta">
+          <span>{{ getReservationReference() }}</span>
+          <span>{{ demande.nombreJours }} jour{{ demande.nombreJours > 1 ? 's' : '' }}</span>
+          <span>{{ demande.nombrePersonnes }} personne{{ demande.nombrePersonnes > 1 ? 's' : '' }}</span>
+        </div>
+      }
     </div>
   </section>
 
   <main class="payment-shell">
-    <div class="payment-state payment-state--loading" *ngIf="loading">
-      <i class="ri-loader-4-line spin"></i>
-      <span>Chargement de votre devis...</span>
-    </div>
+    @if (loading) {
+      <div class="payment-state payment-state--loading">
+        <i class="ri-loader-4-line spin"></i>
+        <span>Chargement de votre devis...</span>
+      </div>
+    }
 
-    <div class="payment-state payment-state--error" *ngIf="!loading && errorMessage">
-      <i class="ri-error-warning-line"></i>
-      <span>{{ errorMessage }}</span>
-    </div>
+    @if (!loading && errorMessage) {
+      <div class="payment-state payment-state--error">
+        <i class="ri-error-warning-line"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+    }
 
-    <div class="payment-state payment-state--success" *ngIf="successMessage">
-      <i class="ri-checkbox-circle-line"></i>
-      <span>{{ successMessage }}</span>
-    </div>
+    @if (successMessage) {
+      <div class="payment-state payment-state--success">
+        <i class="ri-checkbox-circle-line"></i>
+        <span>{{ successMessage }}</span>
+      </div>
+    }
 
-    <div class="payment-layout" *ngIf="!loading && demande">
-      <aside class="payment-card payment-card--summary">
-        <div class="payment-card__header payment-card__header--split">
-          <div>
-            <span class="payment-card__eyebrow">Devis</span>
-            <h2>Circuit sur mesure</h2>
-            <p>{{ getReservationReference() }}</p>
-          </div>
-
-          <span class="status-badge" [ngClass]="getPaymentStatusClass(demande.statutPaiement)">
-            {{ getPaymentStatusLabel(demande.statutPaiement) }}
-          </span>
-        </div>
-
-        <div class="summary-pills">
-          <div class="summary-pill">
-            <span>Duree</span>
-            <strong>{{ demande.nombreJours }} jour{{ demande.nombreJours > 1 ? 's' : '' }}</strong>
-          </div>
-          <div class="summary-pill">
-            <span>Voyageurs</span>
-            <strong>{{ demande.nombrePersonnes }} personne{{ demande.nombrePersonnes > 1 ? 's' : '' }}</strong>
-          </div>
-          <div class="summary-pill">
-            <span>Date souhaitee</span>
-            <strong>{{ formatDate(demande.dateVoyageSouhaitee) }}</strong>
-          </div>
-          <div class="summary-pill">
-            <span>Statut</span>
-            <strong>{{ demande.statut || 'EN_ATTENTE' }}</strong>
-          </div>
-        </div>
-
-        <div class="summary-grid">
-          <div class="summary-card">
-            <span>Voyageur</span>
-            <strong>{{ getClientFullName() }}</strong>
-            <small>{{ demande.emailClient }}</small>
-            <small *ngIf="demande.telephoneClient">{{ demande.telephoneClient }}</small>
-          </div>
-
-          <div class="summary-card">
-            <span>Configuration</span>
-            <strong>{{ demande.typeHebergement || 'Hebergement a definir' }}</strong>
-            <small>{{ demande.avecTransport ? ('Transport: ' + (demande.typeTransport || 'oui')) : 'Sans transport' }}</small>
-            <small>{{ demande.avecGuide ? 'Guide inclus' : 'Sans guide' }}</small>
-          </div>
-        </div>
-
-        <div class="payment-total">
-          <span class="payment-total__label">Montant du devis valide</span>
-          <strong>{{ formatAmount(getTotalPrice()) }}</strong>
-          <small>Environ {{ getCfaEstimate() | number:'1.0-0' }} F CFA</small>
-        </div>
-
-        <div class="payment-note payment-note--info" *ngIf="isSandboxCurrencyMismatch">
-          <i class="ri-information-line"></i>
-          <span>
-            Mode test PayPal sandbox: le site reste affiche en EUR, mais le checkout PayPal sera simule en
-            <strong>{{ payPalCurrency }}</strong> avec le meme montant numerique, soit <strong>{{ formatPayPalAmount() }}</strong>.
-          </span>
-        </div>
-
-        <div class="payment-meta" *ngIf="demande.paypalCaptureId || demande.paypalOrderId">
-          <div class="payment-meta__item" *ngIf="demande.paypalOrderId">
-            <span>Commande PayPal</span>
-            <strong>{{ demande.paypalOrderId }}</strong>
-          </div>
-          <div class="payment-meta__item" *ngIf="demande.paypalCaptureId">
-            <span>Capture PayPal</span>
-            <strong>{{ demande.paypalCaptureId }}</strong>
-          </div>
-        </div>
-      </aside>
-
-      <section class="payment-card payment-card--checkout">
-        <div class="payment-card__header">
-          <span class="payment-card__eyebrow">Paiement</span>
-          <h2>Finalisez votre paiement</h2>
-          <p *ngIf="!isPaid">
-            Utilisez le module PayPal ci-dessous pour regler le montant final de votre devis en toute securite.
-            Une fois le paiement confirme, votre espace client sera mis a jour automatiquement.
-          </p>
-          <p *ngIf="isPaid">
-            Le paiement est deja confirme. Vous pouvez revenir a votre espace client a tout moment.
-          </p>
-        </div>
-
-        <div class="checkout-banner">
-          <div class="checkout-banner__item">
-            <i class="ri-shield-check-line"></i>
-            <span>Paiement PayPal securise</span>
-          </div>
-          <div class="checkout-banner__item">
-            <i class="ri-file-list-3-line"></i>
-            <span>Devis valide par l'equipe</span>
-          </div>
-          <div class="checkout-banner__item">
-            <i class="ri-refresh-line"></i>
-            <span>Confirmation immediate</span>
-          </div>
-        </div>
-
-        <div class="payment-note payment-note--warning" *ngIf="isSandboxCurrencyMismatch">
-          <i class="ri-flask-line"></i>
-          <span>
-            Test technique uniquement: PayPal sandbox utilise ici <strong>{{ payPalCurrency }}</strong> pour contourner
-            le refus de conformite rencontre avec le couple pays/devise precedent.
-          </span>
-        </div>
-
-        <div class="checkout-shell" [class.checkout-shell--done]="isPaid">
-          <div class="checkout-shell__top">
+    @if (!loading && demande) {
+      <div class="payment-layout">
+        <aside class="payment-card payment-card--summary">
+          <div class="payment-card__header payment-card__header--split">
             <div>
-              <span class="checkout-shell__label">Paiement de votre circuit sur mesure</span>
-              <strong>{{ getReservationReference() }}</strong>
+              <span class="payment-card__eyebrow">Devis</span>
+              <h2>Circuit sur mesure</h2>
+              <p>{{ getReservationReference() }}</p>
             </div>
-            <span class="checkout-shell__secure">
-              <i class="ri-shield-keyhole-line"></i>
-              Session securisee
+            <span class="status-badge" [ngClass]="getPaymentStatusClass(demande.statutPaiement)">
+              {{ getPaymentStatusLabel(demande.statutPaiement) }}
             </span>
           </div>
-
-          <div class="payment-state payment-state--loading" *ngIf="sdkLoading">
-            <i class="ri-loader-4-line spin"></i>
-            <span>Preparation du module PayPal...</span>
+          <div class="summary-pills">
+            <div class="summary-pill">
+              <span>Duree</span>
+              <strong>{{ demande.nombreJours }} jour{{ demande.nombreJours > 1 ? 's' : '' }}</strong>
+            </div>
+            <div class="summary-pill">
+              <span>Voyageurs</span>
+              <strong>{{ demande.nombrePersonnes }} personne{{ demande.nombrePersonnes > 1 ? 's' : '' }}</strong>
+            </div>
+            <div class="summary-pill">
+              <span>Date souhaitee</span>
+              <strong>{{ formatDate(demande.dateVoyageSouhaitee) }}</strong>
+            </div>
+            <div class="summary-pill">
+              <span>Statut</span>
+              <strong>{{ demande.statut || 'EN_ATTENTE' }}</strong>
+            </div>
           </div>
-
-          <div class="payment-state payment-state--success" *ngIf="isPaid">
-            <i class="ri-shield-check-line"></i>
-            <span>Le paiement complet de ce devis a bien ete valide.</span>
+          <div class="summary-grid">
+            <div class="summary-card">
+              <span>Voyageur</span>
+              <strong>{{ getClientFullName() }}</strong>
+              <small>{{ demande.emailClient }}</small>
+              @if (demande.telephoneClient) {
+                <small>{{ demande.telephoneClient }}</small>
+              }
+            </div>
+            <div class="summary-card">
+              <span>Configuration</span>
+              <strong>{{ demande.typeHebergement || 'Hebergement a definir' }}</strong>
+              <small>{{ demande.avecTransport ? ('Transport: ' + (demande.typeTransport || 'oui')) : 'Sans transport' }}</small>
+              <small>{{ demande.avecGuide ? 'Guide inclus' : 'Sans guide' }}</small>
+            </div>
           </div>
-
-          <div class="payment-state payment-state--error" *ngIf="buttonsUnavailable && !isPaid">
-            <i class="ri-close-circle-line"></i>
-            <span>PayPal n'est pas disponible pour ce devis pour le moment.</span>
+          <div class="payment-total">
+            <span class="payment-total__label">Montant du devis valide</span>
+            <strong>{{ formatAmount(getTotalPrice()) }}</strong>
+            <small>Environ {{ getCfaEstimate() | number:'1.0-0' }} F CFA</small>
           </div>
-
-          <div class="paypal-buttons" #paypalButtonsContainer *ngIf="!isPaid && !sdkLoading && canAttemptPayment"></div>
-
-          <div class="payment-processing" *ngIf="paymentProcessing">
-            <i class="ri-loader-4-line spin"></i>
-            <span>Validation du paiement en cours...</span>
+          @if (isSandboxCurrencyMismatch) {
+            <div class="payment-note payment-note--info">
+              <i class="ri-information-line"></i>
+              <span>
+                Mode test PayPal sandbox: le site reste affiche en EUR, mais le checkout PayPal sera simule en
+                <strong>{{ payPalCurrency }}</strong> avec le meme montant numerique, soit <strong>{{ formatPayPalAmount() }}</strong>.
+              </span>
+            </div>
+          }
+          @if (demande.paypalCaptureId || demande.paypalOrderId) {
+            <div class="payment-meta">
+              @if (demande.paypalOrderId) {
+                <div class="payment-meta__item">
+                  <span>Commande PayPal</span>
+                  <strong>{{ demande.paypalOrderId }}</strong>
+                </div>
+              }
+              @if (demande.paypalCaptureId) {
+                <div class="payment-meta__item">
+                  <span>Capture PayPal</span>
+                  <strong>{{ demande.paypalCaptureId }}</strong>
+                </div>
+              }
+            </div>
+          }
+        </aside>
+        <section class="payment-card payment-card--checkout">
+          <div class="payment-card__header">
+            <span class="payment-card__eyebrow">Paiement</span>
+            <h2>Finalisez votre paiement</h2>
+            @if (!isPaid) {
+              <p>
+                Utilisez le module PayPal ci-dessous pour regler le montant final de votre devis en toute securite.
+                Une fois le paiement confirme, votre espace client sera mis a jour automatiquement.
+              </p>
+            }
+            @if (isPaid) {
+              <p>
+                Le paiement est deja confirme. Vous pouvez revenir a votre espace client a tout moment.
+              </p>
+            }
           </div>
-        </div>
-
-        <div class="checkout-actions">
-          <button type="button" class="btn secondary" routerLink="/mes-reservations">Mes reservations</button>
-          <button type="button" class="btn ghost" routerLink="/dashboard">Mon espace</button>
-          <button type="button" class="btn primary" *ngIf="!isPaid && canAttemptPayment" (click)="retryPayment()">Recharger PayPal</button>
-        </div>
-      </section>
-    </div>
+          <div class="checkout-banner">
+            <div class="checkout-banner__item">
+              <i class="ri-shield-check-line"></i>
+              <span>Paiement PayPal securise</span>
+            </div>
+            <div class="checkout-banner__item">
+              <i class="ri-file-list-3-line"></i>
+              <span>Devis valide par l'equipe</span>
+            </div>
+            <div class="checkout-banner__item">
+              <i class="ri-refresh-line"></i>
+              <span>Confirmation immediate</span>
+            </div>
+          </div>
+          @if (isSandboxCurrencyMismatch) {
+            <div class="payment-note payment-note--warning">
+              <i class="ri-flask-line"></i>
+              <span>
+                Test technique uniquement: PayPal sandbox utilise ici <strong>{{ payPalCurrency }}</strong> pour contourner
+                le refus de conformite rencontre avec le couple pays/devise precedent.
+              </span>
+            </div>
+          }
+          <div class="checkout-shell" [class.checkout-shell--done]="isPaid">
+            <div class="checkout-shell__top">
+              <div>
+                <span class="checkout-shell__label">Paiement de votre circuit sur mesure</span>
+                <strong>{{ getReservationReference() }}</strong>
+              </div>
+              <span class="checkout-shell__secure">
+                <i class="ri-shield-keyhole-line"></i>
+                Session securisee
+              </span>
+            </div>
+            @if (sdkLoading) {
+              <div class="payment-state payment-state--loading">
+                <i class="ri-loader-4-line spin"></i>
+                <span>Preparation du module PayPal...</span>
+              </div>
+            }
+            @if (isPaid) {
+              <div class="payment-state payment-state--success">
+                <i class="ri-shield-check-line"></i>
+                <span>Le paiement complet de ce devis a bien ete valide.</span>
+              </div>
+            }
+            @if (buttonsUnavailable && !isPaid) {
+              <div class="payment-state payment-state--error">
+                <i class="ri-close-circle-line"></i>
+                <span>PayPal n'est pas disponible pour ce devis pour le moment.</span>
+              </div>
+            }
+            @if (!isPaid && !sdkLoading && canAttemptPayment) {
+              <div class="paypal-buttons" #paypalButtonsContainer></div>
+            }
+            @if (paymentProcessing) {
+              <div class="payment-processing">
+                <i class="ri-loader-4-line spin"></i>
+                <span>Validation du paiement en cours...</span>
+              </div>
+            }
+          </div>
+          <div class="checkout-actions">
+            <button type="button" class="btn secondary" routerLink="/mes-reservations">Mes reservations</button>
+            <button type="button" class="btn ghost" routerLink="/dashboard">Mon espace</button>
+            @if (!isPaid && canAttemptPayment) {
+              <button type="button" class="btn primary" (click)="retryPayment()">Recharger PayPal</button>
+            }
+          </div>
+        </section>
+      </div>
+    }
   </main>
 </div>

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, Input, HostListener, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { AuthService, User } from '../../../services/auth.service';
 import { Subject } from 'rxjs';
@@ -8,7 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })

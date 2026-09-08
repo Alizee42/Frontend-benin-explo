@@ -13,62 +13,66 @@
             type="text"
             [(ngModel)]="searchTerm"
             placeholder="Rechercher">
-        </label>
+          </label>
 
-        <label class="sort-field">
-          <i class="ri-filter-3-line"></i>
-          <select [(ngModel)]="sortBy" aria-label="Trier les circuits">
-            <option value="recent">Plus recents</option>
-            <option value="title-asc">Titre A-Z</option>
-            <option value="title-desc">Titre Z-A</option>
-            <option value="price-asc">Prix croissant</option>
-            <option value="price-desc">Prix decroissant</option>
-          </select>
-        </label>
+          <label class="sort-field">
+            <i class="ri-filter-3-line"></i>
+            <select [(ngModel)]="sortBy" aria-label="Trier les circuits">
+              <option value="recent">Plus recents</option>
+              <option value="title-asc">Titre A-Z</option>
+              <option value="title-desc">Titre Z-A</option>
+              <option value="price-asc">Prix croissant</option>
+              <option value="price-desc">Prix decroissant</option>
+            </select>
+          </label>
 
-        <be-button
-          variant="primary"
-          size="md"
-          iconLeft="ri-add-line"
-          label="Ajouter un circuit"
-          (click)="addCircuit()">
-        </be-button>
+          <be-button
+            variant="primary"
+            size="md"
+            iconLeft="ri-add-line"
+            label="Ajouter un circuit"
+            (click)="addCircuit()">
+          </be-button>
+        </div>
+      </app-admin-actions-bar>
+
+      <div class="table-meta">
+        {{ filteredCircuits.length }} circuit{{ filteredCircuits.length > 1 ? 's' : '' }}
       </div>
-    </app-admin-actions-bar>
 
-    <div class="table-meta">
-      {{ filteredCircuits.length }} circuit{{ filteredCircuits.length > 1 ? 's' : '' }}
-    </div>
+      @if (loadError) {
+        <div class="page-alert warning">
+          <i class="ri-error-warning-line"></i>
+          <span>{{ loadError }}</span>
+        </div>
+      }
 
-    <div *ngIf="loadError" class="page-alert warning">
-      <i class="ri-error-warning-line"></i>
-      <span>{{ loadError }}</span>
-    </div>
+      @if (actionError) {
+        <div class="page-alert danger">
+          <i class="ri-close-circle-line"></i>
+          <span>{{ actionError }}</span>
+        </div>
+      }
 
-    <div *ngIf="actionError" class="page-alert danger">
-      <i class="ri-close-circle-line"></i>
-      <span>{{ actionError }}</span>
-    </div>
+      <app-data-table
+        [columns]="tableColumns"
+        [data]="filteredCircuits"
+        [loading]="loading"
+        [actions]="tableActions"
+        [rowClickable]="true"
+        [pageable]="true"
+        [pageSize]="5"
+        [emptyMessage]="searchTerm ? 'Aucun circuit ne correspond a cette recherche.' : 'Aucun circuit disponible.'"
+        (actionClick)="onTableAction($event)"
+        (rowClick)="onRowClick($event)">
+      </app-data-table>
+    </main>
 
-    <app-data-table
-      [columns]="tableColumns"
-      [data]="filteredCircuits"
-      [loading]="loading"
-      [actions]="tableActions"
-      [rowClickable]="true"
-      [pageable]="true"
-      [pageSize]="5"
-      [emptyMessage]="searchTerm ? 'Aucun circuit ne correspond a cette recherche.' : 'Aucun circuit disponible.'"
-      (actionClick)="onTableAction($event)"
-      (rowClick)="onRowClick($event)">
-    </app-data-table>
-  </main>
-
-<app-modal title="Supprimer le circuit" [open]="confirmDeleteOpen" [closeOnBackdrop]="false" size="small" (close)="confirmDeleteOpen = false">
-  <p>Êtes-vous sûr de vouloir supprimer ce circuit ? Cette action est irréversible.</p>
-  <div class="d-flex gap-2 justify-content-end mt-3">
-    <be-button variant="secondary" label="Annuler" (click)="confirmDeleteOpen = false"></be-button>
-    <be-button variant="danger" label="Supprimer" (click)="executeDelete()"></be-button>
+    <app-modal title="Supprimer le circuit" [open]="confirmDeleteOpen" [closeOnBackdrop]="false" size="small" (close)="confirmDeleteOpen = false">
+      <p>Êtes-vous sûr de vouloir supprimer ce circuit ? Cette action est irréversible.</p>
+      <div class="d-flex gap-2 justify-content-end mt-3">
+        <be-button variant="secondary" label="Annuler" (click)="confirmDeleteOpen = false"></be-button>
+        <be-button variant="danger" label="Supprimer" (click)="executeDelete()"></be-button>
+      </div>
+    </app-modal>
   </div>
-</app-modal>
-</div>

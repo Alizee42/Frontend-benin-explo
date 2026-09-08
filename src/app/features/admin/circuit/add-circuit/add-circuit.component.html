@@ -4,33 +4,51 @@
   <div class="form-card">
     <h1 class="form-title">Créer un nouveau circuit</h1>
 
-    <div class="draft-banner" *ngIf="draftAvailable">
-      <div class="draft-text">Un brouillon a été trouvé ({{ formatDraftDate(draftSavedAt) }}). Les images ne sont pas sauvegardées.</div>
-      <div class="draft-actions">
-        <button type="button" class="btn-draft" (click)="restoreDraft()">Restaurer</button>
-        <button type="button" class="btn-draft ghost" (click)="discardDraft()">Supprimer</button>
+    @if (draftAvailable) {
+      <div class="draft-banner">
+        <div class="draft-text">Un brouillon a été trouvé ({{ formatDraftDate(draftSavedAt) }}). Les images ne sont pas sauvegardées.</div>
+        <div class="draft-actions">
+          <button type="button" class="btn-draft" (click)="restoreDraft()">Restaurer</button>
+          <button type="button" class="btn-draft ghost" (click)="discardDraft()">Supprimer</button>
+        </div>
       </div>
-    </div>
-    <div class="draft-banner info" *ngIf="draftRestored">
-      <div class="draft-text">Brouillon restauré. Pensez à re-sélectionner les images.</div>
-    </div>
-    <div class="draft-banner info" *ngIf="manualSaveNotice">
-      <div class="draft-text">Brouillon enregistré ({{ formatDraftDate(draftSavedAt) }}).</div>
-    </div>
+    }
+    @if (draftRestored) {
+      <div class="draft-banner info">
+        <div class="draft-text">Brouillon restauré. Pensez à re-sélectionner les images.</div>
+      </div>
+    }
+    @if (manualSaveNotice) {
+      <div class="draft-banner info">
+        <div class="draft-text">Brouillon enregistré ({{ formatDraftDate(draftSavedAt) }}).</div>
+      </div>
+    }
 
     <div class="steps-indicator">
       <div class="step-item" [class.active]="currentStep === 1" [class.completed]="currentStep > 1" (click)="goToStep(1)">
-        <div class="step-circle"><span class="step-icon" *ngIf="currentStep <= 1">1</span><span class="step-icon" *ngIf="currentStep > 1">&#10003;</span></div>
+        <div class="step-circle">@if (currentStep <= 1) {
+          <span class="step-icon">1</span>
+          }@if (currentStep > 1) {
+          <span class="step-icon">&#10003;</span>
+        }</div>
         <div class="step-label">Informations</div>
       </div>
       <div class="step-divider" [class.completed]="currentStep > 1"></div>
       <div class="step-item" [class.active]="currentStep === 2" [class.completed]="currentStep > 2" (click)="goToStep(2)">
-        <div class="step-circle"><span class="step-icon" *ngIf="currentStep <= 2">2</span><span class="step-icon" *ngIf="currentStep > 2">&#10003;</span></div>
+        <div class="step-circle">@if (currentStep <= 2) {
+          <span class="step-icon">2</span>
+          }@if (currentStep > 2) {
+          <span class="step-icon">&#10003;</span>
+        }</div>
         <div class="step-label">Médias</div>
       </div>
       <div class="step-divider" [class.completed]="currentStep > 2"></div>
       <div class="step-item" [class.active]="currentStep === 3" [class.completed]="currentStep > 3" (click)="goToStep(3)">
-        <div class="step-circle"><span class="step-icon" *ngIf="currentStep <= 3">3</span><span class="step-icon" *ngIf="currentStep > 3">&#10003;</span></div>
+        <div class="step-circle">@if (currentStep <= 3) {
+          <span class="step-icon">3</span>
+          }@if (currentStep > 3) {
+          <span class="step-icon">&#10003;</span>
+        }</div>
         <div class="step-label">Programme</div>
       </div>
       <div class="step-divider" [class.completed]="currentStep > 3"></div>
@@ -40,64 +58,80 @@
       </div>
     </div>
 
-    <div class="error-banner" *ngIf="errors['submit']">
-      <span>⚠️ {{ errors['submit'] }}</span>
-    </div>
+    @if (errors['submit']) {
+      <div class="error-banner">
+        <span>⚠️ {{ errors['submit'] }}</span>
+      </div>
+    }
 
     <form (ngSubmit)="onSubmit()">
-      <div class="step-content" *ngIf="currentStep === 1">
-        <h2>Informations de base</h2>
-        <app-add-circuit-step1
-          [circuit]="circuit"
-          [errors]="errors"
-          (dureeChanged)="onDureeChange()">
-        </app-add-circuit-step1>
-      </div>
+      @if (currentStep === 1) {
+        <div class="step-content">
+          <h2>Informations de base</h2>
+          <app-add-circuit-step1
+            [circuit]="circuit"
+            [errors]="errors"
+            (dureeChanged)="onDureeChange()">
+          </app-add-circuit-step1>
+        </div>
+      }
 
-      <div class="step-content" *ngIf="currentStep === 2">
-        <h2>Images du circuit</h2>
-        <app-add-circuit-step2
-          [circuit]="circuit"
-          [errors]="errors"
-          [previewHero]="previewHero"
-          [previewsGalerie]="previewsGalerie"
-          (heroSelected)="onHeroSelected($event)"
-          (galerieSelected)="onGalerieSelected($event)">
-        </app-add-circuit-step2>
-      </div>
+      @if (currentStep === 2) {
+        <div class="step-content">
+          <h2>Images du circuit</h2>
+          <app-add-circuit-step2
+            [circuit]="circuit"
+            [errors]="errors"
+            [previewHero]="previewHero"
+            [previewsGalerie]="previewsGalerie"
+            (heroSelected)="onHeroSelected($event)"
+            (galerieSelected)="onGalerieSelected($event)">
+          </app-add-circuit-step2>
+        </div>
+      }
 
-      <div class="step-content" *ngIf="currentStep === 3">
-        <h2>Programme</h2>
-        <app-add-circuit-step3
-          [circuit]="circuit"
-          [zones]="zones"
-          [villesParJour]="villesParJour"
-          [activitesParJour]="activitesParJour"
-          [errors]="errors"
-          [programmeMissingDetails]="programmeMissingDetails"
-          (zoneChanged)="onJourZoneChange($event)"
-          (villeChanged)="onJourVilleChange($event)">
-        </app-add-circuit-step3>
-      </div>
+      @if (currentStep === 3) {
+        <div class="step-content">
+          <h2>Programme</h2>
+          <app-add-circuit-step3
+            [circuit]="circuit"
+            [zones]="zones"
+            [villesParJour]="villesParJour"
+            [activitesParJour]="activitesParJour"
+            [errors]="errors"
+            [programmeMissingDetails]="programmeMissingDetails"
+            (zoneChanged)="onJourZoneChange($event)"
+            (villeChanged)="onJourVilleChange($event)">
+          </app-add-circuit-step3>
+        </div>
+      }
 
-      <div class="step-content" *ngIf="currentStep === 4">
-        <h2>Points forts et inclusions</h2>
-        <app-add-circuit-step4
-          [circuit]="circuit"
-          [errors]="errors"
-          [predefinedPointsForts]="predefinedPointsForts">
-        </app-add-circuit-step4>
-      </div>
+      @if (currentStep === 4) {
+        <div class="step-content">
+          <h2>Points forts et inclusions</h2>
+          <app-add-circuit-step4
+            [circuit]="circuit"
+            [errors]="errors"
+            [predefinedPointsForts]="predefinedPointsForts">
+          </app-add-circuit-step4>
+        </div>
+      }
 
       <div class="form-actions">
         <be-button type="button" variant="ghost" (click)="cancel()">Annuler</be-button>
         <div class="actions-right">
           <button type="button" class="btn-draft secondary" (click)="saveDraftManual()">Enregistrer le brouillon</button>
-          <be-button type="button" variant="secondary" (click)="prevStep()" *ngIf="currentStep > 1">Précédent</be-button>
-          <be-button type="button" variant="primary" (click)="nextStep()" *ngIf="currentStep < totalSteps" [disabled]="!canGoNext()">Suivant</be-button>
-          <be-button type="submit" variant="primary" *ngIf="currentStep === totalSteps" [disabled]="loading.submit">
-            {{ loading.submit ? 'Création...' : 'Créer le circuit' }}
-          </be-button>
+          @if (currentStep > 1) {
+            <be-button type="button" variant="secondary" (click)="prevStep()">Précédent</be-button>
+          }
+          @if (currentStep < totalSteps) {
+            <be-button type="button" variant="primary" (click)="nextStep()" [disabled]="!canGoNext()">Suivant</be-button>
+          }
+          @if (currentStep === totalSteps) {
+            <be-button type="submit" variant="primary" [disabled]="loading.submit">
+              {{ loading.submit ? 'Création...' : 'Créer le circuit' }}
+            </be-button>
+          }
         </div>
       </div>
     </form>

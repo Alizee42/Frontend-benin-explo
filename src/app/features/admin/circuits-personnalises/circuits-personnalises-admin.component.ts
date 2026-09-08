@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
@@ -11,7 +11,7 @@ import { EUR_TO_XOF_RATE } from '../../../shared/constants/currency.constants';
 @Component({
   selector: 'app-circuits-personnalises-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, DataTableComponent, AdminActionsBarComponent],
+  imports: [FormsModule, HeaderComponent, DataTableComponent, AdminActionsBarComponent],
   templateUrl: './circuits-personnalises-admin.component.html',
   styleUrls: ['./circuits-personnalises-admin.component.scss']
 })

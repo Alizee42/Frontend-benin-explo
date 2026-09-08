@@ -1,205 +1,246 @@
 <div class="page-modal-backdrop">
   <div class="page-modal-shell">
-    <div class="shell-content" *ngIf="demande; else loading">
-      <div class="detail-header">
-        <div class="title-wrap">
-          <h2>Details de la demande</h2>
-          <p *ngIf="demande">Verifie les informations puis choisis une decision.</p>
+    @if (demande) {
+      <div class="shell-content">
+        <div class="detail-header">
+          <div class="title-wrap">
+            <h2>Details de la demande</h2>
+            @if (demande) {
+              <p>Verifie les informations puis choisis une decision.</p>
+            }
+          </div>
+          <div class="detail-header-right">
+            <div class="status-badge" [ngClass]="getStatusBadgeClass(demande.statut || 'EN_ATTENTE')">
+              {{ getStatusLabel(demande.statut || 'EN_ATTENTE') }}
+            </div>
+            <button class="shell-close" (click)="goBack()">x</button>
+          </div>
         </div>
-        <div class="detail-header-right">
-          <div class="status-badge" [ngClass]="getStatusBadgeClass(demande.statut || 'EN_ATTENTE')">
-            {{ getStatusLabel(demande.statut || 'EN_ATTENTE') }}
-          </div>
-          <button class="shell-close" (click)="goBack()">x</button>
-        </div>
-      </div>
-
-      <div class="detail-content">
-        <section class="info-section">
-          <h3>Informations client</h3>
-          <div class="info-grid">
-            <div class="info-item"><label>Nom</label><span>{{ demande.prenomClient }} {{ demande.nomClient }}</span></div>
-            <div class="info-item"><label>Email</label><span>{{ demande.emailClient }}</span></div>
-            <div class="info-item"><label>Telephone</label><span>{{ demande.telephoneClient }}</span></div>
-            <div class="info-item"><label>Date de soumission</label><span>{{ demande.dateCreation ? formatDate(demande.dateCreation) : 'N/A' }}</span></div>
-          </div>
-        </section>
-
-        <section class="info-section">
-          <h3>Details du circuit</h3>
-          <div class="info-grid">
-            <div class="info-item" *ngIf="demande.referenceReservation"><label>Reference</label><span>{{ demande.referenceReservation }}</span></div>
-            <div class="info-item"><label>Nombre de personnes</label><span>{{ demande.nombrePersonnes }}</span></div>
-            <div class="info-item"><label>Nombre de jours</label><span>{{ demande.nombreJours }}</span></div>
-            <div class="info-item"><label>Hebergement</label><span>{{ getHebergementSummary(demande) }}</span></div>
-            <div class="info-item" *ngIf="demande.hebergementLocalisation"><label>Localisation hebergement</label><span>{{ demande.hebergementLocalisation }}</span></div>
-            <div class="info-item" *ngIf="demande.dateArriveeHebergement && demande.dateDepartHebergement"><label>Sejour</label><span>{{ formatDate(demande.dateArriveeHebergement) }} au {{ formatDate(demande.dateDepartHebergement) }}</span></div>
-            <div class="info-item" *ngIf="demande.nombreNuitsHebergement"><label>Nombre de nuits</label><span>{{ demande.nombreNuitsHebergement }}</span></div>
-            <div class="info-item"><label>Transport</label><span>{{ demande.avecTransport ? 'Oui' : 'Non' }}</span></div>
-            <div class="info-item" *ngIf="demande.avecTransport"><label>Type transport</label><span>{{ demande.typeTransport || 'A definir' }}</span></div>
-            <div class="info-item"><label>Guide</label><span>{{ demande.avecGuide ? 'Oui' : 'Non' }}</span></div>
-            <div class="info-item"><label>Chauffeur</label><span>{{ demande.avecChauffeur ? 'Oui' : 'Non' }}</span></div>
-            <div class="info-item"><label>Pension complete</label><span>{{ demande.pensionComplete ? 'Oui' : 'Non' }}</span></div>
-            <div class="info-item"><label>Prix estime</label><span class="prix">{{ formatPrix(demande.prixEstime, demande.devisePrixEstime) }}</span></div>
-          </div>
-        </section>
-
-        <section class="info-section">
-          <h3>Devis estime</h3>
-          <div class="info-grid">
-            <div class="info-item"><label>Activites</label><span class="prix">{{ formatPrix(demande.prixActivitesEstime, demande.devisePrixEstime) }}</span></div>
-            <div class="info-item"><label>Hebergement</label><span class="prix">{{ formatPrix(demande.prixHebergementEstime, demande.devisePrixEstime) }}</span></div>
-            <div class="info-item"><label>Transport</label><span class="prix">{{ formatPrix(demande.prixTransportEstime, demande.devisePrixEstime) }}</span></div>
-            <div class="info-item"><label>Guide</label><span class="prix">{{ formatPrix(demande.prixGuideEstime, demande.devisePrixEstime) }}</span></div>
-            <div class="info-item"><label>Chauffeur</label><span class="prix">{{ formatPrix(demande.prixChauffeurEstime, demande.devisePrixEstime) }}</span></div>
-            <div class="info-item"><label>Pension complete</label><span class="prix">{{ formatPrix(demande.prixPensionCompleteEstime, demande.devisePrixEstime) }}</span></div>
-            <div class="info-item"><label>Total estime</label><span class="prix">{{ formatPrix(demande.prixEstime, demande.devisePrixEstime) }}</span></div>
-          </div>
-        </section>
-
-        <section class="info-section" *ngIf="demande.prixFinal || demande.statutPaiement || demande.paypalOrderId || demande.paypalCaptureId">
-          <h3>Suivi paiement</h3>
-          <div class="info-grid">
-            <div class="info-item" *ngIf="demande.prixFinal != null">
-              <label>Montant final</label>
-              <span class="prix">{{ formatPrix(demande.prixFinal, demande.devisePrixEstime) }}</span>
+        <div class="detail-content">
+          <section class="info-section">
+            <h3>Informations client</h3>
+            <div class="info-grid">
+              <div class="info-item"><label>Nom</label><span>{{ demande.prenomClient }} {{ demande.nomClient }}</span></div>
+              <div class="info-item"><label>Email</label><span>{{ demande.emailClient }}</span></div>
+              <div class="info-item"><label>Telephone</label><span>{{ demande.telephoneClient }}</span></div>
+              <div class="info-item"><label>Date de soumission</label><span>{{ demande.dateCreation ? formatDate(demande.dateCreation) : 'N/A' }}</span></div>
             </div>
-            <div class="info-item">
-              <label>Statut paiement</label>
-              <span class="payment-badge" [ngClass]="getPaymentBadgeClass(demande.statutPaiement)">
-                {{ getPaymentStatusLabel(demande.statutPaiement) }}
-              </span>
+          </section>
+          <section class="info-section">
+            <h3>Details du circuit</h3>
+            <div class="info-grid">
+              @if (demande.referenceReservation) {
+                <div class="info-item"><label>Reference</label><span>{{ demande.referenceReservation }}</span></div>
+              }
+              <div class="info-item"><label>Nombre de personnes</label><span>{{ demande.nombrePersonnes }}</span></div>
+              <div class="info-item"><label>Nombre de jours</label><span>{{ demande.nombreJours }}</span></div>
+              <div class="info-item"><label>Hebergement</label><span>{{ getHebergementSummary(demande) }}</span></div>
+              @if (demande.hebergementLocalisation) {
+                <div class="info-item"><label>Localisation hebergement</label><span>{{ demande.hebergementLocalisation }}</span></div>
+              }
+              @if (demande.dateArriveeHebergement && demande.dateDepartHebergement) {
+                <div class="info-item"><label>Sejour</label><span>{{ formatDate(demande.dateArriveeHebergement) }} au {{ formatDate(demande.dateDepartHebergement) }}</span></div>
+              }
+              @if (demande.nombreNuitsHebergement) {
+                <div class="info-item"><label>Nombre de nuits</label><span>{{ demande.nombreNuitsHebergement }}</span></div>
+              }
+              <div class="info-item"><label>Transport</label><span>{{ demande.avecTransport ? 'Oui' : 'Non' }}</span></div>
+              @if (demande.avecTransport) {
+                <div class="info-item"><label>Type transport</label><span>{{ demande.typeTransport || 'A definir' }}</span></div>
+              }
+              <div class="info-item"><label>Guide</label><span>{{ demande.avecGuide ? 'Oui' : 'Non' }}</span></div>
+              <div class="info-item"><label>Chauffeur</label><span>{{ demande.avecChauffeur ? 'Oui' : 'Non' }}</span></div>
+              <div class="info-item"><label>Pension complete</label><span>{{ demande.pensionComplete ? 'Oui' : 'Non' }}</span></div>
+              <div class="info-item"><label>Prix estime</label><span class="prix">{{ formatPrix(demande.prixEstime, demande.devisePrixEstime) }}</span></div>
             </div>
-            <div class="info-item" *ngIf="demande.datePaiement">
-              <label>Date de paiement</label>
-              <span>{{ formatDate(demande.datePaiement) }}</span>
+          </section>
+          <section class="info-section">
+            <h3>Devis estime</h3>
+            <div class="info-grid">
+              <div class="info-item"><label>Activites</label><span class="prix">{{ formatPrix(demande.prixActivitesEstime, demande.devisePrixEstime) }}</span></div>
+              <div class="info-item"><label>Hebergement</label><span class="prix">{{ formatPrix(demande.prixHebergementEstime, demande.devisePrixEstime) }}</span></div>
+              <div class="info-item"><label>Transport</label><span class="prix">{{ formatPrix(demande.prixTransportEstime, demande.devisePrixEstime) }}</span></div>
+              <div class="info-item"><label>Guide</label><span class="prix">{{ formatPrix(demande.prixGuideEstime, demande.devisePrixEstime) }}</span></div>
+              <div class="info-item"><label>Chauffeur</label><span class="prix">{{ formatPrix(demande.prixChauffeurEstime, demande.devisePrixEstime) }}</span></div>
+              <div class="info-item"><label>Pension complete</label><span class="prix">{{ formatPrix(demande.prixPensionCompleteEstime, demande.devisePrixEstime) }}</span></div>
+              <div class="info-item"><label>Total estime</label><span class="prix">{{ formatPrix(demande.prixEstime, demande.devisePrixEstime) }}</span></div>
             </div>
-            <div class="info-item" *ngIf="demande.paypalOrderId">
-              <label>Commande PayPal</label>
-              <span>{{ demande.paypalOrderId }}</span>
-            </div>
-            <div class="info-item" *ngIf="demande.paypalCaptureId">
-              <label>Capture PayPal</label>
-              <span>{{ demande.paypalCaptureId }}</span>
-            </div>
-          </div>
-        </section>
-
-        <section class="info-section">
-          <h3>Programme par jour</h3>
-          <div class="days-layout" *ngIf="demande.jours?.length">
-            <div class="days-row">
-              <button
-                type="button"
-                class="day-tab"
-                *ngFor="let jour of demande.jours; let i = index"
-                [class.active]="i === selectedDayIndex"
-                (click)="selectDay(i)"
-              >
-                Jour {{ jour.numeroJour }}
-              </button>
-            </div>
-            <article class="day-panel" *ngIf="selectedDay as jour">
-              <div class="day-line">
-                <span class="day-label">Zone</span>
-                <span class="day-value">{{ jour.zoneNom || 'Non renseignee' }}</span>
-              </div>
-              <div class="day-line">
-                <span class="day-label">Ville</span>
-                <span class="day-value">{{ jour.villeNom || 'Non renseignee' }}</span>
-              </div>
-              <div class="day-line">
-                <span class="day-label">Activites</span>
-                <div class="day-tags" *ngIf="jour.activiteNoms && jour.activiteNoms.length > 0; else noActivities">
-                  <span class="tag" *ngFor="let activite of jour.activiteNoms">{{ activite }}</span>
+          </section>
+          @if (demande.prixFinal || demande.statutPaiement || demande.paypalOrderId || demande.paypalCaptureId) {
+            <section class="info-section">
+              <h3>Suivi paiement</h3>
+              <div class="info-grid">
+                @if (demande.prixFinal != null) {
+                  <div class="info-item">
+                    <label>Montant final</label>
+                    <span class="prix">{{ formatPrix(demande.prixFinal, demande.devisePrixEstime) }}</span>
+                  </div>
+                }
+                <div class="info-item">
+                  <label>Statut paiement</label>
+                  <span class="payment-badge" [ngClass]="getPaymentBadgeClass(demande.statutPaiement)">
+                    {{ getPaymentStatusLabel(demande.statutPaiement) }}
+                  </span>
                 </div>
-                <ng-template #noActivities>
-                  <span class="day-value">Aucune activite</span>
-                </ng-template>
+                @if (demande.datePaiement) {
+                  <div class="info-item">
+                    <label>Date de paiement</label>
+                    <span>{{ formatDate(demande.datePaiement) }}</span>
+                  </div>
+                }
+                @if (demande.paypalOrderId) {
+                  <div class="info-item">
+                    <label>Commande PayPal</label>
+                    <span>{{ demande.paypalOrderId }}</span>
+                  </div>
+                }
+                @if (demande.paypalCaptureId) {
+                  <div class="info-item">
+                    <label>Capture PayPal</label>
+                    <span>{{ demande.paypalCaptureId }}</span>
+                  </div>
+                }
               </div>
-            </article>
-          </div>
-
-          <div class="no-day" *ngIf="!demande.jours?.length">
-            Aucun jour enregistre pour cette demande.
-          </div>
-        </section>
-
-        <section class="actions-section" *ngIf="demande.statut === 'EN_ATTENTE'">
-          <div class="action-buttons">
-            <button class="btn-approve" (click)="openDecisionModal('approve')">Approuver</button>
-            <button class="btn-reject" (click)="openDecisionModal('reject')">Refuser</button>
-          </div>
-        </section>
-
-        <section class="decision-inline" *ngIf="showDecisionModal">
-          <div class="decision-modal-header">
-            <h3>{{ decisionType === 'approve' ? 'Valider la demande et envoyer l email' : 'Refuser la demande et envoyer l email' }}</h3>
-            <button type="button" class="btn-close" (click)="closeDecisionModal()">x</button>
-          </div>
-          <div class="decision-modal-body">
-            <p class="decision-hint">Cette fenetre confirme la decision et l envoi du message au client.</p>
-            <label for="emailSubject">Sujet de l'email</label>
-            <input id="emailSubject" type="text" [(ngModel)]="emailSubject" />
-
-            <label for="emailBody">Corps de l'email</label>
-            <textarea id="emailBody" rows="6" [(ngModel)]="emailBody"></textarea>
-
-            <label for="approvedQuoteAmount" *ngIf="decisionType === 'approve'">Montant final du devis</label>
-            <input
-              *ngIf="decisionType === 'approve'"
-              id="approvedQuoteAmount"
-              type="number"
-              min="0"
-              step="0.01"
-              [(ngModel)]="approvedQuoteAmount"
-              (input)="onApprovedQuoteAmountChange()"
-              placeholder="Ex: 950"
-            />
-
-            <label for="refusalReason" *ngIf="decisionType === 'reject'">Motif du refus</label>
-            <textarea
-              *ngIf="decisionType === 'reject'"
-              id="refusalReason"
-              rows="4"
-              [(ngModel)]="refusalReason"
-              placeholder="Explique pourquoi la demande est refusee..."
-            ></textarea>
-            <small *ngIf="decisionType === 'reject' && !refusalReason.trim()">Le motif est obligatoire.</small>
-          </div>
-          <div class="decision-modal-footer">
-            <button type="button" class="btn-secondary" (click)="closeDecisionModal()">Annuler</button>
-            <button type="button" class="btn-primary" [disabled]="isSubmittingDecision || !emailSubject.trim() || !emailBody.trim() || (decisionType === 'reject' && !refusalReason.trim()) || (decisionType === 'approve' && (!approvedQuoteAmount || approvedQuoteAmount <= 0))" (click)="submitDecision()">
-              {{ isSubmittingDecision ? 'Traitement...' : 'Confirmer et envoyer' }}
-            </button>
-          </div>
-        </section>
-
-        <section class="info-section" *ngIf="demande.motifRefus || demande.commentaireAdmin || demande.dateTraitement">
-          <h3>Suivi administratif</h3>
-          <div class="info-grid">
-            <div class="info-item" *ngIf="demande.dateTraitement">
-              <label>Date de traitement</label>
-              <span>{{ formatDate(demande.dateTraitement) }}</span>
-            </div>
-            <div class="info-item" *ngIf="demande.commentaireAdmin">
-              <label>Commentaire admin</label>
-              <span>{{ demande.commentaireAdmin }}</span>
-            </div>
-            <div class="info-item" *ngIf="demande.motifRefus">
-              <label>Motif du refus</label>
-              <span>{{ demande.motifRefus }}</span>
-            </div>
-          </div>
-        </section>
+            </section>
+          }
+          <section class="info-section">
+            <h3>Programme par jour</h3>
+            @if (demande.jours?.length) {
+              <div class="days-layout">
+                <div class="days-row">
+                  @for (jour of demande.jours; track jour; let i = $index) {
+                    <button
+                      type="button"
+                      class="day-tab"
+                      [class.active]="i === selectedDayIndex"
+                      (click)="selectDay(i)"
+                      >
+                      Jour {{ jour.numeroJour }}
+                    </button>
+                  }
+                </div>
+                @if (selectedDay; as jour) {
+                  <article class="day-panel">
+                    <div class="day-line">
+                      <span class="day-label">Zone</span>
+                      <span class="day-value">{{ jour.zoneNom || 'Non renseignee' }}</span>
+                    </div>
+                    <div class="day-line">
+                      <span class="day-label">Ville</span>
+                      <span class="day-value">{{ jour.villeNom || 'Non renseignee' }}</span>
+                    </div>
+                    <div class="day-line">
+                      <span class="day-label">Activites</span>
+                      @if (jour.activiteNoms && jour.activiteNoms.length > 0) {
+                        <div class="day-tags">
+                          @for (activite of jour.activiteNoms; track activite) {
+                            <span class="tag">{{ activite }}</span>
+                          }
+                        </div>
+                      } @else {
+                        <span class="day-value">Aucune activite</span>
+                      }
+                    </div>
+                  </article>
+                }
+              </div>
+            }
+            @if (!demande.jours?.length) {
+              <div class="no-day">
+                Aucun jour enregistre pour cette demande.
+              </div>
+            }
+          </section>
+          @if (demande.statut === 'EN_ATTENTE') {
+            <section class="actions-section">
+              <div class="action-buttons">
+                <button class="btn-approve" (click)="openDecisionModal('approve')">Approuver</button>
+                <button class="btn-reject" (click)="openDecisionModal('reject')">Refuser</button>
+              </div>
+            </section>
+          }
+          @if (showDecisionModal) {
+            <section class="decision-inline">
+              <div class="decision-modal-header">
+                <h3>{{ decisionType === 'approve' ? 'Valider la demande et envoyer l email' : 'Refuser la demande et envoyer l email' }}</h3>
+                <button type="button" class="btn-close" (click)="closeDecisionModal()">x</button>
+              </div>
+              <div class="decision-modal-body">
+                <p class="decision-hint">Cette fenetre confirme la decision et l envoi du message au client.</p>
+                <label for="emailSubject">Sujet de l'email</label>
+                <input id="emailSubject" type="text" [(ngModel)]="emailSubject" />
+                <label for="emailBody">Corps de l'email</label>
+                <textarea id="emailBody" rows="6" [(ngModel)]="emailBody"></textarea>
+                @if (decisionType === 'approve') {
+                  <label for="approvedQuoteAmount">Montant final du devis</label>
+                }
+                @if (decisionType === 'approve') {
+                  <input
+                    id="approvedQuoteAmount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    [(ngModel)]="approvedQuoteAmount"
+                    (input)="onApprovedQuoteAmountChange()"
+                    placeholder="Ex: 950"
+                    />
+                }
+                @if (decisionType === 'reject') {
+                  <label for="refusalReason">Motif du refus</label>
+                }
+                @if (decisionType === 'reject') {
+                  <textarea
+                    id="refusalReason"
+                    rows="4"
+                    [(ngModel)]="refusalReason"
+                    placeholder="Explique pourquoi la demande est refusee..."
+                  ></textarea>
+                }
+                @if (decisionType === 'reject' && !refusalReason.trim()) {
+                  <small>Le motif est obligatoire.</small>
+                }
+              </div>
+              <div class="decision-modal-footer">
+                <button type="button" class="btn-secondary" (click)="closeDecisionModal()">Annuler</button>
+                <button type="button" class="btn-primary" [disabled]="isSubmittingDecision || !emailSubject.trim() || !emailBody.trim() || (decisionType === 'reject' && !refusalReason.trim()) || (decisionType === 'approve' && (!approvedQuoteAmount || approvedQuoteAmount <= 0))" (click)="submitDecision()">
+                  {{ isSubmittingDecision ? 'Traitement...' : 'Confirmer et envoyer' }}
+                </button>
+              </div>
+            </section>
+          }
+          @if (demande.motifRefus || demande.commentaireAdmin || demande.dateTraitement) {
+            <section class="info-section">
+              <h3>Suivi administratif</h3>
+              <div class="info-grid">
+                @if (demande.dateTraitement) {
+                  <div class="info-item">
+                    <label>Date de traitement</label>
+                    <span>{{ formatDate(demande.dateTraitement) }}</span>
+                  </div>
+                }
+                @if (demande.commentaireAdmin) {
+                  <div class="info-item">
+                    <label>Commentaire admin</label>
+                    <span>{{ demande.commentaireAdmin }}</span>
+                  </div>
+                }
+                @if (demande.motifRefus) {
+                  <div class="info-item">
+                    <label>Motif du refus</label>
+                    <span>{{ demande.motifRefus }}</span>
+                  </div>
+                }
+              </div>
+            </section>
+          }
+        </div>
       </div>
-    </div>
-
-    <ng-template #loading>
+    } @else {
       <div class="loading-container">
         <div class="spinner"></div>
         <p>Chargement des details de la demande...</p>
       </div>
-    </ng-template>
+    }
+
   </div>
 </div>

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
@@ -12,7 +12,7 @@ import {
 @Component({
   selector: 'app-tarifs-circuit-personnalise-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, HeaderComponent, AdminActionsBarComponent],
+  imports: [FormsModule, RouterLink, HeaderComponent, AdminActionsBarComponent],
   templateUrl: './tarifs-circuit-personnalise-admin.component.html',
   styleUrls: ['./tarifs-circuit-personnalise-admin.component.scss']
 })

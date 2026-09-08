@@ -1,96 +1,120 @@
 <div class="data-table-container">
   <!-- Loading State -->
-  <div *ngIf="loading" class="loading-state">
-    <div class="loading-spinner"></div>
-    <p>Chargement des données...</p>
-  </div>
+  @if (loading) {
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Chargement des données...</p>
+    </div>
+  }
 
   <!-- Empty State -->
-  <div *ngIf="!loading && data.length === 0" class="empty-state">
-    <i class="ri-inbox-line empty-icon"></i>
-    <p>{{ emptyMessage }}</p>
-  </div>
+  @if (!loading && data.length === 0) {
+    <div class="empty-state">
+      <i class="ri-inbox-line empty-icon"></i>
+      <p>{{ emptyMessage }}</p>
+    </div>
+  }
 
   <!-- Table -->
-  <div *ngIf="!loading && data.length > 0" class="table-wrapper">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th
-            *ngFor="let column of columns"
-            [style.width]="column.width"
-            [class.sortable]="column.sortable">
-            {{ column.label }}
-            <i *ngIf="column.sortable" class="ri-arrow-up-down-line sort-icon"></i>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          *ngFor="let item of pagedData"
-          class="data-row"
-          (click)="rowClickable && onRowClick(item)">
-          <td *ngFor="let column of columns" [attr.data-label]="column.label" [attr.data-type]="column.type">
-            <!-- Actions Column -->
-            <div *ngIf="column.type === 'actions'" class="actions-cell">
-              <button
-                *ngFor="let action of actions"
-                [class]="'btn-action ' + (action.class || 'btn-default')"
-                [class.icon-only]="iconOnlyActions"
-                [class.visible]="isActionVisible(action, item)"
-                (click)="onActionClick(action.action, item, $event)"
-                [title]="action.label">
-                <i *ngIf="action.icon" [class]="action.icon"></i>
-                <span *ngIf="!iconOnlyActions">{{ action.label }}</span>
-              </button>
+  @if (!loading && data.length > 0) {
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            @for (column of columns; track column) {
+              <th
+                [style.width]="column.width"
+                [class.sortable]="column.sortable">
+                {{ column.label }}
+                @if (column.sortable) {
+                  <i class="ri-arrow-up-down-line sort-icon"></i>
+                }
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of pagedData; track item) {
+            <tr
+              class="data-row"
+              (click)="rowClickable && onRowClick(item)">
+              @for (column of columns; track column) {
+                <td [attr.data-label]="column.label" [attr.data-type]="column.type">
+                  <!-- Actions Column -->
+                  @if (column.type === 'actions') {
+                    <div class="actions-cell">
+                      @for (action of actions; track action) {
+                        <button
+                          [class]="'btn-action ' + (action.class || 'btn-default')"
+                          [class.icon-only]="iconOnlyActions"
+                          [class.visible]="isActionVisible(action, item)"
+                          (click)="onActionClick(action.action, item, $event)"
+                          [title]="action.label">
+                          @if (action.icon) {
+                            <i [class]="action.icon"></i>
+                          }
+                          @if (!iconOnlyActions) {
+                            <span>{{ action.label }}</span>
+                          }
+                        </button>
+                      }
+                    </div>
+                  }
+                  <!-- Regular Data -->
+                  @if (column.type !== 'actions' && column.type !== 'image') {
+                    <span
+                      [class]="'cell-content ' + (column.type === 'status' && getCellValue(item, column) !== '-' ? 'status-' + getCellValue(item, column) : '')">
+                      {{ column.valueGetter ? column.valueGetter(item) : (column.formatter ? column.formatter(getCellValue(item, column)) : getCellValue(item, column)) }}
+                    </span>
+                  }
+                  <!-- Image Column -->
+                  @if (column.type === 'image') {
+                    @if (getImageSrc(column.formatter ? column.formatter(getCellValue(item, column)) : getCellValue(item, column)); as imgSrc) {
+                      <div class="image-cell">
+                        <img
+                          [src]="imgSrc"
+                          [alt]="column.label"
+                          class="table-image"
+                          (click)="onImageClick($event, imgSrc)"
+                          role="button"
+                          title="Cliquer pour agrandir"
+                          (error)="onImageError($event)">
+                          <div class="no-image" style="display:none"><i class="ri-image-line"></i></div>
+                        </div>
+                      } @else {
+                        <div class="image-cell">
+                          <div class="no-image"><i class="ri-image-line"></i></div>
+                        </div>
+                      }
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+        <!-- Pagination controls (client-side) -->
+        @if (isPaginationEnabled && totalPages > 1) {
+          <div class="table-pagination">
+            <div class="pagination-info">Affichage {{ ((currentPage-1)*pageSize)+1 }} - {{ Math.min(currentPage*pageSize, data.length) }} sur {{ data.length }}</div>
+            <div class="pagination-controls">
+              <button class="page-btn" [disabled]="currentPage===1" (click)="prevPage()">Préc</button>
+              @for (p of pageNumbers; track p) {
+                <button class="page-number" [class.active]="currentPage===p" (click)="changePage(p)">{{ p }}</button>
+              }
+              <button class="page-btn" [disabled]="currentPage===totalPages" (click)="nextPage()">Suiv</button>
             </div>
-
-            <!-- Regular Data -->
-            <span *ngIf="column.type !== 'actions' && column.type !== 'image'"
-              [class]="'cell-content ' + (column.type === 'status' && getCellValue(item, column) !== '-' ? 'status-' + getCellValue(item, column) : '')">
-              {{ column.valueGetter ? column.valueGetter(item) : (column.formatter ? column.formatter(getCellValue(item, column)) : getCellValue(item, column)) }}
-            </span>
-
-            <!-- Image Column -->
-            <ng-container *ngIf="column.type === 'image'">
-              <ng-container *ngIf="getImageSrc(column.formatter ? column.formatter(getCellValue(item, column)) : getCellValue(item, column)) as imgSrc; else noImg">
-                <div class="image-cell">
-                  <img
-                    [src]="imgSrc"
-                    [alt]="column.label"
-                    class="table-image"
-                    (click)="onImageClick($event, imgSrc)"
-                    role="button"
-                    title="Cliquer pour agrandir"
-                    (error)="onImageError($event)">
-                  <div class="no-image" style="display:none"><i class="ri-image-line"></i></div>
-                </div>
-              </ng-container>
-              <ng-template #noImg>
-                <div class="image-cell">
-                  <div class="no-image"><i class="ri-image-line"></i></div>
-                </div>
-              </ng-template>
-            </ng-container>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <!-- Pagination controls (client-side) -->
-    <div *ngIf="isPaginationEnabled && totalPages > 1" class="table-pagination">
-      <div class="pagination-info">Affichage {{ ((currentPage-1)*pageSize)+1 }} - {{ Math.min(currentPage*pageSize, data.length) }} sur {{ data.length }}</div>
-      <div class="pagination-controls">
-        <button class="page-btn" [disabled]="currentPage===1" (click)="prevPage()">Préc</button>
-        <button *ngFor="let p of pageNumbers" class="page-number" [class.active]="currentPage===p" (click)="changePage(p)">{{ p }}</button>
-        <button class="page-btn" [disabled]="currentPage===totalPages" (click)="nextPage()">Suiv</button>
+          </div>
+        }
       </div>
-    </div>
+    }
+
+    <!-- Image preview modal -->
+    <app-modal [open]="imageModalOpen" [size]="'large'" [showFooter]="false" (close)="closeImage()">
+      @if (imageModalUrl) {
+        <div class="image-preview">
+          <img [src]="imageModalUrl" alt="Aperçu image" />
+        </div>
+      }
+    </app-modal>
   </div>
-  
-  <!-- Image preview modal -->
-  <app-modal [open]="imageModalOpen" [size]="'large'" [showFooter]="false" (close)="closeImage()">
-    <div class="image-preview" *ngIf="imageModalUrl">
-      <img [src]="imageModalUrl" alt="Aperçu image" />
-    </div>
-  </app-modal>
-</div>

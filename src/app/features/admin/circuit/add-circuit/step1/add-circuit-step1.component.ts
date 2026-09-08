@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { EUR_TO_XOF_RATE } from '../../../../../shared/constants/currency.constants';
 import { CircuitFormData } from '../circuit-form.types';
@@ -7,7 +7,7 @@ import { CircuitFormData } from '../circuit-form.types';
 @Component({
   selector: 'app-add-circuit-step1',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './add-circuit-step1.component.html'
 })
 export class AddCircuitStep1Component {

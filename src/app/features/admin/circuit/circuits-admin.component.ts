@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { forkJoin } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
@@ -17,7 +17,7 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
 @Component({
   selector: 'app-circuits-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, DataTableComponent, AdminActionsBarComponent, BeButtonComponent, ModalComponent],
+  imports: [FormsModule, HeaderComponent, DataTableComponent, AdminActionsBarComponent, BeButtonComponent, ModalComponent],
   templateUrl: './circuits-admin.component.html',
   styleUrls: ['./circuits-admin.component.scss']
 })

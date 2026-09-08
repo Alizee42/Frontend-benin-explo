@@ -1,13 +1,14 @@
 <section class="hero" aria-label="Hero slideshow">
   <div class="hero-slides">
-    <div
-      *ngFor="let img of heroImages; let i = index"
-      class="slide"
-      [class.active]="i === currentHero"
-      [style.backgroundImage]="'url(' + img + ')'"
-      role="img"
-      [attr.aria-hidden]="i === currentHero ? 'false' : 'true'">
-    </div>
+    @for (img of heroImages; track img; let i = $index) {
+      <div
+        class="slide"
+        [class.active]="i === currentHero"
+        [style.backgroundImage]="'url(' + img + ')'"
+        role="img"
+        [attr.aria-hidden]="i === currentHero ? 'false' : 'true'">
+      </div>
+    }
   </div>
   <div class="hero-overlay"></div>
   <div class="container hero-content">
@@ -80,51 +81,65 @@
       <p class="section-subtitle">
         Une selection de circuits prets a partir, imagines par nos partenaires locaux.
       </p>
-      <p class="section-note section-note-warning" *ngIf="featuredState === 'fallback'">
-        {{ featuredNotice }}
-      </p>
+      @if (featuredState === 'fallback') {
+        <p class="section-note section-note-warning">
+          {{ featuredNotice }}
+        </p>
+      }
     </div>
 
-    <div class="section-status" *ngIf="featuredState === 'loading'">
-      <div class="status-spinner" aria-hidden="true"></div>
-      <p>Chargement des circuits phares...</p>
-    </div>
-
-    <div class="section-empty" *ngIf="featuredState === 'empty'">
-      <p>{{ featuredNotice }}</p>
-      <div class="section-empty-actions">
-        <a routerLink="/circuit" class="btn-main">Voir le catalogue</a>
-        <a routerLink="/circuit-personnalise" class="btn-secondary-pro btn-secondary-pro-light">Creer un voyage sur mesure</a>
+    @if (featuredState === 'loading') {
+      <div class="section-status">
+        <div class="status-spinner" aria-hidden="true"></div>
+        <p>Chargement des circuits phares...</p>
       </div>
-    </div>
+    }
 
-    <div class="row" *ngIf="featuredState === 'ready' || featuredState === 'fallback'">
-      <div class="col-12 col-md-6 col-lg-3" *ngFor="let c of circuits">
-        <div class="card circuit-card mb-4">
-          <img [src]="c.img" class="card-img-top" [alt]="c.title">
-          <div class="card-body circuit-card-body">
-            <h5 class="card-title">{{ c.title }}</h5>
-            <div class="card-meta">
-              <span class="meta-badge">{{ c.duration }}</span>
-              <span *ngIf="c.price" class="meta-badge price">{{ c.price }}</span>
+    @if (featuredState === 'empty') {
+      <div class="section-empty">
+        <p>{{ featuredNotice }}</p>
+        <div class="section-empty-actions">
+          <a routerLink="/circuit" class="btn-main">Voir le catalogue</a>
+          <a routerLink="/circuit-personnalise" class="btn-secondary-pro btn-secondary-pro-light">Creer un voyage sur mesure</a>
+        </div>
+      </div>
+    }
+
+    @if (featuredState === 'ready' || featuredState === 'fallback') {
+      <div class="row">
+        @for (c of circuits; track c) {
+          <div class="col-12 col-md-6 col-lg-3">
+            <div class="card circuit-card mb-4">
+              <img [src]="c.img" class="card-img-top" [alt]="c.title">
+              <div class="card-body circuit-card-body">
+                <h5 class="card-title">{{ c.title }}</h5>
+                <div class="card-meta">
+                  <span class="meta-badge">{{ c.duration }}</span>
+                  @if (c.price) {
+                    <span class="meta-badge price">{{ c.price }}</span>
+                  }
+                </div>
+                <a [routerLink]="['/circuit', c.id]" class="btn btn-sm btn-circuit-cta">
+                  Voir le circuit
+                </a>
+              </div>
             </div>
-            <a [routerLink]="['/circuit', c.id]" class="btn btn-sm btn-circuit-cta">
-              Voir le circuit
-            </a>
           </div>
-        </div>
+        }
       </div>
-    </div>
+    }
 
-    <div class="custom-circuit-teaser" *ngIf="featuredState === 'ready' || featuredState === 'fallback' || featuredState === 'empty'">
-      <div class="teaser-content">
-        <div class="teaser-text">
-          <span class="teaser-kicker"><i class="ri-map-2-line"></i> Voyage sur mesure</span>
-          <p>Vous ne trouvez pas votre bonheur ? Construisez votre propre circuit, a votre rythme.</p>
+    @if (featuredState === 'ready' || featuredState === 'fallback' || featuredState === 'empty') {
+      <div class="custom-circuit-teaser">
+        <div class="teaser-content">
+          <div class="teaser-text">
+            <span class="teaser-kicker"><i class="ri-map-2-line"></i> Voyage sur mesure</span>
+            <p>Vous ne trouvez pas votre bonheur ? Construisez votre propre circuit, a votre rythme.</p>
+          </div>
+          <a routerLink="/circuit-personnalise" class="btn-teaser-cta">Creer mon circuit</a>
         </div>
-        <a routerLink="/circuit-personnalise" class="btn-teaser-cta">Creer mon circuit</a>
       </div>
-    </div>
+    }
   </div>
 </section>
 
@@ -135,11 +150,13 @@
       <h2 class="section-title">Pourquoi voyager avec Benin Explo ?</h2>
     </div>
     <div class="row text-center mt-4">
-      <div class="col-12 col-md-4" *ngFor="let b of benefits">
-        <img [src]="b.icon" alt="" class="mb-3 benefit-icon">
-        <h5>{{ b.title }}</h5>
-        <p class="text-muted">{{ b.text }}</p>
-      </div>
+      @for (b of benefits; track b) {
+        <div class="col-12 col-md-4">
+          <img [src]="b.icon" alt="" class="mb-3 benefit-icon">
+          <h5>{{ b.title }}</h5>
+          <p class="text-muted">{{ b.text }}</p>
+        </div>
+      }
     </div>
   </div>
 </section>
@@ -157,30 +174,39 @@
       </div>
     </div>
 
-    <div class="section-status" *ngIf="actualitesState === 'loading'">
-      <div class="status-spinner" aria-hidden="true"></div>
-      <p>Chargement des actualites...</p>
-    </div>
+    @if (actualitesState === 'loading') {
+      <div class="section-status">
+        <div class="status-spinner" aria-hidden="true"></div>
+        <p>Chargement des actualites...</p>
+      </div>
+    }
 
-    <div class="section-empty" *ngIf="actualitesState === 'empty' || actualitesState === 'error'">
-      <p>{{ actualitesNotice }}</p>
-      <a routerLink="/actualites" class="btn-main">Voir la page actualites</a>
-    </div>
+    @if (actualitesState === 'empty' || actualitesState === 'error') {
+      <div class="section-empty">
+        <p>{{ actualitesNotice }}</p>
+        <a routerLink="/actualites" class="btn-main">Voir la page actualites</a>
+      </div>
+    }
 
-    <div class="news-grid" *ngIf="actualitesState === 'ready'">
-      <article class="news-card" *ngFor="let actualite of actualitesPreview">
-        <div class="news-card__media">
-          <img [src]="actualite.imageUrl" [alt]="actualite.titre">
-          <span class="news-card__badge" *ngIf="actualite.aLaUne">A la une</span>
-        </div>
-
-        <div class="news-card__body">
-          <p class="news-card__date">{{ formatActualiteDate(actualite.datePublication) }}</p>
-          <h3>{{ actualite.titre }}</h3>
-          <p class="news-excerpt">{{ getActualiteExcerpt(actualite) }}</p>
-          <a routerLink="/actualites" class="news-card__link">Lire l actualite</a>
-        </div>
-      </article>
-    </div>
+    @if (actualitesState === 'ready') {
+      <div class="news-grid">
+        @for (actualite of actualitesPreview; track actualite) {
+          <article class="news-card">
+            <div class="news-card__media">
+              <img [src]="actualite.imageUrl" [alt]="actualite.titre">
+              @if (actualite.aLaUne) {
+                <span class="news-card__badge">A la une</span>
+              }
+            </div>
+            <div class="news-card__body">
+              <p class="news-card__date">{{ formatActualiteDate(actualite.datePublication) }}</p>
+              <h3>{{ actualite.titre }}</h3>
+              <p class="news-excerpt">{{ getActualiteExcerpt(actualite) }}</p>
+              <a routerLink="/actualites" class="news-card__link">Lire l actualite</a>
+            </div>
+          </article>
+        }
+      </div>
+    }
   </div>
 </section>

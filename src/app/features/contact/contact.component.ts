@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ParametresSiteDTO, ParametresSiteService } from '../../services/parametres-site.service';
@@ -8,7 +8,7 @@ import { ContactService } from '../../services/contact.service';
 @Component({
   selector: 'app-contact',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [RouterModule, FormsModule],
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.scss']
 })

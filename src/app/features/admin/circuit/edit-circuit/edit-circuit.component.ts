@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../../../shared/components/header/header.component';
@@ -16,7 +16,7 @@ import { EUR_TO_XOF_RATE } from '../../../../shared/constants/currency.constants
 @Component({
   selector: 'app-edit-circuit',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, BeButtonComponent],
+  imports: [FormsModule, HeaderComponent, BeButtonComponent],
   templateUrl: './edit-circuit.component.html',
   styleUrls: ['./edit-circuit.component.scss', '../add-circuit/add-circuit.component.scss']
 })

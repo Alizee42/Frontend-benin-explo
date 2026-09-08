@@ -1,16 +1,22 @@
-<div class="modal-overlay" *ngIf="open" (click)="onBackdropClick()">
-  <div class="modal-content" [ngClass]="size" role="dialog" aria-modal="true" (click)="onContentClick($event)">
-    <div class="modal-header">
-      <h3 class="modal-title">{{ title }}</h3>
-      <button *ngIf="showCloseButton" class="close-btn" (click)="closeModal()" aria-label="Fermer la fenêtre">
-        <span aria-hidden="true">×</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      <ng-content></ng-content>
-    </div>
-    <div class="modal-footer" *ngIf="showFooter">
-      <ng-content select="[modal-footer]"></ng-content>
+@if (open) {
+  <div class="modal-overlay" (click)="onBackdropClick()">
+    <div class="modal-content" [ngClass]="size" role="dialog" aria-modal="true" (click)="onContentClick($event)">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ title }}</h3>
+        @if (showCloseButton) {
+          <button class="close-btn" (click)="closeModal()" aria-label="Fermer la fenêtre">
+            <span aria-hidden="true">×</span>
+          </button>
+        }
+      </div>
+      <div class="modal-body">
+        <ng-content></ng-content>
+      </div>
+      @if (showFooter) {
+        <div class="modal-footer">
+          <ng-content select="[modal-footer]"></ng-content>
+        </div>
+      }
     </div>
   </div>
-</div>
+}

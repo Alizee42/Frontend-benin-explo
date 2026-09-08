@@ -6,11 +6,13 @@
       <p class="hero-kicker">Hebergements</p>
       <h1 class="hero-title">Trouvez votre sejour ideal au Benin</h1>
       <p class="hero-subtitle">Recherche rapide, filtres utiles, reservation en 1 clic.</p>
-      <div class="hero-pills" *ngIf="!loading">
-        <span class="hero-pill"><i class="ri-hotel-bed-line"></i>{{ hebergements.length }} adresses</span>
-        <span class="hero-pill"><i class="ri-map-pin-line"></i>Multi-zones</span>
-        <span class="hero-pill"><i class="ri-shield-check-line"></i>Confirmation rapide</span>
-      </div>
+      @if (!loading) {
+        <div class="hero-pills">
+          <span class="hero-pill"><i class="ri-hotel-bed-line"></i>{{ hebergements.length }} adresses</span>
+          <span class="hero-pill"><i class="ri-map-pin-line"></i>Multi-zones</span>
+          <span class="hero-pill"><i class="ri-shield-check-line"></i>Confirmation rapide</span>
+        </div>
+      }
     </div>
     <div class="hero-wave" aria-hidden="true">
       <svg viewBox="0 0 1440 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -21,167 +23,185 @@
 
   <main class="content">
     <div class="container">
-      <section class="filters-panel" *ngIf="!loading" aria-label="Filtres hebergements">
-        <div class="filters-top">
-          <div class="filters-title">
-            <i class="ri-equalizer-3-line"></i>
-            <span>Filtrer les hebergements</span>
-          </div>
-          <div class="filters-count">{{ filteredHebergements.length }} resultat(s)</div>
-        </div>
-
-        <div class="search">
-          <i class="ri-search-line" aria-hidden="true"></i>
-          <input
-            type="text"
-            [(ngModel)]="searchTerm"
-            (ngModelChange)="onFiltersChange()"
-            placeholder="Rechercher (nom, ville, quartier, description...)"
-            aria-label="Rechercher un hebergement" />
-        </div>
-
-        <div class="type-chips" *ngIf="availableTypes.length > 0" aria-label="Filtres rapides type">
-          <button
-            type="button"
-            class="type-chip"
-            [class.active]="!typeFilter"
-            (click)="setTypeFilter('')">
-            Tous
-            <span>{{ hebergements.length }}</span>
-          </button>
-          <button
-            type="button"
-            class="type-chip"
-            *ngFor="let t of availableTypes"
-            [class.active]="typeFilter === t"
-            (click)="setTypeFilter(t)">
-            {{ t }}
-            <span>{{ getTypeCount(t) }}</span>
-          </button>
-        </div>
-
-        <div class="filters-row">
-        </div>
-      </section>
-
-      <div class="grid" *ngIf="loading" aria-busy="true" aria-label="Chargement">
-        <article class="card skeleton" *ngFor="let _ of [1,2,3,4,5,6]">
-          <div class="media"></div>
-          <div class="body">
-            <div class="line w60"></div>
-            <div class="line w40"></div>
-            <div class="line w90"></div>
-            <div class="line w70"></div>
-            <div class="line w50"></div>
-          </div>
-        </article>
-      </div>
-
-      <div class="empty" *ngIf="!loading && filteredHebergements.length === 0">
-        <div class="empty-icon">
-          <i class="ri-hotel-line" aria-hidden="true"></i>
-        </div>
-        <h3>Aucun hebergement trouve</h3>
-        <p>Essayez un autre mot-cle ou reinitialisez les filtres.</p>
-        <button type="button" class="btn-primary" (click)="clearFilters()">
-          Reinitialiser les filtres
-        </button>
-      </div>
-
-      <div class="grid" *ngIf="!loading && filteredHebergements.length > 0">
-        <article class="card" *ngFor="let heb of paginatedHebergements; trackBy: trackById">
-          <div class="media">
-            <img
-              [src]="getCoverUrl(heb)!"
-              [alt]="heb.nom"
-              loading="lazy"
-              (error)="onImageError($event)" />
-
-            <div class="chips">
-              <span class="chip type">{{ heb.type }}</span>
-              <span class="chip photos" *ngIf="getGalleryCount(heb) > 1">
-                <i class="ri-image-2-line" aria-hidden="true"></i>
-                {{ getGalleryCount(heb) }}
-              </span>
+      @if (!loading) {
+        <section class="filters-panel" aria-label="Filtres hebergements">
+          <div class="filters-top">
+            <div class="filters-title">
+              <i class="ri-equalizer-3-line"></i>
+              <span>Filtrer les hebergements</span>
             </div>
-
-            <button
-              *ngIf="hasMultipleImages(heb)"
-              type="button"
-              class="media-nav prev"
-              (click)="prevImage(heb, $event)"
-              aria-label="Image precedente">
-              <i class="ri-arrow-left-s-line" aria-hidden="true"></i>
-            </button>
-            <button
-              *ngIf="hasMultipleImages(heb)"
-              type="button"
-              class="media-nav next"
-              (click)="nextImage(heb, $event)"
-              aria-label="Image suivante">
-              <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
-            </button>
-
-            <div class="media-dots" *ngIf="hasMultipleImages(heb)">
-              <button
-                type="button"
-                class="dot"
-                *ngFor="let _ of getImages(heb); let i = index"
-                [class.active]="i === getCurrentImageIndex(heb)"
-                (click)="setImage(heb, i, $event)"
-                [attr.aria-label]="'Afficher image ' + (i + 1)">
-              </button>
-            </div>
+            <div class="filters-count">{{ filteredHebergements.length }} resultat(s)</div>
           </div>
-
-          <div class="body">
-            <div class="title-row">
-              <h3 class="title">{{ heb.nom }}</h3>
-              <div class="price">
-                <span class="amount">{{ heb.prixParNuit | number:'1.0-2' }} €</span>
-                <span class="amount-fcfa">≈ {{ heb.prixParNuit * 655.957 | number:'1.0-0' }} F CFA</span>
-                <span class="unit">/ nuit</span>
+          <div class="search">
+            <i class="ri-search-line" aria-hidden="true"></i>
+            <input
+              type="text"
+              [(ngModel)]="searchTerm"
+              (ngModelChange)="onFiltersChange()"
+              placeholder="Rechercher (nom, ville, quartier, description...)"
+              aria-label="Rechercher un hebergement" />
+            </div>
+            @if (availableTypes.length > 0) {
+              <div class="type-chips" aria-label="Filtres rapides type">
+                <button
+                  type="button"
+                  class="type-chip"
+                  [class.active]="!typeFilter"
+                  (click)="setTypeFilter('')">
+                  Tous
+                  <span>{{ hebergements.length }}</span>
+                </button>
+                @for (t of availableTypes; track t) {
+                  <button
+                    type="button"
+                    class="type-chip"
+                    [class.active]="typeFilter === t"
+                    (click)="setTypeFilter(t)">
+                    {{ t }}
+                    <span>{{ getTypeCount(t) }}</span>
+                  </button>
+                }
               </div>
+            }
+            <div class="filters-row">
             </div>
+          </section>
+        }
 
-            <div class="meta">
-              <span class="meta-item">
-                <i class="ri-map-pin-2-line" aria-hidden="true"></i>
-                {{ heb.localisation }}<ng-container *ngIf="heb.quartier"> • {{ heb.quartier }}</ng-container>
-              </span>
-            </div>
-
-            <p class="desc">{{ heb.description }}</p>
-
-            <div class="actions">
-              <button type="button" class="btn-primary" (click)="reserver(heb)">
-                <i class="ri-calendar-check-line" aria-hidden="true"></i>
-                Reserver
-              </button>
-            </div>
-
-            <div class="card-footer">
-              <span><i class="ri-time-line"></i>Disponible toute l'annee</span>
-            </div>
+        @if (loading) {
+          <div class="grid" aria-busy="true" aria-label="Chargement">
+            @for (_ of [1,2,3,4,5,6]; track _) {
+              <article class="card skeleton">
+                <div class="media"></div>
+                <div class="body">
+                  <div class="line w60"></div>
+                  <div class="line w40"></div>
+                  <div class="line w90"></div>
+                  <div class="line w70"></div>
+                  <div class="line w50"></div>
+                </div>
+              </article>
+            }
           </div>
-        </article>
-      </div>
+        }
 
-      <div class="pagination" *ngIf="!loading && filteredHebergements.length > 0">
-        <button type="button" class="page-btn" (click)="prevPage()" [disabled]="currentPage === 1">Precedent</button>
-        <div class="page-numbers" *ngIf="totalPages > 1">
-          <button
-            type="button"
-            class="page-dot"
-            *ngFor="let p of pageNumbers"
-            [class.active]="p === currentPage"
-            (click)="goToPage(p)">
-            {{ p }}
-          </button>
-        </div>
-        <span class="page-info">Page {{ currentPage }} / {{ totalPages }}</span>
-        <button type="button" class="page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
+        @if (!loading && filteredHebergements.length === 0) {
+          <div class="empty">
+            <div class="empty-icon">
+              <i class="ri-hotel-line" aria-hidden="true"></i>
+            </div>
+            <h3>Aucun hebergement trouve</h3>
+            <p>Essayez un autre mot-cle ou reinitialisez les filtres.</p>
+            <button type="button" class="btn-primary" (click)="clearFilters()">
+              Reinitialiser les filtres
+            </button>
+          </div>
+        }
+
+        @if (!loading && filteredHebergements.length > 0) {
+          <div class="grid">
+            @for (heb of paginatedHebergements; track trackById($index, heb)) {
+              <article class="card">
+                <div class="media">
+                  <img
+                    [src]="getCoverUrl(heb)!"
+                    [alt]="heb.nom"
+                    loading="lazy"
+                    (error)="onImageError($event)" />
+                    <div class="chips">
+                      <span class="chip type">{{ heb.type }}</span>
+                      @if (getGalleryCount(heb) > 1) {
+                        <span class="chip photos">
+                          <i class="ri-image-2-line" aria-hidden="true"></i>
+                          {{ getGalleryCount(heb) }}
+                        </span>
+                      }
+                    </div>
+                    @if (hasMultipleImages(heb)) {
+                      <button
+                        type="button"
+                        class="media-nav prev"
+                        (click)="prevImage(heb, $event)"
+                        aria-label="Image precedente">
+                        <i class="ri-arrow-left-s-line" aria-hidden="true"></i>
+                      </button>
+                    }
+                    @if (hasMultipleImages(heb)) {
+                      <button
+                        type="button"
+                        class="media-nav next"
+                        (click)="nextImage(heb, $event)"
+                        aria-label="Image suivante">
+                        <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+                      </button>
+                    }
+                    @if (hasMultipleImages(heb)) {
+                      <div class="media-dots">
+                        @for (_ of getImages(heb); track _; let i = $index) {
+                          <button
+                            type="button"
+                            class="dot"
+                            [class.active]="i === getCurrentImageIndex(heb)"
+                            (click)="setImage(heb, i, $event)"
+                            [attr.aria-label]="'Afficher image ' + (i + 1)">
+                          </button>
+                        }
+                      </div>
+                    }
+                  </div>
+                  <div class="body">
+                    <div class="title-row">
+                      <h3 class="title">{{ heb.nom }}</h3>
+                      <div class="price">
+                        <span class="amount">{{ heb.prixParNuit | number:'1.0-2' }} €</span>
+                        <span class="amount-fcfa">≈ {{ heb.prixParNuit * 655.957 | number:'1.0-0' }} F CFA</span>
+                        <span class="unit">/ nuit</span>
+                      </div>
+                    </div>
+                    <div class="meta">
+                      <span class="meta-item">
+                        <i class="ri-map-pin-2-line" aria-hidden="true"></i>
+                        {{ heb.localisation }}@if (heb.quartier) {
+                        • {{ heb.quartier }}
+                      }
+                    </span>
+                  </div>
+                  <p class="desc">{{ heb.description }}</p>
+                  <div class="actions">
+                    <button type="button" class="btn-primary" (click)="reserver(heb)">
+                      <i class="ri-calendar-check-line" aria-hidden="true"></i>
+                      Reserver
+                    </button>
+                  </div>
+                  <div class="card-footer">
+                    <span><i class="ri-time-line"></i>Disponible toute l'annee</span>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+
+        @if (!loading && filteredHebergements.length > 0) {
+          <div class="pagination">
+            <button type="button" class="page-btn" (click)="prevPage()" [disabled]="currentPage === 1">Precedent</button>
+            @if (totalPages > 1) {
+              <div class="page-numbers">
+                @for (p of pageNumbers; track p) {
+                  <button
+                    type="button"
+                    class="page-dot"
+                    [class.active]="p === currentPage"
+                    (click)="goToPage(p)">
+                    {{ p }}
+                  </button>
+                }
+              </div>
+            }
+            <span class="page-info">Page {{ currentPage }} / {{ totalPages }}</span>
+            <button type="button" class="page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">Suivant</button>
+          </div>
+        }
       </div>
-    </div>
-  </main>
-</section>
+    </main>
+  </section>

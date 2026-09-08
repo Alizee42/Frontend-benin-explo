@@ -11,18 +11,22 @@
     <div class="duree-selector">
       <label for="nombreJours">Nombre de jours :</label>
       <select id="nombreJours"
-              [ngModel]="nombreJours"
-              (ngModelChange)="nombreJoursChange.emit(+$event)">
-        <option *ngFor="let n of jourOptions" [value]="n">{{ n }} jour{{ n > 1 ? 's' : '' }}</option>
+        [ngModel]="nombreJours"
+        (ngModelChange)="nombreJoursChange.emit(+$event)">
+        @for (n of jourOptions; track n) {
+          <option [value]="n">{{ n }} jour{{ n > 1 ? 's' : '' }}</option>
+        }
       </select>
     </div>
 
     <div class="duree-selector">
       <label for="nombrePersonnes">Nombre de personnes :</label>
       <select id="nombrePersonnes"
-              [ngModel]="nombrePersonnes"
-              (ngModelChange)="nombrePersonnesChange.emit(+$event)">
-        <option *ngFor="let n of personnesOptions" [value]="n">{{ n }} personne{{ n > 1 ? 's' : '' }}</option>
+        [ngModel]="nombrePersonnes"
+        (ngModelChange)="nombrePersonnesChange.emit(+$event)">
+        @for (n of personnesOptions; track n) {
+          <option [value]="n">{{ n }} personne{{ n > 1 ? 's' : '' }}</option>
+        }
       </select>
     </div>
 

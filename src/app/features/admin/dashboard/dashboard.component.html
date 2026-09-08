@@ -24,9 +24,11 @@
         </div>
       </header>
 
-      <div *ngIf="isLoading" class="dashboard-state dashboard-state-loading">
-        Chargement des indicateurs...
-      </div>
+      @if (isLoading) {
+        <div class="dashboard-state dashboard-state-loading">
+          Chargement des indicateurs...
+        </div>
+      }
 
       <div class="kpi-grid">
         <article class="kpi-card">

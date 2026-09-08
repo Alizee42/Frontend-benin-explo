@@ -1,11 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { CircuitFormData } from '../circuit-form.types';
 
 @Component({
   selector: 'app-add-circuit-step2',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './add-circuit-step2.component.html'
 })
 export class AddCircuitStep2Component {

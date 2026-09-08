@@ -44,71 +44,80 @@
     </div>
   </div>
 
-  <div class="catalog-notices" *ngIf="catalogNotices.length > 0 && !catalogLoading">
-    <p *ngFor="let notice of catalogNotices">{{ notice }}</p>
-  </div>
+  @if (catalogNotices.length > 0 && !catalogLoading) {
+    <div class="catalog-notices">
+      @for (notice of catalogNotices; track notice) {
+        <p>{{ notice }}</p>
+      }
+    </div>
+  }
 
-  <app-circuit-step1
-    *ngIf="etape === 1"
-    [nombreJours]="nombreJours"
-    [nombrePersonnes]="nombrePersonnes"
-    [catalogLoading]="catalogLoading"
-    (nombreJoursChange)="onNombreJoursChange($event)"
-    (nombrePersonnesChange)="onNombrePersonnesChange($event)"
-    (next)="etape = 2">
-  </app-circuit-step1>
+  @if (etape === 1) {
+    <app-circuit-step1
+      [nombreJours]="nombreJours"
+      [nombrePersonnes]="nombrePersonnes"
+      [catalogLoading]="catalogLoading"
+      (nombreJoursChange)="onNombreJoursChange($event)"
+      (nombrePersonnesChange)="onNombrePersonnesChange($event)"
+      (next)="etape = 2">
+    </app-circuit-step1>
+  }
 
-  <app-circuit-step2
-    *ngIf="etape === 2"
-    [jours]="jours"
-    [zones]="zones"
-    [villes]="villes"
-    [activites]="activites"
-    [catalogLoading]="catalogLoading"
-    [tarifsOptions]="tarifsOptions"
-    (joursChange)="onJoursChange($event)"
-    (prev)="etape = 1"
-    (next)="etape = 3">
-  </app-circuit-step2>
+  @if (etape === 2) {
+    <app-circuit-step2
+      [jours]="jours"
+      [zones]="zones"
+      [villes]="villes"
+      [activites]="activites"
+      [catalogLoading]="catalogLoading"
+      [tarifsOptions]="tarifsOptions"
+      (joursChange)="onJoursChange($event)"
+      (prev)="etape = 1"
+      (next)="etape = 3">
+    </app-circuit-step2>
+  }
 
-  <app-circuit-step3
-    *ngIf="etape === 3"
-    [hebergements]="hebergements"
-    [tarifsOptions]="tarifsOptions"
-    [nombrePersonnes]="nombrePersonnes"
-    [nombreJours]="nombreJours"
-    [initialOptions]="options"
-    [initialHebergementState]="hebergementState"
-    (optionsChange)="onOptionsChange($event)"
-    (hebergementStateChange)="onHebergementStateChange($event)"
-    (prev)="etape = 2"
-    (next)="etape = 4">
-  </app-circuit-step3>
+  @if (etape === 3) {
+    <app-circuit-step3
+      [hebergements]="hebergements"
+      [tarifsOptions]="tarifsOptions"
+      [nombrePersonnes]="nombrePersonnes"
+      [nombreJours]="nombreJours"
+      [initialOptions]="options"
+      [initialHebergementState]="hebergementState"
+      (optionsChange)="onOptionsChange($event)"
+      (hebergementStateChange)="onHebergementStateChange($event)"
+      (prev)="etape = 2"
+      (next)="etape = 4">
+    </app-circuit-step3>
+  }
 
-  <app-circuit-step4
-    *ngIf="etape === 4"
-    [jours]="jours"
-    [activites]="activites"
-    [hebergements]="hebergements"
-    [options]="options"
-    [hebergementState]="hebergementState"
-    [tarifsOptions]="tarifsOptions"
-    [nombreJours]="nombreJours"
-    [nombrePersonnes]="nombrePersonnes"
-    (prev)="etape = 3"
-    (next)="etape = 5">
-  </app-circuit-step4>
+  @if (etape === 4) {
+    <app-circuit-step4
+      [jours]="jours"
+      [activites]="activites"
+      [hebergements]="hebergements"
+      [options]="options"
+      [hebergementState]="hebergementState"
+      [tarifsOptions]="tarifsOptions"
+      [nombreJours]="nombreJours"
+      [nombrePersonnes]="nombrePersonnes"
+      (prev)="etape = 3"
+      (next)="etape = 5">
+    </app-circuit-step4>
+  }
 
-  <app-circuit-step5
-    *ngIf="etape === 5"
-    [contact]="contact"
-    [isSubmitting]="isSubmitting"
-    [submitSuccess]="submitSuccess"
-    [submitError]="submitError"
-    [submitErrorMessage]="submitErrorMessage"
-    (contactChange)="onContactChange($event)"
-    (prev)="etape = 4"
-    (formSubmit)="onSubmit()"
-    (goHome)="goHome()">
-  </app-circuit-step5>
+  @if (etape === 5) {
+    <app-circuit-step5
+      [contact]="contact"
+      [isSubmitting]="isSubmitting"
+      [submitSuccess]="submitSuccess"
+      [submitError]="submitError"
+      [submitErrorMessage]="submitErrorMessage"
+      (contactChange)="onContactChange($event)"
+      (prev)="etape = 4"
+      (formSubmit)="onSubmit()"
+      (goHome)="goHome()">
+    </app-circuit-step5>
+  }
 </section>

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterLink } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { forkJoin, Observable, of } from 'rxjs';
@@ -18,7 +18,7 @@ import { VillesService } from '../../../services/villes.service';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, HeaderComponent],
+  imports: [RouterLink, HeaderComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })

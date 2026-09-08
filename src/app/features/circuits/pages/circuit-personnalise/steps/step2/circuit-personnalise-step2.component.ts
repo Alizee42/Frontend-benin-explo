@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Jour, isJourComplete } from '../../circuit-personnalise.types';
 import { Zone } from '../../../../../../services/zones.service';
@@ -11,7 +11,7 @@ import { getPricingCurrencyLabel } from '../../circuit-personnalise.utils';
 @Component({
   standalone: true,
   selector: 'app-circuit-step2',
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './circuit-personnalise-step2.component.html',
   styleUrl: '../../circuit-personnalise-steps.scss'
 })

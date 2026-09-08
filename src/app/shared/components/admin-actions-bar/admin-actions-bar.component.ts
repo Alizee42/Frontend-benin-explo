@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-admin-actions-bar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './admin-actions-bar.component.html',
   styleUrls: ['./admin-actions-bar.component.scss']
 })

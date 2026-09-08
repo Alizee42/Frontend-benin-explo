@@ -14,105 +14,113 @@
             [(ngModel)]="searchTerm"
             placeholder="Rechercher"
             aria-label="Rechercher une zone"
+            />
+          </div>
+          <div class="sort-field">
+            <i class="ri-filter-3-line"></i>
+            <select [(ngModel)]="sortOption" aria-label="Trier les zones">
+              <option value="nom-asc">Nom A → Z</option>
+              <option value="nom-desc">Nom Z → A</option>
+              <option value="id-desc">Plus récentes</option>
+              <option value="id-asc">Plus anciennes</option>
+            </select>
+          </div>
+          <be-button
+            variant="primary"
+            iconLeft="ri-add-line"
+            label="Ajouter une zone"
+            (click)="openAddModal()">
+          </be-button>
+        </div>
+      </app-admin-actions-bar>
+
+      @if (!loading) {
+        <div class="table-meta">
+          {{ filteredZones.length }} zone{{ filteredZones.length > 1 ? 's' : '' }}
+        </div>
+      }
+
+      @if (!loading && loadError) {
+        <div class="load-error">
+          <i class="ri-error-warning-line"></i>
+          <span>{{ loadError }}</span>
+        </div>
+      }
+
+      <div class="table-card">
+        <app-data-table
+          [columns]="tableColumns"
+          [data]="filteredZones"
+          [loading]="loading"
+          [actions]="tableActions"
+          (actionClick)="onTableAction($event)"
+          (rowClick)="onRowClick($event)">
+        </app-data-table>
+      </div>
+
+      @if (!loading && filteredZones.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="ri-map-pin-line"></i>
+          </div>
+          <h2>Aucune zone trouvée</h2>
+          <p>
+            Essayez un autre mot-clé ou créez une nouvelle zone pour commencer.
+          </p>
+          <button class="btn-add ghost" (click)="openAddModal()">
+            <i class="ri-add-line"></i>
+            Ajouter une zone
+          </button>
+        </div>
+      }
+    </main>
+  </div>
+
+  <!-- Modal pour ajouter/modifier (réutilise app-modal) -->
+  <app-modal [title]="isEditing ? 'Modifier la zone' : 'Ajouter une zone'" [open]="showModal" (close)="closeModal()">
+    <form (ngSubmit)="saveZone()" #zoneForm="ngForm">
+      @if (formError) {
+        <div class="form-error">
+          <i class="ri-error-warning-line"></i>
+          {{ formError }}
+        </div>
+      }
+      <div class="form-group">
+        <label for="nom">Nom *</label>
+        <input
+          type="text"
+          id="nom"
+          name="nom"
+          [(ngModel)]="currentZone.nom"
+          required
+          placeholder="Ex: Sud, Centre, Nord"
           />
         </div>
-        <div class="sort-field">
-          <i class="ri-filter-3-line"></i>
-          <select [(ngModel)]="sortOption" aria-label="Trier les zones">
-            <option value="nom-asc">Nom A → Z</option>
-            <option value="nom-desc">Nom Z → A</option>
-            <option value="id-desc">Plus récentes</option>
-            <option value="id-asc">Plus anciennes</option>
-          </select>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            [(ngModel)]="currentZone.description"
+            placeholder="Description de la zone géographique"
+            rows="3"
+          ></textarea>
         </div>
-        <be-button
-          variant="primary"
-          iconLeft="ri-add-line"
-          label="Ajouter une zone"
-          (click)="openAddModal()">
-        </be-button>
-      </div>
-    </app-admin-actions-bar>
 
-    <div class="table-meta" *ngIf="!loading">
-      {{ filteredZones.length }} zone{{ filteredZones.length > 1 ? 's' : '' }}
-    </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
+          <button type="submit" class="btn-primary" [disabled]="!zoneForm.valid || saving">
+            {{ saving ? (isEditing ? 'Modification...' : 'Ajout...') : (isEditing ? 'Modifier' : 'Ajouter') }}
+          </button>
 
-    <div class="load-error" *ngIf="!loading && loadError">
-      <i class="ri-error-warning-line"></i>
-      <span>{{ loadError }}</span>
-    </div>
-
-    <div class="table-card">
-      <app-data-table
-        [columns]="tableColumns"
-        [data]="filteredZones"
-        [loading]="loading"
-        [actions]="tableActions"
-        (actionClick)="onTableAction($event)"
-        (rowClick)="onRowClick($event)">
-      </app-data-table>
-    </div>
-
-    <div class="empty-state" *ngIf="!loading && filteredZones.length === 0">
-      <div class="empty-icon">
-        <i class="ri-map-pin-line"></i>
-      </div>
-      <h2>Aucune zone trouvée</h2>
-      <p>
-        Essayez un autre mot-clé ou créez une nouvelle zone pour commencer.
-      </p>
-      <button class="btn-add ghost" (click)="openAddModal()">
-        <i class="ri-add-line"></i>
-        Ajouter une zone
-      </button>
-    </div>
-  </main>
-</div>
-
-<!-- Modal pour ajouter/modifier (réutilise app-modal) -->
-<app-modal [title]="isEditing ? 'Modifier la zone' : 'Ajouter une zone'" [open]="showModal" (close)="closeModal()">
-  <form (ngSubmit)="saveZone()" #zoneForm="ngForm">
-    <div class="form-error" *ngIf="formError">
-      <i class="ri-error-warning-line"></i>
-      {{ formError }}
-    </div>
-    <div class="form-group">
-      <label for="nom">Nom *</label>
-      <input
-        type="text"
-        id="nom"
-        name="nom"
-        [(ngModel)]="currentZone.nom"
-        required
-        placeholder="Ex: Sud, Centre, Nord"
-      />
-    </div>
-
-    <div class="form-group">
-      <label for="description">Description</label>
-      <textarea
-        id="description"
-        name="description"
-        [(ngModel)]="currentZone.description"
-        placeholder="Description de la zone géographique"
-        rows="3"
-      ></textarea>
-    </div>
-
-    <div class="modal-actions">
-      <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
-      <button type="submit" class="btn-primary" [disabled]="!zoneForm.valid || saving">
-        {{ saving ? (isEditing ? 'Modification...' : 'Ajout...') : (isEditing ? 'Modifier' : 'Ajouter') }}
-      </button>
-    
-<app-modal title="Supprimer la zone" [open]="confirmDeleteOpen" [closeOnBackdrop]="false" size="small" (close)="confirmDeleteOpen = false">
-  <p>Êtes-vous sûr de vouloir supprimer cette zone ? Cette action est irréversible.</p>
-  <div class="d-flex gap-2 justify-content-end mt-3">
-    <be-button variant="secondary" label="Annuler" (click)="confirmDeleteOpen = false"></be-button>
-    <be-button variant="danger" label="Supprimer" (click)="executeDelete()"></be-button>
-  </div>
-</app-modal>
-</div>
-  </form>
-</app-modal>
+          <app-modal title="Supprimer la zone" [open]="confirmDeleteOpen" [closeOnBackdrop]="false" size="small" (close)="confirmDeleteOpen = false">
+            <p>Êtes-vous sûr de vouloir supprimer cette zone ? Cette action est irréversible.</p>
+            <div class="d-flex gap-2 justify-content-end mt-3">
+              <be-button variant="secondary" label="Annuler" (click)="confirmDeleteOpen = false"></be-button>
+              <be-button variant="danger" label="Supprimer" (click)="executeDelete()"></be-button>
+            </div>
+          </app-modal>
+        </div>
+      </form>
+    </app-modal>

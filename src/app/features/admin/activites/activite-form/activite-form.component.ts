@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Activite } from '../../../../services/activites.service';
 import { CategorieActivite } from '../../../../services/categories-activites.service';
@@ -10,7 +10,7 @@ export interface VilleOption { id: number; nom: string }
 @Component({
   standalone: true,
   selector: 'app-activite-form',
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './activite-form.component.html',
   styleUrls: ['./activite-form.component.scss']
 })

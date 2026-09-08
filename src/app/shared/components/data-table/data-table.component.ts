@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ModalComponent } from '../modal/modal.component';
 
 export interface TableColumn {
@@ -23,7 +23,7 @@ export interface TableAction {
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [CommonModule, ModalComponent],
+  imports: [ModalComponent],
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss']
 })

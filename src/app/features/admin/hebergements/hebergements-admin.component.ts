@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
@@ -15,7 +15,7 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
 @Component({
   standalone: true,
   selector: 'app-hebergements-admin',
-  imports: [CommonModule, RouterModule, FormsModule, DataTableComponent, ModalComponent, HeaderComponent, AdminActionsBarComponent, BeButtonComponent],
+  imports: [RouterModule, FormsModule, DataTableComponent, ModalComponent, HeaderComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './hebergements-admin.component.html',
   styleUrls: ['./hebergements-admin.component.scss']
 })

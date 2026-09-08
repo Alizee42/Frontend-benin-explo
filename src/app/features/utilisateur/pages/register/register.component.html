@@ -15,17 +15,21 @@
         <div class="form-group">
           <label for="nom">Nom *</label>
           <input type="text" id="nom" formControlName="nom" class="form-control" placeholder="Votre nom">
-          <div *ngIf="registerForm.get('nom')?.invalid && registerForm.get('nom')?.touched" class="field-error">
-            Le nom est obligatoire.
-          </div>
+          @if (registerForm.get('nom')?.invalid && registerForm.get('nom')?.touched) {
+            <div class="field-error">
+              Le nom est obligatoire.
+            </div>
+          }
         </div>
 
         <div class="form-group">
           <label for="prenom">Prenom *</label>
           <input type="text" id="prenom" formControlName="prenom" class="form-control" placeholder="Votre prenom">
-          <div *ngIf="registerForm.get('prenom')?.invalid && registerForm.get('prenom')?.touched" class="field-error">
-            Le prenom est obligatoire.
-          </div>
+          @if (registerForm.get('prenom')?.invalid && registerForm.get('prenom')?.touched) {
+            <div class="field-error">
+              Le prenom est obligatoire.
+            </div>
+          }
         </div>
       </div>
 
@@ -33,17 +37,21 @@
         <div class="form-group">
           <label for="email">Email *</label>
           <input type="email" id="email" formControlName="email" class="form-control" placeholder="Votre adresse email">
-          <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="field-error">
-            Veuillez saisir un email valide.
-          </div>
+          @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+            <div class="field-error">
+              Veuillez saisir un email valide.
+            </div>
+          }
         </div>
 
         <div class="form-group">
           <label for="telephone">Telephone *</label>
           <input type="tel" id="telephone" formControlName="telephone" class="form-control" placeholder="+229 XX XX XX XX">
-          <div *ngIf="registerForm.get('telephone')?.invalid && registerForm.get('telephone')?.touched" class="field-error">
-            Veuillez saisir un numero valide.
-          </div>
+          @if (registerForm.get('telephone')?.invalid && registerForm.get('telephone')?.touched) {
+            <div class="field-error">
+              Veuillez saisir un numero valide.
+            </div>
+          }
         </div>
       </div>
 
@@ -56,94 +64,108 @@
             formControlName="motDePasse"
             class="form-control"
             placeholder="8 caracteres minimum">
-          <button
-            type="button"
-            class="password-toggle"
-            (click)="togglePassword('main')"
-            aria-label="Afficher ou masquer le mot de passe">
-            <i [class]="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'"></i>
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePassword('main')"
+              aria-label="Afficher ou masquer le mot de passe">
+              <i [class]="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'"></i>
+            </button>
+          </div>
+          @if (registerForm.get('motDePasse')?.invalid && registerForm.get('motDePasse')?.touched) {
+            <div class="field-error">
+              Le mot de passe doit contenir au moins 8 caracteres.
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="confirmationMotDePasse">Confirmer le mot de passe *</label>
+          <div class="password-input-container">
+            <input
+              [type]="showConfirmationPassword ? 'text' : 'password'"
+              id="confirmationMotDePasse"
+              formControlName="confirmationMotDePasse"
+              class="form-control"
+              placeholder="Confirmez votre mot de passe">
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="togglePassword('confirm')"
+                aria-label="Afficher ou masquer la confirmation du mot de passe">
+                <i [class]="showConfirmationPassword ? 'ri-eye-off-line' : 'ri-eye-line'"></i>
+              </button>
+            </div>
+            @if (registerForm.get('confirmationMotDePasse')?.invalid && registerForm.get('confirmationMotDePasse')?.touched) {
+              <div class="field-error">
+                La confirmation du mot de passe est obligatoire.
+              </div>
+            }
+            @if (hasPasswordMismatch()) {
+              <div class="field-error">
+                Les mots de passe ne correspondent pas.
+              </div>
+            }
+          </div>
+
+          @if (errorMessage) {
+            <div class="error-message">
+              {{ errorMessage }}
+            </div>
+          }
+
+          <button type="submit" class="btn-register" [disabled]="loading || registerForm.invalid">
+            @if (loading) {
+              <span>Creation du compte...</span>
+            }
+            @if (!loading) {
+              <span>Creer mon compte</span>
+            }
           </button>
-        </div>
-        <div *ngIf="registerForm.get('motDePasse')?.invalid && registerForm.get('motDePasse')?.touched" class="field-error">
-          Le mot de passe doit contenir au moins 8 caracteres.
-        </div>
-      </div>
 
-      <div class="form-group">
-        <label for="confirmationMotDePasse">Confirmer le mot de passe *</label>
-        <div class="password-input-container">
-          <input
-            [type]="showConfirmationPassword ? 'text' : 'password'"
-            id="confirmationMotDePasse"
-            formControlName="confirmationMotDePasse"
-            class="form-control"
-            placeholder="Confirmez votre mot de passe">
-          <button
-            type="button"
-            class="password-toggle"
-            (click)="togglePassword('confirm')"
-            aria-label="Afficher ou masquer la confirmation du mot de passe">
-            <i [class]="showConfirmationPassword ? 'ri-eye-off-line' : 'ri-eye-line'"></i>
+          <div class="login-link">
+            Deja un compte ? <a routerLink="/login" [queryParams]="loginQueryParams || undefined">Se connecter</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    @if (confirmationModalOpen) {
+      <div class="register-modal-backdrop" (click)="closeConfirmationModal()">
+        <div class="register-modal" role="dialog" aria-modal="true" aria-label="Confirmation du compte" (click)="$event.stopPropagation()">
+          <button type="button" class="register-modal__close" (click)="closeConfirmationModal()" aria-label="Fermer">
+            <i class="ri-close-line"></i>
           </button>
+          <div class="register-modal__header">
+            <div class="register-modal__icon">
+              <i [class]="autoLoginSucceeded ? 'ri-checkbox-circle-line' : 'ri-user-smile-line'"></i>
+            </div>
+            <p class="register-modal__eyebrow">Compte cree</p>
+            <h2>Bienvenue {{ createdUser?.prenom || registerForm.get('prenom')?.value }}</h2>
+            <p class="register-modal__message">
+              Votre compte est pret. Vous pourrez suivre vos reservations et continuer plus facilement vers le paiement.
+            </p>
+          </div>
+          <div class="register-modal__summary">
+            <span class="register-modal__label">Email de connexion</span>
+            <strong>{{ emailDeliveryLabel }}</strong>
+            <span class="register-modal__status" [class.register-modal__status--active]="autoLoginSucceeded">
+              {{ autoLoginSucceeded ? 'Connexion ouverte' : 'Compte enregistre' }}
+            </span>
+          </div>
+          <div class="register-modal__hint">
+            <i class="ri-information-line"></i>
+            @if (autoLoginSucceeded) {
+              <span>Votre session est deja ouverte. Vous pouvez continuer tout de suite.</span>
+            }
+            @if (!autoLoginSucceeded) {
+              <span>Votre compte est bien cree. Connectez-vous ensuite avec votre email et votre mot de passe.</span>
+            }
+          </div>
+          <div class="register-modal__actions">
+            <button type="button" class="btn btn-secondary" (click)="closeConfirmationModal()">{{ getSecondaryActionLabel() }}</button>
+            <button type="button" class="btn btn-primary" (click)="continueAfterRegistration()">{{ getPrimaryActionLabel() }}</button>
+          </div>
         </div>
-        <div *ngIf="registerForm.get('confirmationMotDePasse')?.invalid && registerForm.get('confirmationMotDePasse')?.touched" class="field-error">
-          La confirmation du mot de passe est obligatoire.
-        </div>
-        <div *ngIf="hasPasswordMismatch()" class="field-error">
-          Les mots de passe ne correspondent pas.
-        </div>
       </div>
-
-      <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
-
-      <button type="submit" class="btn-register" [disabled]="loading || registerForm.invalid">
-        <span *ngIf="loading">Creation du compte...</span>
-        <span *ngIf="!loading">Creer mon compte</span>
-      </button>
-
-      <div class="login-link">
-        Deja un compte ? <a routerLink="/login" [queryParams]="loginQueryParams || undefined">Se connecter</a>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div class="register-modal-backdrop" *ngIf="confirmationModalOpen" (click)="closeConfirmationModal()">
-  <div class="register-modal" role="dialog" aria-modal="true" aria-label="Confirmation du compte" (click)="$event.stopPropagation()">
-    <button type="button" class="register-modal__close" (click)="closeConfirmationModal()" aria-label="Fermer">
-      <i class="ri-close-line"></i>
-    </button>
-
-    <div class="register-modal__header">
-      <div class="register-modal__icon">
-        <i [class]="autoLoginSucceeded ? 'ri-checkbox-circle-line' : 'ri-user-smile-line'"></i>
-      </div>
-      <p class="register-modal__eyebrow">Compte cree</p>
-      <h2>Bienvenue {{ createdUser?.prenom || registerForm.get('prenom')?.value }}</h2>
-      <p class="register-modal__message">
-        Votre compte est pret. Vous pourrez suivre vos reservations et continuer plus facilement vers le paiement.
-      </p>
-    </div>
-
-    <div class="register-modal__summary">
-      <span class="register-modal__label">Email de connexion</span>
-      <strong>{{ emailDeliveryLabel }}</strong>
-      <span class="register-modal__status" [class.register-modal__status--active]="autoLoginSucceeded">
-        {{ autoLoginSucceeded ? 'Connexion ouverte' : 'Compte enregistre' }}
-      </span>
-    </div>
-
-    <div class="register-modal__hint">
-      <i class="ri-information-line"></i>
-      <span *ngIf="autoLoginSucceeded">Votre session est deja ouverte. Vous pouvez continuer tout de suite.</span>
-      <span *ngIf="!autoLoginSucceeded">Votre compte est bien cree. Connectez-vous ensuite avec votre email et votre mot de passe.</span>
-    </div>
-
-    <div class="register-modal__actions">
-      <button type="button" class="btn btn-secondary" (click)="closeConfirmationModal()">{{ getSecondaryActionLabel() }}</button>
-      <button type="button" class="btn btn-primary" (click)="continueAfterRegistration()">{{ getPrimaryActionLabel() }}</button>
-    </div>
-  </div>
-</div>
+    }

@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ZoneDTO } from '../../../../../services/zones-admin.service';
 import { VilleDTO } from '../../../../../services/villes.service';
@@ -9,7 +9,7 @@ import { CircuitFormData } from '../circuit-form.types';
 @Component({
   selector: 'app-add-circuit-step3',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './add-circuit-step3.component.html'
 })
 export class AddCircuitStep3Component {

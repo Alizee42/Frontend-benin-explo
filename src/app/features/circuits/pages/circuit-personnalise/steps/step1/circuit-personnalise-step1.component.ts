@@ -1,11 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 
 @Component({
   standalone: true,
   selector: 'app-circuit-step1',
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './circuit-personnalise-step1.component.html',
   styleUrl: '../../circuit-personnalise-steps.scss'
 })

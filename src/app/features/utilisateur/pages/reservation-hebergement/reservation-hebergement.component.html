@@ -6,368 +6,412 @@
       <div class="hero-title-block">
         <p class="hero-kicker">Reservation</p>
         <h1 class="hero-title">Finalisez votre sejour</h1>
-        <p class="hero-subtitle" *ngIf="hebergement">{{ hebergement.nom }} • {{ hebergement.localisation }}</p>
-        <p class="hero-subtitle" *ngIf="!hebergement">Finalisez votre reservation en 3 etapes simples.</p>
+        @if (hebergement) {
+          <p class="hero-subtitle">{{ hebergement.nom }} • {{ hebergement.localisation }}</p>
+        }
+        @if (!hebergement) {
+          <p class="hero-subtitle">Finalisez votre reservation en 3 etapes simples.</p>
+        }
       </div>
     </div>
   </header>
 
   <main class="reservation-shell">
-    <div class="loading-card" *ngIf="isLoading">
-      <div class="spinner"></div>
-      <p>Chargement de l'hebergement...</p>
-    </div>
+    @if (isLoading) {
+      <div class="loading-card">
+        <div class="spinner"></div>
+        <p>Chargement de l'hebergement...</p>
+      </div>
+    }
 
-    <div class="layout" *ngIf="!isLoading">
-      <aside class="stay-card" *ngIf="hebergement">
-        <div class="stay-media">
-          <img [src]="currentMediaUrl || '/assets/images/coucherSoleil.avif'" [alt]="hebergement.nom">
-
-          <button type="button" class="media-nav prev" *ngIf="hasMedias && imageUrls.length > 1" (click)="previousImage()">
-            <i class="ri-arrow-left-s-line"></i>
-          </button>
-          <button type="button" class="media-nav next" *ngIf="hasMedias && imageUrls.length > 1" (click)="nextImage()">
-            <i class="ri-arrow-right-s-line"></i>
-          </button>
-
-          <div class="media-dots" *ngIf="hasMedias && imageUrls.length > 1">
-            <button type="button" class="dot" *ngFor="let url of imageUrls; let i = index" [class.active]="i === currentImageIndex" (click)="setCurrentImage(i)"></button>
-          </div>
-        </div>
-
-        <div class="stay-info">
-          <div class="stay-title-row">
-            <h2 class="stay-title">{{ hebergement.nom }}</h2>
-            <div class="stay-price">
-              <span class="price">{{ hebergement.prixParNuit | number:'1.0-2' }} €
-                <small class="price-fcfa">≈ {{ hebergement.prixParNuit * 655.957 | number:'1.0-0' }} F CFA</small>
-              </span>
-              <span class="period">/ nuit</span>
-            </div>
-          </div>
-
-          <div class="stay-meta">
-            <div class="meta"><i class="ri-map-pin-2-line"></i> {{ hebergement.localisation }}</div>
-            <div class="meta"><i class="ri-home-5-line"></i> {{ hebergement.type }}</div>
-          </div>
-
-          <div class="stay-hints">
-            <div class="hint"><i class="ri-shield-check-line"></i>Paiement securise</div>
-            <div class="hint"><i class="ri-time-line"></i>Confirmation rapide</div>
-          </div>
-        </div>
-      </aside>
-
-      <section class="form-card">
-        <div class="step-tabs" role="tablist" aria-label="Etapes de reservation">
-          <button type="button" class="tab" [class.active]="currentStep === 1" [class.done]="currentStep > 1" (click)="goToStep(1)">
-            <span class="num">1</span>
-            <span class="label">Infos</span>
-          </button>
-          <button type="button" class="tab" [class.active]="currentStep === 2" [class.done]="currentStep > 2" [disabled]="!canOpenStep(2)" (click)="goToStep(2)">
-            <span class="num">2</span>
-            <span class="label">Sejour</span>
-          </button>
-          <button type="button" class="tab" [class.active]="currentStep === 3" [disabled]="!canOpenStep(3)" (click)="goToStep(3)">
-            <span class="num">3</span>
-            <span class="label">Confirmer</span>
-          </button>
-        </div>
-
-        <div class="step-body">
-          <div class="step-content" *ngIf="currentStep === 1">
-            <div class="step-header">
-              <h3><i class="ri-user-line"></i> Informations personnelles</h3>
-              <p>Renseignez vos coordonnees pour la reservation</p>
-            </div>
-
-            <div class="account-prefill" *ngIf="hasAccountPrefill">
-              <i class="ri-shield-user-line"></i>
-              <span>Les informations de votre compte sont pre-remplies. L'email reste lie a votre espace client pour le suivi et le paiement.</span>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="nomClient"><i class="ri-user-line"></i> Nom *</label>
-                <input type="text" id="nomClient" name="nomClient" [(ngModel)]="reservation.nomClient" required #nomClient="ngModel" placeholder="Votre nom">
-                <div class="error" *ngIf="nomClient.invalid && nomClient.touched"><i class="ri-error-warning-line"></i>Le nom est requis</div>
-              </div>
-
-              <div class="form-group">
-                <label for="prenomClient"><i class="ri-user-line"></i> Prenom *</label>
-                <input type="text" id="prenomClient" name="prenomClient" [(ngModel)]="reservation.prenomClient" required #prenomClient="ngModel" placeholder="Votre prenom">
-                <div class="error" *ngIf="prenomClient.invalid && prenomClient.touched"><i class="ri-error-warning-line"></i>Le prenom est requis</div>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="emailClient"><i class="ri-mail-line"></i> Email *</label>
-                <input type="email" id="emailClient" name="emailClient" [(ngModel)]="reservation.emailClient" [readonly]="isAccountEmailLocked" required email #emailClient="ngModel" placeholder="votre.email@example.com">
-                <div class="error" *ngIf="emailClient.invalid && emailClient.touched"><i class="ri-error-warning-line"></i>Un email valide est requis</div>
-                <small class="field-help" *ngIf="isAccountEmailLocked">Cet email est lie a votre compte pour retrouver vos reservations et votre futur paiement.</small>
-              </div>
-
-              <div class="form-group">
-                <label for="telephoneClient"><i class="ri-phone-line"></i> Telephone *</label>
-                <input type="tel" id="telephoneClient" name="telephoneClient" [(ngModel)]="reservation.telephoneClient" required #telephoneClient="ngModel" placeholder="+229 XX XX XX XX">
-                <div class="error" *ngIf="telephoneClient.invalid && telephoneClient.touched"><i class="ri-error-warning-line"></i>Le telephone est requis</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="step-content" *ngIf="currentStep === 2">
-            <div class="step-header">
-              <h3><i class="ri-calendar-line"></i> Details du sejour</h3>
-              <p>Choisissez vos dates et precisez vos besoins</p>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="dateArrivee"><i class="ri-calendar-check-line"></i> Date d'arrivee *</label>
-                <input
-                  type="date"
-                  id="dateArrivee"
-                  name="dateArrivee"
-                  [(ngModel)]="reservation.dateArrivee"
-                  [min]="getMinDateArrivee()"
-                  required
-                  #dateArrivee="ngModel"
-                  (change)="onArrivalInputChange()">
-                <div class="error" *ngIf="dateArrivee.invalid && dateArrivee.touched"><i class="ri-error-warning-line"></i>La date d'arrivee est requise</div>
-              </div>
-
-              <div class="form-group">
-                <label for="dateDepart"><i class="ri-calendar-check-line"></i> Date de depart *</label>
-                <input
-                  type="date"
-                  id="dateDepart"
-                  name="dateDepart"
-                  [(ngModel)]="reservation.dateDepart"
-                  [min]="getMinDateDepart()"
-                  required
-                  #dateDepart="ngModel"
-                  (change)="onDepartureInputChange()">
-                <div class="error" *ngIf="dateDepart.invalid && dateDepart.touched"><i class="ri-error-warning-line"></i>La date de depart est requise</div>
-              </div>
-            </div>
-
-            <div class="availability-panel">
-              <div class="availability-panel__header">
-                <div>
-                  <h4><i class="ri-calendar-event-line"></i> Calendrier des disponibilites</h4>
-                  <p>{{ getCalendarHint() }}</p>
+    @if (!isLoading) {
+      <div class="layout">
+        @if (hebergement) {
+          <aside class="stay-card">
+            <div class="stay-media">
+              <img [src]="currentMediaUrl || '/assets/images/coucherSoleil.avif'" [alt]="hebergement.nom">
+              @if (hasMedias && imageUrls.length > 1) {
+                <button type="button" class="media-nav prev" (click)="previousImage()">
+                  <i class="ri-arrow-left-s-line"></i>
+                </button>
+              }
+              @if (hasMedias && imageUrls.length > 1) {
+                <button type="button" class="media-nav next" (click)="nextImage()">
+                  <i class="ri-arrow-right-s-line"></i>
+                </button>
+              }
+              @if (hasMedias && imageUrls.length > 1) {
+                <div class="media-dots">
+                  @for (url of imageUrls; track url; let i = $index) {
+                    <button type="button" class="dot" [class.active]="i === currentImageIndex" (click)="setCurrentImage(i)"></button>
+                  }
                 </div>
-
-                <div class="availability-panel__actions">
-                  <button type="button" class="calendar-nav" (click)="previousCalendarMonths()" [disabled]="!canGoPreviousCalendar()">
-                    <i class="ri-arrow-left-s-line"></i>
-                  </button>
-                  <button type="button" class="calendar-nav" (click)="nextCalendarMonths()">
-                    <i class="ri-arrow-right-s-line"></i>
-                  </button>
-                  <button
-                    type="button"
-                    class="calendar-clear"
-                    *ngIf="reservation.dateArrivee || reservation.dateDepart"
-                    (click)="clearSelectedDates()">
-                    Effacer
-                  </button>
+              }
+            </div>
+            <div class="stay-info">
+              <div class="stay-title-row">
+                <h2 class="stay-title">{{ hebergement.nom }}</h2>
+                <div class="stay-price">
+                  <span class="price">{{ hebergement.prixParNuit | number:'1.0-2' }} €
+                    <small class="price-fcfa">≈ {{ hebergement.prixParNuit * 655.957 | number:'1.0-0' }} F CFA</small>
+                  </span>
+                  <span class="period">/ nuit</span>
                 </div>
               </div>
-
-              <div class="availability-legend">
-                <span class="legend-item"><span class="legend-swatch legend-swatch--booked"></span>Nuits deja reservees</span>
-                <span class="legend-item"><span class="legend-swatch legend-swatch--selected"></span>Votre sejour</span>
-                <span class="legend-item"><span class="legend-swatch legend-swatch--marker"></span>Debut / fin de reservation</span>
+              <div class="stay-meta">
+                <div class="meta"><i class="ri-map-pin-2-line"></i> {{ hebergement.localisation }}</div>
+                <div class="meta"><i class="ri-home-5-line"></i> {{ hebergement.type }}</div>
               </div>
-
-              <div class="booked-ranges" *ngIf="hasBookedRanges">
-                <span class="range-chip" *ngFor="let range of getUpcomingBookedRanges()">
-                  {{ formatDisplayDate(range.dateArrivee) }} → {{ formatDisplayDate(range.dateDepart) }}
-                </span>
+              <div class="stay-hints">
+                <div class="hint"><i class="ri-shield-check-line"></i>Paiement securise</div>
+                <div class="hint"><i class="ri-time-line"></i>Confirmation rapide</div>
               </div>
-
-              <div class="calendar-months">
-                <section class="calendar-month" *ngFor="let month of calendarMonths">
-                  <div class="calendar-month__title">{{ month.label }}</div>
-
-                  <div class="calendar-weekdays">
-                    <span *ngFor="let label of weekDayLabels">{{ label }}</span>
+            </div>
+          </aside>
+        }
+        <section class="form-card">
+          <div class="step-tabs" role="tablist" aria-label="Etapes de reservation">
+            <button type="button" class="tab" [class.active]="currentStep === 1" [class.done]="currentStep > 1" (click)="goToStep(1)">
+              <span class="num">1</span>
+              <span class="label">Infos</span>
+            </button>
+            <button type="button" class="tab" [class.active]="currentStep === 2" [class.done]="currentStep > 2" [disabled]="!canOpenStep(2)" (click)="goToStep(2)">
+              <span class="num">2</span>
+              <span class="label">Sejour</span>
+            </button>
+            <button type="button" class="tab" [class.active]="currentStep === 3" [disabled]="!canOpenStep(3)" (click)="goToStep(3)">
+              <span class="num">3</span>
+              <span class="label">Confirmer</span>
+            </button>
+          </div>
+          <div class="step-body">
+            @if (currentStep === 1) {
+              <div class="step-content">
+                <div class="step-header">
+                  <h3><i class="ri-user-line"></i> Informations personnelles</h3>
+                  <p>Renseignez vos coordonnees pour la reservation</p>
+                </div>
+                @if (hasAccountPrefill) {
+                  <div class="account-prefill">
+                    <i class="ri-shield-user-line"></i>
+                    <span>Les informations de votre compte sont pre-remplies. L'email reste lie a votre espace client pour le suivi et le paiement.</span>
                   </div>
-
-                  <div class="calendar-weeks">
-                    <div class="calendar-week" *ngFor="let week of month.weeks">
-                      <button
-                        type="button"
-                        class="calendar-day"
-                        *ngFor="let day of week"
-                        [ngClass]="getCalendarDayClasses(day)"
-                        [disabled]="!canSelectCalendarDate(day)"
-                        (click)="onCalendarDateClick(day)">
-                        <span class="calendar-day__number">{{ day?.getDate() || '' }}</span>
-                      </button>
+                }
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="nomClient"><i class="ri-user-line"></i> Nom *</label>
+                    <input type="text" id="nomClient" name="nomClient" [(ngModel)]="reservation.nomClient" required #nomClient="ngModel" placeholder="Votre nom">
+                    @if (nomClient.invalid && nomClient.touched) {
+                      <div class="error"><i class="ri-error-warning-line"></i>Le nom est requis</div>
+                    }
+                  </div>
+                  <div class="form-group">
+                    <label for="prenomClient"><i class="ri-user-line"></i> Prenom *</label>
+                    <input type="text" id="prenomClient" name="prenomClient" [(ngModel)]="reservation.prenomClient" required #prenomClient="ngModel" placeholder="Votre prenom">
+                    @if (prenomClient.invalid && prenomClient.touched) {
+                      <div class="error"><i class="ri-error-warning-line"></i>Le prenom est requis</div>
+                    }
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="emailClient"><i class="ri-mail-line"></i> Email *</label>
+                    <input type="email" id="emailClient" name="emailClient" [(ngModel)]="reservation.emailClient" [readonly]="isAccountEmailLocked" required email #emailClient="ngModel" placeholder="votre.email@example.com">
+                    @if (emailClient.invalid && emailClient.touched) {
+                      <div class="error"><i class="ri-error-warning-line"></i>Un email valide est requis</div>
+                    }
+                    @if (isAccountEmailLocked) {
+                      <small class="field-help">Cet email est lie a votre compte pour retrouver vos reservations et votre futur paiement.</small>
+                    }
+                  </div>
+                  <div class="form-group">
+                    <label for="telephoneClient"><i class="ri-phone-line"></i> Telephone *</label>
+                    <input type="tel" id="telephoneClient" name="telephoneClient" [(ngModel)]="reservation.telephoneClient" required #telephoneClient="ngModel" placeholder="+229 XX XX XX XX">
+                    @if (telephoneClient.invalid && telephoneClient.touched) {
+                      <div class="error"><i class="ri-error-warning-line"></i>Le telephone est requis</div>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+            @if (currentStep === 2) {
+              <div class="step-content">
+                <div class="step-header">
+                  <h3><i class="ri-calendar-line"></i> Details du sejour</h3>
+                  <p>Choisissez vos dates et precisez vos besoins</p>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="dateArrivee"><i class="ri-calendar-check-line"></i> Date d'arrivee *</label>
+                    <input
+                      type="date"
+                      id="dateArrivee"
+                      name="dateArrivee"
+                      [(ngModel)]="reservation.dateArrivee"
+                      [min]="getMinDateArrivee()"
+                      required
+                      #dateArrivee="ngModel"
+                      (change)="onArrivalInputChange()">
+                      @if (dateArrivee.invalid && dateArrivee.touched) {
+                        <div class="error"><i class="ri-error-warning-line"></i>La date d'arrivee est requise</div>
+                      }
+                    </div>
+                    <div class="form-group">
+                      <label for="dateDepart"><i class="ri-calendar-check-line"></i> Date de depart *</label>
+                      <input
+                        type="date"
+                        id="dateDepart"
+                        name="dateDepart"
+                        [(ngModel)]="reservation.dateDepart"
+                        [min]="getMinDateDepart()"
+                        required
+                        #dateDepart="ngModel"
+                        (change)="onDepartureInputChange()">
+                        @if (dateDepart.invalid && dateDepart.touched) {
+                          <div class="error"><i class="ri-error-warning-line"></i>La date de depart est requise</div>
+                        }
+                      </div>
+                    </div>
+                    <div class="availability-panel">
+                      <div class="availability-panel__header">
+                        <div>
+                          <h4><i class="ri-calendar-event-line"></i> Calendrier des disponibilites</h4>
+                          <p>{{ getCalendarHint() }}</p>
+                        </div>
+                        <div class="availability-panel__actions">
+                          <button type="button" class="calendar-nav" (click)="previousCalendarMonths()" [disabled]="!canGoPreviousCalendar()">
+                            <i class="ri-arrow-left-s-line"></i>
+                          </button>
+                          <button type="button" class="calendar-nav" (click)="nextCalendarMonths()">
+                            <i class="ri-arrow-right-s-line"></i>
+                          </button>
+                          @if (reservation.dateArrivee || reservation.dateDepart) {
+                            <button
+                              type="button"
+                              class="calendar-clear"
+                              (click)="clearSelectedDates()">
+                              Effacer
+                            </button>
+                          }
+                        </div>
+                      </div>
+                      <div class="availability-legend">
+                        <span class="legend-item"><span class="legend-swatch legend-swatch--booked"></span>Nuits deja reservees</span>
+                        <span class="legend-item"><span class="legend-swatch legend-swatch--selected"></span>Votre sejour</span>
+                        <span class="legend-item"><span class="legend-swatch legend-swatch--marker"></span>Debut / fin de reservation</span>
+                      </div>
+                      @if (hasBookedRanges) {
+                        <div class="booked-ranges">
+                          @for (range of getUpcomingBookedRanges(); track range) {
+                            <span class="range-chip">
+                              {{ formatDisplayDate(range.dateArrivee) }} → {{ formatDisplayDate(range.dateDepart) }}
+                            </span>
+                          }
+                        </div>
+                      }
+                      <div class="calendar-months">
+                        @for (month of calendarMonths; track month) {
+                          <section class="calendar-month">
+                            <div class="calendar-month__title">{{ month.label }}</div>
+                            <div class="calendar-weekdays">
+                              @for (label of weekDayLabels; track label) {
+                                <span>{{ label }}</span>
+                              }
+                            </div>
+                            <div class="calendar-weeks">
+                              @for (week of month.weeks; track week) {
+                                <div class="calendar-week">
+                                  @for (day of week; track day) {
+                                    <button
+                                      type="button"
+                                      class="calendar-day"
+                                      [ngClass]="getCalendarDayClasses(day)"
+                                      [disabled]="!canSelectCalendarDate(day)"
+                                      (click)="onCalendarDateClick(day)">
+                                      <span class="calendar-day__number">{{ day?.getDate() || '' }}</span>
+                                    </button>
+                                  }
+                                </div>
+                              }
+                            </div>
+                          </section>
+                        }
+                      </div>
+                    </div>
+                    @if (reservation.dateArrivee && reservation.dateDepart && hasValidStayDates()) {
+                      <div class="availability-check">
+                        @if (checkingAvailability) {
+                          <div class="avail-loading">
+                            <span class="spinner-sm"></span> Verification des disponibilites...
+                          </div>
+                        }
+                        @if (!checkingAvailability && availabilityOk === true) {
+                          <div class="avail-ok">
+                            <i class="ri-checkbox-circle-fill"></i> Ces dates sont disponibles !
+                          </div>
+                        }
+                        @if (!checkingAvailability && availabilityOk === false) {
+                          <div class="avail-error">
+                            <i class="ri-close-circle-fill"></i> Ces dates ne sont pas disponibles. Veuillez choisir d'autres dates.
+                          </div>
+                        }
+                      </div>
+                    }
+                    <div class="form-group">
+                      <label for="nombrePersonnes"><i class="ri-group-line"></i> Nombre de personnes *</label>
+                      <input type="number" id="nombrePersonnes" name="nombrePersonnes" [(ngModel)]="reservation.nombrePersonnes" min="1" max="10" required #nombrePersonnes="ngModel">
+                      @if (nombrePersonnes.invalid && nombrePersonnes.touched) {
+                        <div class="error"><i class="ri-error-warning-line"></i>Le nombre de personnes doit etre entre 1 et 10</div>
+                      }
+                    </div>
+                    <div class="form-group">
+                      <label for="commentaires"><i class="ri-edit-line"></i> Commentaires (optionnel)</label>
+                      <textarea id="commentaires" name="commentaires" [(ngModel)]="reservation.commentaires" rows="4" placeholder="Vos demandes speciales, allergies, preferences alimentaires, etc."></textarea>
+                    </div>
+                    @if (hebergement) {
+                      <div class="stay-breakdown">
+                        <div class="breakdown-item">
+                          <span>Nuits</span>
+                          <strong>{{ getNombreNuits() }}</strong>
+                        </div>
+                        <div class="breakdown-item">
+                          <span>Prix / nuit</span>
+                          <strong>{{ hebergement.prixParNuit | number:'1.0-2' }} €</strong>
+                        </div>
+                        <div class="breakdown-item total">
+                          <span>Total estime</span>
+                          <strong>{{ getTotalPrice() | number:'1.0-2' }} €
+                            <small class="price-fcfa">(≈ {{ getTotalPrice() * 655.957 | number:'1.0-0' }} F CFA)</small>
+                          </strong>
+                        </div>
+                      </div>
+                    }
+                    @if (reservation.dateArrivee && reservation.dateDepart && !hasValidStayDates()) {
+                      <div class="date-warning">
+                        <i class="ri-error-warning-line"></i>
+                        La date de depart doit etre apres la date d'arrivee.
+                      </div>
+                    }
+                  </div>
+                }
+                @if (currentStep === 3) {
+                  <div class="step-content">
+                    <div class="step-header">
+                      <h3><i class="ri-file-list-line"></i> Confirmation et paiement</h3>
+                      <p>Verifiez vos informations puis continuez vers le paiement complet du sejour.</p>
+                    </div>
+                    <div class="summary-card">
+                      <div class="summary-section">
+                        <h4><i class="ri-user-line"></i> Informations personnelles</h4>
+                        <div class="summary-item"><span>Nom complet:</span><span>{{ reservation.prenomClient }} {{ reservation.nomClient }}</span></div>
+                        <div class="summary-item"><span>Email:</span><span>{{ reservation.emailClient }}</span></div>
+                        <div class="summary-item"><span>Telephone:</span><span>{{ reservation.telephoneClient }}</span></div>
+                      </div>
+                      <div class="summary-section">
+                        <h4><i class="ri-calendar-line"></i> Details du sejour</h4>
+                        <div class="summary-item"><span>Arrivee:</span><span>{{ reservation.dateArrivee | date:'dd/MM/yyyy' }}</span></div>
+                        <div class="summary-item"><span>Depart:</span><span>{{ reservation.dateDepart | date:'dd/MM/yyyy' }}</span></div>
+                        <div class="summary-item"><span>Nombre de nuits:</span><span>{{ getNombreNuits() }}</span></div>
+                        <div class="summary-item"><span>Personnes:</span><span>{{ reservation.nombrePersonnes }}</span></div>
+                        @if (reservation.commentaires) {
+                          <div class="summary-item"><span>Commentaires:</span><span>{{ reservation.commentaires }}</span></div>
+                        }
+                      </div>
+                      <div class="summary-section total-section">
+                        <div class="summary-item total"><span><i class="ri-calculator-line"></i> Total:</span><span>{{ getTotalPrice() | number:'1.2-2' }} EUR</span></div>
+                      </div>
+                    </div>
+                    <div class="account-prefill">
+                      <i class="ri-secure-payment-line"></i>
+                      <span>En cliquant ci-dessous, votre reservation sera creee puis vous serez redirige vers PayPal pour regler 100% du montant.</span>
                     </div>
                   </div>
-                </section>
+                }
               </div>
-            </div>
+              @if (errorMessage) {
+                <div class="toast error">
+                  <i class="ri-error-warning-line"></i>
+                  <span>{{ errorMessage }}</span>
+                </div>
+              }
+              @if (successMessage) {
+                <div class="toast success">
+                  <i class="ri-check-circle-line"></i>
+                  <span>{{ successMessage }}</span>
+                </div>
+              }
+              <div class="actions">
+                <button type="button" class="btn secondary" (click)="currentStep === 1 ? router.navigate(['/hebergements']) : previousStep()" [disabled]="isSubmitting">
+                  @if (currentStep > 1) {
+                    <i class="ri-arrow-left-line"></i>
+                  }
+                  {{ currentStep === 1 ? 'Annuler' : 'Precedent' }}
+                </button>
+                <div class="step-indicator">Etape {{ currentStep }} / {{ totalSteps }}</div>
+                @if (currentStep < totalSteps) {
+                  <button type="button" class="btn primary" (click)="nextStep()" [disabled]="!canProceedToNext() || isSubmitting">
+                    Suivant <i class="ri-arrow-right-line"></i>
+                  </button>
+                }
+                @if (currentStep === totalSteps) {
+                  <button type="submit" class="btn primary" (click)="onSubmit()" [disabled]="isSubmitting || !isFormValid()">
+                    @if (isSubmitting) {
+                      <span><i class="ri-loader-4-line spinning"></i> Preparation du paiement...</span>
+                    }
+                    @if (!isSubmitting) {
+                      <span><i class="ri-secure-payment-line"></i> Continuer vers le paiement</span>
+                    }
+                  </button>
+                }
+              </div>
+            </section>
+          </div>
+        }
+      </main>
 
-            <div class="availability-check" *ngIf="reservation.dateArrivee && reservation.dateDepart && hasValidStayDates()">
-              <div class="avail-loading" *ngIf="checkingAvailability">
-                <span class="spinner-sm"></span> Verification des disponibilites...
+      @if (confirmationModalOpen) {
+        <div class="confirm-modal-backdrop">
+          <div class="confirm-modal" role="dialog" aria-modal="true" aria-label="Confirmation reservation">
+            <button type="button" class="confirm-close" (click)="closeConfirmationModal('stay')" aria-label="Fermer">
+              <i class="ri-close-line"></i>
+            </button>
+            <div class="confirm-hero">
+              <div class="confirm-icon-shell">
+                <div class="confirm-icon"><i class="ri-checkbox-circle-line"></i></div>
               </div>
-              <div class="avail-ok" *ngIf="!checkingAvailability && availabilityOk === true">
-                <i class="ri-checkbox-circle-fill"></i> Ces dates sont disponibles !
-              </div>
-              <div class="avail-error" *ngIf="!checkingAvailability && availabilityOk === false">
-                <i class="ri-close-circle-fill"></i> Ces dates ne sont pas disponibles. Veuillez choisir d'autres dates.
-              </div>
+              <p class="confirm-kicker">Demande envoyee</p>
+              <h3>Reservation enregistree</h3>
+              <p>Votre demande a bien ete transmise. Notre equipe revient vers vous rapidement pour la validation finale du sejour.</p>
             </div>
-
-            <div class="form-group">
-              <label for="nombrePersonnes"><i class="ri-group-line"></i> Nombre de personnes *</label>
-              <input type="number" id="nombrePersonnes" name="nombrePersonnes" [(ngModel)]="reservation.nombrePersonnes" min="1" max="10" required #nombrePersonnes="ngModel">
-              <div class="error" *ngIf="nombrePersonnes.invalid && nombrePersonnes.touched"><i class="ri-error-warning-line"></i>Le nombre de personnes doit etre entre 1 et 10</div>
-            </div>
-
-            <div class="form-group">
-              <label for="commentaires"><i class="ri-edit-line"></i> Commentaires (optionnel)</label>
-              <textarea id="commentaires" name="commentaires" [(ngModel)]="reservation.commentaires" rows="4" placeholder="Vos demandes speciales, allergies, preferences alimentaires, etc."></textarea>
-            </div>
-
-            <div class="stay-breakdown" *ngIf="hebergement">
-              <div class="breakdown-item">
-                <span>Nuits</span>
-                <strong>{{ getNombreNuits() }}</strong>
+            @if (hebergement) {
+              <div class="confirm-summary">
+                <div class="confirm-summary__item">
+                  <span>Hebergement</span>
+                  <strong>{{ hebergement.nom }}</strong>
+                </div>
+                <div class="confirm-summary__item">
+                  <span>Sejour</span>
+                  <strong>{{ formatDisplayDate(reservation.dateArrivee) }} → {{ formatDisplayDate(reservation.dateDepart) }}</strong>
+                </div>
+                <div class="confirm-summary__item">
+                  <span>Nuits</span>
+                  <strong>{{ getNombreNuits() }}</strong>
+                </div>
+                <div class="confirm-summary__item">
+                  <span>Total estime</span>
+                  <strong>{{ getTotalPrice() | number:'1.0-2' }} €</strong>
+                </div>
               </div>
-              <div class="breakdown-item">
-                <span>Prix / nuit</span>
-                <strong>{{ hebergement.prixParNuit | number:'1.0-2' }} €</strong>
-              </div>
-              <div class="breakdown-item total">
-                <span>Total estime</span>
-                <strong>{{ getTotalPrice() | number:'1.0-2' }} €
-                  <small class="price-fcfa">(≈ {{ getTotalPrice() * 655.957 | number:'1.0-0' }} F CFA)</small>
-                </strong>
-              </div>
+            }
+            <div class="confirm-note">
+              <i class="ri-information-line"></i>
+              <span>La reservation est liee a votre compte, visible dans <strong>Mes reservations</strong>, puis passe de <strong>En attente</strong> a <strong>Confirmee</strong> quand l'equipe valide le sejour.</span>
             </div>
-
-            <div class="date-warning" *ngIf="reservation.dateArrivee && reservation.dateDepart && !hasValidStayDates()">
-              <i class="ri-error-warning-line"></i>
-              La date de depart doit etre apres la date d'arrivee.
+            <div class="confirm-actions">
+              <button type="button" class="btn secondary" (click)="closeConfirmationModal('stay')">Rester ici</button>
+              <button type="button" class="btn primary" (click)="closeConfirmationModal('reservations')">Voir mes reservations</button>
             </div>
           </div>
-
-          <div class="step-content" *ngIf="currentStep === 3">
-            <div class="step-header">
-              <h3><i class="ri-file-list-line"></i> Confirmation et paiement</h3>
-              <p>Verifiez vos informations puis continuez vers le paiement complet du sejour.</p>
-            </div>
-
-            <div class="summary-card">
-              <div class="summary-section">
-                <h4><i class="ri-user-line"></i> Informations personnelles</h4>
-                <div class="summary-item"><span>Nom complet:</span><span>{{ reservation.prenomClient }} {{ reservation.nomClient }}</span></div>
-                <div class="summary-item"><span>Email:</span><span>{{ reservation.emailClient }}</span></div>
-                <div class="summary-item"><span>Telephone:</span><span>{{ reservation.telephoneClient }}</span></div>
-              </div>
-
-              <div class="summary-section">
-                <h4><i class="ri-calendar-line"></i> Details du sejour</h4>
-                <div class="summary-item"><span>Arrivee:</span><span>{{ reservation.dateArrivee | date:'dd/MM/yyyy' }}</span></div>
-                <div class="summary-item"><span>Depart:</span><span>{{ reservation.dateDepart | date:'dd/MM/yyyy' }}</span></div>
-                <div class="summary-item"><span>Nombre de nuits:</span><span>{{ getNombreNuits() }}</span></div>
-                <div class="summary-item"><span>Personnes:</span><span>{{ reservation.nombrePersonnes }}</span></div>
-                <div class="summary-item" *ngIf="reservation.commentaires"><span>Commentaires:</span><span>{{ reservation.commentaires }}</span></div>
-              </div>
-
-              <div class="summary-section total-section">
-                <div class="summary-item total"><span><i class="ri-calculator-line"></i> Total:</span><span>{{ getTotalPrice() | number:'1.2-2' }} EUR</span></div>
-              </div>
-            </div>
-
-            <div class="account-prefill">
-              <i class="ri-secure-payment-line"></i>
-              <span>En cliquant ci-dessous, votre reservation sera creee puis vous serez redirige vers PayPal pour regler 100% du montant.</span>
-            </div>
-          </div>
         </div>
-
-        <div class="toast error" *ngIf="errorMessage">
-          <i class="ri-error-warning-line"></i>
-          <span>{{ errorMessage }}</span>
-        </div>
-
-        <div class="toast success" *ngIf="successMessage">
-          <i class="ri-check-circle-line"></i>
-          <span>{{ successMessage }}</span>
-        </div>
-
-        <div class="actions">
-          <button type="button" class="btn secondary" (click)="currentStep === 1 ? router.navigate(['/hebergements']) : previousStep()" [disabled]="isSubmitting">
-            <i class="ri-arrow-left-line" *ngIf="currentStep > 1"></i>
-            {{ currentStep === 1 ? 'Annuler' : 'Precedent' }}
-          </button>
-
-          <div class="step-indicator">Etape {{ currentStep }} / {{ totalSteps }}</div>
-
-          <button type="button" class="btn primary" *ngIf="currentStep < totalSteps" (click)="nextStep()" [disabled]="!canProceedToNext() || isSubmitting">
-            Suivant <i class="ri-arrow-right-line"></i>
-          </button>
-
-          <button type="submit" class="btn primary" *ngIf="currentStep === totalSteps" (click)="onSubmit()" [disabled]="isSubmitting || !isFormValid()">
-            <span *ngIf="isSubmitting"><i class="ri-loader-4-line spinning"></i> Preparation du paiement...</span>
-            <span *ngIf="!isSubmitting"><i class="ri-secure-payment-line"></i> Continuer vers le paiement</span>
-          </button>
-        </div>
-      </section>
+      }
     </div>
-  </main>
-
-  <div class="confirm-modal-backdrop" *ngIf="confirmationModalOpen">
-    <div class="confirm-modal" role="dialog" aria-modal="true" aria-label="Confirmation reservation">
-      <button type="button" class="confirm-close" (click)="closeConfirmationModal('stay')" aria-label="Fermer">
-        <i class="ri-close-line"></i>
-      </button>
-
-      <div class="confirm-hero">
-        <div class="confirm-icon-shell">
-          <div class="confirm-icon"><i class="ri-checkbox-circle-line"></i></div>
-        </div>
-        <p class="confirm-kicker">Demande envoyee</p>
-        <h3>Reservation enregistree</h3>
-        <p>Votre demande a bien ete transmise. Notre equipe revient vers vous rapidement pour la validation finale du sejour.</p>
-      </div>
-
-      <div class="confirm-summary" *ngIf="hebergement">
-        <div class="confirm-summary__item">
-          <span>Hebergement</span>
-          <strong>{{ hebergement.nom }}</strong>
-        </div>
-        <div class="confirm-summary__item">
-          <span>Sejour</span>
-          <strong>{{ formatDisplayDate(reservation.dateArrivee) }} → {{ formatDisplayDate(reservation.dateDepart) }}</strong>
-        </div>
-        <div class="confirm-summary__item">
-          <span>Nuits</span>
-          <strong>{{ getNombreNuits() }}</strong>
-        </div>
-        <div class="confirm-summary__item">
-          <span>Total estime</span>
-          <strong>{{ getTotalPrice() | number:'1.0-2' }} €</strong>
-        </div>
-      </div>
-
-      <div class="confirm-note">
-        <i class="ri-information-line"></i>
-        <span>La reservation est liee a votre compte, visible dans <strong>Mes reservations</strong>, puis passe de <strong>En attente</strong> a <strong>Confirmee</strong> quand l'equipe valide le sejour.</span>
-      </div>
-
-      <div class="confirm-actions">
-        <button type="button" class="btn secondary" (click)="closeConfirmationModal('stay')">Rester ici</button>
-        <button type="button" class="btn primary" (click)="closeConfirmationModal('reservations')">Voir mes reservations</button>
-      </div>
-    </div>
-  </div>
-</div>

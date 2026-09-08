@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ActualiteDTO, ActualitesService } from '../../../services/actualites.service';
 import { MediaService } from '../../../services/media.service';
@@ -17,14 +17,13 @@ type ActualiteFormModel = ActualiteDTO & {
   selector: 'app-actualites-admin',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     HeaderComponent,
     DataTableComponent,
     ModalComponent,
     AdminActionsBarComponent,
     BeButtonComponent
-  ],
+],
   templateUrl: './actualites-admin.component.html',
   styleUrls: ['./actualites-admin.component.scss']
 })

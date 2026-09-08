@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { lastValueFrom } from 'rxjs';
@@ -20,10 +20,14 @@ import { EUR_TO_XOF_RATE } from '../../../../shared/constants/currency.constants
   selector: 'app-add-circuit',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, HeaderComponent, BeButtonComponent,
-    AddCircuitStep1Component, AddCircuitStep2Component,
-    AddCircuitStep3Component, AddCircuitStep4Component
-  ],
+    FormsModule,
+    HeaderComponent,
+    BeButtonComponent,
+    AddCircuitStep1Component,
+    AddCircuitStep2Component,
+    AddCircuitStep3Component,
+    AddCircuitStep4Component
+],
   templateUrl: './add-circuit.component.html',
   styleUrls: ['./add-circuit.component.scss']
 })

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { VillesService, VilleDTO } from '../../../services/villes.service';
 import { ZonesAdminService, ZoneDTO } from '../../../services/zones-admin.service';
@@ -12,7 +12,7 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
 @Component({
   selector: 'app-villes',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, DataTableComponent, ModalComponent, AdminActionsBarComponent, BeButtonComponent],
+  imports: [FormsModule, HeaderComponent, DataTableComponent, ModalComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './villes.component.html',
   styleUrls: ['./villes.component.scss']
 })

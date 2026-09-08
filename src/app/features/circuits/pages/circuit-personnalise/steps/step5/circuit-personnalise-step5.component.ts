@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ContactInfo } from '../../circuit-personnalise.types';
 import { isValidEmail } from '../../circuit-personnalise.utils';
@@ -7,7 +7,7 @@ import { isValidEmail } from '../../circuit-personnalise.utils';
 @Component({
   standalone: true,
   selector: 'app-circuit-step5',
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './circuit-personnalise-step5.component.html',
   styleUrl: '../../circuit-personnalise-steps.scss'
 })

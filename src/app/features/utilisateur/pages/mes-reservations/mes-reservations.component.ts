@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
@@ -20,7 +20,7 @@ import { DataTableComponent, TableAction, TableColumn } from '../../../../shared
 @Component({
   selector: 'app-mes-reservations',
   standalone: true,
-  imports: [CommonModule, FormsModule, DataTableComponent],
+  imports: [FormsModule, DataTableComponent],
   templateUrl: './mes-reservations.component.html',
   styleUrls: ['./mes-reservations.component.scss']
 })

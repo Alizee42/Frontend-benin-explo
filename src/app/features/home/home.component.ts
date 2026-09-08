@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { CircuitService } from '../../services/circuit.service';
 import { CircuitDTO } from '../../models/circuit.dto';
@@ -21,7 +21,7 @@ type ActualitesState = 'loading' | 'ready' | 'empty' | 'error';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })

@@ -11,11 +11,13 @@
         Retrouvez les nouvelles du moment, nos mises en avant et des idées concrètes
         pour préparer votre prochain séjour au Bénin.
       </p>
-      <div class="hero-pills" *ngIf="state === 'ready'">
-        <span class="hero-pill"><i class="ri-newspaper-line"></i>{{ actualites.length }} article{{ actualites.length > 1 ? 's' : '' }}</span>
-        <span class="hero-pill"><i class="ri-map-pin-line"></i>Bénin &amp; Afrique</span>
-        <span class="hero-pill"><i class="ri-refresh-line"></i>Mis à jour régulièrement</span>
-      </div>
+      @if (state === 'ready') {
+        <div class="hero-pills">
+          <span class="hero-pill"><i class="ri-newspaper-line"></i>{{ actualites.length }} article{{ actualites.length > 1 ? 's' : '' }}</span>
+          <span class="hero-pill"><i class="ri-map-pin-line"></i>Bénin &amp; Afrique</span>
+          <span class="hero-pill"><i class="ri-refresh-line"></i>Mis à jour régulièrement</span>
+        </div>
+      }
     </div>
     <div class="hero-wave" aria-hidden="true">
       <svg viewBox="0 0 1440 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -29,122 +31,141 @@
     <div class="container">
 
       <!-- Chargement -->
-      <div class="section-status" *ngIf="state === 'loading'">
-        <div class="status-spinner" aria-hidden="true"></div>
-        <p>Chargement des actualités...</p>
-      </div>
+      @if (state === 'loading') {
+        <div class="section-status">
+          <div class="status-spinner" aria-hidden="true"></div>
+          <p>Chargement des actualités...</p>
+        </div>
+      }
 
       <!-- Erreur -->
-      <div class="section-empty" *ngIf="state === 'error'">
-        <i class="ri-error-warning-line" aria-hidden="true"></i>
-        <p>{{ errorMessage }}</p>
-        <a routerLink="/" class="btn-main">Retour à l'accueil</a>
-      </div>
+      @if (state === 'error') {
+        <div class="section-empty">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <p>{{ errorMessage }}</p>
+          <a routerLink="/" class="btn-main">Retour à l'accueil</a>
+        </div>
+      }
 
       <!-- Vide -->
-      <div class="section-empty" *ngIf="state === 'empty'">
-        <i class="ri-newspaper-line" aria-hidden="true"></i>
-        <p>Aucune actualité n'est publiée pour le moment.</p>
-        <a routerLink="/" class="btn-main">Retour à l'accueil</a>
-      </div>
+      @if (state === 'empty') {
+        <div class="section-empty">
+          <i class="ri-newspaper-line" aria-hidden="true"></i>
+          <p>Aucune actualité n'est publiée pour le moment.</p>
+          <a routerLink="/" class="btn-main">Retour à l'accueil</a>
+        </div>
+      }
 
-      <ng-container *ngIf="state === 'ready' && featuredActualite as featured">
-
+      @if (state === 'ready' && featuredActualite; as featured) {
         <!-- Article à la une -->
         <article class="featured-article">
           <div class="featured-media">
             <img [src]="featured.imageUrl || '/assets/images/culture.jpg'" [alt]="featured.titre">
             <div class="featured-media-overlay" aria-hidden="true"></div>
           </div>
-
           <div class="featured-copy">
-            <span class="featured-badge" *ngIf="featured.aLaUne">
-              <i class="ri-star-fill"></i>À la une
-            </span>
+            @if (featured.aLaUne) {
+              <span class="featured-badge">
+                <i class="ri-star-fill"></i>À la une
+              </span>
+            }
             <p class="featured-date">{{ formatDate(featured.datePublication) }}</p>
             <h2>{{ featured.titre }}</h2>
             <p class="featured-text">{{ featured.resume || getExcerpt(featured, 280) }}</p>
-            <div class="featured-meta" *ngIf="featured.auteurNom">
-              <i class="ri-user-line"></i>
-              <span>{{ featured.auteurNom }}</span>
-            </div>
+            @if (featured.auteurNom) {
+              <div class="featured-meta">
+                <i class="ri-user-line"></i>
+                <span>{{ featured.auteurNom }}</span>
+              </div>
+            }
             <button type="button" class="btn-main" (click)="openActualite(featured)">
               <i class="ri-book-read-line"></i>
               Lire l'article
             </button>
           </div>
         </article>
-
         <!-- Grille des autres articles -->
-        <section class="articles-section" *ngIf="otherActualites.length > 0">
-          <div class="section-header">
-            <span class="section-kicker">Toutes les actualités</span>
-            <h2 class="section-title">Les dernières publications</h2>
-          </div>
-
-          <div class="articles-grid">
-            <article
-              class="article-card"
-              *ngFor="let actualite of otherActualites"
-              (click)="openActualite(actualite)"
-              role="button"
-              tabindex="0"
-              (keyup.enter)="openActualite(actualite)">
-              <div class="article-card__media">
-                <img
-                  [src]="actualite.imageUrl || '/assets/images/culture.jpg'"
-                  [alt]="actualite.titre"
-                  loading="lazy">
-                <span class="article-card__badge" *ngIf="actualite.aLaUne">
-                  <i class="ri-star-fill"></i>À la une
-                </span>
+        @if (otherActualites.length > 0) {
+          <section class="articles-section">
+            <div class="section-header">
+              <span class="section-kicker">Toutes les actualités</span>
+              <h2 class="section-title">Les dernières publications</h2>
+            </div>
+            <div class="articles-grid">
+              @for (actualite of otherActualites; track actualite) {
+                <article
+                  class="article-card"
+                  (click)="openActualite(actualite)"
+                  role="button"
+                  tabindex="0"
+                  (keyup.enter)="openActualite(actualite)">
+                  <div class="article-card__media">
+                    <img
+                      [src]="actualite.imageUrl || '/assets/images/culture.jpg'"
+                      [alt]="actualite.titre"
+                      loading="lazy">
+                      @if (actualite.aLaUne) {
+                        <span class="article-card__badge">
+                          <i class="ri-star-fill"></i>À la une
+                        </span>
+                      }
+                    </div>
+                    <div class="article-card__body">
+                      <p class="article-card__date">{{ formatDate(actualite.datePublication) }}</p>
+                      <h3>{{ actualite.titre }}</h3>
+                      <p class="article-card__excerpt">{{ getExcerpt(actualite) }}</p>
+                      <span class="article-link">
+                        Lire l'article <i class="ri-arrow-right-line"></i>
+                      </span>
+                    </div>
+                  </article>
+                }
               </div>
-              <div class="article-card__body">
-                <p class="article-card__date">{{ formatDate(actualite.datePublication) }}</p>
-                <h3>{{ actualite.titre }}</h3>
-                <p class="article-card__excerpt">{{ getExcerpt(actualite) }}</p>
-                <span class="article-link">
-                  Lire l'article <i class="ri-arrow-right-line"></i>
-                </span>
-              </div>
-            </article>
-          </div>
-        </section>
+            </section>
+          }
+        }
+      </div>
+    </main>
 
-      </ng-container>
-    </div>
-  </main>
+  </section>
 
-</section>
-
-<!-- Modal détail -->
-<app-modal
-  [open]="detailOpen"
-  [size]="'large'"
-  [title]="selectedActualite?.titre || 'Actualité'"
-  (close)="closeActualite()">
-  <article *ngIf="selectedActualite" class="actualite-detail">
-    <img
-      *ngIf="selectedActualite.imageUrl"
-      class="actualite-detail__image"
-      [src]="selectedActualite.imageUrl"
-      [alt]="selectedActualite.titre">
-
-    <div class="actualite-detail__meta">
-      <span *ngIf="selectedActualite.datePublication">
-        <i class="ri-calendar-line"></i>{{ formatDate(selectedActualite.datePublication) }}
-      </span>
-      <span *ngIf="selectedActualite.auteurNom">
-        <i class="ri-user-line"></i>{{ selectedActualite.auteurNom }}
-      </span>
-      <span class="detail-badge" *ngIf="selectedActualite.aLaUne">
-        <i class="ri-star-fill"></i>À la une
-      </span>
-    </div>
-
-    <p class="actualite-detail__resume" *ngIf="selectedActualite.resume">
-      {{ selectedActualite.resume }}
-    </p>
-    <div class="actualite-detail__content">{{ selectedActualite.contenu }}</div>
-  </article>
-</app-modal>
+  <!-- Modal détail -->
+  <app-modal
+    [open]="detailOpen"
+    [size]="'large'"
+    [title]="selectedActualite?.titre || 'Actualité'"
+    (close)="closeActualite()">
+    @if (selectedActualite) {
+      <article class="actualite-detail">
+        @if (selectedActualite.imageUrl) {
+          <img
+            class="actualite-detail__image"
+            [src]="selectedActualite.imageUrl"
+            [alt]="selectedActualite.titre">
+        }
+        <div class="actualite-detail__meta">
+          @if (selectedActualite.datePublication) {
+            <span>
+              <i class="ri-calendar-line"></i>{{ formatDate(selectedActualite.datePublication) }}
+            </span>
+          }
+          @if (selectedActualite.auteurNom) {
+            <span>
+              <i class="ri-user-line"></i>{{ selectedActualite.auteurNom }}
+            </span>
+          }
+          @if (selectedActualite.aLaUne) {
+            <span class="detail-badge">
+              <i class="ri-star-fill"></i>À la une
+            </span>
+          }
+        </div>
+        @if (selectedActualite.resume) {
+          <p class="actualite-detail__resume">
+            {{ selectedActualite.resume }}
+          </p>
+        }
+        <div class="actualite-detail__content">{{ selectedActualite.contenu }}</div>
+      </article>
+    }
+  </app-modal>

@@ -1,12 +1,12 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { CircuitFormData, PointFort } from '../circuit-form.types';
 
 @Component({
   selector: 'app-add-circuit-step4',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './add-circuit-step4.component.html'
 })
 export class AddCircuitStep4Component {

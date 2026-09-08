@@ -23,14 +23,24 @@ import { CommonModule } from '@angular/common';
         iconOnly ? 'be-btn-icon-only' : '',
         loading ? 'is-loading' : ''
       ]"
-    >
-      <i *ngIf="iconLeft && !loading" [class]="iconLeft" aria-hidden="true"></i>
-      <span *ngIf="loading" class="be-btn-spinner" aria-hidden="true"></span>
-      <span *ngIf="label">{{ label }}</span>
-      <ng-content *ngIf="!label"></ng-content>
-      <i *ngIf="iconRight && !loading" [class]="iconRight" aria-hidden="true"></i>
+      >
+      @if (iconLeft && !loading) {
+        <i [class]="iconLeft" aria-hidden="true"></i>
+      }
+      @if (loading) {
+        <span class="be-btn-spinner" aria-hidden="true"></span>
+      }
+      @if (label) {
+        <span>{{ label }}</span>
+      }
+      @if (!label) {
+        <ng-content></ng-content>
+      }
+      @if (iconRight && !loading) {
+        <i [class]="iconRight" aria-hidden="true"></i>
+      }
     </button>
-  `,
+    `,
   styleUrls: ['./be-button.component.scss']
 })
 export class BeButtonComponent {

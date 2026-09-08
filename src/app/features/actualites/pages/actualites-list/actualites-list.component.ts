@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { ActualiteDTO, ActualitesService } from '../../../../services/actualites.service';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
@@ -9,7 +9,7 @@ type LoadState = 'loading' | 'ready' | 'empty' | 'error';
 @Component({
   selector: 'app-actualites-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, ModalComponent],
+  imports: [RouterModule, ModalComponent],
   templateUrl: './actualites-list.component.html',
   styleUrls: ['./actualites-list.component.scss']
 })

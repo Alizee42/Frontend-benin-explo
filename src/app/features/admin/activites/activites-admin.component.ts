@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ActivitesService, Activite } from '../../../services/activites.service';
@@ -18,7 +18,7 @@ import { EUR_TO_XOF_RATE } from '../../../shared/constants/currency.constants';
 @Component({
   standalone: true,
   selector: 'app-activites-admin',
-  imports: [CommonModule, RouterModule, FormsModule, HeaderComponent, DataTableComponent, ActiviteFormComponent, ModalComponent, AdminActionsBarComponent, BeButtonComponent],
+  imports: [RouterModule, FormsModule, HeaderComponent, DataTableComponent, ActiviteFormComponent, ModalComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './activites-admin.component.html',
   styleUrls: ['./activites-admin.component.scss']
 })

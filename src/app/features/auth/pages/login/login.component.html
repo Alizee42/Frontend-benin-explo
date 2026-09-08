@@ -14,51 +14,59 @@
           formControlName="email"
           class="form-control"
           placeholder="Entrez votre email"
-        >
-      </div>
-
-      <div class="form-group">
-        <label for="motDePasse">Mot de passe</label>
-        <div class="password-input-container">
-          <input
-            [type]="showPassword ? 'text' : 'password'"
-            id="motDePasse"
-            formControlName="motDePasse"
-            class="form-control"
-            placeholder="Entrez votre mot de passe"
           >
-          <button
-            type="button"
-            class="password-toggle"
-            (click)="togglePassword()"
-            aria-label="Afficher/masquer le mot de passe"
-          >
-            <i [class]="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'"></i>
-          </button>
         </div>
-      </div>
 
-      <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
+        <div class="form-group">
+          <label for="motDePasse">Mot de passe</label>
+          <div class="password-input-container">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="motDePasse"
+              formControlName="motDePasse"
+              class="form-control"
+              placeholder="Entrez votre mot de passe"
+              >
+              <button
+                type="button"
+                class="password-toggle"
+                (click)="togglePassword()"
+                aria-label="Afficher/masquer le mot de passe"
+                >
+                <i [class]="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'"></i>
+              </button>
+            </div>
+          </div>
 
-      <button
-        type="submit"
-        class="btn-login"
-        [disabled]="loading || loginForm.invalid"
-      >
-        <span *ngIf="loading">Connexion...</span>
-        <span *ngIf="!loading">Se connecter</span>
-      </button>
+          @if (errorMessage) {
+            <div class="error-message">
+              {{ errorMessage }}
+            </div>
+          }
 
-      <div class="forgot-password">
-        <button type="button" class="btn-link" (click)="forgotPassword()">Mot de passe oublié ?</button>
-        <p *ngIf="forgotPasswordMessage" class="forgot-password-message">{{ forgotPasswordMessage }}</p>
+          <button
+            type="submit"
+            class="btn-login"
+            [disabled]="loading || loginForm.invalid"
+            >
+            @if (loading) {
+              <span>Connexion...</span>
+            }
+            @if (!loading) {
+              <span>Se connecter</span>
+            }
+          </button>
+
+          <div class="forgot-password">
+            <button type="button" class="btn-link" (click)="forgotPassword()">Mot de passe oublié ?</button>
+            @if (forgotPasswordMessage) {
+              <p class="forgot-password-message">{{ forgotPasswordMessage }}</p>
+            }
+          </div>
+          <div class="auth-footer">
+            <span>Pas encore de compte ?</span>
+            <a routerLink="/register" [queryParams]="registerQueryParams || undefined">Creer un compte</a>
+          </div>
+        </form>
       </div>
-      <div class="auth-footer">
-        <span>Pas encore de compte ?</span>
-        <a routerLink="/register" [queryParams]="registerQueryParams || undefined">Creer un compte</a>
-      </div>
-    </form>
-  </div>
-</div>
+    </div>

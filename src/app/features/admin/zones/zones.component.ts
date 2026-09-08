@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ZonesAdminService, ZoneDTO } from '../../../services/zones-admin.service';
 import { HeaderComponent } from '../../../shared/components/header/header.component';
@@ -13,7 +13,7 @@ type ZoneRow = ZoneDTO & { id: number };
 @Component({
   selector: 'app-zones',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent, DataTableComponent, ModalComponent, AdminActionsBarComponent, BeButtonComponent],
+  imports: [FormsModule, HeaderComponent, DataTableComponent, ModalComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './zones.component.html',
   styleUrls: ['./zones.component.scss']
 })

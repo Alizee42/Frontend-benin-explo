@@ -15,83 +15,89 @@
               [(ngModel)]="searchTerm"
               placeholder="Rechercher"
               aria-label="Rechercher un hebergement">
-          </label>
+            </label>
 
-          <label class="sort-field">
-            <i class="ri-filter-3-line"></i>
-            <select [(ngModel)]="sortOption" aria-label="Trier les hebergements">
-              <option value="nom-asc">Nom A-Z</option>
-              <option value="nom-desc">Nom Z-A</option>
-              <option value="type-asc">Type</option>
-              <option value="prix-asc">Prix croissant</option>
-              <option value="prix-desc">Prix decroissant</option>
-            </select>
-          </label>
+            <label class="sort-field">
+              <i class="ri-filter-3-line"></i>
+              <select [(ngModel)]="sortOption" aria-label="Trier les hebergements">
+                <option value="nom-asc">Nom A-Z</option>
+                <option value="nom-desc">Nom Z-A</option>
+                <option value="type-asc">Type</option>
+                <option value="prix-asc">Prix croissant</option>
+                <option value="prix-desc">Prix decroissant</option>
+              </select>
+            </label>
 
-          <be-button
-            variant="primary"
-            iconLeft="ri-add-line"
-            label="Ajouter un hebergement"
-            (click)="openAddModal()">
-          </be-button>
+            <be-button
+              variant="primary"
+              iconLeft="ri-add-line"
+              label="Ajouter un hebergement"
+              (click)="openAddModal()">
+            </be-button>
+          </div>
+        </app-admin-actions-bar>
+
+        @if (!loading) {
+          <div class="table-meta">
+            {{ filteredHebergements.length }} hebergement{{ filteredHebergements.length > 1 ? 's' : '' }}
+          </div>
+        }
+
+        <div class="admin-content">
+          <app-data-table
+            [columns]="tableColumns"
+            [data]="filteredHebergements"
+            [actions]="tableActions"
+            [loading]="loading"
+            [pageable]="true"
+            [pageSize]="7"
+            (actionClick)="onTableAction($event)">
+          </app-data-table>
         </div>
-      </app-admin-actions-bar>
+      </div>
+    </main>
 
-      <div class="table-meta" *ngIf="!loading">
-        {{ filteredHebergements.length }} hebergement{{ filteredHebergements.length > 1 ? 's' : '' }}
+    <!-- MODAL FORM -->
+    <app-modal [title]="isEditing ? 'Modifier un hébergement' : 'Ajouter un hébergement'" [open]="showModal" [size]="'large'" (close)="closeModal()">
+      <div class="modal-header">
+        <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} un hébergement</h3>
       </div>
 
-      <div class="admin-content">
-        <app-data-table
-          [columns]="tableColumns"
-          [data]="filteredHebergements"
-          [actions]="tableActions"
-          [loading]="loading"
-          [pageable]="true"
-          [pageSize]="7"
-          (actionClick)="onTableAction($event)">
-        </app-data-table>
-      </div>
-    </div>
-  </main>
+      <div class="modal-body">
+        <form class="hebergement-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nom">Nom *</label>
+              <input type="text" id="nom" [(ngModel)]="currentHebergement.nom" name="nom" required>
+            </div>
 
-  <!-- MODAL FORM -->
-  <app-modal [title]="isEditing ? 'Modifier un hébergement' : 'Ajouter un hébergement'" [open]="showModal" [size]="'large'" (close)="closeModal()">
-    <div class="modal-header">
-      <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} un hébergement</h3>
-    </div>
-
-    <div class="modal-body">
-      <form class="hebergement-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="nom">Nom *</label>
-            <input type="text" id="nom" [(ngModel)]="currentHebergement.nom" name="nom" required>
+            <div class="form-group">
+              <label for="type">Type *</label>
+              <select id="type" [(ngModel)]="currentHebergement.type" name="type" required>
+                <option value="">Sélectionner un type</option>
+                <option value="Hôtel">Hôtel</option>
+                <option value="Maison d'hôte">Maison d'hôte</option>
+                <option value="Auberge">Auberge</option>
+                <option value="Lodge">Lodge</option>
+                <option value="Écolodge">Écolodge</option>
+                <option value="Villa">Villa</option>
+                <option value="Appartement">Appartement</option>
+              </select>
+            </div>
           </div>
 
-          <div class="form-group">
-            <label for="type">Type *</label>
-            <select id="type" [(ngModel)]="currentHebergement.type" name="type" required>
-              <option value="">Sélectionner un type</option>
-              <option value="Hôtel">Hôtel</option>
-              <option value="Maison d'hôte">Maison d'hôte</option>
-              <option value="Auberge">Auberge</option>
-              <option value="Lodge">Lodge</option>
-              <option value="Écolodge">Écolodge</option>
-              <option value="Villa">Villa</option>
-              <option value="Appartement">Appartement</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="ville">Ville *</label>
-            <select id="ville" [(ngModel)]="selectedVilleId" name="ville" required>
-              <option [ngValue]="null">Sélectionner une ville</option>
-              <option *ngFor="let ville of villes" [ngValue]="ville.id">
-                {{ ville.nom }} <span *ngIf="ville.zoneNom">- {{ ville.zoneNom }}</span>
-              </option>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ville">Ville *</label>
+              <select id="ville" [(ngModel)]="selectedVilleId" name="ville" required>
+                <option [ngValue]="null">Sélectionner une ville</option>
+                @for (ville of villes; track ville) {
+                  <option [ngValue]="ville.id">
+                    {{ ville.nom }} @if (ville.zoneNom) {
+                    <span>- {{ ville.zoneNom }}</span>
+                  }
+                </option>
+              }
             </select>
           </div>
 
@@ -121,17 +127,21 @@
             <div class="image-upload-section">
 
               <!-- Photos déjà enregistrées (mode édition) -->
-              <div class="existing-images" *ngIf="isEditing && currentHebergement.imageUrls && currentHebergement.imageUrls.length > 0">
-                <p class="images-label">Photos actuelles</p>
-                <div class="image-preview">
-                  <div class="image-item" *ngFor="let url of currentHebergement.imageUrls; let i = index">
-                    <img [src]="url" alt="Photo existante" class="preview-img">
-                    <button type="button" class="btn-remove" (click)="removeExistingImage(i)" title="Supprimer cette photo">
-                      <i class="ri-close-line"></i>
-                    </button>
+              @if (isEditing && currentHebergement.imageUrls && currentHebergement.imageUrls.length > 0) {
+                <div class="existing-images">
+                  <p class="images-label">Photos actuelles</p>
+                  <div class="image-preview">
+                    @for (url of currentHebergement.imageUrls; track url; let i = $index) {
+                      <div class="image-item">
+                        <img [src]="url" alt="Photo existante" class="preview-img">
+                        <button type="button" class="btn-remove" (click)="removeExistingImage(i)" title="Supprimer cette photo">
+                          <i class="ri-close-line"></i>
+                        </button>
+                      </div>
+                    }
                   </div>
                 </div>
-              </div>
+              }
 
               <!-- Ajout de nouvelles photos -->
               <input type="file" id="imageUpload" (change)="onImageSelected($event)" accept="image/*" multiple style="display: none;">
@@ -139,15 +149,19 @@
                 <i class="ri-image-add-line"></i>
                 Ajouter des images
               </button>
-              <div class="image-preview" *ngIf="selectedImages.length > 0">
-                <p class="images-label">Nouvelles photos à ajouter</p>
-                <div class="image-item" *ngFor="let image of selectedImages; let i = index">
-                  <img [src]="image.preview" alt="Preview" class="preview-img">
-                  <button type="button" class="btn-remove" (click)="removeImage(i)">
-                    <i class="ri-close-line"></i>
-                  </button>
+              @if (selectedImages.length > 0) {
+                <div class="image-preview">
+                  <p class="images-label">Nouvelles photos à ajouter</p>
+                  @for (image of selectedImages; track image; let i = $index) {
+                    <div class="image-item">
+                      <img [src]="image.preview" alt="Preview" class="preview-img">
+                      <button type="button" class="btn-remove" (click)="removeImage(i)">
+                        <i class="ri-close-line"></i>
+                      </button>
+                    </div>
+                  }
                 </div>
-              </div>
+              }
 
             </div>
           </div>
@@ -155,7 +169,9 @@
       </form>
     </div>
 
-    <div *ngIf="error" class="form-error">{{ error }}</div>
+    @if (error) {
+      <div class="form-error">{{ error }}</div>
+    }
     <div class="modal-footer">
       <button class="btn-cancel" (click)="closeModal()">Annuler</button>
       <button class="btn-save" (click)="saveHebergement()">
@@ -164,11 +180,11 @@
     </div>
   </app-modal>
 
-<app-modal title="Supprimer l'hébergement" [open]="confirmDeleteOpen" [closeOnBackdrop]="false" size="small" (close)="confirmDeleteOpen = false">
-  <p>Êtes-vous sûr de vouloir supprimer cet hébergement ? Cette action est irréversible.</p>
-  <div class="d-flex gap-2 justify-content-end mt-3">
-    <be-button variant="secondary" label="Annuler" (click)="confirmDeleteOpen = false"></be-button>
-    <be-button variant="danger" label="Supprimer" (click)="executeDelete()"></be-button>
-  </div>
-</app-modal>
+  <app-modal title="Supprimer l'hébergement" [open]="confirmDeleteOpen" [closeOnBackdrop]="false" size="small" (close)="confirmDeleteOpen = false">
+    <p>Êtes-vous sûr de vouloir supprimer cet hébergement ? Cette action est irréversible.</p>
+    <div class="d-flex gap-2 justify-content-end mt-3">
+      <be-button variant="secondary" label="Annuler" (click)="confirmDeleteOpen = false"></be-button>
+      <be-button variant="danger" label="Supprimer" (click)="executeDelete()"></be-button>
+    </div>
+  </app-modal>
 </div>

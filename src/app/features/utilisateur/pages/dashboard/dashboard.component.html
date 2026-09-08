@@ -15,15 +15,18 @@
     </section>
 
     <!-- Etat chargement / erreur -->
-    <div *ngIf="loading" class="dashboard-state dashboard-state-loading">
-      Chargement de votre espace...
-    </div>
-    <div *ngIf="errorMessage" class="dashboard-state dashboard-state-error">
-      <i class="ri-error-warning-line"></i> {{ errorMessage }}
-    </div>
+    @if (loading) {
+      <div class="dashboard-state dashboard-state-loading">
+        Chargement de votre espace...
+      </div>
+    }
+    @if (errorMessage) {
+      <div class="dashboard-state dashboard-state-error">
+        <i class="ri-error-warning-line"></i> {{ errorMessage }}
+      </div>
+    }
 
-    <ng-container *ngIf="loaded">
-
+    @if (loaded) {
       <!-- KPI -->
       <section class="dash-section">
         <header class="section-header">
@@ -32,7 +35,6 @@
             <p>Vue d'ensemble de vos sejours reserves.</p>
           </div>
         </header>
-
         <div class="kpi-grid">
           <article class="kpi-card">
             <div class="kpi-icon"><i class="ri-calendar-check-line"></i></div>
@@ -42,7 +44,6 @@
               <p class="kpi-hint">Hebergements et circuits confondus.</p>
             </div>
           </article>
-
           <article class="kpi-card">
             <div class="kpi-icon"><i class="ri-hotel-bed-line"></i></div>
             <div class="kpi-content">
@@ -51,7 +52,6 @@
               <p class="kpi-hint">Reservations de logements.</p>
             </div>
           </article>
-
           <article class="kpi-card">
             <div class="kpi-icon"><i class="ri-route-line"></i></div>
             <div class="kpi-content">
@@ -60,7 +60,6 @@
               <p class="kpi-hint">Catalogue et sur mesure confondus.</p>
             </div>
           </article>
-
           <article class="kpi-card">
             <div class="kpi-icon"><i class="ri-shield-check-line"></i></div>
             <div class="kpi-content">
@@ -71,10 +70,8 @@
           </article>
         </div>
       </section>
-
       <!-- Acces rapide + Activite -->
       <div class="dash-bottom-grid">
-
         <section class="dash-section">
           <header class="section-header">
             <div class="section-header-main">
@@ -82,7 +79,6 @@
               <p>Naviguez vers vos espaces favoris.</p>
             </div>
           </header>
-
           <div class="modules-grid">
             <a routerLink="/mes-reservations" class="module-card">
               <span class="module-icon"><i class="ri-calendar-check-line"></i></span>
@@ -90,9 +86,10 @@
                 <p class="module-title">Mes reservations</p>
                 <p class="module-subtitle">Consulter tous vos sejours reserves.</p>
               </div>
-              <span class="module-count" *ngIf="totalReservations > 0">{{ totalReservations }}</span>
+              @if (totalReservations > 0) {
+                <span class="module-count">{{ totalReservations }}</span>
+              }
             </a>
-
             <a routerLink="/hebergements" class="module-card">
               <span class="module-icon"><i class="ri-hotel-bed-line"></i></span>
               <div class="module-content">
@@ -100,7 +97,6 @@
                 <p class="module-subtitle">Parcourir les logements disponibles.</p>
               </div>
             </a>
-
             <a routerLink="/circuit" class="module-card">
               <span class="module-icon"><i class="ri-route-line"></i></span>
               <div class="module-content">
@@ -108,7 +104,6 @@
                 <p class="module-subtitle">Decouvrir les itineraires au Benin.</p>
               </div>
             </a>
-
             <a routerLink="/circuit-personnalise" class="module-card">
               <span class="module-icon"><i class="ri-instance-line"></i></span>
               <div class="module-content">
@@ -116,7 +111,6 @@
                 <p class="module-subtitle">Creer votre voyage sur mesure.</p>
               </div>
             </a>
-
             <a routerLink="/profil" class="module-card">
               <span class="module-icon"><i class="ri-user-3-line"></i></span>
               <div class="module-content">
@@ -126,7 +120,6 @@
             </a>
           </div>
         </section>
-
         <section class="dash-section">
           <header class="section-header section-header--inline">
             <div class="section-header-main">
@@ -137,34 +130,37 @@
               Tout voir <i class="ri-arrow-right-line"></i>
             </a>
           </header>
-
-          <div class="empty-state" *ngIf="recentActivity.length === 0">
-            <i class="ri-inbox-2-line"></i>
-            <strong>Aucune reservation</strong>
-            <span>Vos futures reservations apparaitront ici.</span>
-          </div>
-
-          <div class="activity-list" *ngIf="recentActivity.length > 0">
-            <article class="activity-item" *ngFor="let item of recentActivity">
-              <div class="activity-item__icon" [class.activity-item__icon--circuit]="item.kind !== 'hebergement'">
-                <i [class]="item.kind === 'hebergement' ? 'ri-hotel-bed-line' : (item.kind === 'sur-mesure' ? 'ri-instance-line' : 'ri-route-line')"></i>
-              </div>
-              <div class="activity-item__content">
-                <div class="activity-item__top">
-                  <strong>{{ item.title }}</strong>
-                  <span class="status-badge" [ngClass]="getStatusClass(item.status)">
-                    {{ getStatusLabel(item.status) }}
-                  </span>
-                </div>
-                <span class="activity-item__meta">{{ item.details }}</span>
-                <span class="activity-item__date">{{ formatDate(item.date) }}</span>
-              </div>
-            </article>
-          </div>
+          @if (recentActivity.length === 0) {
+            <div class="empty-state">
+              <i class="ri-inbox-2-line"></i>
+              <strong>Aucune reservation</strong>
+              <span>Vos futures reservations apparaitront ici.</span>
+            </div>
+          }
+          @if (recentActivity.length > 0) {
+            <div class="activity-list">
+              @for (item of recentActivity; track item) {
+                <article class="activity-item">
+                  <div class="activity-item__icon" [class.activity-item__icon--circuit]="item.kind !== 'hebergement'">
+                    <i [class]="item.kind === 'hebergement' ? 'ri-hotel-bed-line' : (item.kind === 'sur-mesure' ? 'ri-instance-line' : 'ri-route-line')"></i>
+                  </div>
+                  <div class="activity-item__content">
+                    <div class="activity-item__top">
+                      <strong>{{ item.title }}</strong>
+                      <span class="status-badge" [ngClass]="getStatusClass(item.status)">
+                        {{ getStatusLabel(item.status) }}
+                      </span>
+                    </div>
+                    <span class="activity-item__meta">{{ item.details }}</span>
+                    <span class="activity-item__date">{{ formatDate(item.date) }}</span>
+                  </div>
+                </article>
+              }
+            </div>
+          }
         </section>
-
       </div>
-    </ng-container>
+    }
 
   </main>
 </div>

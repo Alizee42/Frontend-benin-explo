@@ -20,21 +20,23 @@
 <section class="circuits-section">
   <div class="circuits-container">
 
-    <div *ngIf="loading" class="loading-wrap">
-      <div class="loading-spinner"></div>
-      <p>Chargement des circuits...</p>
-    </div>
-
-    <ng-container *ngIf="!loading">
-      <div
-        *ngIf="circuitsNotice"
-        class="section-note"
-        [class.is-fallback]="usingDemoCircuits"
-        [class.is-empty]="!usingDemoCircuits && allCircuits.length === 0">
-        <i class="ri-error-warning-line" aria-hidden="true"></i>
-        <span>{{ circuitsNotice }}</span>
+    @if (loading) {
+      <div class="loading-wrap">
+        <div class="loading-spinner"></div>
+        <p>Chargement des circuits...</p>
       </div>
+    }
 
+    @if (!loading) {
+      @if (circuitsNotice) {
+        <div
+          class="section-note"
+          [class.is-fallback]="usingDemoCircuits"
+          [class.is-empty]="!usingDemoCircuits && allCircuits.length === 0">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <span>{{ circuitsNotice }}</span>
+        </div>
+      }
       <div class="filters-panel">
         <div class="filters-top">
           <div class="filters-title">
@@ -43,9 +45,9 @@
           </div>
           <div class="filters-count">{{ circuits.length }} resultat(s)</div>
         </div>
-
-        <p *ngIf="zonesNotice" class="filters-note">{{ zonesNotice }}</p>
-
+        @if (zonesNotice) {
+          <p class="filters-note">{{ zonesNotice }}</p>
+        }
         <div class="filters" aria-label="Filtres zones">
           <button
             class="filter-btn"
@@ -54,61 +56,67 @@
             Tous
             <span>{{ allCircuits.length }}</span>
           </button>
-          <button
-            *ngFor="let zone of zones; trackBy: trackByZoneId"
-            class="filter-btn"
-            [class.active]="selectedZoneId === zone.idZone"
-            (click)="filterByZone(zone.idZone)">
-            {{ zone.nom }}
-            <span>{{ getCircuitsCountForZone(zone.idZone) }}</span>
+          @for (zone of zones; track trackByZoneId($index, zone)) {
+            <button
+              class="filter-btn"
+              [class.active]="selectedZoneId === zone.idZone"
+              (click)="filterByZone(zone.idZone)">
+              {{ zone.nom }}
+              <span>{{ getCircuitsCountForZone(zone.idZone) }}</span>
+            </button>
+          }
+        </div>
+      </div>
+      <div class="circuits-grid">
+        @if (allCircuits.length === 0) {
+          <div class="no-circuits">
+            <p>Aucun circuit actif n est disponible pour le moment.</p>
+            <a routerLink="/circuit-personnalise" class="btn-reset btn-reset-link">
+              Construire un circuit sur mesure
+            </a>
+          </div>
+        }
+        @if (allCircuits.length > 0 && circuits.length === 0) {
+          <div class="no-circuits">
+            <p>Aucun circuit trouve pour cette zone.</p>
+            <button class="btn-reset" (click)="filterByZone(null)">Voir tous les circuits</button>
+          </div>
+        }
+        @for (c of pagedCircuits; track trackByCircuitId($index, c)) {
+          <article class="circuit-card">
+            <a class="card-image" [routerLink]="['/circuit', c.id]" [attr.aria-label]="'Voir ' + c.titre">
+              <img [src]="getImageForCircuit(c)" [alt]="c.titre">
+              <div class="image-overlay"></div>
+              <div class="card-badges">
+                <span class="badge duration"><i class="ri-time-line"></i> {{ c.dureeIndicative }}</span>
+                @if (c.prixIndicatif != null) {
+                  <span class="badge price">{{ c.prixIndicatif | number:'1.0-2' }} €</span>
+                }
+              </div>
+            </a>
+            <div class="card-body">
+              <h3 class="card-title">{{ c.titre }}</h3>
+              <p class="card-desc">{{ getShortDescription(c) }}</p>
+              <div class="card-footer">
+                <span class="location"><i class="ri-map-pin-line"></i> {{ c.villeNom || c.localisation || 'Benin' }}</span>
+                <a [routerLink]="['/circuit', c.id]" class="btn-view">Voir le circuit</a>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+      @if (circuits.length > pageSize) {
+        <div class="pagination">
+          <button type="button" class="page-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+            Precedent
+          </button>
+          <span class="page-info">Page {{ currentPage }} / {{ totalPages }}</span>
+          <button type="button" class="page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+            Suivant
           </button>
         </div>
-      </div>
-
-      <div class="circuits-grid">
-        <div *ngIf="allCircuits.length === 0" class="no-circuits">
-          <p>Aucun circuit actif n est disponible pour le moment.</p>
-          <a routerLink="/circuit-personnalise" class="btn-reset btn-reset-link">
-            Construire un circuit sur mesure
-          </a>
-        </div>
-
-        <div *ngIf="allCircuits.length > 0 && circuits.length === 0" class="no-circuits">
-          <p>Aucun circuit trouve pour cette zone.</p>
-          <button class="btn-reset" (click)="filterByZone(null)">Voir tous les circuits</button>
-        </div>
-
-        <article class="circuit-card" *ngFor="let c of pagedCircuits; trackBy: trackByCircuitId">
-          <a class="card-image" [routerLink]="['/circuit', c.id]" [attr.aria-label]="'Voir ' + c.titre">
-            <img [src]="getImageForCircuit(c)" [alt]="c.titre">
-            <div class="image-overlay"></div>
-            <div class="card-badges">
-              <span class="badge duration"><i class="ri-time-line"></i> {{ c.dureeIndicative }}</span>
-              <span class="badge price" *ngIf="c.prixIndicatif != null">{{ c.prixIndicatif | number:'1.0-2' }} €</span>
-            </div>
-          </a>
-
-          <div class="card-body">
-            <h3 class="card-title">{{ c.titre }}</h3>
-            <p class="card-desc">{{ getShortDescription(c) }}</p>
-            <div class="card-footer">
-              <span class="location"><i class="ri-map-pin-line"></i> {{ c.villeNom || c.localisation || 'Benin' }}</span>
-              <a [routerLink]="['/circuit', c.id]" class="btn-view">Voir le circuit</a>
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <div class="pagination" *ngIf="circuits.length > pageSize">
-        <button type="button" class="page-btn" (click)="prevPage()" [disabled]="currentPage === 1">
-          Precedent
-        </button>
-        <span class="page-info">Page {{ currentPage }} / {{ totalPages }}</span>
-        <button type="button" class="page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
-          Suivant
-        </button>
-      </div>
-    </ng-container>
+      }
+    }
   </div>
 </section>
 

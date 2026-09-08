@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -25,13 +25,12 @@ import { CircuitPersonnaliseStep5Component } from './steps/step5/circuit-personn
   selector: 'app-circuit-personnalise',
   standalone: true,
   imports: [
-    CommonModule,
     CircuitPersonnaliseStep1Component,
     CircuitPersonnaliseStep2Component,
     CircuitPersonnaliseStep3Component,
     CircuitPersonnaliseStep4Component,
     CircuitPersonnaliseStep5Component
-  ],
+],
   templateUrl: './circuit-personnalise.component.html',
   styleUrl: './circuit-personnalise.component.scss'
 })
