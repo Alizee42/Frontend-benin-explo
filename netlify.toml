@@ -2,6 +2,9 @@
   command = "npm run build -- --configuration production"
   publish = "dist/frontend-benin-explo/browser"
 
+[build.environment]
+  NODE_VERSION = "22"
+
 [[redirects]]
   from = "/api/*"
   to = "http://217.160.69.180:8081/api/:splat"
