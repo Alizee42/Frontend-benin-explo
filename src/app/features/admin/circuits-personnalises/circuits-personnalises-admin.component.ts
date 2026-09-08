@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -13,6 +13,7 @@ import { EUR_TO_XOF_RATE } from '../../../shared/constants/currency.constants';
   standalone: true,
   imports: [FormsModule, HeaderComponent, DataTableComponent, AdminActionsBarComponent],
   templateUrl: './circuits-personnalises-admin.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./circuits-personnalises-admin.component.scss']
 })
 export class CircuitsPersonnalisesAdminComponent implements OnInit {

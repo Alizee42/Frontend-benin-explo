@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -29,6 +29,7 @@ import { EUR_TO_XOF_RATE } from '../../../../shared/constants/currency.constants
     AddCircuitStep4Component
 ],
   templateUrl: './add-circuit.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./add-circuit.component.scss']
 })
 export class AddCircuitComponent implements OnInit, OnDestroy {

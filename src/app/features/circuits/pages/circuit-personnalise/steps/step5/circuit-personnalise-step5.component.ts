@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ContactInfo } from '../../circuit-personnalise.types';
@@ -9,6 +9,7 @@ import { isValidEmail } from '../../circuit-personnalise.utils';
   selector: 'app-circuit-step5',
   imports: [FormsModule],
   templateUrl: './circuit-personnalise-step5.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: '../../circuit-personnalise-steps.scss'
 })
 export class CircuitPersonnaliseStep5Component {

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Jour, OptionsGenerales, HebergementState } from '../../circuit-personnalise.types';
 import { HebergementDTO } from '../../../../../../services/hebergements.service';
@@ -16,6 +16,7 @@ import {
   selector: 'app-circuit-step4',
   imports: [CommonModule],
   templateUrl: './circuit-personnalise-step4.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: '../../circuit-personnalise-steps.scss'
 })
 export class CircuitPersonnaliseStep4Component {

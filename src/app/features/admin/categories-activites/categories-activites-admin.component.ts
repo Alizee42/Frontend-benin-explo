@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { CategoriesActivitesService, CategorieActivite } from '../../../services/categories-activites.service';
@@ -12,6 +12,7 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
   selector: 'app-categories-activites-admin',
   standalone: true,
   imports: [FormsModule, HeaderComponent, DataTableComponent, ModalComponent, AdminActionsBarComponent, BeButtonComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './categories-activites-admin.component.html'
 })
 export class CategoriesActivitesAdminComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -28,6 +28,7 @@ type CircuitProgrammeItem = {
   selector: 'app-circuit-detail',
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './circuit-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./circuit-detail.component.scss'],
 })
 export class CircuitDetailComponent implements OnInit {

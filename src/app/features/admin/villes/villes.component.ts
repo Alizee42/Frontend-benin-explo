@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { VillesService, VilleDTO } from '../../../services/villes.service';
@@ -14,6 +14,7 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
   standalone: true,
   imports: [FormsModule, HeaderComponent, DataTableComponent, ModalComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './villes.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./villes.component.scss']
 })
 export class VillesComponent implements OnInit {

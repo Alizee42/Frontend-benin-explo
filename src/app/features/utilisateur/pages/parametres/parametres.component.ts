@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../services/auth.service';
@@ -35,6 +35,7 @@ import { AuthService } from '../../../../services/auth.service';
       </div>
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .parametres-page {
       min-height: 100vh;

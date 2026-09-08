@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, HostListener, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { AuthService, User } from '../../../services/auth.service';
@@ -10,6 +10,7 @@ import { takeUntil } from 'rxjs/operators';
   standalone: true,
   imports: [RouterModule],
   templateUrl: './header.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 
 import { ModalComponent } from '../modal/modal.component';
 
@@ -25,6 +25,7 @@ export interface TableAction {
   standalone: true,
   imports: [ModalComponent],
   templateUrl: './data-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./data-table.component.scss']
 })
 export class DataTableComponent {

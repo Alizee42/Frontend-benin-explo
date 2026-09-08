@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ZoneDTO } from '../../../../../services/zones-admin.service';
@@ -10,6 +10,7 @@ import { CircuitFormData } from '../circuit-form.types';
   selector: 'app-add-circuit-step3',
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './add-circuit-step3.component.html'
 })
 export class AddCircuitStep3Component {

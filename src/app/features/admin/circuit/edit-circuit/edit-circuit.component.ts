@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -18,6 +18,7 @@ import { EUR_TO_XOF_RATE } from '../../../../shared/constants/currency.constants
   standalone: true,
   imports: [FormsModule, HeaderComponent, BeButtonComponent],
   templateUrl: './edit-circuit.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./edit-circuit.component.scss', '../add-circuit/add-circuit.component.scss']
 })
 export class EditCircuitComponent implements OnInit, OnDestroy {

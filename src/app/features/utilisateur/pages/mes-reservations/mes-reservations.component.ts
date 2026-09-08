@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -22,6 +22,7 @@ import { DataTableComponent, TableAction, TableColumn } from '../../../../shared
   standalone: true,
   imports: [FormsModule, DataTableComponent],
   templateUrl: './mes-reservations.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./mes-reservations.component.scss']
 })
 export class MesReservationsComponent implements OnInit {

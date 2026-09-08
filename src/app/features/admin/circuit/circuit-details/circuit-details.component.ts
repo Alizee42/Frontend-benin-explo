@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HeaderComponent } from '../../../../shared/components/header/header.component';
@@ -12,6 +12,7 @@ import { ZonesService, Zone } from '../../../../services/zones.service';
   standalone: true,
   imports: [CommonModule, HeaderComponent],
   templateUrl: './circuit-details.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./circuit-details.component.scss']
 })
 export class CircuitDetailsComponent implements OnInit {

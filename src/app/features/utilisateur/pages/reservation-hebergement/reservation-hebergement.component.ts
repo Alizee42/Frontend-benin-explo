@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -21,6 +21,7 @@ interface CalendarMonthView {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './reservation-hebergement.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./reservation-hebergement.component.v2.scss']
 })
 export class ReservationHebergementComponent implements OnInit {

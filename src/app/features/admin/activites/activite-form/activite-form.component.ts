@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { Activite } from '../../../../services/activites.service';
@@ -12,6 +12,7 @@ export interface VilleOption { id: number; nom: string }
   selector: 'app-activite-form',
   imports: [FormsModule],
   templateUrl: './activite-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./activite-form.component.scss']
 })
 export class ActiviteFormComponent {

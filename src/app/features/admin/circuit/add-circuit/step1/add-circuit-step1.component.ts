@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { EUR_TO_XOF_RATE } from '../../../../../shared/constants/currency.constants';
@@ -8,6 +8,7 @@ import { CircuitFormData } from '../circuit-form.types';
   selector: 'app-add-circuit-step1',
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './add-circuit-step1.component.html'
 })
 export class AddCircuitStep1Component {

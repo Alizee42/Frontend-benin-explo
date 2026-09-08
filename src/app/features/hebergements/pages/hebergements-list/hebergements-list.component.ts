@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { HebergementsService, HebergementDTO } from '../../../../services/heberg
   selector: 'app-hebergements-list',
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './hebergements-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./hebergements-list.component.scss']
 })
 export class HebergementsListComponent implements OnInit {

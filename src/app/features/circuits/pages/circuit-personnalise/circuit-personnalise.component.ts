@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
@@ -32,6 +32,7 @@ import { CircuitPersonnaliseStep5Component } from './steps/step5/circuit-personn
     CircuitPersonnaliseStep5Component
 ],
   templateUrl: './circuit-personnalise.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './circuit-personnalise.component.scss'
 })
 export class CircuitPersonnaliseComponent {

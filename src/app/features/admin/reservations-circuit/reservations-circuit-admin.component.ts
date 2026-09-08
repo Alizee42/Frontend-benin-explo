@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReservationsCircuitService, ReservationCircuitDTO } from '../../../services/reservations-circuit.service';
@@ -13,6 +13,7 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
   standalone: true,
   imports: [CommonModule, FormsModule, DataTableComponent, ModalComponent, HeaderComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './reservations-circuit-admin.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./reservations-circuit-admin.component.scss']
 })
 export class ReservationsCircuitAdminComponent implements OnInit {

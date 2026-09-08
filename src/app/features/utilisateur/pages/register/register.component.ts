@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
@@ -28,6 +28,7 @@ const passwordMatchValidator: ValidatorFn = (control: AbstractControl): Validati
   standalone: true,
   imports: [RouterModule, ReactiveFormsModule],
   templateUrl: './register.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {

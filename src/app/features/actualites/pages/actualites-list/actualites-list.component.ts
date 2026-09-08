@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule } from '@angular/router';
 import { ActualiteDTO, ActualitesService } from '../../../../services/actualites.service';
@@ -11,6 +11,7 @@ type LoadState = 'loading' | 'ready' | 'empty' | 'error';
   standalone: true,
   imports: [RouterModule, ModalComponent],
   templateUrl: './actualites-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./actualites-list.component.scss']
 })
 export class ActualitesListComponent implements OnInit {

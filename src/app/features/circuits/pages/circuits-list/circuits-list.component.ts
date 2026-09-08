@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CircuitService } from '../../../../services/circuit.service';
@@ -10,6 +10,7 @@ import { CircuitDTO } from '../../../../models/circuit.dto';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './circuits-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./circuits-list.component.scss']
 })
 export class CircuitsListComponent implements OnInit {

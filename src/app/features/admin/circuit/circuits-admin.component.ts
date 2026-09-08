@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { forkJoin } from 'rxjs';
 
 import { FormsModule } from '@angular/forms';
@@ -19,6 +19,7 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
   standalone: true,
   imports: [FormsModule, HeaderComponent, DataTableComponent, AdminActionsBarComponent, BeButtonComponent, ModalComponent],
   templateUrl: './circuits-admin.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./circuits-admin.component.scss']
 })
 export class CircuitsAdminComponent implements OnInit {

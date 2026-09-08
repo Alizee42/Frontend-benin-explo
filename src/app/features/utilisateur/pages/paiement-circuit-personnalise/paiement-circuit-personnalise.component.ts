@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -19,6 +19,7 @@ import {
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './paiement-circuit-personnalise.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../paiement-hebergement/paiement-hebergement.component.scss']
 })
 export class PaiementCircuitPersonnaliseComponent implements OnInit, AfterViewInit {

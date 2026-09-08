@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ActualiteDTO, ActualitesService } from '../../../services/actualites.service';
@@ -25,6 +25,7 @@ type ActualiteFormModel = ActualiteDTO & {
     BeButtonComponent
 ],
   templateUrl: './actualites-admin.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./actualites-admin.component.scss']
 })
 export class ActualitesAdminComponent implements OnInit {

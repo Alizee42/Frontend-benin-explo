@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -14,6 +14,7 @@ import {
   standalone: true,
   imports: [FormsModule, RouterLink, HeaderComponent, AdminActionsBarComponent],
   templateUrl: './tarifs-circuit-personnalise-admin.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./tarifs-circuit-personnalise-admin.component.scss']
 })
 export class TarifsCircuitPersonnaliseAdminComponent implements OnInit {

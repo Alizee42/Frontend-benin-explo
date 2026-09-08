@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +20,7 @@ import { EUR_TO_XOF_RATE } from '../../../shared/constants/currency.constants';
   selector: 'app-activites-admin',
   imports: [RouterModule, FormsModule, HeaderComponent, DataTableComponent, ActiviteFormComponent, ModalComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './activites-admin.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./activites-admin.component.scss']
 })
 export class ActivitesAdminComponent implements OnInit {

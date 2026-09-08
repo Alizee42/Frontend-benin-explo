@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -30,6 +30,7 @@ import { BeButtonComponent } from '../../../shared/components/be-button/be-butto
     BeButtonComponent
   ],
   templateUrl: './reservations-clients-admin.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./reservations-clients-admin.component.scss']
 })
 export class ReservationsClientsAdminComponent implements OnInit {

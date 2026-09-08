@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
 import { CircuitFormData } from '../circuit-form.types';
 
@@ -6,6 +6,7 @@ import { CircuitFormData } from '../circuit-form.types';
   selector: 'app-add-circuit-step2',
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './add-circuit-step2.component.html'
 })
 export class AddCircuitStep2Component {

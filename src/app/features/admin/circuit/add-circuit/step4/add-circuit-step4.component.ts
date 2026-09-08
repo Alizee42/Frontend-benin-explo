@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { CircuitFormData, PointFort } from '../circuit-form.types';
@@ -7,6 +7,7 @@ import { CircuitFormData, PointFort } from '../circuit-form.types';
   selector: 'app-add-circuit-step4',
   standalone: true,
   imports: [FormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './add-circuit-step4.component.html'
 })
 export class AddCircuitStep4Component {

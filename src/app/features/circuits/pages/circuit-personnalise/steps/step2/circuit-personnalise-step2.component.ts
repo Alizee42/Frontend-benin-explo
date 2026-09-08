@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { Jour, isJourComplete } from '../../circuit-personnalise.types';
@@ -13,6 +13,7 @@ import { getPricingCurrencyLabel } from '../../circuit-personnalise.utils';
   selector: 'app-circuit-step2',
   imports: [FormsModule],
   templateUrl: './circuit-personnalise-step2.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: '../../circuit-personnalise-steps.scss'
 })
 export class CircuitPersonnaliseStep2Component implements OnChanges {

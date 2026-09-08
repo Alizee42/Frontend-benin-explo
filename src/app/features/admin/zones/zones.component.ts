@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ZonesAdminService, ZoneDTO } from '../../../services/zones-admin.service';
@@ -15,6 +15,7 @@ type ZoneRow = ZoneDTO & { id: number };
   standalone: true,
   imports: [FormsModule, HeaderComponent, DataTableComponent, ModalComponent, AdminActionsBarComponent, BeButtonComponent],
   templateUrl: './zones.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./zones.component.scss']
 })
 export class ZonesComponent implements OnInit {
