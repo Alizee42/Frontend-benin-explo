@@ -16,6 +16,7 @@ export class AddCircuitStep2Component {
   @Input() previewsGalerie: string[] = [];
   @Output() heroSelected = new EventEmitter<{ file: File; preview: string }>();
   @Output() galerieSelected = new EventEmitter<{ files: File[]; previews: string[] }>();
+  @Output() galerieInvalid = new EventEmitter<{ count: number }>();
 
   onHeroSelect(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
@@ -27,8 +28,10 @@ export class AddCircuitStep2Component {
 
   onGalerieSelect(event: Event): void {
     const files = Array.from((event.target as HTMLInputElement).files ?? []) as File[];
-    if (files.length < 3) { return; }
-    if (files.length > 10) { return; }
+    if (files.length < 3 || files.length > 10) {
+      this.galerieInvalid.emit({ count: files.length });
+      return;
+    }
     const previews: string[] = [];
     let loaded = 0;
     files.forEach(file => {

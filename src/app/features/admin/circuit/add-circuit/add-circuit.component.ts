@@ -174,6 +174,12 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
     delete this.errors['galerie'];
   }
 
+  onGalerieInvalid(event: { count: number }): void {
+    this.errors['galerie'] = event.count < 3
+      ? `Minimum 3 images requises (${event.count} sélectionnée${event.count > 1 ? 's' : ''})`
+      : `Maximum 10 images (${event.count} sélectionnées)`;
+  }
+
   canGoNext(): boolean {
     switch (this.currentStep) {
       case 1: return this.isStep1Valid();
