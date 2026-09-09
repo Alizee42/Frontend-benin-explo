@@ -18,7 +18,6 @@ export interface CircuitDTO {
   // Programme jour par jour. Peut être soit un tableau de chaînes (legacy),
   // soit un tableau d'objets structuré `ProgrammeDay`.
   programme: Array<string | ProgrammeDay>;
-  tourisme?: string[]; // Lieux/attractions à visiter
   aventures?: string[]; // Activités/aventures proposées
   pointsForts: PointFort[]; // Points forts avec icône
   inclus: string[]; // Ce qui est inclus
