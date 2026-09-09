@@ -39,7 +39,7 @@ export class UtilisateursComponent implements OnInit {
   pendingDeleteId: number | null = null;
   actionError = '';
 
-  private currentUserEmail: string | null = null;
+  currentUserEmail: string | null = null;
 
   constructor(
     private utilisateursService: AdminUtilisateursService,
@@ -78,7 +78,14 @@ export class UtilisateursComponent implements OnInit {
   ];
 
   tableActions: TableAction[] = [
-    { label: 'Modifier le rôle', icon: 'ri-shield-user-line', class: 'btn-edit', action: 'edit' },
+    {
+      label: 'Modifier le rôle',
+      icon: 'ri-shield-user-line',
+      class: 'btn-edit',
+      action: 'edit',
+      condition: (item: UtilisateurDTO) =>
+        this.currentUserEmail == null || item.email.toLowerCase() !== this.currentUserEmail.toLowerCase()
+    },
     { label: 'Supprimer', icon: 'ri-delete-bin-line', class: 'btn-delete', action: 'delete' }
   ];
 

@@ -24,6 +24,12 @@
   force = true
 
 [[redirects]]
+  from = "/admin/*"
+  to = "http://217.160.69.180:8081/admin/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
