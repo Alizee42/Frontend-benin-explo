@@ -14,6 +14,7 @@ import { CircuitsPersonnalisesService } from '../../../services/circuits-personn
 import { ActivitesService } from '../../../services/activites.service';
 import { ZonesAdminService } from '../../../services/zones-admin.service';
 import { VillesService } from '../../../services/villes.service';
+import { AdminUtilisateursService } from '../../../services/admin-utilisateurs.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -39,6 +40,7 @@ export class DashboardComponent implements OnInit {
   demandesCount = 0;
   hebergementsCount = 0;
   actualitesCount = 0;
+  utilisateursCount = 0;
 
   get clientReservationsCount(): number {
     return this.reservationsCount + this.circuitReservationsCount + this.demandesCount;
@@ -55,7 +57,8 @@ export class DashboardComponent implements OnInit {
     private circuitsPersonnalisesService: CircuitsPersonnalisesService,
     private activitesService: ActivitesService,
     private zonesAdminService: ZonesAdminService,
-    private villesService: VillesService
+    private villesService: VillesService,
+    private utilisateursService: AdminUtilisateursService
   ) {}
 
   ngOnInit() {
@@ -96,8 +99,9 @@ export class DashboardComponent implements OnInit {
       demandes: withFallback(this.circuitsPersonnalisesService.getAllDemandes()),
       activites: withFallback(this.activitesService.getAllActivites()),
       zones: withFallback(this.zonesAdminService.getAll()),
-      villes: withFallback(this.villesService.getAll())
-    }).subscribe(({ circuits, actualites, hebergements, reservations, reservationsCircuits, demandes, activites, zones, villes }) => {
+      villes: withFallback(this.villesService.getAll()),
+      utilisateurs: withFallback(this.utilisateursService.getAll())
+    }).subscribe(({ circuits, actualites, hebergements, reservations, reservationsCircuits, demandes, activites, zones, villes, utilisateurs }) => {
       const circuitsActifs = circuits.filter((c: any) => c?.actif === true).length;
       const demandesEnAttente = demandes.filter((d: any) =>
         String(d?.statut ?? '').toLowerCase().includes('attente')
@@ -121,6 +125,7 @@ export class DashboardComponent implements OnInit {
       this.activitesCount = activites.length;
       this.demandesCount = demandes.length;
       this.hebergementsCount = hebergements.length;
+      this.utilisateursCount = utilisateurs.length;
       this.isLoading = false;
     });
   }
