@@ -241,6 +241,9 @@ export class CircuitsListComponent implements OnInit {
   }
 
   getShortDescription(circuit: CircuitDTO): string {
+    if (circuit.resume?.trim()) {
+      return circuit.resume;
+    }
     const desc = circuit.description || '';
     return desc.length > 140 ? desc.substring(0, 140) + '…' : desc;
   }
