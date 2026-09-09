@@ -146,6 +146,14 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
+  /* ADMIN UTILISATEURS */
+  {
+    path: 'admin/utilisateurs',
+    loadComponent: () =>
+      import('./features/admin/utilisateurs/utilisateurs.component').then(m => m.UtilisateursComponent),
+    canActivate: [authGuard]
+  },
+
   /* ADMIN ACTIVITES */
   {
     path: 'admin/activites',

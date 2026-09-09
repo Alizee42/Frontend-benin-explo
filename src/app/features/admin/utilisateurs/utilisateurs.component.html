@@ -1,0 +1,115 @@
+<div class="utilisateurs-admin">
+  <app-header mode="compact"></app-header>
+
+  <main class="page-content">
+    <app-admin-actions-bar
+      title="Gestion des utilisateurs"
+      icon="ri-team-line"
+      subtitle="Consulte les comptes du site et gère leurs rôles.">
+      <div bar-right class="actions-right">
+        <div class="search-field">
+          <i class="ri-search-line"></i>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            placeholder="Rechercher (nom, email, rôle)"
+            aria-label="Rechercher un utilisateur"
+            />
+          </div>
+          <div class="sort-field">
+            <i class="ri-filter-3-line"></i>
+            <select [(ngModel)]="sortOption" aria-label="Trier les utilisateurs">
+              <option value="nom-asc">Nom A → Z</option>
+              <option value="nom-desc">Nom Z → A</option>
+              <option value="id-desc">Plus récents</option>
+              <option value="id-asc">Plus anciens</option>
+            </select>
+          </div>
+        </div>
+      </app-admin-actions-bar>
+
+      @if (!loading) {
+        <div class="table-meta">
+          {{ filteredUtilisateurs.length }} utilisateur{{ filteredUtilisateurs.length > 1 ? 's' : '' }}
+        </div>
+      }
+
+      @if (!loading && loadError) {
+        <div class="load-error">
+          <i class="ri-error-warning-line"></i>
+          <span>{{ loadError }}</span>
+        </div>
+      }
+
+      @if (actionError) {
+        <div class="load-error">
+          <i class="ri-error-warning-line"></i>
+          <span>{{ actionError }}</span>
+        </div>
+      }
+
+      <div class="table-card">
+        <app-data-table
+          [columns]="tableColumns"
+          [data]="filteredUtilisateurs"
+          [loading]="loading"
+          [actions]="tableActions"
+          (actionClick)="onTableAction($event)"
+          (rowClick)="onRowClick($event)">
+        </app-data-table>
+      </div>
+
+      @if (!loading && filteredUtilisateurs.length === 0) {
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="ri-team-line"></i>
+          </div>
+          <h2>Aucun utilisateur trouvé</h2>
+          <p>Essayez un autre mot-clé.</p>
+        </div>
+      }
+    </main>
+  </div>
+
+  <!-- Modal de modification du role -->
+  <app-modal [title]="'Modifier le rôle — ' + (currentUser?.prenom || '') + ' ' + (currentUser?.nom || '')" [open]="showModal" (close)="closeModal()">
+    <form (ngSubmit)="saveRole()" #roleForm="ngForm">
+      @if (formError) {
+        <div class="form-error">
+          <i class="ri-error-warning-line"></i>
+          {{ formError }}
+        </div>
+      }
+
+      @if (currentUser) {
+        <div class="form-group">
+          <label>Email</label>
+          <p class="readonly-value">{{ currentUser.email }}</p>
+        </div>
+
+        <div class="form-group">
+          <label for="role">Rôle *</label>
+          <select id="role" name="role" [(ngModel)]="selectedRole" [disabled]="isSelf" required>
+            @for (role of assignableRoles; track role) {
+              <option [value]="role">{{ role }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
+        <button type="submit" class="btn-primary" [disabled]="!roleForm.valid || saving || isSelf">
+          {{ saving ? 'Modification...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  </app-modal>
+
+  <app-modal title="Supprimer l'utilisateur" [open]="confirmDeleteOpen" [closeOnBackdrop]="false" size="small" (close)="confirmDeleteOpen = false">
+    <p>Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.</p>
+    <div class="d-flex gap-2 justify-content-end mt-3">
+      <be-button variant="secondary" label="Annuler" (click)="confirmDeleteOpen = false"></be-button>
+      <be-button variant="danger" label="Supprimer" (click)="executeDelete()"></be-button>
+    </div>
+  </app-modal>
