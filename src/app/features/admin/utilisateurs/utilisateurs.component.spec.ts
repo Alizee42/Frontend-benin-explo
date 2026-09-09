@@ -40,7 +40,7 @@ describe('UtilisateursComponent', () => {
     httpMock = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
 
-    const req = httpMock.expectOne('/admin/utilisateurs');
+    const req = httpMock.expectOne('/api/admin/utilisateurs');
     req.flush([
       { id: 1, nom: 'Admin', prenom: 'Site', email: 'admin@beninexplo.local', telephone: null, role: 'ADMIN' },
       { id: 2, nom: 'Doe', prenom: 'Jane', email: 'jane@example.com', telephone: null, role: 'USER' }
@@ -73,7 +73,7 @@ describe('UtilisateursComponent', () => {
 
     component.saveRole();
 
-    httpMock.expectNone('/admin/utilisateurs/1/role');
+    httpMock.expectNone('/api/admin/utilisateurs/1/role');
   });
 
   it('saveRole() sends the PATCH request for another user', () => {
@@ -83,12 +83,12 @@ describe('UtilisateursComponent', () => {
 
     component.saveRole();
 
-    const req = httpMock.expectOne('/admin/utilisateurs/2/role');
+    const req = httpMock.expectOne('/api/admin/utilisateurs/2/role');
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual({ role: 'ADMIN' });
     req.flush({ id: 2, nom: 'Doe', prenom: 'Jane', email: 'jane@example.com', telephone: null, role: 'ADMIN' });
 
-    const reload = httpMock.expectOne('/admin/utilisateurs');
+    const reload = httpMock.expectOne('/api/admin/utilisateurs');
     reload.flush([]);
   });
 });

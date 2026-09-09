@@ -13,7 +13,7 @@ export interface UtilisateurDTO {
 
 @Injectable({ providedIn: 'root' })
 export class AdminUtilisateursService {
-  private apiUrl = '/admin/utilisateurs';
+  private apiUrl = '/api/admin/utilisateurs';
 
   constructor(private http: HttpClient) {}
 

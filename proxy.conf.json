@@ -14,12 +14,6 @@
     "changeOrigin": true,
     "logLevel": "debug"
   },
-  "/admin": {
-    "target": "http://localhost:8080",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "debug"
-  },
   "/uploads": {
     "target": "http://localhost:8080",
     "secure": false,

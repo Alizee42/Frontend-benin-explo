@@ -22,31 +22,31 @@ describe('AdminUtilisateursService', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('getAll() calls GET /admin/utilisateurs', () => {
+  it('getAll() calls GET /api/admin/utilisateurs', () => {
     service.getAll().subscribe();
-    const req = httpMock.expectOne('/admin/utilisateurs');
+    const req = httpMock.expectOne('/api/admin/utilisateurs');
     expect(req.request.method).toBe('GET');
     req.flush([]);
   });
 
-  it('getById() calls GET /admin/utilisateurs/:id', () => {
+  it('getById() calls GET /api/admin/utilisateurs/:id', () => {
     service.getById(3).subscribe();
-    const req = httpMock.expectOne('/admin/utilisateurs/3');
+    const req = httpMock.expectOne('/api/admin/utilisateurs/3');
     expect(req.request.method).toBe('GET');
     req.flush({});
   });
 
   it('updateRole() sends PATCH with the role in the body', () => {
     service.updateRole(3, 'ADMIN').subscribe();
-    const req = httpMock.expectOne('/admin/utilisateurs/3/role');
+    const req = httpMock.expectOne('/api/admin/utilisateurs/3/role');
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual({ role: 'ADMIN' });
     req.flush({});
   });
 
-  it('delete() sends DELETE to /admin/utilisateurs/:id', () => {
+  it('delete() sends DELETE to /api/admin/utilisateurs/:id', () => {
     service.delete(3).subscribe();
-    const req = httpMock.expectOne('/admin/utilisateurs/3');
+    const req = httpMock.expectOne('/api/admin/utilisateurs/3');
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
   });
