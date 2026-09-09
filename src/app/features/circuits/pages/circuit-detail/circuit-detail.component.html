@@ -302,11 +302,24 @@
             <section class="content-section">
               <h2 class="section-title">Activites associees</h2>
               <div class="section-content">
-                <div class="tags">
+                <div class="activites-grid">
                   @for (activiteId of circuit.activiteIds; track activiteId) {
-                    <span class="tag">
-                      {{ getActivityName(activiteId) }}
-                    </span>
+                    <div class="activite-card">
+                      @if (getActivity(activiteId)?.image) {
+                        <img [src]="getActivity(activiteId)?.image" [alt]="getActivityName(activiteId)" class="activite-card__image">
+                      }
+                      <div class="activite-card__body">
+                        <span class="activite-card__name">{{ getActivityName(activiteId) }}</span>
+                        <div class="activite-card__meta">
+                          @if (getActivity(activiteId)?.categorie) {
+                            <span class="activite-card__tag">{{ getActivity(activiteId)?.categorie }}</span>
+                          }
+                          @if (getActivity(activiteId)?.difficulte) {
+                            <span class="activite-card__tag activite-card__tag--difficulte">{{ getActivity(activiteId)?.difficulte }}</span>
+                          }
+                        </div>
+                      </div>
+                    </div>
                   }
                 </div>
               </div>

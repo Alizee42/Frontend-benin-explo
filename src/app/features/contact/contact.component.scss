@@ -1,9 +1,11 @@
 /* ================================================================
    Variables & reset
    ================================================================ */
-$green:  #004D40;
+/* $green/$gold pointent vers les variables CSS globales (styles.css) plutôt que de dupliquer
+   la valeur — évite la dérive si la charte change un jour. */
+$green:  var(--be-green);
 $green2: #006b5b;
-$gold:   #C9A86A;
+$gold:   var(--be-gold);
 $dark:   #0f1f1a;
 
 .contact-page {
@@ -33,8 +35,8 @@ $dark:   #0f1f1a;
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 900px 500px at 75% 20%, rgba(201,168,106,0.35), transparent 55%),
-    linear-gradient(135deg, rgba(0,40,35,0.93) 0%, rgba(0,77,64,0.78) 60%, rgba(0,120,100,0.55) 100%),
+    radial-gradient(ellipse 900px 500px at 75% 20%, rgba(var(--be-gold-rgb),0.35), transparent 55%),
+    linear-gradient(135deg, rgba(0,40,35,0.93) 0%, rgba(var(--be-green-rgb),0.78) 60%, rgba(0,120,100,0.55) 100%),
     url('/assets/images/grandPopo.png') center / cover no-repeat;
   transform: scale(1.04);
   transition: transform 8s ease;
@@ -113,7 +115,7 @@ $dark:   #0f1f1a;
   i { font-size: 0.85rem; }
 
   &--green {
-    background: rgba(0, 77, 64, 0.5);
+    background: rgba(var(--be-green-rgb), 0.5);
     border-color: rgba(100, 220, 190, 0.3);
     color: #a8f0e0;
   }
@@ -155,7 +157,7 @@ $dark:   #0f1f1a;
 .status-spinner {
   width: 44px;
   height: 44px;
-  border: 4px solid rgba(0,77,64,0.12);
+  border: 4px solid rgba(var(--be-green-rgb),0.12);
   border-top-color: $gold;
   border-radius: 50%;
   animation: spin 0.85s linear infinite;
@@ -179,7 +181,7 @@ $dark:   #0f1f1a;
    Panneau Infos
    ================================================================ */
 .infos-panel {
-  background: linear-gradient(160deg, #003830 0%, #004D40 55%, #005a49 100%);
+  background: linear-gradient(160deg, var(--be-green-cta-hover-start) 0%, var(--be-green) 55%, #005a49 100%);
   border-radius: 28px;
   padding: 1.75rem 1.25rem;
   color: #fff;
@@ -241,7 +243,7 @@ $dark:   #0f1f1a;
   justify-content: center;
   font-size: 1.15rem;
 
-  &--gold  { background: rgba(201,168,106,0.22); color: $gold; border: 1px solid rgba(201,168,106,0.35); }
+  &--gold  { background: rgba(var(--be-gold-rgb),0.22); color: $gold; border: 1px solid rgba(var(--be-gold-rgb),0.35); }
   &--green { background: rgba(100,220,180,0.15); color: #7eeacb; border: 1px solid rgba(100,220,180,0.25); }
   &--teal  { background: rgba(80,200,220,0.15);  color: #7fe4f0; border: 1px solid rgba(80,200,220,0.25); }
   &--slate { background: rgba(255,255,255,0.1);  color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.18); }
@@ -300,8 +302,8 @@ $dark:   #0f1f1a;
   transition: background 0.2s, transform 0.2s;
 
   &:hover {
-    background: rgba(201,168,106,0.3);
-    border-color: rgba(201,168,106,0.5);
+    background: rgba(var(--be-gold-rgb),0.3);
+    border-color: rgba(var(--be-gold-rgb),0.5);
     transform: translateY(-2px);
   }
 }
@@ -417,7 +419,7 @@ textarea {
   &:focus {
     outline: none;
     border-color: $green;
-    box-shadow: 0 0 0 3.5px rgba(0,77,64,0.1);
+    box-shadow: 0 0 0 3.5px rgba(var(--be-green-rgb),0.1);
     background: #fff;
   }
 
@@ -478,15 +480,15 @@ textarea {
   font-family: inherit;
   cursor: pointer;
   text-decoration: none;
-  box-shadow: 0 6px 22px rgba(0,77,64,0.3);
+  box-shadow: 0 6px 22px rgba(var(--be-green-rgb),0.3);
   transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
 
   i { font-size: 1rem; }
 
   &:hover {
-    background: linear-gradient(135deg, #003830 0%, #005545 100%);
+    background: linear-gradient(135deg, var(--be-green-cta-hover-start) 0%, var(--be-green-cta-hover-end) 100%);
     transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(0,77,64,0.38);
+    box-shadow: 0 12px 28px rgba(var(--be-green-rgb),0.38);
   }
 
   &:active {
@@ -548,7 +550,7 @@ textarea {
     position: absolute;
     inset: -8px;
     border-radius: 50%;
-    background: rgba(0,77,64,0.1);
+    background: rgba(var(--be-green-rgb),0.1);
     animation: pulse 1.8s ease infinite;
   }
 }
@@ -564,7 +566,7 @@ textarea {
   align-items: center;
   justify-content: center;
   font-size: 2rem;
-  box-shadow: 0 8px 24px rgba(0,77,64,0.35);
+  box-shadow: 0 8px 24px rgba(var(--be-green-rgb),0.35);
 }
 
 /* ================================================================

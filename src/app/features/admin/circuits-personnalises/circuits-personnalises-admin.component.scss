@@ -136,7 +136,7 @@
 .table-panel-head h2 {
   margin: 0 0 0.12rem;
   font-size: 1.08rem;
-  color: #17231f;
+  color: var(--be-green-ink);
   font-weight: 800;
 }
 
@@ -251,13 +251,13 @@
 }
 
 .stat-badge--approved {
-  background: #d4edda;
-  color: #155724;
+  background: var(--status-success-bg);
+  color: var(--status-success-text);
 }
 
 .stat-badge--rejected {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--status-danger-bg);
+  color: var(--status-danger-text);
 }
 
 @keyframes spin {
@@ -343,7 +343,7 @@
 .form-control:focus {
   outline: none;
   border-color: var(--be-green);
-  box-shadow: 0 0 0 2px rgba(0, 77, 64, 0.12);
+  box-shadow: 0 0 0 2px rgba(var(--be-green-rgb), 0.12);
 }
 
 .form-control.email-body {

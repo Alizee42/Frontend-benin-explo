@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "http://localhost:8080",
+    "target": "http://localhost:8090",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug",
@@ -9,18 +9,18 @@
     }
   },
   "/auth": {
-    "target": "http://localhost:8080",
+    "target": "http://localhost:8090",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
   "/uploads": {
-    "target": "http://localhost:8080",
+    "target": "http://localhost:8090",
     "secure": false,
     "changeOrigin": true
   },
   "/images": {
-    "target": "http://localhost:8080",
+    "target": "http://localhost:8090",
     "secure": false,
     "changeOrigin": true
   }

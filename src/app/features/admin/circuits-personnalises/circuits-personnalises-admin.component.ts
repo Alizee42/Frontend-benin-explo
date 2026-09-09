@@ -119,6 +119,13 @@ Telephone : {telephone}`
       class: 'btn-reject',
       icon: 'ri-close-line',
       condition: (item: CircuitPersonnaliseDTO) => item.statut === 'EN_ATTENTE'
+    },
+    {
+      label: 'Voir le circuit cree',
+      action: 'view-circuit',
+      class: 'btn-view',
+      icon: 'ri-map-2-line',
+      condition: (item: CircuitPersonnaliseDTO) => !!item.circuitCreeId
     }
   ];
 
@@ -157,6 +164,8 @@ Telephone : {telephone}`
       this.approveDemande(item.id!);
     } else if (action === 'reject') {
       this.rejectDemande(item.id!);
+    } else if (action === 'view-circuit' && item.circuitCreeId) {
+      this.router.navigate(['/admin/circuits/edit-circuit', item.circuitCreeId]);
     }
   }
 
@@ -386,6 +395,7 @@ Telephone : ${demande.telephoneClient}`;
     if (normalized === 'ACCEPTE') return 'Acceptee';
     if (normalized === 'REFUSE') return 'Refusee';
     if (normalized === 'TERMINE') return 'Terminee';
+    if (normalized === 'EXPIRE') return 'Expiree (non payee)';
     return normalized || '-';
   }
 

@@ -203,7 +203,9 @@ export class VillesComponent implements OnInit {
     this.pendingDeleteId = null;
     this.villesService.delete(id).subscribe({
       next: () => this.loadVilles(),
-      error: () => { this.error = 'Impossible de supprimer cette ville.'; }
+      error: (error) => {
+        this.error = error?.error?.message || 'Impossible de supprimer cette ville.';
+      }
     });
   }
 
@@ -213,6 +215,7 @@ export class VillesComponent implements OnInit {
       return;
     }
 
+    this.error = '';
     this.pendingDeleteId = id;
     this.confirmDeleteOpen = true;
   }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { CircuitDTO } from '../models/circuit.dto';
 
 export interface JourDTO {
   id?: number;
@@ -125,6 +126,13 @@ export class CircuitsPersonnalisesService {
 
   getMineDemandeById(id: number): Observable<CircuitPersonnaliseDTO> {
     return this.http.get<CircuitPersonnaliseDTO>(`${this.apiUrl}/me/${id}`);
+  }
+
+  // Circuit catalogue cree pour une demande personnalisee acceptee + payee (voir circuitCreeId).
+  // Le circuit est inactif (non visible via GET /api/circuits/:id public) : ce endpoint dedie,
+  // avec controle de propriete cote backend, est le seul moyen pour le client de le consulter.
+  getMineCircuitCree(demandeId: number): Observable<CircuitDTO> {
+    return this.http.get<CircuitDTO>(`${this.apiUrl}/me/${demandeId}/circuit-cree`);
   }
 
   createDemande(demande: CircuitPersonnaliseDTO): Observable<CircuitPersonnaliseDTO> {

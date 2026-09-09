@@ -71,7 +71,7 @@
   }
 
   &:hover {
-    background: #2e5c4a;
+    background: var(--be-green-hover);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
@@ -263,7 +263,7 @@ form {
         color: white;
 
         &:hover:not(:disabled) {
-          background: #2e5c4a;
+          background: var(--be-green-hover);
         }
 
         &:disabled {
@@ -286,7 +286,7 @@ form {
   transition: background 0.3s;
 
   &:hover {
-    background: #2e5c4a;
+    background: var(--be-green-hover);
   }
 
   i {

@@ -61,7 +61,7 @@ export class CategoriesActivitesAdminComponent implements OnInit {
 
   onTableAction(event: { action: string; item: CategorieActivite }) {
     if (event.action === 'edit') this.openEditModal(event.item);
-    if (event.action === 'delete') { this.pendingDeleteId = event.item.id; this.confirmDeleteOpen = true; }
+    if (event.action === 'delete') { this.error = ''; this.pendingDeleteId = event.item.id; this.confirmDeleteOpen = true; }
   }
 
   onRowClick(item: CategorieActivite) { this.openEditModal(item); }
@@ -112,7 +112,9 @@ export class CategoriesActivitesAdminComponent implements OnInit {
     this.pendingDeleteId = null;
     this.service.delete(id).subscribe({
       next: () => this.load(),
-      error: () => { this.error = 'Impossible de supprimer cette catégorie.'; }
+      error: (error) => {
+        this.error = error?.error?.message || 'Impossible de supprimer cette catégorie.';
+      }
     });
   }
 

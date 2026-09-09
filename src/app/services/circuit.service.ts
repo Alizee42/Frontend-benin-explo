@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { CircuitDTO } from '../models/circuit.dto';
+import { CircuitDTO, CircuitPageDTO } from '../models/circuit.dto';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +18,17 @@ export class CircuitService {
 
   getActiveCircuits(): Observable<CircuitDTO[]> {
     return this.http.get<CircuitDTO[]>(`${this.apiUrl}/actifs`);
+  }
+
+  // Variante paginee cote serveur de getActiveCircuits(), utilisee par la liste publique
+  // pour eviter de telecharger le catalogue complet (programme, galerie, points forts inclus)
+  // a chaque visite/changement de page/filtre.
+  getActiveCircuitsPage(page: number, size: number, zoneId: number | null): Observable<CircuitPageDTO> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (zoneId !== null) {
+      params = params.set('zoneId', zoneId);
+    }
+    return this.http.get<CircuitPageDTO>(`${this.apiUrl}/actifs/page`, { params });
   }
 
   getCircuitById(id: number): Observable<CircuitDTO> {

@@ -27,19 +27,11 @@
       </div>
       <div class="progress-step" [class.active]="etape >= 2" [class.completed]="etape > 2">
         <span class="step-number">2</span>
-        <span class="step-label">Jours</span>
+        <span class="step-label">Planning</span>
       </div>
-      <div class="progress-step" [class.active]="etape >= 3" [class.completed]="etape > 3">
+      <div class="progress-step" [class.active]="etape >= 3">
         <span class="step-number">3</span>
-        <span class="step-label">Options</span>
-      </div>
-      <div class="progress-step" [class.active]="etape >= 4" [class.completed]="etape > 4">
-        <span class="step-number">4</span>
-        <span class="step-label">Résumé</span>
-      </div>
-      <div class="progress-step" [class.active]="etape >= 5">
-        <span class="step-number">5</span>
-        <span class="step-label">Contact</span>
+        <span class="step-label">Options &amp; Contact</span>
       </div>
     </div>
   </div>
@@ -56,68 +48,65 @@
     <app-circuit-step1
       [nombreJours]="nombreJours"
       [nombrePersonnes]="nombrePersonnes"
+      [dateVoyageSouhaitee]="dateVoyageSouhaitee"
       [catalogLoading]="catalogLoading"
       (nombreJoursChange)="onNombreJoursChange($event)"
       (nombrePersonnesChange)="onNombrePersonnesChange($event)"
-      (next)="etape = 2">
+      (dateVoyageSouhaiteeChange)="onDateVoyageSouhaiteeChange($event)"
+      (next)="allerA(2)">
     </app-circuit-step1>
   }
 
-  @if (etape === 2) {
-    <app-circuit-step2
-      [jours]="jours"
-      [zones]="zones"
-      [villes]="villes"
-      [activites]="activites"
-      [catalogLoading]="catalogLoading"
-      [tarifsOptions]="tarifsOptions"
-      (joursChange)="onJoursChange($event)"
-      (prev)="etape = 1"
-      (next)="etape = 3">
-    </app-circuit-step2>
-  }
-
-  @if (etape === 3) {
-    <app-circuit-step3
-      [hebergements]="hebergements"
-      [tarifsOptions]="tarifsOptions"
-      [nombrePersonnes]="nombrePersonnes"
-      [nombreJours]="nombreJours"
-      [initialOptions]="options"
-      [initialHebergementState]="hebergementState"
-      (optionsChange)="onOptionsChange($event)"
-      (hebergementStateChange)="onHebergementStateChange($event)"
-      (prev)="etape = 2"
-      (next)="etape = 4">
-    </app-circuit-step3>
-  }
-
-  @if (etape === 4) {
-    <app-circuit-step4
-      [jours]="jours"
-      [activites]="activites"
-      [hebergements]="hebergements"
-      [options]="options"
-      [hebergementState]="hebergementState"
-      [tarifsOptions]="tarifsOptions"
-      [nombreJours]="nombreJours"
-      [nombrePersonnes]="nombrePersonnes"
-      (prev)="etape = 3"
-      (next)="etape = 5">
-    </app-circuit-step4>
-  }
-
-  @if (etape === 5) {
-    <app-circuit-step5
-      [contact]="contact"
-      [isSubmitting]="isSubmitting"
-      [submitSuccess]="submitSuccess"
-      [submitError]="submitError"
-      [submitErrorMessage]="submitErrorMessage"
-      (contactChange)="onContactChange($event)"
-      (prev)="etape = 4"
-      (formSubmit)="onSubmit()"
-      (goHome)="goHome()">
-    </app-circuit-step5>
+  @if (etape === 2 || etape === 3) {
+    <div class="step-grid">
+      <div class="step-main">
+        @if (etape === 2) {
+          <app-circuit-timeline
+            [jours]="jours"
+            [zones]="zones"
+            [villes]="villes"
+            [activites]="activites"
+            [catalogLoading]="catalogLoading"
+            [tarifsOptions]="tarifsOptions"
+            (joursChange)="onJoursChange($event)"
+            (prev)="allerA(1)"
+            (next)="allerA(3)">
+          </app-circuit-timeline>
+        }
+        @if (etape === 3) {
+          <app-circuit-step3
+            [hebergements]="hebergements"
+            [tarifsOptions]="tarifsOptions"
+            [nombrePersonnes]="nombrePersonnes"
+            [nombreJours]="nombreJours"
+            [initialOptions]="options"
+            [initialHebergementState]="hebergementState"
+            [contact]="contact"
+            [isSubmitting]="isSubmitting"
+            [submitSuccess]="submitSuccess"
+            [submitError]="submitError"
+            [submitErrorMessage]="submitErrorMessage"
+            (optionsChange)="onOptionsChange($event)"
+            (hebergementStateChange)="onHebergementStateChange($event)"
+            (contactChange)="onContactChange($event)"
+            (prev)="allerA(2)"
+            (formSubmit)="onSubmit()"
+            (goHome)="goHome()">
+          </app-circuit-step3>
+        }
+      </div>
+      <aside class="step-aside">
+        <app-circuit-price-panel
+          [jours]="jours"
+          [activites]="activites"
+          [hebergements]="hebergements"
+          [options]="options"
+          [hebergementState]="hebergementState"
+          [tarifsOptions]="tarifsOptions"
+          [nombreJours]="nombreJours"
+          [nombrePersonnes]="nombrePersonnes">
+        </app-circuit-price-panel>
+      </aside>
+    </div>
   }
 </section>

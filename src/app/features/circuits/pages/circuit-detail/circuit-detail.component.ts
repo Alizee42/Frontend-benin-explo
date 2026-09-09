@@ -5,9 +5,10 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { CircuitService } from '../../../../services/circuit.service';
-import { ActivitesService, Activite } from '../../../../services/activites.service';
-import { VillesService, VilleDTO } from '../../../../services/villes.service';
-import { ZonesService, Zone } from '../../../../services/zones.service';
+import { Activite } from '../../../../services/activites.service';
+import { VilleDTO } from '../../../../services/villes.service';
+import { Zone } from '../../../../services/zones.service';
+import { PublicReferenceDataService } from '../../../../services/public-reference-data.service';
 import { CircuitDTO } from '../../../../models/circuit.dto';
 import { AuthService } from '../../../../services/auth.service';
 import { ReservationsCircuitService } from '../../../../services/reservations-circuit.service';
@@ -41,7 +42,7 @@ export class CircuitDetailComponent implements OnInit {
   supportingDataNotice = '';
   circuitProgramme: CircuitProgrammeItem[] = [];
   openProgrammeIndex = 0;
-  availableActivites: Array<{ id: number; nom: string; zoneId?: number }> = [];
+  availableActivites: Array<{ id: number; nom: string; zoneId?: number; image?: string | null; difficulte?: string | null; categorie?: string }> = [];
   availableVilles: Array<{ id: number; nom: string; zoneId?: number }> = [];
   reservationDate = '';
   reservationNombrePersonnes = 1;
@@ -53,9 +54,7 @@ export class CircuitDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private circuitService: CircuitService,
-    private activitesService: ActivitesService,
-    private villesService: VillesService,
-    private zonesService: ZonesService,
+    private referenceData: PublicReferenceDataService,
     private authService: AuthService,
     private reservationsCircuitService: ReservationsCircuitService
   ) {}
@@ -122,19 +121,19 @@ export class CircuitDetailComponent implements OnInit {
     const notices: string[] = [];
 
     forkJoin({
-      zones: this.zonesService.getAllZones().pipe(
+      zones: this.referenceData.getZones().pipe(
         catchError((err) => {
           notices.push('La zone du circuit ne peut pas etre affichee pour le moment.');
           return of([] as Zone[]);
         })
       ),
-      activites: this.activitesService.getAllActivites().pipe(
+      activites: this.referenceData.getActivites().pipe(
         catchError((err) => {
           notices.push('Les activites associees sont partiellement indisponibles.');
           return of([] as Activite[]);
         })
       ),
-      villes: this.villesService.getAll().pipe(
+      villes: this.referenceData.getVilles().pipe(
         catchError((err) => {
           notices.push('Les villes du programme ne peuvent pas etre resolues.');
           return of([] as VilleDTO[]);
@@ -145,7 +144,10 @@ export class CircuitDetailComponent implements OnInit {
       this.availableActivites = (activites || []).map((item) => ({
         id: item.id,
         nom: item.nom,
-        zoneId: item.zoneId
+        zoneId: item.zoneId,
+        image: item.image,
+        difficulte: item.difficulte,
+        categorie: item.categorie
       }));
       this.availableVilles = (villes || []).map((item) => ({
         id: item.id,
@@ -233,6 +235,10 @@ export class CircuitDetailComponent implements OnInit {
   getActivityName(id: number): string {
     const activite = this.availableActivites.find((item) => item.id === id);
     return activite ? activite.nom : `Activite ${id}`;
+  }
+
+  getActivity(id: number): { id: number; nom: string; image?: string | null; difficulte?: string | null; categorie?: string } | null {
+    return this.availableActivites.find((item) => item.id === id) ?? null;
   }
 
   getFeaturedCities(): string[] {

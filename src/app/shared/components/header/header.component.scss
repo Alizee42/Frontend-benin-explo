@@ -86,7 +86,7 @@
 
 .nav-link:hover {
   color: var(--be-green);
-  background: rgba(0, 77, 64, 0.05);
+  background: rgba(var(--be-green-rgb), 0.05);
 }
 
 .nav-link:hover::after,
@@ -128,7 +128,7 @@
   left: 0;
   min-width: 210px;
   background: #fff;
-  border: 1px solid rgba(201, 168, 106, 0.28);
+  border: 1px solid rgba(var(--be-gold-rgb), 0.28);
   border-radius: 14px;
   list-style: none;
   padding: 0.45rem 0;
@@ -154,7 +154,7 @@
 }
 
 .nav-dropdown__item:hover {
-  background: rgba(0, 77, 64, 0.07);
+  background: rgba(var(--be-green-rgb), 0.07);
   color: var(--be-green);
 }
 
@@ -217,7 +217,7 @@
   background: var(--be-green);
   color: #fff;
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(0, 77, 64, 0.25);
+  box-shadow: 0 4px 14px rgba(var(--be-green-rgb), 0.25);
 }
 
 /* ═══ Avatar ══════════════════════════════════════ */
@@ -243,7 +243,7 @@
 .avatar--admin {
   background: linear-gradient(135deg, #d4ac58 0%, #a87c30 100%);
   color: #1a0d00;
-  box-shadow: 0 2px 10px rgba(201, 168, 106, 0.4);
+  box-shadow: 0 2px 10px rgba(var(--be-gold-rgb), 0.4);
 }
 
 .avatar--lg {
@@ -347,8 +347,8 @@
   gap: 0.8rem;
   padding: 1rem 1rem 0.9rem;
   background: linear-gradient(135deg,
-    rgba(0, 77, 64, 0.05) 0%,
-    rgba(201, 168, 106, 0.07) 100%
+    rgba(var(--be-green-rgb), 0.05) 0%,
+    rgba(var(--be-gold-rgb), 0.07) 100%
   );
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
@@ -388,12 +388,12 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   width: fit-content;
-  background: rgba(0, 77, 64, 0.1);
-  color: #004D40;
+  background: rgba(var(--be-green-rgb), 0.1);
+  color: var(--be-green);
 }
 
 .role-badge--admin {
-  background: rgba(201, 168, 106, 0.22);
+  background: rgba(var(--be-gold-rgb), 0.22);
   color: #7a5a10;
 }
 

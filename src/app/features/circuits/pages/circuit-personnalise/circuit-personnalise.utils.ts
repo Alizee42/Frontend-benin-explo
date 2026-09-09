@@ -141,3 +141,14 @@ export function formatDateLabel(value: string): string {
 export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
+
+// Volontairement permissif (visiteurs internationaux, pas seulement beninois) : autorise les
+// chiffres, espaces, tirets, parentheses et un "+" optionnel en tete, avec entre 8 et 15
+// chiffres significatifs (plage E.164). Bug trouve en audit UX : le champ telephone n'avait
+// jusqu'ici aucune validation de format, contrairement a l'email.
+export function isValidPhone(phone: string): boolean {
+  const trimmed = phone.trim();
+  if (!/^\+?[\d\s\-().]+$/.test(trimmed)) return false;
+  const digitsOnly = trimmed.replace(/\D/g, '');
+  return digitsOnly.length >= 8 && digitsOnly.length <= 15;
+}

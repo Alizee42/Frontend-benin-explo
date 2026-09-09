@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 
 import { CircuitFormData } from '../circuit-form.types';
+import { validateImageFiles } from '../../../../../shared/utils/image-upload-validation';
 
 @Component({
   selector: 'app-add-circuit-step2',
@@ -17,21 +18,36 @@ export class AddCircuitStep2Component {
   @Output() heroSelected = new EventEmitter<{ file: File; preview: string }>();
   @Output() galerieSelected = new EventEmitter<{ files: File[]; previews: string[] }>();
   @Output() galerieInvalid = new EventEmitter<{ count: number }>();
+  @Output() imageInvalid = new EventEmitter<{ message: string }>();
 
-  onHeroSelect(event: Event): void {
+  async onHeroSelect(event: Event): Promise<void> {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
+
+    const error = await validateImageFiles([file]);
+    if (error) {
+      this.imageInvalid.emit({ message: error.message });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => this.heroSelected.emit({ file, preview: reader.result as string });
     reader.readAsDataURL(file);
   }
 
-  onGalerieSelect(event: Event): void {
+  async onGalerieSelect(event: Event): Promise<void> {
     const files = Array.from((event.target as HTMLInputElement).files ?? []) as File[];
     if (files.length < 3 || files.length > 10) {
       this.galerieInvalid.emit({ count: files.length });
       return;
     }
+
+    const error = await validateImageFiles(files);
+    if (error) {
+      this.imageInvalid.emit({ message: error.message });
+      return;
+    }
+
     const previews: string[] = [];
     let loaded = 0;
     files.forEach(file => {

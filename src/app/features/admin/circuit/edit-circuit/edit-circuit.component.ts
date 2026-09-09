@@ -12,6 +12,7 @@ import { VilleDTO } from '../../../../services/villes.service';
 import { Activite } from '../../../../services/activites.service';
 import { lastValueFrom } from 'rxjs';
 import { EUR_TO_XOF_RATE } from '../../../../shared/constants/currency.constants';
+import { validateImageFiles } from '../../../../shared/utils/image-upload-validation';
 
 @Component({
   selector: 'app-edit-circuit',
@@ -465,12 +466,19 @@ export class EditCircuitComponent implements OnInit, OnDestroy {
   // GESTION DES IMAGES
   // ============================================
 
-  onHeroSelect(event: any) {
+  async onHeroSelect(event: any) {
     const file = event.target.files[0];
     if (!file) return;
 
+    const error = await validateImageFiles([file]);
+    if (error) {
+      this.errors['image'] = error.message;
+      return;
+    }
+
     this.circuit.imageHero = file;
     delete this.errors['hero'];
+    delete this.errors['image'];
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -479,7 +487,7 @@ export class EditCircuitComponent implements OnInit, OnDestroy {
     reader.readAsDataURL(file);
   }
 
-  onGalerieSelect(event: any) {
+  async onGalerieSelect(event: any) {
     const files = Array.from(event.target.files) as File[];
 
     if (files.length < 3) {
@@ -491,8 +499,15 @@ export class EditCircuitComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const error = await validateImageFiles(files);
+    if (error) {
+      this.errors['image'] = error.message;
+      return;
+    }
+
     this.circuit.imagesGalerie = files;
     delete this.errors['galerie'];
+    delete this.errors['image'];
 
     this.previewsGalerie = [];
     files.forEach(file => {

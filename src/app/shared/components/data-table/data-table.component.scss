@@ -89,7 +89,7 @@
         user-select: none;
 
         &:hover {
-          background: rgba(201, 168, 106, 0.1); // be-gold with opacity
+          background: rgba(var(--be-gold-rgb), 0.1); // be-gold with opacity
         }
 
         .sort-icon {
@@ -257,7 +257,7 @@
     color: white;
 
     &:hover:not(:disabled) {
-      background: #2e5c4a;
+      background: var(--be-green-hover);
       transform: translateY(-1px);
     }
   }
@@ -323,7 +323,7 @@
     color: white;
 
     &:hover:not(:disabled) {
-      background: #2e5c4a;
+      background: var(--be-green-hover);
       transform: translateY(-1px);
     }
   }
@@ -584,21 +584,27 @@
     border: 1px solid rgba(0, 0, 0, 0.08);
   }
 
-  &.status-EN_ATTENTE {
-    background: #fff3cd;
-    color: #7a5a00;
+  /* Aligné sur la palette de statut globale (styles.css --status-*) : avant, ce composant
+     partagé utilisait ses propres teintes légèrement décalées de la palette admin
+     (ex. #f9d9dd au lieu de #f8d7da pour "refusé"), créant une incohérence visuelle entre
+     data-table et les autres écrans admin pour le même concept de statut. */
+  &.status-EN_ATTENTE,
+  &.status-A_PAYER {
+    background: var(--status-warning-bg);
+    color: var(--status-warning-text);
     border-color: rgba(133, 100, 4, 0.25);
   }
 
-  &.status-EN_TRAITEMENT {
+  &.status-EN_TRAITEMENT,
+  &.status-EN_COURS {
     background: #dbeafe;
     color: #1e40af;
     border-color: rgba(30, 64, 175, 0.2);
   }
 
   &.status-CONFIRMEE {
-    background: #d1ecf1;
-    color: #0c5460;
+    background: var(--status-info-bg);
+    color: var(--status-info-text);
     border-color: rgba(12, 84, 96, 0.22);
   }
 
@@ -608,51 +614,24 @@
     border-color: rgba(20, 90, 57, 0.22);
   }
 
-  &.status-ANNULEE {
-    background: #f8d7da;
-    color: #721c24;
-    border-color: rgba(114, 28, 36, 0.22);
-  }
-
-  &.status-REFUSE {
-    background: #f9d9dd;
-    color: #7f1d2a;
-    border-color: rgba(127, 29, 42, 0.24);
-  }
-
-  &.status-TERMINEE {
-    background: #d4edda;
-    color: #155724;
-    border-color: rgba(21, 87, 36, 0.22);
-  }
-
-  &.status-PAYE {
-    background: #d4edda;
-    color: #155724;
-    border-color: rgba(21, 87, 36, 0.22);
-  }
-
-  &.status-A_PAYER {
-    background: #fff3cd;
-    color: #7a5a00;
-    border-color: rgba(133, 100, 4, 0.25);
-  }
-
-  &.status-EN_COURS {
-    background: #dbeafe;
-    color: #1e40af;
-    border-color: rgba(30, 64, 175, 0.2);
-  }
-
+  &.status-ANNULEE,
+  &.status-REFUSE,
   &.status-ECHEC {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--status-danger-bg);
+    color: var(--status-danger-text);
     border-color: rgba(114, 28, 36, 0.22);
+  }
+
+  &.status-TERMINEE,
+  &.status-PAYE {
+    background: var(--status-success-bg);
+    color: var(--status-success-text);
+    border-color: rgba(21, 87, 36, 0.22);
   }
 
   &.status-REMBOURSE {
-    background: #e2e3e5;
-    color: #383d41;
+    background: var(--status-secondary-bg);
+    color: var(--status-secondary-text);
     border-color: rgba(56, 61, 65, 0.2);
   }
 }

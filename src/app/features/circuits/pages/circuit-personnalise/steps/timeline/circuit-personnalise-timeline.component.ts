@@ -10,13 +10,13 @@ import { getPricingCurrencyLabel } from '../../circuit-personnalise.utils';
 
 @Component({
   standalone: true,
-  selector: 'app-circuit-step2',
+  selector: 'app-circuit-timeline',
   imports: [FormsModule],
-  templateUrl: './circuit-personnalise-step2.component.html',
+  templateUrl: './circuit-personnalise-timeline.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: '../../circuit-personnalise-steps.scss'
 })
-export class CircuitPersonnaliseStep2Component implements OnChanges {
+export class CircuitPersonnaliseTimelineComponent implements OnChanges {
   @Input() jours: Jour[] = [];
   @Input() zones: Zone[] = [];
   @Input() villes: VilleDTO[] = [];
@@ -28,8 +28,8 @@ export class CircuitPersonnaliseStep2Component implements OnChanges {
   @Output() prev = new EventEmitter<void>();
   @Output() next = new EventEmitter<void>();
 
-  activeJourIndex = 0;
   stepError = '';
+  activeJourIndex = 0;
 
   private readonly PAGE_SIZE = 6;
   private readonly MAX_ACTIVITES = 5;
@@ -48,8 +48,7 @@ export class CircuitPersonnaliseStep2Component implements OnChanges {
     const idx = this.jours.findIndex(j => !isJourComplete(j));
     if (idx === -1) return true;
 
-    this.activeJourIndex = idx;
-    this.ensurePageInRange(idx);
+    this.selectJour(idx);
 
     const jour = this.jours[idx];
     const missing: string[] = [];
@@ -67,11 +66,38 @@ export class CircuitPersonnaliseStep2Component implements OnChanges {
     this.ensurePageInRange(index);
   }
 
+  jourPrecedent(): void {
+    if (this.activeJourIndex > 0) this.selectJour(this.activeJourIndex - 1);
+  }
+
+  jourSuivant(): void {
+    if (this.activeJourIndex < this.jours.length - 1) this.selectJour(this.activeJourIndex + 1);
+  }
+
+  // Reduit la charge de saisie sur les circuits longs (bug UX trouve en audit : chaque jour
+  // devait etre resaisi integralement, penible des 7-8 jours). Copie zone/ville/activites du
+  // jour precedent vers le jour actif ; l'utilisateur peut ensuite ajuster.
+  peutCopierJourPrecedent(jourIndex: number): boolean {
+    return jourIndex > 0 && isJourComplete(this.jours[jourIndex - 1]);
+  }
+
+  copierJourPrecedent(jourIndex: number): void {
+    if (!this.peutCopierJourPrecedent(jourIndex)) return;
+    const precedent = this.jours[jourIndex - 1];
+    const jour = this.jours[jourIndex];
+    jour.zoneId = precedent.zoneId;
+    jour.villeId = precedent.villeId;
+    jour.activites = [...precedent.activites];
+    this.resetPage(jourIndex);
+    this.stepError = '';
+    this.emitJours();
+  }
+
   onZoneChange(jour: Jour, zoneId: number | null): void {
     jour.zoneId = zoneId;
     jour.villeId = null;
     jour.activites = [];
-    this.resetPage(this.activeJourIndex);
+    this.resetPage(this.jours.indexOf(jour));
     this.stepError = '';
     this.emitJours();
   }
@@ -79,7 +105,7 @@ export class CircuitPersonnaliseStep2Component implements OnChanges {
   onVilleChange(jour: Jour, villeId: number | null): void {
     jour.villeId = villeId;
     jour.activites = [];
-    this.resetPage(this.activeJourIndex);
+    this.resetPage(this.jours.indexOf(jour));
     this.stepError = '';
     this.emitJours();
   }

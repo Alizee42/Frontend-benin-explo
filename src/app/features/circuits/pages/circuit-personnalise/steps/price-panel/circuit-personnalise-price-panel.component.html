@@ -1,0 +1,92 @@
+<div class="price-panel">
+  <div class="price-panel-header">
+    <span class="price-panel-kicker">Estimation</span>
+    @if (hasPricedItems()) {
+      <div class="price-panel-total">
+        <strong>{{ prixTotal() | number:'1.0-2' }}</strong>
+        <span>{{ getPricingLabel() }}</span>
+      </div>
+    } @else {
+      <p class="summary-note">Le devis sera établi par notre équipe après réception de votre demande.</p>
+    }
+  </div>
+
+  @if (prixActivites() > 0 || prixHebergement() > 0 || prixTransport() > 0 || prixGuide() > 0 || prixChauffeur() > 0 || prixPension() > 0) {
+    <div class="price-panel-breakdown">
+      @if (prixActivites() > 0) {
+        <div class="summary-row">
+          <span>Activités</span>
+          <span>{{ prixActivites() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+        </div>
+      }
+      @if (prixHebergement() > 0) {
+        <div class="summary-row">
+          <span>Hébergement</span>
+          <span>{{ prixHebergement() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+        </div>
+      }
+      @if (prixTransport() > 0) {
+        <div class="summary-row">
+          <span>Transport</span>
+          <span>{{ prixTransport() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+        </div>
+      }
+      @if (prixGuide() > 0) {
+        <div class="summary-row">
+          <span>Guide</span>
+          <span>{{ prixGuide() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+        </div>
+      }
+      @if (prixChauffeur() > 0) {
+        <div class="summary-row">
+          <span>Chauffeur</span>
+          <span>{{ prixChauffeur() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+        </div>
+      }
+      @if (prixPension() > 0) {
+        <div class="summary-row">
+          <span>Pension</span>
+          <span>{{ prixPension() | number:'1.0-2' }} {{ getPricingLabel() }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  @if (hasMissingTarifsForSelectedOptions()) {
+    <p class="summary-note summary-note--warning">
+      ⚠️ Les tarifs de transport/guide/chauffeur/pension n'ont pas pu être chargés : le
+      total ci-dessus ne les inclut pas encore. Le devis final sera confirmé par notre
+      équipe avec le prix complet.
+    </p>
+  }
+  @if (hasPricedItems()) {
+    <p class="summary-note">Ce total est indicatif. Le devis final sera confirmé par notre équipe.</p>
+  }
+
+  @if (jours.length > 0) {
+    <div class="price-panel-days">
+      <h3>Votre planning</h3>
+      <div class="summary-days">
+        @for (jour of jours; track jour.numero) {
+          <div class="summary-day">
+            <div class="summary-day-title">
+              <span>Jour {{ jour.numero }}</span>
+              <span class="summary-day-status" [class.is-complete]="isJourComplete(jour)">
+                {{ isJourComplete(jour) ? 'Complet' : 'Manquant' }}
+              </span>
+            </div>
+            @if (getActiviteNamesForJour(jour).length > 0) {
+              <ul class="summary-day-acts">
+                @for (nom of getActiviteNamesForJour(jour); track nom) {
+                  <li>{{ nom }}</li>
+                }
+              </ul>
+            } @else {
+              <div class="summary-day-acts summary-day-acts--empty">Activités à définir</div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

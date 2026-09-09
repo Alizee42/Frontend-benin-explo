@@ -64,6 +64,15 @@ export const routes: Routes = [
     data: { headerLight: true }
   },
 
+  /* MON CIRCUIT PERSONNALISÉ (circuit créé après acceptation + paiement d'une demande) */
+  {
+    path: 'mes-reservations/circuit-personnalise/:demandeId',
+    loadComponent: () =>
+      import('./features/utilisateur/pages/mon-circuit-personnalise/mon-circuit-personnalise.component').then(m => m.MonCircuitPersonnaliseComponent),
+    canActivate: [authGuard],
+    data: { headerLight: true }
+  },
+
   {
     path: 'dashboard',
     loadComponent: () =>

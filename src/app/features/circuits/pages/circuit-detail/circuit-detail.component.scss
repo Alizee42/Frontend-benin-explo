@@ -2,8 +2,8 @@
   --detail-ink: #1c1b1a;
   --detail-ink-soft: #3b3a36;
   --detail-sand: #f6efe5;
-  --detail-olive: #1f3f2d;
-  --detail-gold: #c9a86a;
+  --detail-olive: var(--be-green-olive);
+  --detail-gold: var(--be-gold);
   --detail-terracotta: #c86c4a;
 }
 
@@ -256,7 +256,7 @@
 }
 
 .primary-action {
-  background: #1f3f2d;
+  background: var(--be-green-olive);
   color: #fff;
 }
 
@@ -312,7 +312,7 @@
   background-size: cover;
   background-position: center;
   box-shadow: 0 30px 80px rgba(19, 26, 22, 0.25);
-  border: 1px solid rgba(31, 63, 45, 0.22);
+  border: 1px solid rgba(var(--be-green-olive-rgb), 0.22);
 }
 
 .hero-overlay {
@@ -352,8 +352,8 @@
 }
 
 .ghost-back.home {
-  background: rgba(201, 168, 106, 0.24);
-  border-color: rgba(201, 168, 106, 0.55);
+  background: rgba(var(--be-gold-rgb), 0.24);
+  border-color: rgba(var(--be-gold-rgb), 0.55);
 }
 
 .hero-card {
@@ -381,7 +381,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: #1f3f2d;
+  background: var(--be-green-olive);
   color: #fef6e7;
 }
 
@@ -396,7 +396,7 @@
 }
 
 .hero-pill.status.status-inactive {
-  background: #f8d7da;
+  background: var(--status-danger-bg);
   color: #8a2f3a;
 }
 
@@ -434,8 +434,8 @@
 }
 
 .meta-chip.price {
-  background: #1f3f2d;
-  border-color: #1f3f2d;
+  background: var(--be-green-olive);
+  border-color: var(--be-green-olive);
   color: #fff;
 }
 
@@ -460,7 +460,7 @@
   margin: 0;
   padding: 1.3rem 1.5rem 0.4rem;
   font-size: 1.35rem;
-  color: #1f3f2d;
+  color: var(--be-green-olive);
   font-weight: 700;
   font-family: "Marcellus", "Georgia", serif;
 }
@@ -530,8 +530,8 @@
  }
 
  .day-chip.active {
-  border-color: #1f3f2d;
-  background: #1f3f2d;
+  border-color: var(--be-green-olive);
+  background: var(--be-green-olive);
   color: #fffaf2;
   box-shadow: 0 10px 24px rgba(31, 25, 18, 0.18);
  }
@@ -725,12 +725,67 @@
 }
 
 .tag {
-  background: #1f3f2d;
+  background: var(--be-green-olive);
   color: #fff;
   padding: 0.3rem 0.8rem;
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 600;
+}
+
+.activites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.activite-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.activite-card__image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.activite-card__body {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.activite-card__name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--be-green-olive);
+}
+
+.activite-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.activite-card__tag {
+  background: #f0ede3;
+  color: var(--be-green-olive);
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.activite-card__tag--difficulte {
+  background: var(--be-green-olive);
+  color: #fff;
 }
 
 /* ── Responsive mobile-first (min-width) ── */
