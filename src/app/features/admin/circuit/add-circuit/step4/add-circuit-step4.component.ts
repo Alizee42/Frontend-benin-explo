@@ -8,7 +8,8 @@ import { CircuitFormData, PointFort } from '../circuit-form.types';
   standalone: true,
   imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.Eager,
-  templateUrl: './add-circuit-step4.component.html'
+  templateUrl: './add-circuit-step4.component.html',
+  styleUrl: '../add-circuit-steps.scss'
 })
 export class AddCircuitStep4Component {
   @Input() circuit!: CircuitFormData;

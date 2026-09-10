@@ -39,6 +39,8 @@ export interface ContactInfo {
   message: string;
 }
 
+// Zone/ville ne servent qu'a filtrer la liste d'activites proposees (optionnel) : un jour est
+// complet des qu'au moins une activite est choisie, meme sans avoir precise zone/ville.
 export function isJourComplete(jour: Jour): boolean {
-  return !!(jour.zoneId && jour.villeId && jour.activites.length > 0);
+  return jour.activites.length > 0;
 }

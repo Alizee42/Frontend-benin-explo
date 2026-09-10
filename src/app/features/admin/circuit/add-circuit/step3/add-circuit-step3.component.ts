@@ -11,7 +11,8 @@ import { CircuitFormData } from '../circuit-form.types';
   standalone: true,
   imports: [FormsModule],
   changeDetection: ChangeDetectionStrategy.Eager,
-  templateUrl: './add-circuit-step3.component.html'
+  templateUrl: './add-circuit-step3.component.html',
+  styleUrl: '../add-circuit-steps.scss'
 })
 export class AddCircuitStep3Component {
   @Input() circuit!: CircuitFormData;

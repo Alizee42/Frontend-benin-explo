@@ -208,10 +208,17 @@
 .step-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.15rem;
+  gap: 1.5rem;
   align-items: start;
-  max-width: 1320px;
-  margin: 0 auto;
+  padding: 1.5rem 0.85rem;
+
+  @media (min-width: 768px) {
+    padding: 1.75rem 2rem;
+  }
+
+  @media (min-width: 1200px) {
+    padding: 1.75rem 3rem;
+  }
 }
 
 .step-aside {
@@ -220,7 +227,7 @@
 
 @media (min-width: 992px) {
   .step-grid {
-    grid-template-columns: minmax(0, 1fr) 300px;
+    grid-template-columns: minmax(0, 1fr) 380px;
   }
 
   .step-aside {
@@ -1748,6 +1755,14 @@
 
 .step-container {
   padding: 0.75rem 0.9rem 1.2rem;
+
+  @media (min-width: 768px) {
+    padding: 1.1rem 2rem 1.5rem;
+  }
+
+  @media (min-width: 1200px) {
+    padding: 1.1rem 3rem 1.5rem;
+  }
 }
 
 .progress-container {
@@ -1811,4 +1826,73 @@
 
 .inline-error {
   margin-top: 1rem;
+}
+
+/* MODALE DE CONFIRMATION DE SORTIE (remplace window.confirm) */
+.leave-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 2000;
+}
+
+.leave-confirm-modal {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 2rem;
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.25);
+
+  h3 {
+    margin: 0.75rem 0 0.5rem;
+    color: var(--be-dark);
+    font-size: 1.2rem;
+  }
+
+  p {
+    margin: 0 0 1.25rem;
+    color: #64748b;
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+}
+
+.leave-confirm-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: rgba(var(--be-gold-rgb), 0.18);
+  color: #92400e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+.leave-confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+
+  .btn-prev,
+  .btn-next {
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+
+    .btn-prev,
+    .btn-next {
+      width: 100%;
+    }
+  }
 }

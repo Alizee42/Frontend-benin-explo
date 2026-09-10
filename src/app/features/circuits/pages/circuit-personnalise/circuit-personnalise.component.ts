@@ -1,7 +1,7 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { Router } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, Subject } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { CircuitsPersonnalisesService, CircuitPersonnaliseDTO, JourDTO } from '../../../../services/circuits-personnalises.service';
@@ -70,6 +70,22 @@ export class CircuitPersonnaliseComponent {
   submitSuccess = false;
   submitError = false;
   submitErrorMessage = '';
+
+  // Confirmation de sortie (remplace window.confirm par une modale stylee, pilotee par le
+  // guard canDeactivate). Le brouillon sessionStorage est conserve meme si l'utilisateur quitte,
+  // donc le texte rassure au lieu de menacer une perte de saisie qui n'existe plus reellement.
+  showLeaveConfirm = false;
+  private leaveConfirmResult = new Subject<boolean>();
+
+  requestLeaveConfirmation() {
+    this.showLeaveConfirm = true;
+    return this.leaveConfirmResult.asObservable();
+  }
+
+  confirmLeave(leave: boolean): void {
+    this.showLeaveConfirm = false;
+    this.leaveConfirmResult.next(leave);
+  }
 
   constructor() {
     const user = this.authService.getUser();

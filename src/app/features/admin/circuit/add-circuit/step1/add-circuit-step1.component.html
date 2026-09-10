@@ -1,9 +1,12 @@
-<div class="form-grid">
-  <div class="form-group full-width">
-    <label>Titre du circuit *</label>
-    <input type="text" [(ngModel)]="circuit.titre" name="titre"
-      placeholder="Ex: Découverte du patrimoine royal"
-      [class.error]="errors['titre']">
+<div class="info-section">
+  <h3><i class="ri-file-text-line info-icon"></i> Contenu du circuit</h3>
+
+  <div class="form-grid">
+    <div class="form-group full-width">
+      <label>Titre du circuit *</label>
+      <input type="text" [(ngModel)]="circuit.titre" name="titre"
+        placeholder="Ex: Découverte du patrimoine royal"
+        [class.error]="errors['titre']">
       @if (errors['titre']) {
         <span class="error-text">{{ errors['titre'] }}</span>
       }
@@ -13,39 +16,46 @@
       <label>Description *</label>
       <textarea [(ngModel)]="circuit.description" name="description" rows="4"
         placeholder="Décrivez le circuit de manière détaillée..."
-      [class.error]="errors['description']"></textarea>
+        [class.error]="errors['description']"></textarea>
       @if (errors['description']) {
         <span class="error-text">{{ errors['description'] }}</span>
       }
     </div>
+  </div>
+</div>
 
+<div class="info-section">
+  <h3><i class="ri-price-tag-3-line info-icon"></i> Durée & tarif</h3>
+
+  <div class="form-grid">
     <div class="form-group">
       <label>Durée (jours) *</label>
       <input type="number" [(ngModel)]="circuit.dureeJours" name="duree"
         min="1" max="30" (ngModelChange)="onDureeChange()"
         [class.error]="errors['duree']">
-        @if (errors['duree']) {
-          <span class="error-text">{{ errors['duree'] }}</span>
-        }
-      </div>
+      @if (errors['duree']) {
+        <span class="error-text">{{ errors['duree'] }}</span>
+      }
+    </div>
 
-      <div class="form-group">
-        <label>Prix *</label>
-        <div class="price-row">
-          <input type="number" [(ngModel)]="circuit.prixEuros" name="prix"
-            min="0" step="10" placeholder="0"
-            [class.error]="errors['prix']">
-            <select class="currency-select" [(ngModel)]="priceCurrency" name="priceCurrency"
-              (ngModelChange)="onPriceCurrencyChange($event)">
-              <option value="EUR">EUR</option>
-              <option value="XOF">XOF (FCFA)</option>
-            </select>
-          </div>
-          @if (getPriceConversionLabel()) {
-            <span class="hint">{{ getPriceConversionLabel() }}</span>
-          }
-          @if (errors['prix']) {
-            <span class="error-text">{{ errors['prix'] }}</span>
-          }
-        </div>
+    <div class="form-group">
+      <label>Prix *</label>
+      <div class="price-row">
+        <input type="number" [(ngModel)]="circuit.prixEuros" name="prix"
+          min="0" step="10" placeholder="0"
+          [class.error]="errors['prix']">
+        <select class="currency-select" [(ngModel)]="priceCurrency" name="priceCurrency"
+          (ngModelChange)="onPriceCurrencyChange($event)">
+          <option value="EUR">EUR</option>
+          <option value="XOF">XOF (FCFA)</option>
+        </select>
       </div>
+      @if (getPriceConversionLabel()) {
+        <span class="hint">{{ getPriceConversionLabel() }}</span>
+      }
+      @if (errors['prix']) {
+        <span class="error-text">{{ errors['prix'] }}</span>
+      }
+    </div>
+  </div>
+</div>

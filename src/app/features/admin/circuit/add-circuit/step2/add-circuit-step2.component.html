@@ -4,12 +4,17 @@
   }
   <div class="form-group">
     <label>Image principale *</label>
-    <div class="file-upload-area" [class.has-file]="previewHero">
+    <div class="file-upload-area"
+      [class.has-file]="previewHero"
+      [class.drag-over]="dragOverHero"
+      (dragover)="onHeroDragOver($event)"
+      (dragleave)="onHeroDragLeave($event)"
+      (drop)="onHeroDrop($event)">
       <input type="file" accept="image/*" (change)="onHeroSelect($event)" #heroInput>
       @if (!previewHero) {
         <div class="upload-placeholder" (click)="heroInput.click()">
-          <span class="upload-icon">📷</span>
-          <span>Cliquez pour sélectionner l'image</span>
+          <i class="ri-camera-line upload-icon"></i>
+          <span>Glissez une image ici ou cliquez pour la sélectionner</span>
         </div>
       }
       @if (previewHero) {
@@ -23,17 +28,26 @@
 
   <div class="form-group full-width">
     <label>Galerie (3-10 images) *</label>
-    <div class="file-upload-area">
+    <div class="file-upload-area"
+      [class.drag-over]="dragOverGalerie"
+      (dragover)="onGalerieDragOver($event)"
+      (dragleave)="onGalerieDragLeave($event)"
+      (drop)="onGalerieDrop($event)">
       <input type="file" accept="image/*" multiple (change)="onGalerieSelect($event)" #galerieInput>
       <div class="upload-placeholder" (click)="galerieInput.click()">
-        <span class="upload-icon">🖼️</span>
-        <span>Sélectionnez entre 3 et 10 images</span>
+        <i class="ri-image-add-line upload-icon"></i>
+        <span>Glissez 3 à 10 images ici ou cliquez pour les sélectionner</span>
       </div>
     </div>
     @if (previewsGalerie.length > 0) {
       <div class="preview-grid">
-        @for (preview of previewsGalerie; track preview) {
-          <img [src]="preview" alt="Aperçu" class="preview-thumb">
+        @for (preview of previewsGalerie; track preview; let i = $index) {
+          <div class="preview-thumb-wrap">
+            <img [src]="preview" alt="Aperçu" class="preview-thumb">
+            <button type="button" class="btn-remove-thumb"
+              (click)="galerieImageRemoved.emit(i)"
+              [attr.aria-label]="'Supprimer image ' + (i + 1)">×</button>
+          </div>
         }
       </div>
     }

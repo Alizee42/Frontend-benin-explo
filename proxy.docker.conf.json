@@ -1,0 +1,27 @@
+{
+  "/api": {
+    "target": "http://backend:8090",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/api": "/api"
+    }
+  },
+  "/auth": {
+    "target": "http://backend:8090",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/uploads": {
+    "target": "http://backend:8090",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/images": {
+    "target": "http://backend:8090",
+    "secure": false,
+    "changeOrigin": true
+  }
+}
