@@ -109,4 +109,18 @@
       </aside>
     </div>
   }
+
+  @if (showLeaveConfirm) {
+    <div class="leave-confirm-overlay" (click)="confirmLeave(false)">
+      <div class="leave-confirm-modal" (click)="$event.stopPropagation()">
+        <div class="leave-confirm-icon"><i class="ri-time-line"></i></div>
+        <h3>Quitter la création de circuit ?</h3>
+        <p>Pas d'inquiétude : votre saisie est enregistrée automatiquement. Vous pourrez la reprendre là où vous l'avez laissée en revenant sur cette page.</p>
+        <div class="leave-confirm-actions">
+          <button type="button" class="btn-prev" (click)="confirmLeave(false)">Continuer ma saisie</button>
+          <button type="button" class="btn-next" (click)="confirmLeave(true)">Quitter quand même</button>
+        </div>
+      </div>
+    </div>
+  }
 </section>

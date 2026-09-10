@@ -43,7 +43,7 @@
 
 @if (circuit.programme[activeDayIndex]; as day) {
   <div class="jour-card">
-    <h4>Jour {{ day.jour }}@if (day.title) {
+    <h4><i class="ri-calendar-line"></i> Jour {{ day.jour }}@if (day.title) {
       <span> – {{ day.title }}</span>
     }</h4>
     <div class="form-group">
@@ -86,31 +86,41 @@
           <label>Activites du jour ({{ day.activiteIds.length }} selectionnee(s))</label>
           <div class="activites-list">
             @for (act of getActivitesForJour(activeDayIndex); track act) {
-              <label class="activite-item">
-                <div class="activite-header">
-                  <input type="checkbox" [checked]="isActiviteSelected(activeDayIndex, act.id)"
-                    (change)="toggleActivite(activeDayIndex, act.id)">
-                    <div class="activite-info">
-                      <span class="activite-nom">{{ act.nom }}</span>
-                      <div class="activite-meta">
-                        <span class="activite-ville">{{ act.villeNom }}</span>
-                        @if (act.dureeDisplay) {
-                          <span class="activite-duree">• {{ act.dureeDisplay }}</span>
-                        }
-                        @if (act.difficulte) {
-                          <span class="activite-difficulte">• {{ act.difficulte }}</span>
-                        }
-                      </div>
-                    </div>
+              <label class="activite-item"
+                [class.selected]="isActiviteSelected(activeDayIndex, act.id)">
+                <input type="checkbox" class="activite-checkbox"
+                  [checked]="isActiviteSelected(activeDayIndex, act.id)"
+                  (change)="toggleActivite(activeDayIndex, act.id)">
+                @if (act.image) {
+                  <div class="activite-thumb">
+                    <img [src]="act.image" [alt]="act.nom" loading="lazy">
+                  </div>
+                }
+                <div class="activite-body">
+                  <div class="activite-header">
+                    <span class="activite-nom">{{ act.nom }}</span>
+                    @if (act.prix != null) {
+                      <span class="prix">{{ act.prix }}</span>
+                    }
                   </div>
                   @if (act.description) {
-                    <div class="activite-description">{{ act.description }}</div>
+                    <p class="activite-description">{{ act.description }}</p>
                   }
-                </label>
-              }
-            </div>
+                  <div class="activite-meta">
+                    <span class="activite-ville">{{ act.villeNom }}</span>
+                    @if (act.dureeDisplay) {
+                      <span>• {{ act.dureeDisplay }}</span>
+                    }
+                    @if (act.difficulte) {
+                      <span>• {{ act.difficulte }}</span>
+                    }
+                  </div>
+                </div>
+              </label>
+            }
           </div>
-        }
+        </div>
+      }
         @if (isLoadingActivitesForJour(activeDayIndex)) {
           <p class="hint">Chargement des activites pour cette zone...</p>
         }

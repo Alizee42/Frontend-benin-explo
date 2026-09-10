@@ -9,6 +9,7 @@ import { CircuitService } from '../../../../services/circuit.service';
 import { CircuitFormCacheService } from '../../../../services/circuit-form-cache.service';
 import { ZoneDTO } from '../../../../services/zones-admin.service';
 import { VilleDTO } from '../../../../services/villes.service';
+import { Activite } from '../../../../services/activites.service';
 import { AddCircuitStep1Component } from './step1/add-circuit-step1.component';
 import { AddCircuitStep2Component } from './step2/add-circuit-step2.component';
 import { AddCircuitStep3Component } from './step3/add-circuit-step3.component';
@@ -51,7 +52,7 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
 
   zones: ZoneDTO[] = [];
   villesParJour: { [k: number]: VilleDTO[] } = {};
-  activitesParJour: { [k: number]: any[] } = {};
+  activitesParJour: { [k: number]: Activite[] } = {};
 
   loading = { zones: false, submit: false };
   currentStep = 1;
@@ -172,6 +173,11 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
     this.circuit.imagesGalerie = event.files;
     this.previewsGalerie = event.previews;
     delete this.errors['galerie'];
+  }
+
+  onGalerieImageRemoved(index: number): void {
+    this.circuit.imagesGalerie = this.circuit.imagesGalerie.filter((_, i) => i !== index);
+    this.previewsGalerie = this.previewsGalerie.filter((_, i) => i !== index);
   }
 
   onGalerieInvalid(event: { count: number }): void {

@@ -51,12 +51,7 @@ export class CircuitPersonnaliseTimelineComponent implements OnChanges {
     this.selectJour(idx);
 
     const jour = this.jours[idx];
-    const missing: string[] = [];
-    if (!jour.zoneId) missing.push('la zone');
-    if (!jour.villeId) missing.push('la ville');
-    if (jour.activites.length === 0) missing.push('au moins une activité');
-
-    this.stepError = `Complète le jour ${jour.numero} avant de continuer : ${missing.join(', ')}.`;
+    this.stepError = `Choisis au moins une activité pour le jour ${jour.numero} avant de continuer.`;
     return false;
   }
 
