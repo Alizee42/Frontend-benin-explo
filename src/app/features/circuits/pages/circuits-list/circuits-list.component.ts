@@ -1,6 +1,7 @@
 ﻿import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { CircuitService } from '../../../../services/circuit.service';
 import { ZonesService, Zone } from '../../../../services/zones.service';
 import { CircuitDTO } from '../../../../models/circuit.dto';
@@ -16,16 +17,22 @@ import { PricePipe } from '../../../../shared/pipes/price.pipe';
 })
 export class CircuitsListComponent implements OnInit {
 
+  // Circuits de la page courante, deja filtres et pagines cote serveur.
   circuits: CircuitDTO[] = [];
-  allCircuits: CircuitDTO[] = [];
   zones: Zone[] = [];
   loading = true;
   selectedZoneId: number | null = null;
   currentPage = 1;
   pageSize = 6;
+  totalPages = 1;
+  totalCircuitsCount = 0;
   circuitsNotice = '';
   zonesNotice = '';
   usingDemoCircuits = false;
+
+  // Nombre de circuits actifs par zone, pour l'affichage des compteurs de filtre.
+  // Recupere via de petits appels pagines (size=1) : seul totalElements nous interesse.
+  private circuitsCountByZone: Record<number, number> = {};
 
   private demoCircuits: CircuitDTO[] = [
     {
@@ -154,6 +161,7 @@ export class CircuitsListComponent implements OnInit {
         this.zonesNotice = this.zones.length === 0
           ? 'Les filtres par zone ne sont pas disponibles pour le moment.'
           : '';
+        this.loadCircuitsCountByZone();
       },
       error: (error) => {
         this.zones = [];
@@ -162,31 +170,55 @@ export class CircuitsListComponent implements OnInit {
     });
   }
 
+  // Recupere le nombre de circuits actifs par zone via de petits appels pagines
+  // (size=1, seul totalElements nous interesse) plutot que de telecharger tout le
+  // catalogue pour les compter cote client.
+  private loadCircuitsCountByZone(): void {
+    if (this.zones.length === 0) {
+      return;
+    }
+    const requests = this.zones.reduce((acc, zone) => {
+      acc[zone.idZone] = this.circuitService.getActiveCircuitsPage(0, 1, zone.idZone);
+      return acc;
+    }, {} as Record<number, ReturnType<CircuitService['getActiveCircuitsPage']>>);
+
+    forkJoin(requests).subscribe({
+      next: (results) => {
+        const counts: Record<number, number> = {};
+        for (const zoneId of Object.keys(results)) {
+          counts[+zoneId] = results[+zoneId].totalElements;
+        }
+        this.circuitsCountByZone = counts;
+      },
+      error: () => {
+        this.circuitsCountByZone = {};
+      }
+    });
+  }
+
   loadCircuits(): void {
     this.loading = true;
-    this.circuitService.getActiveCircuits().subscribe({
-      next: (data: CircuitDTO[]) => {
-        const actifs = (data || []).filter(c => c?.actif === true);
+    this.circuitService.getActiveCircuitsPage(this.currentPage - 1, this.pageSize, this.selectedZoneId).subscribe({
+      next: (result) => {
         this.usingDemoCircuits = false;
-        this.currentPage = 1;
+        this.circuits = result.content || [];
+        this.totalCircuitsCount = result.totalElements;
+        this.totalPages = Math.max(1, result.totalPages);
 
-        if (actifs.length > 0) {
-          this.allCircuits = actifs;
-          this.circuits = actifs;
-          this.circuitsNotice = '';
-        } else {
-          this.allCircuits = [];
-          this.circuits = [];
-          this.circuitsNotice = 'Aucun circuit actif n est disponible pour le moment.';
-        }
+        this.circuitsNotice = this.circuits.length === 0
+          ? (this.selectedZoneId === null
+              ? 'Aucun circuit actif n est disponible pour le moment.'
+              : '')
+          : '';
 
         this.loading = false;
       },
       error: (err: any) => {
         const demoActifs = this.demoCircuits.filter(c => c?.actif === true);
         this.usingDemoCircuits = true;
-        this.allCircuits = demoActifs;
         this.circuits = demoActifs;
+        this.totalCircuitsCount = demoActifs.length;
+        this.totalPages = 1;
         this.currentPage = 1;
         this.circuitsNotice = 'Le catalogue en ligne est temporairement indisponible. Affichage d un apercu local.';
         this.loading = false;
@@ -197,32 +229,25 @@ export class CircuitsListComponent implements OnInit {
   filterByZone(zoneId: number | null): void {
     this.selectedZoneId = zoneId;
     this.currentPage = 1;
-    if (zoneId === null) {
-      this.circuits = this.allCircuits;
-    } else {
-      this.circuits = this.allCircuits.filter(circuit => circuit.zoneId === zoneId);
-    }
-  }
-
-  get totalPages(): number {
-    return Math.max(1, Math.ceil((this.circuits?.length || 0) / this.pageSize));
-  }
-
-  get pagedCircuits(): CircuitDTO[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return (this.circuits || []).slice(start, start + this.pageSize);
+    this.loadCircuits();
   }
 
   prevPage(): void {
-    if (this.currentPage > 1) this.currentPage--;
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadCircuits();
+    }
   }
 
   nextPage(): void {
-    if (this.currentPage < this.totalPages) this.currentPage++;
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.loadCircuits();
+    }
   }
 
   getCircuitsCountForZone(zoneId: number): number {
-    return this.allCircuits.filter(circuit => circuit.zoneId === zoneId).length;
+    return this.circuitsCountByZone[zoneId] ?? 0;
   }
 
   getImageForCircuit(circuit: CircuitDTO): string {

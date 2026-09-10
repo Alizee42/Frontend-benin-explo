@@ -50,7 +50,7 @@
 .be-btn-primary {
   background: var(--be-green);
   color: #f9fafb;
-  box-shadow: 0 4px 10px rgba(0, 77, 64, 0.32);
+  box-shadow: 0 4px 10px rgba(var(--be-green-rgb), 0.32);
 }
 
 .be-btn-primary:disabled {

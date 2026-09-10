@@ -10,7 +10,7 @@
     height: 100%;
     background: linear-gradient(90deg, var(--be-green) 0%, var(--be-green-dark) 100%);
     transition: width 0.3s ease;
-    box-shadow: 0 0 4px rgba(0, 77, 64, 0.4);
+    box-shadow: 0 0 4px rgba(var(--be-green-rgb), 0.4);
   }
 }
 
@@ -72,7 +72,7 @@
 
       .step-circle {
         transform: scale(1.1);
-        box-shadow: 0 8px 25px rgba(0, 77, 64, 0.4);
+        box-shadow: 0 8px 25px rgba(var(--be-green-rgb), 0.4);
       }
     }
 
@@ -100,7 +100,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(135deg, rgba(201, 168, 106, 0.1) 0%, rgba(0, 77, 64, 0.05) 100%);
+        background: linear-gradient(135deg, rgba(var(--be-gold-rgb), 0.1) 0%, rgba(var(--be-green-rgb), 0.05) 100%);
         opacity: 0;
         transition: opacity 0.3s ease;
       }
@@ -128,7 +128,7 @@
         background: linear-gradient(135deg, var(--be-green) 0%, var(--be-green-dark) 100%);
         color: white;
         border-color: var(--be-gold);
-        box-shadow: 0 0 0 6px rgba(201, 168, 106, 0.3), 0 8px 25px rgba(0, 77, 64, 0.4);
+        box-shadow: 0 0 0 6px rgba(var(--be-gold-rgb), 0.3), 0 8px 25px rgba(var(--be-green-rgb), 0.4);
         transform: scale(1.05);
 
         &::before {
@@ -148,7 +148,7 @@
         background: linear-gradient(135deg, var(--be-green) 0%, var(--be-green-dark) 100%);
         color: white;
         border-color: var(--be-gold);
-        box-shadow: 0 4px 15px rgba(0, 77, 64, 0.3);
+        box-shadow: 0 4px 15px rgba(var(--be-green-rgb), 0.3);
 
         &::before {
           opacity: 1;
@@ -188,22 +188,22 @@
 
   .step-divider.completed {
     background: linear-gradient(90deg, var(--be-gold) 0%, var(--be-green) 50%, var(--be-gold) 100%);
-    box-shadow: 0 2px 8px rgba(201, 168, 106, 0.4);
+    box-shadow: 0 2px 8px rgba(var(--be-gold-rgb), 0.4);
     transform: scaleY(1.2);
   }
 }
 
 @keyframes premium-pulse {
   0% {
-    box-shadow: 0 0 0 6px rgba(201, 168, 106, 0.3), 0 8px 25px rgba(0, 77, 64, 0.4);
+    box-shadow: 0 0 0 6px rgba(var(--be-gold-rgb), 0.3), 0 8px 25px rgba(var(--be-green-rgb), 0.4);
     transform: scale(1.05);
   }
   50% {
-    box-shadow: 0 0 0 12px rgba(201, 168, 106, 0.1), 0 12px 35px rgba(0, 77, 64, 0.2);
+    box-shadow: 0 0 0 12px rgba(var(--be-gold-rgb), 0.1), 0 12px 35px rgba(var(--be-green-rgb), 0.2);
     transform: scale(1.08);
   }
   100% {
-    box-shadow: 0 0 0 6px rgba(201, 168, 106, 0.3), 0 8px 25px rgba(0, 77, 64, 0.4);
+    box-shadow: 0 0 0 6px rgba(var(--be-gold-rgb), 0.3), 0 8px 25px rgba(var(--be-green-rgb), 0.4);
     transform: scale(1.05);
   }
 }
@@ -389,8 +389,8 @@
     border-radius: 999px;
     font-size: 0.78rem;
     font-weight: 700;
-    color: #1f3a68;
-    background: #eef3ff;
+    color: var(--status-info-text);
+    background: var(--status-info-bg);
     border: 1px solid #cdd8f3;
   }
 }
@@ -683,13 +683,13 @@
       cursor: pointer;
       transition: all 0.3s ease;
       text-align: left;
-      box-shadow: 0 2px 6px rgba(0, 77, 64, 0.1);
+      box-shadow: 0 2px 6px rgba(var(--be-green-rgb), 0.1);
 
       &:hover:not(:disabled) {
         background: var(--be-green);
         color: white;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 77, 64, 0.3);
+        box-shadow: 0 4px 12px rgba(var(--be-green-rgb), 0.3);
       }
 
       &:disabled {
@@ -1278,7 +1278,7 @@
 .circuit-form-container .form-group select:focus,
 .circuit-form-container .form-group textarea:focus {
   border-color: var(--be-green);
-  box-shadow: 0 0 0 4px rgba(0, 77, 64, 0.12);
+  box-shadow: 0 0 0 4px rgba(var(--be-green-rgb), 0.12);
 }
 
 .circuit-form-container .file-upload-area {
@@ -1429,7 +1429,7 @@
 
 .day-pill.complete {
   border-color: var(--be-gold);
-  box-shadow: inset 0 0 0 1px rgba(201, 168, 106, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(var(--be-gold-rgb), 0.2);
 }
 
 .day-pill.incomplete {
@@ -1445,7 +1445,7 @@
   color: var(--be-green-dark);
   padding: 0.12rem 0.4rem;
   border-radius: 999px;
-  border: 1px solid rgba(0, 77, 64, 0.3);
+  border: 1px solid rgba(var(--be-green-rgb), 0.3);
 }
 
 .day-pill-status.warn {

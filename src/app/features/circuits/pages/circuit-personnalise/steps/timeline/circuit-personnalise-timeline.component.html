@@ -1,0 +1,199 @@
+<div class="step-container">
+  <div class="step-content">
+    <div class="step-heading">
+      <div>
+        <h2>Planifiez vos journées</h2>
+        <p class="step-subtitle">Choisissez une zone, une ville et jusqu'à 5 activités par jour.</p>
+      </div>
+      <span class="step-badge">Étape 2/3</span>
+    </div>
+
+    @if (catalogLoading) {
+      <div class="inline-loading">
+        <div class="catalog-spinner"></div>
+        <p>Chargement des données nécessaires à la planification...</p>
+      </div>
+    }
+
+    @if (!catalogLoading) {
+      @if (jours.length > 0) {
+        <div class="day-picker">
+          <button type="button" class="day-picker-arrow" (click)="jourPrecedent()" [disabled]="activeJourIndex === 0" aria-label="Jour précédent">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <div class="day-picker-dots" role="list">
+            @for (jour of jours; track trackByJour($index, jour); let i = $index) {
+              <button
+                type="button"
+                class="day-dot"
+                role="listitem"
+                [class.active]="activeJourIndex === i"
+                [class.is-complete]="isComplete(jour)"
+                (click)="selectJour(i)">
+                Jour {{ jour.numero }}
+              </button>
+            }
+          </div>
+          <button type="button" class="day-picker-arrow" (click)="jourSuivant()" [disabled]="activeJourIndex === jours.length - 1" aria-label="Jour suivant">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
+      }
+
+      @if (jours[activeJourIndex]; as jour) {
+        <div class="jour-column">
+          <h3 class="jour-header">
+            <span>Jour {{ jour.numero }}</span>
+            <span class="jour-status" [class.is-complete]="isComplete(jour)">
+              {{ getStatus(jour) }}
+            </span>
+          </h3>
+          <div class="jour-content">
+            <div class="zones-section">
+              <div class="section-title">
+                <div>
+                  <h4>Zone et ville</h4>
+                  <span class="section-hint">Affinez le périmètre de la journée.</span>
+                </div>
+                @if (peutCopierJourPrecedent(activeJourIndex)) {
+                  <button type="button" class="btn-copy-day" (click)="copierJourPrecedent(activeJourIndex)">
+                    <i class="ri-file-copy-line"></i> Reprendre le jour précédent
+                  </button>
+                }
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Zone</label>
+                  <select
+                    [(ngModel)]="jour.zoneId"
+                    (ngModelChange)="onZoneChange(jour, $event)"
+                    [name]="'zone-' + activeJourIndex"
+                    [disabled]="zones.length === 0">
+                    <option [ngValue]="null">Toutes les zones</option>
+                    @for (z of zones; track trackByZone($index, z)) {
+                      <option [ngValue]="z.idZone">{{ z.nom }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Ville</label>
+                  <select
+                    [(ngModel)]="jour.villeId"
+                    (ngModelChange)="onVilleChange(jour, $event)"
+                    [name]="'ville-' + activeJourIndex"
+                    [disabled]="getVillesForZone(jour.zoneId).length === 0">
+                    <option [ngValue]="null">{{ jour.zoneId ? 'Toutes les villes de la zone' : 'Sélectionnez d\'abord une zone' }}</option>
+                    @for (v of getVillesForZone(jour.zoneId); track trackByVille($index, v)) {
+                      <option [ngValue]="v.id">{{ v.nom }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+              @if (jour.zoneId) {
+                <p class="hint">Zone sélectionnée : {{ getZoneName(jour) }}</p>
+              }
+            </div>
+            <div class="activites-section">
+              <div class="section-title">
+                <h4>Activités du jour</h4>
+                <span class="section-hint">Maximum 5 activités, ~12h au total.</span>
+              </div>
+              @if (getActivitesDisponibles(activeJourIndex).length > 0) {
+                <div class="activites-toolbar">
+                  <span class="activites-count">{{ getRangeLabel(activeJourIndex) }}</span>
+                  <span class="activites-page-label">
+                    Page {{ getCurrentPage(activeJourIndex) }}/{{ getTotalPages(activeJourIndex) }}
+                  </span>
+                </div>
+              }
+              @if (getActivitesDisponibles(activeJourIndex).length > 0) {
+                <div class="activites-list">
+                  @for (activite of getPaginatedActivites(activeJourIndex); track trackByActivite($index, activite)) {
+                    <div
+                      class="activite-option"
+                      [class.selected]="isSelected(activeJourIndex, activite)"
+                      [class.has-image]="activite.image"
+                      (click)="toggleActivite(activeJourIndex, activite)">
+                      @if (activite.image) {
+                        <div class="activite-thumb">
+                          <img [src]="activite.image" [alt]="activite.nom" loading="lazy">
+                        </div>
+                      }
+                      <div class="activite-body">
+                        <div class="activite-header">
+                          <h5>{{ activite.nom }}</h5>
+                          @if (activite.activiteType === 'ATELIER') {
+                            <span class="badge bg-info ms-2">Atelier</span>
+                          }
+                          <div class="activite-actions">
+                            @if (activite.prix != null) {
+                              <span class="prix">
+                                {{ formatPrixBadge(activite.prix) }} {{ getPricingLabel() }}
+                              </span>
+                            }
+                          </div>
+                        </div>
+                        <p>{{ activite.description }}</p>
+                        <small>
+                          @if (activite.dureeDisplay) {
+                            <span>{{ activite.dureeDisplay }}</span>
+                          }
+                          @if (!activite.dureeDisplay && activite.dureeMinutes) {
+                            <span>{{ activite.dureeMinutes }} min</span>
+                          }
+                          @if (activite.ville) {
+                            <span> - {{ activite.ville }}</span>
+                          }
+                        </small>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="empty-panel">
+                  <p>Aucune activité disponible avec ce filtre pour le moment.</p>
+                  <small>Essayez une autre zone ou une autre ville.</small>
+                </div>
+              }
+              @if (getTotalPages(activeJourIndex) > 1) {
+                <div class="activites-pagination">
+                  <button
+                    type="button" class="pagination-button nav-button"
+                    (click)="changePage(activeJourIndex, getCurrentPage(activeJourIndex) - 1)"
+                    [disabled]="getCurrentPage(activeJourIndex) === 1">
+                    Précédent
+                  </button>
+                  <div class="pagination-pages">
+                    @for (page of getPageNumbers(activeJourIndex); track page) {
+                      <button
+                        type="button" class="pagination-button"
+                        [class.active]="page === getCurrentPage(activeJourIndex)"
+                        (click)="changePage(activeJourIndex, page)">
+                        {{ page }}
+                      </button>
+                    }
+                  </div>
+                  <button
+                    type="button" class="pagination-button nav-button"
+                    (click)="changePage(activeJourIndex, getCurrentPage(activeJourIndex) + 1)"
+                    [disabled]="getCurrentPage(activeJourIndex) === getTotalPages(activeJourIndex)">
+                    Suivant
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    }
+
+    @if (stepError) {
+      <div class="form-error">{{ stepError }}</div>
+    }
+
+    <div class="step-actions">
+      <button class="btn-prev" (click)="prev.emit()">Précédent</button>
+      <button class="btn-next" (click)="validate() && next.emit()" [disabled]="!isPlanningComplete()">Suivant</button>
+    </div>
+  </div>
+</div>

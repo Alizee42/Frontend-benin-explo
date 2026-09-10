@@ -24,6 +24,14 @@ export interface CircuitDTO {
   nonInclus: string[]; // Ce qui n'est pas inclus
 }
 
+export interface CircuitPageDTO {
+  content: CircuitDTO[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
+
 export interface PointFort {
   icon: string;
   title: string;

@@ -47,6 +47,13 @@
         </div>
       }
 
+      @if (error) {
+        <div class="load-error">
+          <i class="ri-error-warning-line"></i>
+          <span>{{ error }}</span>
+        </div>
+      }
+
       <div class="table-card">
         <app-data-table
           [columns]="tableColumns"

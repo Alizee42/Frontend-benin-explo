@@ -37,6 +37,17 @@ describe('ActivitesService', () => {
       expect(result[0].prix).toBe(1000);
     });
 
+    it('filtre les entrees null/falsy avant transformation (regression audit : transformDto retournait null as any)', () => {
+      let result: any;
+      service.getAllActivites().subscribe(list => (result = list));
+
+      const req = httpMock.expectOne('/api/activites');
+      req.flush([{ id: 1, nom: 'Rando', type: 'ACTIVITE', dureeInterne: 90 }, null]);
+
+      expect(result.length).toBe(1);
+      expect(result[0].nom).toBe('Rando');
+    });
+
     it('leaves duree/dureeDisplay undefined when dureeInterne is absent', () => {
       let result: any;
       service.getAllActivites().subscribe(list => (result = list));

@@ -3,8 +3,8 @@
   --circuit-card: #fffdfa;
   --circuit-ink: #1f2a24;
   --circuit-muted: #5f665f;
-  --circuit-green: #0f4c43;
-  --circuit-green-soft: #1d6a5e;
+  --circuit-green: var(--be-green-circuit);
+  --circuit-green-soft: var(--be-green-circuit-soft);
   --circuit-gold: #c8a86b;
 }
 
@@ -59,8 +59,8 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(900px 450px at 80% 15%, rgba(201, 168, 106, 0.3), transparent 55%),
-    linear-gradient(130deg, rgba(0, 40, 30, 0.9), rgba(0, 77, 64, 0.72)),
+    radial-gradient(900px 450px at 80% 15%, rgba(var(--be-gold-rgb), 0.3), transparent 55%),
+    linear-gradient(130deg, rgba(0, 40, 30, 0.9), rgba(var(--be-green-rgb), 0.72)),
     url('/assets/images/pendjari-national-park.jpg');
   background-size: cover;
   background-position: center;
@@ -183,14 +183,14 @@
 }
 
 .section-note.is-empty {
-  border-color: rgba(15, 76, 67, 0.18);
+  border-color: rgba(var(--be-green-circuit-rgb), 0.18);
   background: #eef5f1;
 }
 
 .loading-spinner {
   width: 44px;
   height: 44px;
-  border: 4px solid rgba(15, 76, 67, 0.18);
+  border: 4px solid rgba(var(--be-green-circuit-rgb), 0.18);
   border-top-color: var(--circuit-green);
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
@@ -203,7 +203,7 @@
 
 .filters-panel {
   background: #ffffff;
-  border: 1px solid rgba(15, 76, 67, 0.14);
+  border: 1px solid rgba(var(--be-green-circuit-rgb), 0.14);
   border-radius: 14px;
   padding: 0.7rem;
   margin-bottom: 0.95rem;
@@ -285,10 +285,10 @@
 }
 
 .filter-btn.active {
-  background: linear-gradient(135deg, #0f4c43 0%, #16675b 100%);
+  background: linear-gradient(135deg, var(--be-green-circuit) 0%, #16675b 100%);
   border-color: #145a50;
   color: #fff;
-  box-shadow: 0 8px 18px rgba(15, 76, 67, 0.28);
+  box-shadow: 0 8px 18px rgba(var(--be-green-circuit-rgb), 0.28);
 }
 
 .filter-btn.active span {

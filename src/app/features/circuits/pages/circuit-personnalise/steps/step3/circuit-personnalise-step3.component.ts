@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
-  OptionsGenerales, HebergementState,
+  OptionsGenerales, HebergementState, ContactInfo,
   TRANSPORT_OPTIONS, TransportOption
 } from '../../circuit-personnalise.types';
 import { TarifsCircuitPersonnaliseDTO } from '../../../../../../services/tarifs-circuit-personnalise.service';
@@ -11,7 +11,7 @@ import { HebergementDTO } from '../../../../../../services/hebergements.service'
 import { ReservationHebergementService } from '../../../../../../services/reservation-hebergement.service';
 import {
   getTarifValue, getTransportDailyRate, getPricingCurrencyLabel, getTransportLabel,
-  getNombreNuits, toIsoDate, formatDateLabel, parseDate
+  getNombreNuits, toIsoDate, formatDateLabel, parseDate, isValidEmail, isValidPhone
 } from '../../circuit-personnalise.utils';
 import { PricePipe } from '../../../../../../shared/pipes/price.pipe';
 
@@ -30,11 +30,18 @@ export class CircuitPersonnaliseStep3Component implements OnInit {
   @Input() nombreJours = 1;
   @Input() initialOptions: OptionsGenerales = { transportId: '', guide: false, chauffeur: false, pensionComplete: false };
   @Input() initialHebergementState: HebergementState = { mode: 'auto', hebergementId: null, dateArrivee: '', dateDepart: '' };
+  @Input() contact: ContactInfo = { nom: '', prenom: '', email: '', telephone: '', message: '' };
+  @Input() isSubmitting = false;
+  @Input() submitSuccess = false;
+  @Input() submitError = false;
+  @Input() submitErrorMessage = '';
 
   @Output() optionsChange = new EventEmitter<OptionsGenerales>();
   @Output() hebergementStateChange = new EventEmitter<HebergementState>();
+  @Output() contactChange = new EventEmitter<ContactInfo>();
   @Output() prev = new EventEmitter<void>();
-  @Output() next = new EventEmitter<void>();
+  @Output() formSubmit = new EventEmitter<void>();
+  @Output() goHome = new EventEmitter<void>();
 
   private reservationService = inject(ReservationHebergementService);
   private router = inject(Router);
@@ -47,7 +54,8 @@ export class CircuitPersonnaliseStep3Component implements OnInit {
   isCheckingAvailability = false;
   hebergementAvailability: boolean | null = null;
   hebergementAvailabilityMessage = '';
-  stepError = '';
+  stepErrorHebergement = '';
+  stepErrorContact = '';
 
   private availabilityRequestId = 0;
 
@@ -57,47 +65,82 @@ export class CircuitPersonnaliseStep3Component implements OnInit {
     this.selectedHebergementId = this.initialHebergementState.hebergementId;
     this.hebergementDateArrivee = this.initialHebergementState.dateArrivee;
     this.hebergementDateDepart = this.initialHebergementState.dateDepart;
+    this.contact = { ...this.contact };
 
     if (this.hebergementMode === 'choisir' && this.selectedHebergementId) {
       this.checkAvailability();
     }
   }
 
-  /** Called by parent via @ViewChild before navigating forward. */
+  /** Called from this component's own template on submit. */
   validate(): boolean {
-    this.stepError = '';
+    const okHebergement = this.validateHebergement();
+    const okContact = this.validateContact();
+    return okHebergement && okContact;
+  }
+
+  private validateHebergement(): boolean {
+    this.stepErrorHebergement = '';
     if (this.hebergementMode !== 'choisir') return true;
 
     if (!this.selectedHebergementId) {
-      this.stepError = 'Sélectionnez un hébergement ou laissez notre équipe vous proposer une option.';
+      this.stepErrorHebergement = 'Sélectionnez un hébergement ou laissez notre équipe vous proposer une option.';
       return false;
     }
     if (!this.hebergementDateArrivee || !this.hebergementDateDepart) {
-      this.stepError = 'Choisissez la date d\'arrivée et la date de départ pour cet hébergement.';
+      this.stepErrorHebergement = 'Choisissez la date d\'arrivée et la date de départ pour cet hébergement.';
       return false;
     }
     if (this.getNombreNuits() <= 0) {
-      this.stepError = 'La date de départ doit être après la date d\'arrivée.';
+      this.stepErrorHebergement = 'La date de départ doit être après la date d\'arrivée.';
       return false;
     }
     if (this.isCheckingAvailability) {
-      this.stepError = 'Vérification de la disponibilité en cours, veuillez patienter.';
+      this.stepErrorHebergement = 'Vérification de la disponibilité en cours, veuillez patienter.';
       return false;
     }
     if (this.hebergementAvailability === false) {
-      this.stepError = this.hebergementAvailabilityMessage || 'Cet hébergement n\'est pas disponible pour ces dates.';
+      this.stepErrorHebergement = this.hebergementAvailabilityMessage || 'Cet hébergement n\'est pas disponible pour ces dates.';
       return false;
     }
     if (this.hebergementAvailability == null) {
-      this.stepError = 'Veuillez vérifier la disponibilité de l\'hébergement avant de continuer.';
+      this.stepErrorHebergement = 'Veuillez vérifier la disponibilité de l\'hébergement avant de continuer.';
       return false;
     }
     return true;
   }
 
+  private validateContact(): boolean {
+    this.stepErrorContact = '';
+    const c = this.contact;
+    if (!c.nom.trim() || !c.prenom.trim() || !c.telephone.trim()) {
+      this.stepErrorContact = 'Veuillez remplir tous les champs obligatoires.';
+      return false;
+    }
+    if (!c.email.trim() || !isValidEmail(c.email.trim())) {
+      this.stepErrorContact = 'Veuillez saisir une adresse email valide.';
+      return false;
+    }
+    if (!isValidPhone(c.telephone.trim())) {
+      this.stepErrorContact = 'Veuillez saisir un numéro de téléphone valide (8 à 15 chiffres).';
+      return false;
+    }
+    return true;
+  }
+
+  onContactFieldChange(): void {
+    this.stepErrorContact = '';
+    this.contactChange.emit({ ...this.contact });
+  }
+
+  onSubmit(): void {
+    if (!this.validate()) return;
+    this.formSubmit.emit();
+  }
+
   setHebergementMode(mode: 'auto' | 'choisir'): void {
     this.hebergementMode = mode;
-    this.stepError = '';
+    this.stepErrorHebergement = '';
     if (mode === 'auto') {
       this.selectedHebergementId = null;
       this.hebergementDateArrivee = '';
@@ -111,13 +154,13 @@ export class CircuitPersonnaliseStep3Component implements OnInit {
 
   onHebergementChange(id: number | null): void {
     this.selectedHebergementId = id;
-    this.stepError = '';
+    this.stepErrorHebergement = '';
     this.emitHebergementState();
     this.checkAvailability();
   }
 
   onDatesChange(): void {
-    this.stepError = '';
+    this.stepErrorHebergement = '';
     this.emitHebergementState();
     this.checkAvailability();
   }

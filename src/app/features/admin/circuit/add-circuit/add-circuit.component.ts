@@ -180,6 +180,10 @@ export class AddCircuitComponent implements OnInit, OnDestroy {
       : `Maximum 10 images (${event.count} sélectionnées)`;
   }
 
+  onImageInvalid(event: { message: string }): void {
+    this.errors['image'] = event.message;
+  }
+
   canGoNext(): boolean {
     switch (this.currentStep) {
       case 1: return this.isStep1Valid();

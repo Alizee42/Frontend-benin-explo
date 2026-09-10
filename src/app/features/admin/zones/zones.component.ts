@@ -169,7 +169,9 @@ export class ZonesComponent implements OnInit {
     this.pendingDeleteId = null;
     this.zonesService.delete(id).subscribe({
       next: () => this.loadZones(),
-      error: () => { this.error = 'Impossible de supprimer cette zone.'; }
+      error: (error) => {
+        this.error = error?.error?.message || 'Impossible de supprimer cette zone.';
+      }
     });
   }
 
@@ -178,6 +180,7 @@ export class ZonesComponent implements OnInit {
       return;
     }
 
+    this.error = '';
     this.pendingDeleteId = id;
     this.confirmDeleteOpen = true;
   }

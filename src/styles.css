@@ -13,9 +13,60 @@
 	--be-light: #FFFFFF;
 	/* Blanc */
 	--be-brown: #3B2F1C;
+	/* Vert olive foncé (thème circuit) : distinct de --be-green (plus turquoise), utilisé sur
+	   les pages circuit-detail / circuit-details (admin) et par un groupe de pages admin qui
+	   utilisaient #17231f (teinte quasi identique). Centralisé ici, aucun changement visuel. */
+	--be-green-olive: #1f3f2d;
+	/* Vert quasi-noir utilisé comme couleur de texte (titres) dans plusieurs pages admin —
+	   teinte proche de --be-green-olive mais distincte, gardée séparée pour ne pas altérer
+	   le rendu existant. Centralisé ici : avant, répété tel quel dans 6 fichiers. */
+	--be-green-ink: #17231f;
+	/* Vert utilisé sur la liste publique des circuits (circuits-list) : teinte distincte de
+	   --be-green, avec sa propre variante "soft" pour les survols/accents. Centralisé ici. */
+	--be-green-circuit: #0f4c43;
+	--be-green-circuit-soft: #1d6a5e;
+	/* Vert de bouton/action (gradient), utilisé pour des CTA/icônes (register, mon circuit
+	   personnalisé) — distinct de --be-green. Répété tel quel dans styles.css lui-même avant
+	   cette centralisation, à quelques lignes de la vraie variable --be-green. */
+	--be-green-action: #145746;
+	--be-green-action-light: #1e7f67;
+	/* Vert au survol des boutons primaires — répété en dur dans styles.css et 5 fichiers admin,
+	   jamais dérivé de --be-green. Centralisé ici. */
+	--be-green-hover: #2e5c4a;
+	/* Vert de survol pour les gradients CTA (contact, actualites-list) — dégradé plus sombre,
+	   répété à l'identique dans 2 fichiers avant cette centralisation. */
+	--be-green-cta-hover-start: #003830;
+	--be-green-cta-hover-end: #005545;
+
+	/* Variantes RGB des couleurs de marque ci-dessus, pour les usages en transparence
+	   (rgba(var(--be-green-rgb), 0.1)) — évite de recoder "0, 77, 64" en dur à chaque endroit.
+	   CSS ne permet pas d'extraire les canaux RGB d'une valeur hex nativement, d'où ces
+	   variables dédiées en plus des hex ci-dessus. */
+	--be-green-rgb: 0, 77, 64;
+	--be-gold-rgb: 201, 168, 106;
+	--be-green-action-rgb: 20, 87, 70;
+	--be-green-olive-rgb: 31, 63, 45;
+	--be-green-circuit-rgb: 15, 76, 67;
+	--be-green-hover-rgb: 46, 92, 74;
+
 	--admin-content-max: 1760px;
 	--admin-content-pad-x: 0.8rem;
 	--admin-content-pad-y: 1.2rem;
+
+	/* Couleurs de statut (badges : confirmé/payé, en attente, refusé/annulé, info, neutre).
+	   Palette unique, réutilisée partout — avant, 3 systèmes différents cohabitaient
+	   (admin réservations, data-table partagé, pages client) avec des teintes légèrement
+	   décalées pour le même concept. */
+	--status-success-bg: #d4edda;
+	--status-success-text: #155724;
+	--status-warning-bg: #fff3cd;
+	--status-warning-text: #856404;
+	--status-danger-bg: #f8d7da;
+	--status-danger-text: #721c24;
+	--status-info-bg: #d1ecf1;
+	--status-info-text: #0c5460;
+	--status-secondary-bg: #e2e3e5;
+	--status-secondary-text: #383d41;
 }
 
 html,
@@ -32,6 +83,16 @@ app-root {
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
+}
+
+/* The header component's host element must also participate in the sticky flow: without
+   flex-shrink:0 a flex column can compress/reflow it during layout, which breaks the inner
+   .site-header's position:sticky (observed: header scrolls off instead of sticking to top). */
+app-header {
+	flex-shrink: 0;
+	position: sticky;
+	top: 0;
+	z-index: 1000;
 }
 
 main {
@@ -293,9 +354,9 @@ input, textarea, select {
 	display: grid !important;
 	place-items: center !important;
 	background:
-		radial-gradient(circle at top, rgba(201, 168, 106, 0.32), transparent 60%),
-		linear-gradient(135deg, #145746 0%, #1e7f67 100%) !important;
-	box-shadow: 0 16px 36px rgba(20, 87, 70, 0.24) !important;
+		radial-gradient(circle at top, rgba(var(--be-gold-rgb), 0.32), transparent 60%),
+		linear-gradient(135deg, var(--be-green-action) 0%, var(--be-green-action-light) 100%) !important;
+	box-shadow: 0 16px 36px rgba(var(--be-green-action-rgb), 0.24) !important;
 	color: #fff !important;
 	font-size: 2rem !important;
 }
@@ -384,7 +445,7 @@ input, textarea, select {
 	padding: 0.95rem 1rem !important;
 	border-radius: 16px !important;
 	background: #fff8ea !important;
-	border: 1px solid rgba(201, 168, 106, 0.2) !important;
+	border: 1px solid rgba(var(--be-gold-rgb), 0.2) !important;
 	color: #6b4f10 !important;
 }
 
@@ -428,9 +489,9 @@ input, textarea, select {
 }
 
 .register-modal .btn-primary {
-	background: linear-gradient(135deg, #145746 0%, #1e7f67 100%) !important;
+	background: linear-gradient(135deg, var(--be-green-action) 0%, var(--be-green-action-light) 100%) !important;
 	color: #fff !important;
-	box-shadow: 0 14px 30px rgba(20, 87, 70, 0.24) !important;
+	box-shadow: 0 14px 30px rgba(var(--be-green-action-rgb), 0.24) !important;
 }
 
 @media (max-width: 640px) {
@@ -487,7 +548,7 @@ form { padding: 18px 20px 24px; }
 
 /* Use the same primary/secondary modal button styles as other admin forms (blue primary) */
 .modal .btn-primary { background: var(--be-green); color: white; border-radius: 8px; padding:10px 16px; border:none; font-weight:600; }
-.modal .btn-primary:hover { background: #2e5c4a; }
+.modal .btn-primary:hover { background: var(--be-green-hover); }
 .modal .btn-secondary { background: #6c757d; color: white; border-radius:8px; padding:10px 14px; border:none; }
 
 /* Also target modal overlays/content variants so projected forms (child components)

@@ -38,6 +38,23 @@ describe('CircuitService', () => {
     req.flush([]);
   });
 
+  it('getActiveCircuitsPage() calls GET /api/circuits/actifs/page avec page, size et zoneId', () => {
+    service.getActiveCircuitsPage(1, 6, 3).subscribe();
+    const req = httpMock.expectOne(r => r.url === '/api/circuits/actifs/page');
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('page')).toBe('1');
+    expect(req.request.params.get('size')).toBe('6');
+    expect(req.request.params.get('zoneId')).toBe('3');
+    req.flush({ content: [], page: 1, size: 6, totalElements: 0, totalPages: 0 });
+  });
+
+  it('getActiveCircuitsPage() omet zoneId quand aucune zone n est selectionnee', () => {
+    service.getActiveCircuitsPage(0, 6, null).subscribe();
+    const req = httpMock.expectOne(r => r.url === '/api/circuits/actifs/page');
+    expect(req.request.params.has('zoneId')).toBeFalse();
+    req.flush({ content: [], page: 0, size: 6, totalElements: 0, totalPages: 0 });
+  });
+
   it('createCircuit() posts to /api/circuits', () => {
     service.createCircuit({ titre: 'Test' } as any).subscribe();
     const req = httpMock.expectOne('/api/circuits');

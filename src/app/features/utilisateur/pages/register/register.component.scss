@@ -246,9 +246,9 @@
   display: grid;
   place-items: center;
   background:
-    radial-gradient(circle at top, rgba(201, 168, 106, 0.32), transparent 60%),
-    linear-gradient(135deg, #145746 0%, #1e7f67 100%);
-  box-shadow: 0 16px 36px rgba(20, 87, 70, 0.24);
+    radial-gradient(circle at top, rgba(var(--be-gold-rgb), 0.32), transparent 60%),
+    linear-gradient(135deg, var(--be-green-action) 0%, var(--be-green-action-light) 100%);
+  box-shadow: 0 16px 36px rgba(var(--be-green-action-rgb), 0.24);
   color: #fff;
   font-size: 2rem;
 }
@@ -329,7 +329,7 @@
   padding: 0.95rem 1rem;
   border-radius: 16px;
   background: #fff8ea;
-  border: 1px solid rgba(201, 168, 106, 0.2);
+  border: 1px solid rgba(var(--be-gold-rgb), 0.2);
   color: #6b4f10;
 
   i {
@@ -367,9 +367,9 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #145746 0%, #1e7f67 100%);
+  background: linear-gradient(135deg, var(--be-green-action) 0%, var(--be-green-action-light) 100%);
   color: #fff;
-  box-shadow: 0 14px 30px rgba(20, 87, 70, 0.24);
+  box-shadow: 0 14px 30px rgba(var(--be-green-action-rgb), 0.24);
 }
 
 .btn:hover {

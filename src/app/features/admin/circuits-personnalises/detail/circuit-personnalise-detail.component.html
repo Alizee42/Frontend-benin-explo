@@ -66,7 +66,7 @@
               <div class="info-item"><label>Total estime</label><span class="prix">{{ formatPrix(demande.prixEstime, demande.devisePrixEstime) }}</span></div>
             </div>
           </section>
-          @if (demande.prixFinal || demande.statutPaiement || demande.paypalOrderId || demande.paypalCaptureId) {
+          @if (demande.prixFinal || demande.statutPaiement || demande.paypalOrderId || demande.paypalCaptureId || demande.circuitCreeId) {
             <section class="info-section">
               <h3>Suivi paiement</h3>
               <div class="info-grid">
@@ -98,6 +98,12 @@
                   <div class="info-item">
                     <label>Capture PayPal</label>
                     <span>{{ demande.paypalCaptureId }}</span>
+                  </div>
+                }
+                @if (demande.circuitCreeId) {
+                  <div class="info-item">
+                    <label>Circuit cree</label>
+                    <span>#{{ demande.circuitCreeId }} (inactif, non visible publiquement)</span>
                   </div>
                 }
               </div>

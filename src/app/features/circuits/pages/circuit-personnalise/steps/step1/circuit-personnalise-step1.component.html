@@ -30,6 +30,15 @@
       </select>
     </div>
 
+    <div class="duree-selector">
+      <label for="dateVoyageSouhaitee">Date de départ souhaitée (optionnel) :</label>
+      <input type="date" id="dateVoyageSouhaitee"
+        [min]="minDate"
+        [ngModel]="dateVoyageSouhaitee"
+        (ngModelChange)="dateVoyageSouhaiteeChange.emit($event)">
+      <small class="field-hint">Une estimation suffit, elle nous aide à mieux préparer votre devis.</small>
+    </div>
+
     <div class="step-actions">
       <button class="btn-next" (click)="next.emit()" [disabled]="catalogLoading">
         {{ catalogLoading ? 'Chargement...' : 'Suivant' }}

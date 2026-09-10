@@ -99,6 +99,13 @@ export class MesReservationsComponent implements OnInit {
       action: 'pay',
       class: 'btn-success',
       condition: (item: CircuitPersonnaliseDTO) => this.canPayCustomCircuit(item)
+    },
+    {
+      label: 'Voir mon circuit',
+      icon: 'ri-map-2-line',
+      action: 'view-circuit',
+      class: 'btn-view',
+      condition: (item: CircuitPersonnaliseDTO) => !!item.circuitCreeId
     }
   ];
 
@@ -217,6 +224,8 @@ export class MesReservationsComponent implements OnInit {
   onCustomCircuitAction(event: { action: string; item: CircuitPersonnaliseDTO }): void {
     if (event.action === 'pay' && event.item.id) {
       this.router.navigate(['/paiement/circuit-personnalise', event.item.id]);
+    } else if (event.action === 'view-circuit' && event.item.id) {
+      this.router.navigate(['/mes-reservations/circuit-personnalise', event.item.id]);
     }
   }
 
@@ -235,6 +244,7 @@ export class MesReservationsComponent implements OnInit {
     if (s === 'REFUSE') return 'Refuse';
     if (s === 'EN_TRAITEMENT') return 'En traitement';
     if (s === 'TERMINE') return 'Termine';
+    if (s === 'EXPIRE') return 'Expire (non paye a temps)';
     return 'En attente';
   }
 
@@ -275,6 +285,7 @@ export class MesReservationsComponent implements OnInit {
       case 'EN_TRAITEMENT': return 'badge-info';
       case 'REFUSE': return 'badge-danger';
       case 'TERMINE': return 'badge-secondary';
+      case 'EXPIRE': return 'badge-danger';
       default: return 'badge-warning';
     }
   }

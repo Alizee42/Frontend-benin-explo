@@ -11,7 +11,7 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(900px 450px at 15% 15%, rgba(201, 168, 106, 0.32), transparent 55%),
+    radial-gradient(900px 450px at 15% 15%, rgba(var(--be-gold-rgb), 0.32), transparent 55%),
     linear-gradient(135deg, rgba(0, 40, 30, 0.92), rgba(0, 90, 70, 0.72)),
     url('/assets/images/esclaves.jpg');
   background-size: cover;
@@ -44,7 +44,7 @@
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #C9A86A;
+  color: var(--be-gold);
 }
 
 .hero-section h1 {
@@ -56,7 +56,7 @@
 }
 
 .hero-accent {
-  color: #C9A86A;
+  color: var(--be-gold);
 }
 
 .hero-section p {
@@ -122,7 +122,7 @@
 }
 
 .catalog-note.is-loading {
-  border-color: rgba(201, 168, 106, 0.35);
+  border-color: rgba(var(--be-gold-rgb), 0.35);
   background: #fff8eb;
   color: #6b4f1d;
 }
@@ -210,6 +210,8 @@
   grid-template-columns: 1fr;
   gap: 1.15rem;
   align-items: start;
+  max-width: 1320px;
+  margin: 0 auto;
 }
 
 .step-aside {
@@ -218,7 +220,7 @@
 
 @media (min-width: 992px) {
   .step-grid {
-    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-columns: minmax(0, 1fr) 300px;
   }
 
   .step-aside {
@@ -524,7 +526,7 @@
     color: var(--be-green);
     font-size: 1.15rem;
     margin-bottom: 0;
-    border-bottom: 1px solid rgba(201, 168, 106, 0.4);
+    border-bottom: 1px solid rgba(var(--be-gold-rgb), 0.4);
     padding-bottom: 0.75rem;
     cursor: pointer;
     display: flex;
@@ -919,7 +921,7 @@
   &.selected {
     border-color: var(--be-green);
     background: #f0f8f0;
-    box-shadow: 0 10px 20px rgba(46, 92, 74, 0.12);
+    box-shadow: 0 10px 20px rgba(var(--be-green-hover-rgb), 0.12);
   }
 
   &:hover {
@@ -1019,7 +1021,7 @@
   color: #334155;
 
   &.is-loading {
-    border-color: rgba(201, 168, 106, 0.35);
+    border-color: rgba(var(--be-gold-rgb), 0.35);
     background: #fff8eb;
     color: #6b4f1d;
   }
@@ -1356,8 +1358,8 @@
 }
 
 .error-message {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--status-danger-bg);
+  color: var(--status-danger-text);
   padding: 1rem;
   border-radius: 8px;
   text-align: center;
@@ -1502,8 +1504,8 @@
   margin-bottom: 2rem;
 
   .success-message {
-    background: #d4edda;
-    color: #155724;
+    background: var(--status-success-bg);
+    color: var(--status-success-text);
     padding: 1rem;
     border-radius: 8px;
     border: 1px solid #c3e6cb;
@@ -1512,8 +1514,8 @@
   }
 
   .error-message {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--status-danger-bg);
+    color: var(--status-danger-text);
     padding: 1rem;
     border-radius: 8px;
     border: 1px solid #f5c6cb;
@@ -1718,16 +1720,16 @@
 }
 
 .btn-toggle {
-  background: rgba(201, 168, 106, 0.2);
+  background: rgba(var(--be-gold-rgb), 0.2);
   color: var(--be-dark);
-  border: 1px solid rgba(201, 168, 106, 0.4);
+  border: 1px solid rgba(var(--be-gold-rgb), 0.4);
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
   font-size: 0.85rem;
   cursor: pointer;
 
   &:hover {
-    background: rgba(201, 168, 106, 0.35);
+    background: rgba(var(--be-gold-rgb), 0.35);
   }
 }
 

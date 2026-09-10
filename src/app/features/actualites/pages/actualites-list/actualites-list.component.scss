@@ -43,8 +43,8 @@
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(900px 450px at 80% 10%, rgba(201, 168, 106, 0.32), transparent 55%),
-    linear-gradient(130deg, rgba(0, 77, 64, 0.88), rgba(0, 51, 45, 0.75)),
+    radial-gradient(900px 450px at 80% 10%, rgba(var(--be-gold-rgb), 0.32), transparent 55%),
+    linear-gradient(130deg, rgba(var(--be-green-rgb), 0.88), rgba(0, 51, 45, 0.75)),
     url('/assets/images/culture.jpg');
   background-size: cover;
   background-position: center;
@@ -167,7 +167,7 @@
   border-radius: 28px;
   background: #fff;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
-  border: 1px solid rgba(201, 168, 106, 0.2);
+  border: 1px solid rgba(var(--be-gold-rgb), 0.2);
   margin-bottom: 3rem;
 }
 
@@ -192,7 +192,7 @@
 .featured-media-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(0,77,64,0.18) 0%, transparent 60%);
+  background: linear-gradient(135deg, rgba(var(--be-green-rgb),0.18) 0%, transparent 60%);
   pointer-events: none;
 }
 
@@ -339,7 +339,7 @@
   padding: 0.35rem 0.65rem;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.92);
-  color: #0f4c43;
+  color: var(--be-green-circuit);
   font-size: 0.74rem;
   font-weight: 800;
   backdrop-filter: blur(4px);
@@ -402,7 +402,7 @@
   border: 0;
   border-radius: 999px;
   padding: 0.88rem 1.5rem;
-  background: linear-gradient(135deg, #004D40 0%, #006b5b 100%);
+  background: linear-gradient(135deg, var(--be-green) 0%, #006b5b 100%);
   color: #fff;
   text-decoration: none;
   font-weight: 700;
@@ -410,14 +410,14 @@
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   align-self: flex-start;
-  box-shadow: 0 6px 18px rgba(0, 77, 64, 0.28);
+  box-shadow: 0 6px 18px rgba(var(--be-green-rgb), 0.28);
 
   i { font-size: 1rem; }
 
   &:hover {
-    background: linear-gradient(135deg, #003830 0%, #005545 100%);
+    background: linear-gradient(135deg, var(--be-green-cta-hover-start) 0%, var(--be-green-cta-hover-end) 100%);
     transform: translateY(-2px);
-    box-shadow: 0 10px 26px rgba(0, 77, 64, 0.35);
+    box-shadow: 0 10px 26px rgba(var(--be-green-rgb), 0.35);
   }
 }
 

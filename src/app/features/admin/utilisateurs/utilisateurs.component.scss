@@ -151,7 +151,7 @@ form {
         color: white;
 
         &:hover:not(:disabled) {
-          background: #2e5c4a;
+          background: var(--be-green-hover);
         }
 
         &:disabled {

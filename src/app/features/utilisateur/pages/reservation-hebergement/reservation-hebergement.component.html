@@ -305,6 +305,9 @@
                       </div>
                       <div class="summary-section">
                         <h4><i class="ri-calendar-line"></i> Details du sejour</h4>
+                        @if (hebergement?.quartier) {
+                          <div class="summary-item"><span>Quartier:</span><span>{{ hebergement?.quartier }}</span></div>
+                        }
                         <div class="summary-item"><span>Arrivee:</span><span>{{ reservation.dateArrivee | date:'dd/MM/yyyy' }}</span></div>
                         <div class="summary-item"><span>Depart:</span><span>{{ reservation.dateDepart | date:'dd/MM/yyyy' }}</span></div>
                         <div class="summary-item"><span>Nombre de nuits:</span><span>{{ getNombreNuits() }}</span></div>
@@ -314,7 +317,7 @@
                         }
                       </div>
                       <div class="summary-section total-section">
-                        <div class="summary-item total"><span><i class="ri-calculator-line"></i> Total:</span><span>{{ getTotalPrice() | number:'1.2-2' }} EUR</span></div>
+                        <div class="summary-item total"><span><i class="ri-calculator-line"></i> Total:</span><span>{{ getTotalPrice() | price }}</span></div>
                       </div>
                     </div>
                     <div class="account-prefill">

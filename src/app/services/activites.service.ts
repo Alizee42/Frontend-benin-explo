@@ -42,7 +42,7 @@ export class ActivitesService {
 
   getAllActivites(): Observable<Activite[]> {
     return this.http.get<any[]>(this.apiUrl).pipe(
-      map(list => list.map(dto => this.transformDto(dto)))
+      map(list => (list ?? []).filter(dto => !!dto).map(dto => this.transformDto(dto)))
     );
   }
 
@@ -97,7 +97,6 @@ export class ActivitesService {
   }
 
   private transformDto(dto: any): Activite {
-    if (!dto) return null as any;
     const minutes = dto.dureeInterne != null ? dto.dureeInterne : null;
     let dureeDisplay: string | undefined = undefined;
     if (minutes != null) {

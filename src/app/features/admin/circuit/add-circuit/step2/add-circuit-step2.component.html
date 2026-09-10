@@ -1,4 +1,7 @@
 <div class="media-section">
+  @if (errors['image']) {
+    <span class="error-text">{{ errors['image'] }}</span>
+  }
   <div class="form-group">
     <label>Image principale *</label>
     <div class="file-upload-area" [class.has-file]="previewHero">

@@ -1153,15 +1153,15 @@
 
 .avail-ok {
   @extend .availability-check;
-  background: #d4edda;
-  color: #155724;
+  background: var(--status-success-bg);
+  color: var(--status-success-text);
   i { color: #28a745; }
 }
 
 .avail-error {
   @extend .availability-check;
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--status-danger-bg);
+  color: var(--status-danger-text);
   i { color: #dc3545; }
 }
 
